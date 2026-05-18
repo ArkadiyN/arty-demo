@@ -34,3 +34,7 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+*:Zone.Identifier
+
+# Claude Code local settings (machine-specific, never commit)
+.claude/settings.local.json
