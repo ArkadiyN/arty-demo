@@ -1,6 +1,8 @@
-______________________________________________________________________
-
-## name: typecheck description: Run static type checking on Python source using ty (Astral's type checker). Use when the user wants to check types, fix type errors, or enforce static typing in this project. allowed-tools: Bash, Read, Edit
+---
+name: typecheck
+description: Run static type checking on Python source using ty (Astral's type checker). Use when the user wants to check types, fix type errors, or enforce static typing in this project.
+allowed-tools: Bash, Read, Edit
+---
 
 Run `ty check` on Python source files and surface any type errors.
 

@@ -1,6 +1,8 @@
-______________________________________________________________________
-
-## name: process-pdf description: Extract images from a PDF and optionally generate a markdown file with LaTeX formulas and inline image references. Use when the user wants to process a PDF document in this project. allowed-tools: Bash
+---
+name: process-pdf
+description: Extract images from a PDF and optionally generate a markdown file with LaTeX formulas and inline image references. Use when the user wants to process a PDF document in this project.
+allowed-tools: Bash
+---
 
 Extract images and/or generate markdown from a PDF file in this project.
 

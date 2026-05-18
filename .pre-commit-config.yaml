@@ -17,7 +17,7 @@ repos:
       - id: mdformat
         name: mdformat
         language: system
-        entry: uv run mdformat --extensions gfm
+        entry: uv run mdformat --extensions gfm --extensions frontmatter
         types: [markdown]
 
       - id: detect-secrets

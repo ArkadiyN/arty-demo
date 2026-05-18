@@ -92,7 +92,7 @@ _analyze_image_for_formula = _mod._analyze_image_for_formula
 extract_pdf_images = _mod.extract_pdf_images
 generate_markdown = _mod.generate_markdown
 
-REAL_PDF = Path(__file__).parent / "ARAET-TR-07001" / "ADA462991.pdf"
+REAL_PDF = Path(__file__).parent / "pdf-sample" / "ADA462991.pdf"
 
 
 # ── Block / span construction helpers ─────────────────────────────────────────

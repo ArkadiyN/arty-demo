@@ -7,6 +7,7 @@ ______________________________________________________________________
 ## 1. Branch Management
 
 - **NEVER** commit or push directly to the `main` or `master` branch.
+- **ALWAYS** use worktrees.
 - Before starting any task, check the current branch. If you are on `main`, create a new feature branch using a descriptive name based on the task (e.g., `feature/translate-ui`, `fix/mcp-playwright`).
 - All development, testing, and file modifications must happen exclusively on this feature branch.
 
