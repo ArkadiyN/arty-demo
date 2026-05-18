@@ -1,0 +1,28 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff
+        language: system
+        entry: uv run ruff check --fix
+        types: [python]
+
+      - id: ty
+        name: ty
+        language: system
+        entry: uvx ty check --python .venv
+        pass_filenames: false
+        types: [python]
+
+      - id: mdformat
+        name: mdformat
+        language: system
+        entry: uv run mdformat --extensions gfm
+        types: [markdown]
+
+      - id: detect-secrets
+        name: detect-secrets
+        language: system
+        entry: uv run detect-secrets-hook --baseline .secrets.baseline
+        exclude: '(\.venv|\.ruff_cache|\.pytest_cache|uv\.lock)(/|$)'
+        pass_filenames: true
