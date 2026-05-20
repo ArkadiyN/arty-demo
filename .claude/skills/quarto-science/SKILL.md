@@ -44,7 +44,10 @@ Section order:
 
 ## Rendering
 
+`QUARTO_PYTHON` must point at the project venv so Quarto uses installed packages:
+
 ```bash
+set -a; source .env; set +a
 quarto render experiment/<modelname>/<modelname>.qmd
 ```
 
