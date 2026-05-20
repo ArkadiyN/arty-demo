@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Bash",
+      "hooks": [{
+        "type": "command",
+        "command": "bash -c 'if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE \"git (push|commit).*(main|master)\"; then echo \"BLOCKED: direct commit/push to main\"; exit 1; fi'"
+      }]
+    }]
+  }
+}

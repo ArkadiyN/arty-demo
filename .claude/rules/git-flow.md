@@ -1,6 +1,7 @@
-______________________________________________________________________
-
-## name: Git-Flow-Rules description: This file contains the Git and commit workflow rules for the project
+---
+name: Git-Flow-Rules
+description: This file contains the Git and commit workflow rules for the project
+---
 
 # Git and Commit Workflow Rules
 
