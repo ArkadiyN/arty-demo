@@ -53,6 +53,15 @@ _page_is_image_based  (real fitz pages)
   • Returns True when a page carries a full-page embedded JPEG (>50 % coverage).
   • Returns False for pages with only vector text and no large images.
 
+Vision pipeline  (Anthropic client mocked, real fitz pages)
+  • generate_markdown(analyze_formulas=True) calls client.messages.create
+    exactly once per image-based page — verifies the SDK is wired into the loop.
+  • A page whose response contains [HAS_FIGURE] causes the page image to be
+    saved to images/ and the [FIGURE] token to be replaced with a Markdown
+    image reference in the output.
+  • Text returned by the mocked model is present verbatim in the output
+    markdown — verifies the response is not discarded.
+
 Integration — real PDF on disk  (pytest.mark.integration, skipped if absent)
   • extract_pdf_images (heuristic path) returns 0 for ADA462991.pdf: every
     embedded image in that PDF is a full-page background scan that the
@@ -60,6 +69,9 @@ Integration — real PDF on disk  (pytest.mark.integration, skipped if absent)
   • generate_markdown (heuristic path) does NOT emit image references for
     ADA462991.pdf — page-background scans are not surfaced in the output.
   • generate_markdown produces at least one heading line (# …).
+  • generate_markdown(analyze_formulas=True) calls the live Anthropic API and
+    produces a non-empty markdown file containing recognised text — skipped
+    when no Anthropic credentials are available.
   • _assert_not_scanned does NOT reject ADA462991.pdf: despite every page
     being stored as a full-page JPEG, the OCR text layer means the function
     correctly passes it through.
@@ -69,6 +81,7 @@ Integration — real PDF on disk  (pytest.mark.integration, skipped if absent)
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -391,6 +404,72 @@ class TestAssertNotScanned:
             _assert_not_scanned(_doc(_image_page()))
 
 
+def _has_anthropic_auth():
+    """True when Anthropic credentials are available (OAuth token or API key)."""
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return True
+    creds = Path(os.path.expanduser("~/.claude/.credentials.json"))
+    if creds.exists():
+        try:
+            data = json.loads(creds.read_text())
+            return bool(data.get("claudeAiOauth", {}).get("accessToken"))
+        except Exception:
+            pass
+    return False
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Vision pipeline — mocked Anthropic client, real fitz pages
+# ══════════════════════════════════════════════════════════════════════════════
+
+@pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
+class TestVisionPipeline:
+    """Exercises the --analyze-formulas path end-to-end.
+
+    Real fitz pages are used (page rendering is not mocked), but the Anthropic
+    client is a MagicMock so no network calls are made.
+    """
+
+    def _mock_client(self, reply="Extracted page text."):
+        c = MagicMock()
+        c.messages.create.return_value.content = [MagicMock(text=reply)]
+        return c
+
+    def test_sdk_called_for_every_image_based_page(self, tmp_path):
+        client = self._mock_client()
+        with patch.object(_mod, "_get_anthropic_client", return_value=client):
+            generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
+        doc = fitz.open(str(REAL_PDF))
+        expected = sum(1 for i in range(len(doc)) if _page_is_image_based(doc[i]))
+        assert client.messages.create.call_count == expected
+
+    def test_has_figure_response_saves_image_and_embeds_reference(self, tmp_path):
+        # First call signals a figure; all subsequent calls return plain text.
+        calls = [0]
+
+        def _side_effect(*args, **kwargs):
+            calls[0] += 1
+            reply = "Content with [FIGURE] marker.\n[HAS_FIGURE]" if calls[0] == 1 else "Plain text."
+            r = MagicMock()
+            r.content = [MagicMock(text=reply)]
+            return r
+
+        client = MagicMock()
+        client.messages.create.side_effect = _side_effect
+        with patch.object(_mod, "_get_anthropic_client", return_value=client):
+            md_path = generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
+
+        assert (tmp_path / "images" / "fig1.jpeg").exists()
+        assert "![fig1" in Path(md_path).read_text()
+
+    def test_model_text_appears_in_output(self, tmp_path):
+        marker = "UNIQUE_VISION_MARKER_99"
+        client = self._mock_client(f"Page content containing {marker}.")
+        with patch.object(_mod, "_get_anthropic_client", return_value=client):
+            md_path = generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
+        assert marker in Path(md_path).read_text()
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # Integration tests — real PDF on disk
 # ══════════════════════════════════════════════════════════════════════════════
@@ -433,6 +512,14 @@ class TestRealPDF:
         md_path = generate_markdown(str(REAL_PDF), str(tmp_path))
         lines = Path(md_path).read_text().splitlines()
         assert any(line.startswith("#") for line in lines)
+
+    def test_generate_markdown_with_vision(self, tmp_path):
+        if not _has_anthropic_auth():
+            pytest.skip("No Anthropic credentials available")
+        md_path = generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
+        content = Path(md_path).read_text()
+        assert len(content) > 500
+        assert "FRAGMENTATION" in content.upper() or any(line.startswith("#") for line in content.splitlines())
 
     def test_ocrd_pdf_passes_scanned_check(self):
         # Every page is a full-page JPEG, but all pages carry an OCR text layer,
