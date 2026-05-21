@@ -1,10 +1,18 @@
 import os
 import sys
-import json
+import io
+import re
 import base64
 import argparse
 import fitz  # PyMuPDF
 import anthropic
+from PIL import Image, ImageDraw
+from settings import Settings
+
+_DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5"
+# Anthropic SDK strips the leading "/" from paths and appends to base_url.path,
+# so "https://openrouter.ai/api" + "v1/messages" → "/api/v1/messages" (correct).
+_OPENROUTER_BASE_URL = "https://openrouter.ai/api"
 
 _MATH_FONTS = frozenset({"symbol", "cmsy", "cmex", "cmmi", "mtex", "mathtime", "euclid"})
 # Greek letters + Mathematical Operators + Misc Math + Supplemental Math
@@ -16,6 +24,7 @@ _FORMULA_PROMPT = (
     "If it is a pure layout schematic or photo with no explicit equations, reply with: [DIAGRAM]"
 )
 
+# Used by the Anthropic per-page path.
 _PAGE_VISION_PROMPT = """\
 Extract the content of this scanned document page as clean Markdown.
 
@@ -33,6 +42,27 @@ Rules:
 
 Output Markdown only — no preamble, no commentary."""
 
+# Used by the Google combined-image path.
+_DOC_VISION_PROMPT = """\
+This image shows {n} scanned document pages stacked vertically.
+Each page is preceded by a blue horizontal bar labeled "PAGE N".
+
+For each page output exactly:
+=== PAGE N ===
+[page content]
+
+Rules:
+- Reproduce all text faithfully.
+- Render math in LaTeX: display equations as $$...$$ and inline as $...$.
+- Use # / ## / ### for headings based on visual prominence.
+- If a page contains a graph, plot, diagram, or experimental photograph
+  (NOT a decorative seal/emblem/logo, NOT an administrative form or table):
+    Insert [FIGURE] at the location where the illustration appears.
+    Append [HAS_FIGURE] at the very end of that page's section.
+- Output all {n} pages in order, even if a page is blank (output the header then a blank line).
+
+Output only the page sections — no preamble, no commentary."""
+
 # PyMuPDF ext → MIME type (covers the common cases it returns)
 _MIME = {
     "jpg": "image/jpeg",
@@ -43,6 +73,10 @@ _MIME = {
     "bmp": "image/bmp",
 }
 
+
+# ---------------------------------------------------------------------------
+# Heuristic helpers (no API)
+# ---------------------------------------------------------------------------
 
 def _is_math_char(c):
     cp = ord(c)
@@ -84,43 +118,55 @@ def _block_to_markdown(block):
     return text
 
 
+# ---------------------------------------------------------------------------
+# Client factories — Google first, Anthropic/OpenRouter as fallback
+# ---------------------------------------------------------------------------
+
+def _try_get_google_client():
+    """Return (client, model) if GOOGLE_API_KEY is configured, else None."""
+    from google import genai  # deferred so the package is optional at import time
+    s = Settings()
+    if not s.google_api_key:
+        return None
+    return genai.Client(api_key=s.google_api_key), s.google_model
+
+
 def _get_anthropic_client():
-    """Return an authenticated Anthropic client.
+    """Return (client, model). Priority: ANTHROPIC_API_KEY → OPENROUTER_API_KEY.
 
-    Prefers Claude Code's stored OAuth token (~/.claude/.credentials.json).
-    Falls back to ANTHROPIC_API_KEY if the credentials file is absent or expired.
+    OAuth tokens (sk-ant-oat01-*) are rejected by api.anthropic.com and are
+    never attempted here.
     """
-    credentials_path = os.path.expanduser("~/.claude/.credentials.json")
-    if os.path.exists(credentials_path):
-        try:
-            with open(credentials_path) as f:
-                creds = json.load(f)
-            token = creds.get("claudeAiOauth", {}).get("accessToken")
-            if token:
-                return anthropic.Anthropic(auth_token=token)
-        except (json.JSONDecodeError, KeyError, OSError):
-            pass
+    s = Settings()
+    if s.anthropic_api_key:
+        return anthropic.Anthropic(api_key=s.anthropic_api_key), _DEFAULT_ANTHROPIC_MODEL
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if api_key:
-        return anthropic.Anthropic(api_key=api_key)
+    if s.openrouter_api_key:
+        return (
+            anthropic.Anthropic(
+                api_key=s.openrouter_api_key,
+                base_url=_OPENROUTER_BASE_URL,
+            ),
+            s.openrouter_model,
+        )
 
     raise SystemExit(
-        "Error: No Anthropic credentials found. Either:\n"
-        "  1. Log in via Claude Code (claude auth login), or\n"
-        "  2. Set the ANTHROPIC_API_KEY environment variable"
+        "Error: No AI credentials found. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, "
+        "or OPENROUTER_API_KEY in .env"
     )
 
+
+# ---------------------------------------------------------------------------
+# Page / image utilities
+# ---------------------------------------------------------------------------
 
 def _assert_not_scanned(doc):
     """Raise if the PDF has no text layer (scanned image-only document)."""
     scanned = 0
     for page_num in range(len(doc)):
         page = doc[page_num]
-        has_text = bool(page.get_text().strip())
-        if has_text:
+        if bool(page.get_text().strip()):
             continue
-        # No text — check whether any image covers >50% of the page area
         page_area = page.rect.width * page.rect.height
         for img_info in page.get_images(full=True):
             for rect in page.get_image_rects(img_info[0]):
@@ -135,7 +181,7 @@ def _assert_not_scanned(doc):
 
 
 def _page_is_image_based(page):
-    """True when the page stores its content as a full-page embedded image (scanned+OCR)."""
+    """True when the page stores its content as a full-page embedded image."""
     page_area = page.rect.width * page.rect.height
     for img_info in page.get_images(full=True):
         for rect in page.get_image_rects(img_info[0]):
@@ -162,14 +208,102 @@ def _get_fullpage_image(page):
     return _render_page_jpeg(page), "jpeg"
 
 
-def _extract_page_via_vision(page, client):
-    """Ask Claude to extract text+LaTeX from a page image.
+# ---------------------------------------------------------------------------
+# Google combined-image vision
+# ---------------------------------------------------------------------------
+
+def _render_pages_combined(pages, dpi=60):
+    """Render a list of fitz pages into one tall JPEG with blue PAGE N separator bars.
+
+    Returns JPEG bytes. The separator bars are 30 px tall and labeled "PAGE N"
+    so the vision model can identify page boundaries.
+    """
+    SEP_H = 30
+    SEP_COLOR = (30, 80, 200)
+    TEXT_COLOR = (255, 255, 255)
+
+    rendered = []
+    for page in pages:
+        pm = page.get_pixmap(dpi=dpi, colorspace=fitz.csRGB)
+        rendered.append(Image.frombytes("RGB", (pm.width, pm.height), pm.samples))
+
+    if not rendered:
+        return b""
+
+    width = max(img.width for img in rendered)
+    total_h = sum(img.height for img in rendered) + SEP_H * len(rendered)
+
+    combined = Image.new("RGB", (width, total_h), (255, 255, 255))
+    draw = ImageDraw.Draw(combined)
+
+    y = 0
+    for i, img in enumerate(rendered):
+        draw.rectangle([0, y, width - 1, y + SEP_H - 1], fill=SEP_COLOR)
+        draw.text((10, y + 8), f"PAGE {i + 1}", fill=TEXT_COLOR)
+        y += SEP_H
+        combined.paste(img, (0, y))
+        y += img.height
+
+    buf = io.BytesIO()
+    combined.save(buf, "JPEG", quality=70)
+    return buf.getvalue()
+
+
+def _parse_page_vision_response(text, n_pages):
+    """Split a combined-page vision response into per-page (markdown, has_figure) tuples.
+
+    Expects sections delimited by '=== PAGE N ===' (1-indexed).
+    Returns a list of length n_pages; pages with no matching section get ("", False).
+    """
+    results = [("", False)] * n_pages
+    pattern = re.compile(r"=== PAGE (\d+) ===\s*(.*?)(?==== PAGE \d+ ===|\Z)", re.DOTALL)
+    for m in pattern.finditer(text):
+        idx = int(m.group(1)) - 1  # 0-based
+        if 0 <= idx < n_pages:
+            content = m.group(2).strip()
+            has_fig = "[HAS_FIGURE]" in content
+            md = content.replace("[HAS_FIGURE]", "").strip()
+            if not has_fig:
+                md = md.replace("[FIGURE]", "")
+            results[idx] = (md, has_fig)
+    return results
+
+
+def _extract_doc_via_vision_google(pages, client, model):
+    """Send all pages as one combined image to Google; return per-page (md, has_figure).
+
+    pages: ordered list of fitz.Page objects (the image-based pages only).
+    The combined image is labeled PAGE 1..N so the response maps back positionally.
+    """
+    from google.genai import types
+
+    n = len(pages)
+    combined_bytes = _render_pages_combined(pages)
+    prompt = _DOC_VISION_PROMPT.format(n=n)
+
+    print(f"  Sending {n} pages as combined image to Google ({model})...")
+    response = client.models.generate_content(
+        model=model,
+        contents=[
+            types.Part.from_bytes(data=combined_bytes, mime_type="image/jpeg"),
+            prompt,
+        ],
+    )
+    return _parse_page_vision_response(response.text, n)
+
+
+# ---------------------------------------------------------------------------
+# Anthropic per-page vision (fallback)
+# ---------------------------------------------------------------------------
+
+def _extract_page_via_vision(page, client, model):
+    """Ask Claude to extract text+LaTeX from a single page image.
 
     Returns (markdown_text, has_figure).
     """
     image_b64 = base64.standard_b64encode(_render_page_jpeg(page)).decode()
     response = client.messages.create(
-        model="claude-haiku-4-5",
+        model=model,
         max_tokens=4096,
         messages=[{
             "role": "user",
@@ -186,7 +320,14 @@ def _extract_page_via_vision(page, client):
             ],
         }],
     )
-    content = response.content[0].text
+    content = next((b.text for b in response.content if hasattr(b, "text")), None)
+    if content is None:
+        import httpx
+        raise anthropic.APIError(
+            "Vision model returned no text block (model may not support image input)",
+            request=httpx.Request("POST", "https://api.anthropic.com/v1/messages"),
+            body=None,
+        )
     has_figure = "[HAS_FIGURE]" in content
     markdown = content.replace("[HAS_FIGURE]", "").strip()
     if not has_figure:
@@ -194,13 +335,13 @@ def _extract_page_via_vision(page, client):
     return markdown, has_figure
 
 
-def _analyze_image_for_formula(image_bytes, image_ext, client):
+def _analyze_image_for_formula(image_bytes, image_ext, client, model=_DEFAULT_ANTHROPIC_MODEL):
     """Return LaTeX string if image contains a formula, None if it's a diagram/photo."""
     media_type = _MIME.get(image_ext.lower(), f"image/{image_ext.lower()}")
     image_data = base64.standard_b64encode(image_bytes).decode("utf-8")
 
     response = client.messages.create(
-        model="claude-haiku-4-5",
+        model=model,
         max_tokens=1024,
         messages=[{
             "role": "user",
@@ -217,18 +358,17 @@ def _analyze_image_for_formula(image_bytes, image_ext, client):
             ],
         }],
     )
-
-    transcription = response.content[0].text.strip()
+    transcription = next((b.text for b in response.content if hasattr(b, "text")), "")
     return None if "[DIAGRAM]" in transcription else transcription
 
 
+# ---------------------------------------------------------------------------
+# Image extraction helpers (heuristic path)
+# ---------------------------------------------------------------------------
+
 def _extract_all_images(doc, images_dir, equations_dir=None, client=None,
                         skip_page_backgrounds=True):
-    """Extract unique non-background images; return xref→filename map and count.
-
-    When skip_page_backgrounds=True (default), images covering >50% of their
-    page are assumed to be scanned-page backgrounds and are not saved.
-    """
+    """Extract unique non-background images; return xref→filename map and count."""
     os.makedirs(images_dir, exist_ok=True)
     if client and equations_dir:
         os.makedirs(equations_dir, exist_ok=True)
@@ -310,6 +450,10 @@ def _page_to_markdown_heuristic(page, bbox_to_name):
     return "\n".join(parts)
 
 
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
 def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False):
     doc = fitz.open(pdf_path)
     images_dir = os.path.join(output_dir, "images")
@@ -317,24 +461,48 @@ def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False):
     _assert_not_scanned(doc)
 
     if analyze_formulas:
-        client = _get_anthropic_client()
         os.makedirs(images_dir, exist_ok=True)
         fig_counter = 0
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            if _page_is_image_based(page):
-                print(f"  Page {page_num + 1}/{len(doc)}: checking for figure...")
+
+        google = _try_get_google_client()
+        if google:
+            g_client, g_model = google
+            image_pages = [(i, doc[i]) for i in range(len(doc)) if _page_is_image_based(doc[i])]
+            if image_pages:
                 try:
-                    _, has_figure = _extract_page_via_vision(page, client)
-                    if has_figure:
-                        fig_counter += 1
-                        img_bytes, img_ext = _get_fullpage_image(page)
-                        name = f"fig{fig_counter}.{img_ext}"
-                        with open(os.path.join(images_dir, name), "wb") as f:
-                            f.write(img_bytes)
-                        print(f"    -> Saved: images/{name}")
-                except anthropic.APIError as e:
-                    print(f"  Page {page_num + 1}: vision failed: {e}")
+                    results = _extract_doc_via_vision_google(
+                        [p for _, p in image_pages], g_client, g_model
+                    )
+                    for j, (page_idx, page) in enumerate(image_pages):
+                        _, has_figure = results[j]
+                        if has_figure:
+                            fig_counter += 1
+                            img_bytes, img_ext = _get_fullpage_image(page)
+                            name = f"fig{fig_counter}.{img_ext}"
+                            with open(os.path.join(images_dir, name), "wb") as f:
+                                f.write(img_bytes)
+                            print(f"  Page {page_idx + 1}: figure saved as images/{name}")
+                except Exception as e:
+                    print(f"  Google vision failed ({e}), falling back to Anthropic")
+                    google = None
+
+        if not google:
+            a_client, a_model = _get_anthropic_client()
+            for page_num in range(len(doc)):
+                page = doc[page_num]
+                if _page_is_image_based(page):
+                    print(f"  Page {page_num + 1}/{len(doc)}: checking for figure...")
+                    try:
+                        _, has_figure = _extract_page_via_vision(page, a_client, a_model)
+                        if has_figure:
+                            fig_counter += 1
+                            img_bytes, img_ext = _get_fullpage_image(page)
+                            name = f"fig{fig_counter}.{img_ext}"
+                            with open(os.path.join(images_dir, name), "wb") as f:
+                                f.write(img_bytes)
+                            print(f"    -> Saved: images/{name}")
+                    except anthropic.APIError as e:
+                        print(f"  Page {page_num + 1}: vision failed: {e}")
         count = fig_counter
     else:
         _, count = _extract_all_images(doc, images_dir)
@@ -349,9 +517,6 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False):
     print(f"Opened PDF: {pdf_path} ({len(doc)} pages)")
     _assert_not_scanned(doc)
 
-    client = _get_anthropic_client() if analyze_formulas else None
-
-    # For the heuristic path, pre-extract all non-background images upfront.
     if not analyze_formulas:
         xref_to_name, _ = _extract_all_images(doc, images_dir)
     else:
@@ -360,33 +525,58 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False):
 
     pdf_stem = os.path.splitext(os.path.basename(pdf_path))[0]
     md_path = os.path.join(output_dir, f"{pdf_stem}.md")
-
     parts = []
     fig_counter = 0
+
+    # Build a vision_map: doc_page_index → (markdown, has_figure)
+    vision_map = {}
+    if analyze_formulas:
+        image_page_indices = [i for i in range(len(doc)) if _page_is_image_based(doc[i])]
+
+        google = _try_get_google_client()
+        if google and image_page_indices:
+            g_client, g_model = google
+            image_pages = [doc[i] for i in image_page_indices]
+            try:
+                results = _extract_doc_via_vision_google(image_pages, g_client, g_model)
+                vision_map = {image_page_indices[j]: results[j]
+                              for j in range(len(image_page_indices))}
+            except Exception as e:
+                print(f"  Google vision failed ({e}), falling back to Anthropic")
+                google = None
+
+        # Anthropic fallback for any pages not covered by Google
+        missing = [i for i in image_page_indices if i not in vision_map]
+        if missing:
+            a_client, a_model = _get_anthropic_client()
+            for page_idx in missing:
+                page = doc[page_idx]
+                print(f"  Page {page_idx + 1}/{len(doc)}: vision extraction (Anthropic)...")
+                try:
+                    vision_map[page_idx] = _extract_page_via_vision(page, a_client, a_model)
+                except anthropic.APIError as e:
+                    print(f"  Page {page_idx + 1}: vision failed ({e}), falling back to heuristic")
+                    vision_map[page_idx] = ("", False)
 
     for page_num in range(len(doc)):
         page = doc[page_num]
 
-        if analyze_formulas and _page_is_image_based(page):
-            # Vision path: Claude extracts text+LaTeX and identifies figures.
-            print(f"  Page {page_num + 1}/{len(doc)}: vision extraction...")
-            try:
-                page_md, has_figure = _extract_page_via_vision(page, client)
-                if has_figure:
-                    fig_counter += 1
-                    img_bytes, img_ext = _get_fullpage_image(page)
-                    name = f"fig{fig_counter}.{img_ext}"
-                    with open(os.path.join(images_dir, name), "wb") as f:
-                        f.write(img_bytes)
-                    page_md = page_md.replace("[FIGURE]", f"![{name}](images/{name})")
-                    print(f"    -> Figure saved: images/{name}")
-                parts.append(page_md)
-            except anthropic.APIError as e:
-                print(f"  Page {page_num + 1}: vision failed ({e}), falling back to heuristic")
+        if page_num in vision_map:
+            page_md, has_figure = vision_map[page_num]
+            if has_figure:
+                fig_counter += 1
+                img_bytes, img_ext = _get_fullpage_image(page)
+                name = f"fig{fig_counter}.{img_ext}"
+                with open(os.path.join(images_dir, name), "wb") as f:
+                    f.write(img_bytes)
+                page_md = page_md.replace("[FIGURE]", f"![{name}](images/{name})")
+                print(f"  Page {page_num + 1}: figure saved as images/{name}")
+            # Fall back to heuristic if vision returned nothing
+            if not page_md.strip():
                 bbox_to_name = _build_bbox_to_name(page, xref_to_name)
-                parts.append(_page_to_markdown_heuristic(page, bbox_to_name))
+                page_md = _page_to_markdown_heuristic(page, bbox_to_name)
+            parts.append(page_md)
         else:
-            # Heuristic path: font/Unicode detection, no API calls.
             bbox_to_name = _build_bbox_to_name(page, xref_to_name)
             parts.append(_page_to_markdown_heuristic(page, bbox_to_name))
 
@@ -415,8 +605,8 @@ def main():
     parser.add_argument(
         "--analyze-formulas", "-f", action="store_true",
         help=(
-            "Use Claude vision for high-quality extraction: clean LaTeX formulas, "
-            "real figures only (skips page-background scans). Requires authentication."
+            "Use vision AI for high-quality extraction: clean LaTeX formulas, "
+            "real figures only. Tries Google first, then Anthropic. Requires credentials."
         )
     )
     args = parser.parse_args()

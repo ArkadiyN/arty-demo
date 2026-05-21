@@ -57,18 +57,6 @@ from unittest.mock import patch
 
 import pytest
 
-# ── Load .env so ELSEVIER_API_KEY is available for integration tests ──────────
-def _load_dotenv():
-    env_path = Path(__file__).parent.parent / ".env"
-    if env_path.exists():
-        for line in env_path.read_text().splitlines():
-            line = line.strip()
-            if line and not line.startswith("#") and "=" in line:
-                key, _, val = line.partition("=")
-                os.environ.setdefault(key.strip(), val.strip())
-
-_load_dotenv()
-
 # ── Load the hyphen-named module ──────────────────────────────────────────────
 _SRC = Path(__file__).parent.parent / "src" / "utils" / "elsevier-xml-processor.py"
 _spec = importlib.util.spec_from_file_location("elsevier_xml_processor", _SRC)
