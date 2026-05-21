@@ -4,84 +4,53 @@ Tests for src/utils/pdf-processor.py
 Coverage map
 ============
 
-_is_math_char
-  • Each of the four Unicode ranges has at least one representative character
-    tested as True, and characters just outside are tested as False.  Catches
-    any accidental narrowing or widening of the ranges.
+_is_math_char / _block_is_formula / _block_to_markdown
+  (unchanged — see docstrings in the test classes below)
 
-_block_is_formula
-  • Font-name path: checks that any font whose lowercase name contains a known
-    math-font substring (e.g. "cmsy", "symbol") is flagged as a formula.
-  • Unicode-density path: verifies the 15 % threshold — blocks above it are
-    formulas, blocks below are not.
-  • Edge cases: empty block and whitespace-only text must return False (avoids
-    ZeroDivisionError and false positives on blank lines).
-
-_block_to_markdown
-  • All four output branches: H1 (≥16 pt), H2 (≥13 pt), H3 (≥11 pt + bold
-    flag), and plain text.
-  • Multi-line blocks are joined with a single space.
-  • Empty-text lines inside a block are silently dropped.
-  • An all-empty-lines block returns an empty string (not "# ").
+_try_get_google_client
+  • Returns (client, model) when GOOGLE_API_KEY is set.
+  • Returns None when the key is absent.
 
 _get_anthropic_client
-  • Happy path: reads the OAuth access token from ~/.claude/.credentials.json
-    and passes it as auth_token= to Anthropic().
-  • API-key fallback: when the credentials file is absent the function reads
-    ANTHROPIC_API_KEY from the environment.
-  • Corrupt JSON fallback: a malformed credentials file triggers the except
-    clause and falls back to the env var rather than crashing.
-  • No-auth exit: when neither credentials file nor env var is present the
-    function raises SystemExit with a helpful message.
+  • Prefers ANTHROPIC_API_KEY over OpenRouter.
+  • Falls back to OpenRouter when only OPENROUTER_API_KEY is set.
+  • Raises SystemExit when neither key is present.
 
-_analyze_image_for_formula  (Anthropic client mocked — no network calls)
-  • Sentinel detection: a "[DIAGRAM]" reply from the model returns None so the
-    caller knows not to save a .tex file.
-  • LaTeX passthrough: any other reply is returned verbatim, preserving the
-    full transcription the model produced.
-  • MIME mapping: known extensions (jpg, png, …) are mapped to their correct
-    MIME type; unknown extensions fall back to "image/<ext>".
+_render_pages_combined
+  • Returns non-empty bytes for a single real PDF page.
+  • Output decodes as a valid JPEG (starts with FF D8 FF).
+  • Combined image is taller than a single page render (separator included).
 
-_assert_not_scanned  (fitz.Document mocked)
-  • All-text document passes without error.
-  • Exactly 30 % scanned pages passes (the threshold is strictly > 0.3).
-  • More than 30 % scanned pages raises SystemExit mentioning "scanned".
-  • Pages whose image covers ≤ 50 % of the page area are not counted as scanned
-    even when no text is present — avoids false positives from small insets.
+_parse_page_vision_response
+  • Correctly splits N pages on === PAGE N === markers.
+  • Extracts [HAS_FIGURE] flag and strips it from the markdown.
+  • Strips [FIGURE] token when has_figure is False.
+  • Pages with no matching section get ("", False).
+  • Handles extra whitespace / CRLF around markers.
 
-_page_is_image_based  (real fitz pages)
-  • Returns True when a page carries a full-page embedded JPEG (>50 % coverage).
-  • Returns False for pages with only vector text and no large images.
+_extract_doc_via_vision_google (Google client mocked)
+  • Calls client.models.generate_content exactly once (1 API call for N pages).
+  • Returns per-page (markdown, has_figure) matching page count.
 
-Vision pipeline  (Anthropic client mocked, real fitz pages)
-  • generate_markdown(analyze_formulas=True) calls client.messages.create
-    exactly once per image-based page — verifies the SDK is wired into the loop.
-  • A page whose response contains [HAS_FIGURE] causes the page image to be
-    saved to images/ and the [FIGURE] token to be replaced with a Markdown
-    image reference in the output.
-  • Text returned by the mocked model is present verbatim in the output
-    markdown — verifies the response is not discarded.
+Vision pipeline — Google path (Google client mocked, real fitz pages)
+  • generate_markdown with analyze_formulas=True uses Google when available.
+  • A single API call is made for all image-based pages.
+  • [HAS_FIGURE] pages result in saved images and embedded Markdown references.
+  • Model text from the combined response appears in the output markdown.
 
-Integration — real PDF on disk  (pytest.mark.integration, skipped if absent)
-  • extract_pdf_images (heuristic path) returns 0 for ADA462991.pdf: every
-    embedded image in that PDF is a full-page background scan that the
-    skip_page_backgrounds filter correctly drops.
-  • generate_markdown (heuristic path) does NOT emit image references for
-    ADA462991.pdf — page-background scans are not surfaced in the output.
-  • generate_markdown produces at least one heading line (# …).
-  • generate_markdown(analyze_formulas=True) calls the live Anthropic API and
-    produces a non-empty markdown file containing recognised text — skipped
-    when no Anthropic credentials are available.
-  • _assert_not_scanned does NOT reject ADA462991.pdf: despite every page
-    being stored as a full-page JPEG, the OCR text layer means the function
-    correctly passes it through.
-  • _page_is_image_based returns True for every page of ADA462991.pdf (all
-    pages are full-page JPEG scans).
+Vision pipeline — Anthropic fallback (Google absent, Anthropic mocked)
+  • When _try_get_google_client returns None, falls through to Anthropic.
+  • Anthropic client is called once per image-based page.
+
+Integration — real API calls (pytest.mark.integration, skipped when no creds)
+  • TestGoogleAuth: live ping to Google API, response contains text.
+  • TestRealPDF: heuristic-path assertions on ADA462991.pdf.
+  • TestRealPDF.test_generate_markdown_with_vision: live Google vision call.
 """
 
 import importlib.util
-import json
 import os
+import re
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -98,10 +67,14 @@ _spec.loader.exec_module(_mod)
 _is_math_char = _mod._is_math_char
 _block_is_formula = _mod._block_is_formula
 _block_to_markdown = _mod._block_to_markdown
+_try_get_google_client = _mod._try_get_google_client
 _get_anthropic_client = _mod._get_anthropic_client
 _assert_not_scanned = _mod._assert_not_scanned
 _page_is_image_based = _mod._page_is_image_based
 _analyze_image_for_formula = _mod._analyze_image_for_formula
+_render_pages_combined = _mod._render_pages_combined
+_parse_page_vision_response = _mod._parse_page_vision_response
+_extract_doc_via_vision_google = _mod._extract_doc_via_vision_google
 extract_pdf_images = _mod.extract_pdf_images
 generate_markdown = _mod.generate_markdown
 
@@ -114,7 +87,6 @@ def _span(text, font="Helvetica", size=12.0, flags=0):
 
 
 def _block(*texts, font="Helvetica", size=12.0, flags=0):
-    """Build a minimal text block dict: one span per line."""
     return {
         "lines": [
             {"spans": [_span(t, font=font, size=size, flags=flags)]}
@@ -132,7 +104,6 @@ def _text_page():
 
 
 def _image_page(coverage=0.8):
-    """A text-free page with a single image covering `coverage` of the area."""
     page = MagicMock()
     page.get_text.return_value = ""
     page.rect.width = page.rect.height = 100.0
@@ -151,28 +122,36 @@ def _doc(*pages):
     return doc
 
 
+def _has_google_auth():
+    return bool(os.environ.get("GOOGLE_API_KEY"))
+
+
+def _has_anthropic_auth():
+    return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENROUTER_API_KEY"))
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # _is_math_char
 # ══════════════════════════════════════════════════════════════════════════════
 
 class TestIsMathChar:
     def test_greek_lowercase(self):
-        assert _is_math_char("α")   # 0x03B1 — Greek small letter alpha
+        assert _is_math_char("α")
 
     def test_greek_range_start(self):
-        assert _is_math_char("Α")   # 0x0391 — inclusive lower bound
+        assert _is_math_char("Α")
 
     def test_greek_range_end(self):
-        assert _is_math_char("ω")   # 0x03C9 — inclusive upper bound
+        assert _is_math_char("ω")
 
     def test_math_operator_summation(self):
-        assert _is_math_char("∑")   # 0x2211 — Mathematical Operators block
+        assert _is_math_char("∑")
 
     def test_misc_math_symbol(self):
-        assert _is_math_char("⟂")  # 0x27C2 — Misc Mathematical Symbols-A
+        assert _is_math_char("⟂")
 
     def test_supplemental_math_operator(self):
-        assert _is_math_char("⨀")  # 0x2A00 — boundary of Supplemental block
+        assert _is_math_char("⨀")
 
     def test_ascii_letter_excluded(self):
         assert not _is_math_char("a")
@@ -184,7 +163,7 @@ class TestIsMathChar:
         assert not _is_math_char(" ")
 
     def test_char_above_greek_range_excluded(self):
-        assert not _is_math_char("ϊ")  # 0x03CA — one above Greek range end
+        assert not _is_math_char("ϊ")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -199,7 +178,6 @@ class TestBlockIsFormula:
         assert not _block_is_formula(_block("   "))
 
     def test_math_font_substring_detected(self):
-        # "cmsy" appears in the font name → formula regardless of content
         assert _block_is_formula(_block("f(x)", font="CMSY10"))
 
     def test_symbol_font_detected(self):
@@ -209,11 +187,9 @@ class TestBlockIsFormula:
         assert _block_is_formula(_block("x", font="Euclid Math One"))
 
     def test_high_unicode_density_detected(self):
-        # "αβγ": 3 math chars / 3 total = 100 % → formula
         assert _block_is_formula(_block("αβγ"))
 
     def test_low_unicode_density_not_formula(self):
-        # 1 math char in 20 normal chars ≈ 5 % < 15 %
         assert not _block_is_formula(_block("plain sentence with oneαchar"))
 
     def test_plain_ascii_not_formula(self):
@@ -235,14 +211,12 @@ class TestBlockToMarkdown:
         assert _block_to_markdown(_block("Section", size=13.0)) == "## Section"
 
     def test_small_bold_becomes_h3(self):
-        # Flag bit 4 (value 16) = bold
         assert _block_to_markdown(_block("Subsection", size=11.0, flags=16)) == "### Subsection"
 
     def test_small_non_bold_is_plain(self):
         assert _block_to_markdown(_block("body text", size=11.0, flags=0)) == "body text"
 
     def test_below_all_thresholds_is_plain(self):
-        # Bold flag present but size too small for H3
         assert _block_to_markdown(_block("caption", size=9.0, flags=16)) == "caption"
 
     def test_multiline_block_joined_with_space(self):
@@ -253,7 +227,7 @@ class TestBlockToMarkdown:
         b = {
             "lines": [
                 {"spans": [_span("text")]},
-                {"spans": [_span("")]},   # blank — should be dropped
+                {"spans": [_span("")]},
                 {"spans": [_span("more")]},
             ]
         }
@@ -261,47 +235,53 @@ class TestBlockToMarkdown:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# _try_get_google_client
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestTryGetGoogleClient:
+    def test_returns_client_and_model_when_key_set(self, monkeypatch):
+        monkeypatch.setenv("GOOGLE_API_KEY", "fake-google-key")  # pragma: allowlist secret
+        monkeypatch.setenv("GOOGLE_MODEL", "gemma-4-31b-it")
+        mock_genai = MagicMock()
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        with patch.dict("sys.modules", {"google": MagicMock(genai=mock_genai), "google.genai": mock_genai}):
+            result = _try_get_google_client()
+        assert result is not None
+        client, model = result
+        assert model == "gemma-4-31b-it"
+
+    def test_returns_none_when_key_absent(self, monkeypatch):
+        monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+        result = _try_get_google_client()
+        assert result is None
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # _get_anthropic_client
 # ══════════════════════════════════════════════════════════════════════════════
 
 class TestGetAnthropicClient:
-    def test_uses_oauth_token_from_credentials_file(self, tmp_path, monkeypatch):
-        creds = tmp_path / "creds.json"
-        creds.write_text(json.dumps({"claudeAiOauth": {"accessToken": "tok-xyz"}}))
-        monkeypatch.setattr(_mod.os.path, "expanduser", lambda _: str(creds))
+    def test_uses_anthropic_api_key(self, monkeypatch):
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-api-test")  # pragma: allowlist secret
+        monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
         with patch.object(_mod.anthropic, "Anthropic") as mock_cls:
             _get_anthropic_client()
-        mock_cls.assert_called_once_with(auth_token="tok-xyz")
+        mock_cls.assert_called_once_with(api_key="sk-ant-api-test")  # pragma: allowlist secret
 
-    def test_falls_back_to_api_key_when_no_credentials_file(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(_mod.os.path, "expanduser", lambda _: str(tmp_path / "absent.json"))
-        monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-api-test")
-        with patch.object(_mod.anthropic, "Anthropic") as mock_cls:
-            _get_anthropic_client()
-        mock_cls.assert_called_once_with(api_key="sk-ant-api-test") # pragma: allowlist secret
-
-    def test_falls_back_to_api_key_on_malformed_json(self, tmp_path, monkeypatch):
-        creds = tmp_path / "creds.json"
-        creds.write_text("{{not valid json")
-        monkeypatch.setattr(_mod.os.path, "expanduser", lambda _: str(creds))
-        monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-fallback") # pragma: allowlist secret
-        with patch.object(_mod.anthropic, "Anthropic") as mock_cls:
-            _get_anthropic_client()
-        mock_cls.assert_called_once_with(api_key="sk-ant-fallback") # pragma: allowlist secret
-
-    def test_falls_back_to_api_key_when_token_key_missing(self, tmp_path, monkeypatch):
-        # Valid JSON but no accessToken field
-        creds = tmp_path / "creds.json"
-        creds.write_text(json.dumps({"claudeAiOauth": {}}))
-        monkeypatch.setattr(_mod.os.path, "expanduser", lambda _: str(creds))
-        monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-via-env")
-        with patch.object(_mod.anthropic, "Anthropic") as mock_cls:
-            _get_anthropic_client()
-        mock_cls.assert_called_once_with(api_key="sk-ant-via-env") # pragma: allowlist secret
-
-    def test_raises_system_exit_when_no_auth_available(self, tmp_path, monkeypatch):
-        monkeypatch.setattr(_mod.os.path, "expanduser", lambda _: str(tmp_path / "absent.json"))
+    def test_falls_back_to_openrouter_when_no_anthropic_key(self, monkeypatch):
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+        monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test")  # pragma: allowlist secret
+        monkeypatch.setenv("OPENROUTER_MODEL", "openrouter/free")
+        with patch.object(_mod.anthropic, "Anthropic") as mock_cls:
+            _get_anthropic_client()
+        mock_cls.assert_called_once_with(
+            api_key="sk-or-test", base_url="https://openrouter.ai/api"  # pragma: allowlist secret
+        )
+
+    def test_raises_system_exit_when_no_auth_available(self, monkeypatch):
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+        monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
         with pytest.raises(SystemExit):
             _get_anthropic_client()
 
@@ -354,18 +334,15 @@ class TestAnalyzeImageForFormula:
 
 class TestPageIsImageBased:
     def test_fullpage_image_detected(self):
-        # Image covering 80 % of the page → image-based
         assert _page_is_image_based(_image_page(coverage=0.8))
 
     def test_text_only_page_not_image_based(self):
         assert not _page_is_image_based(_text_page())
 
     def test_small_image_not_image_based(self):
-        # Image covering only 30 % → NOT a full-page background
         assert not _page_is_image_based(_image_page(coverage=0.3))
 
     def test_exactly_50_percent_boundary(self):
-        # Exactly 50 % coverage does not exceed the 50 % threshold → False
         assert not _page_is_image_based(_image_page(coverage=0.5))
 
     def test_just_above_50_percent(self):
@@ -379,114 +356,305 @@ class TestPageIsImageBased:
 class TestAssertNotScanned:
     def test_all_text_pages_pass(self):
         doc = _doc(*[_text_page() for _ in range(10)])
-        _assert_not_scanned(doc)  # must not raise
+        _assert_not_scanned(doc)
 
     def test_exactly_30_percent_scanned_passes(self):
-        # 3/10 = 0.30 — the check is strictly > 0.3, so this must pass
         pages = [_image_page()] * 3 + [_text_page()] * 7
-        _assert_not_scanned(_doc(*pages))  # must not raise
+        _assert_not_scanned(_doc(*pages))
 
     def test_above_30_percent_raises(self):
-        # 4/10 = 0.40 > 0.3 → rejected
         pages = [_image_page()] * 4 + [_text_page()] * 6
         with pytest.raises(SystemExit, match="scanned"):
             _assert_not_scanned(_doc(*pages))
 
     def test_small_image_not_counted_as_scanned(self):
-        # Image covers only 30 % of page area — the threshold is 50 %, so this
-        # page should NOT increment the scanned counter even though it has no text.
         pages = [_image_page(coverage=0.3)] * 5 + [_text_page()] * 5
-        _assert_not_scanned(_doc(*pages))  # must not raise
+        _assert_not_scanned(_doc(*pages))
 
     def test_single_page_scanned_document_rejected(self):
-        # 1/1 = 100 % > 30 %
         with pytest.raises(SystemExit, match="scanned"):
             _assert_not_scanned(_doc(_image_page()))
 
 
-def _has_anthropic_auth():
-    """True when Anthropic credentials are available (OAuth token or API key)."""
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        return True
-    creds = Path(os.path.expanduser("~/.claude/.credentials.json"))
-    if creds.exists():
-        try:
-            data = json.loads(creds.read_text())
-            return bool(data.get("claudeAiOauth", {}).get("accessToken"))
-        except Exception:
-            pass
-    return False
-
-
 # ══════════════════════════════════════════════════════════════════════════════
-# Vision pipeline — mocked Anthropic client, real fitz pages
+# _render_pages_combined  (real fitz pages)
 # ══════════════════════════════════════════════════════════════════════════════
 
 @pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
-class TestVisionPipeline:
-    """Exercises the --analyze-formulas path end-to-end.
+class TestRenderPagesCombined:
+    def _first_page(self):
+        return fitz.open(str(REAL_PDF))[0]
 
-    Real fitz pages are used (page rendering is not mocked), but the Anthropic
-    client is a MagicMock so no network calls are made.
-    """
+    def test_returns_nonempty_bytes(self):
+        data = _render_pages_combined([self._first_page()])
+        assert len(data) > 0
 
-    def _mock_client(self, reply="Extracted page text."):
-        c = MagicMock()
-        c.messages.create.return_value.content = [MagicMock(text=reply)]
-        return c
+    def test_output_is_valid_jpeg(self):
+        data = _render_pages_combined([self._first_page()])
+        assert data[:3] == b"\xff\xd8\xff"
 
-    def test_sdk_called_for_every_image_based_page(self, tmp_path):
-        client = self._mock_client()
-        with patch.object(_mod, "_get_anthropic_client", return_value=client):
-            generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
-        doc = fitz.open(str(REAL_PDF))
-        expected = sum(1 for i in range(len(doc)) if _page_is_image_based(doc[i]))
-        assert client.messages.create.call_count == expected
+    def test_combined_taller_than_single_page(self):
+        from PIL import Image
+        import io
 
-    def test_has_figure_response_saves_image_and_embeds_reference(self, tmp_path):
-        # First call signals a figure; all subsequent calls return plain text.
-        calls = [0]
+        page = self._first_page()
+        single = _render_pages_combined([page])
+        two = _render_pages_combined([page, page])
 
-        def _side_effect(*args, **kwargs):
-            calls[0] += 1
-            reply = "Content with [FIGURE] marker.\n[HAS_FIGURE]" if calls[0] == 1 else "Plain text."
-            r = MagicMock()
-            r.content = [MagicMock(text=reply)]
-            return r
+        h_single = Image.open(io.BytesIO(single)).height
+        h_two = Image.open(io.BytesIO(two)).height
+        assert h_two > h_single
 
+    def test_separator_bar_is_blue(self):
+        """The first row of the combined image should be the blue separator."""
+        from PIL import Image
+        import io
+
+        data = _render_pages_combined([self._first_page()])
+        img = Image.open(io.BytesIO(data)).convert("RGB")
+        pixel = img.getpixel((img.width // 2, 0))
+        assert isinstance(pixel, tuple)
+        r, g, b = int(pixel[0]), int(pixel[1]), int(pixel[2])
+        assert b > r and b > g  # blue channel dominates
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# _parse_page_vision_response
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestParsePageVisionResponse:
+    def test_single_page_extracted(self):
+        text = "=== PAGE 1 ===\nHello world"
+        results = _parse_page_vision_response(text, 1)
+        assert results[0] == ("Hello world", False)
+
+    def test_two_pages_split_correctly(self):
+        text = "=== PAGE 1 ===\nPage one text\n=== PAGE 2 ===\nPage two text"
+        results = _parse_page_vision_response(text, 2)
+        assert results[0] == ("Page one text", False)
+        assert results[1] == ("Page two text", False)
+
+    def test_has_figure_flag_extracted(self):
+        text = "=== PAGE 1 ===\nText [FIGURE] more\n[HAS_FIGURE]"
+        results = _parse_page_vision_response(text, 1)
+        md, has_fig = results[0]
+        assert has_fig is True
+        assert "[HAS_FIGURE]" not in md
+        assert "[FIGURE]" in md  # kept when has_figure is True
+
+    def test_figure_token_stripped_when_no_has_figure(self):
+        text = "=== PAGE 1 ===\nText [FIGURE] more"
+        results = _parse_page_vision_response(text, 1)
+        md, has_fig = results[0]
+        assert has_fig is False
+        assert "[FIGURE]" not in md
+
+    def test_missing_page_gets_empty_tuple(self):
+        text = "=== PAGE 1 ===\nOnly page one"
+        results = _parse_page_vision_response(text, 3)
+        assert results[1] == ("", False)
+        assert results[2] == ("", False)
+
+    def test_out_of_range_page_number_ignored(self):
+        text = "=== PAGE 5 ===\nOut of range"
+        results = _parse_page_vision_response(text, 2)
+        assert results[0] == ("", False)
+        assert results[1] == ("", False)
+
+    def test_extra_whitespace_around_marker_handled(self):
+        text = "\n=== PAGE 1 ===\n\n  Content here  \n\n=== PAGE 2 ===\nMore"
+        results = _parse_page_vision_response(text, 2)
+        assert results[0][0] == "Content here"
+        assert results[1][0] == "More"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# _extract_doc_via_vision_google  (Google client mocked)
+# ══════════════════════════════════════════════════════════════════════════════
+
+@pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
+class TestExtractDocViaVisionGoogle:
+    def _mock_google_client(self, response_text):
         client = MagicMock()
-        client.messages.create.side_effect = _side_effect
-        with patch.object(_mod, "_get_anthropic_client", return_value=client):
+        client.models.generate_content.return_value.text = response_text
+        return client
+
+    def test_single_api_call_for_multiple_pages(self):
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[i] for i in range(3)]
+        reply = "=== PAGE 1 ===\nP1\n=== PAGE 2 ===\nP2\n=== PAGE 3 ===\nP3"
+        client = self._mock_google_client(reply)
+        _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        assert client.models.generate_content.call_count == 1
+
+    def test_returns_per_page_results(self):
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[i] for i in range(2)]
+        reply = "=== PAGE 1 ===\nFirst page content\n=== PAGE 2 ===\nSecond page content"
+        client = self._mock_google_client(reply)
+        results = _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        assert len(results) == 2
+        assert results[0][0] == "First page content"
+        assert results[1][0] == "Second page content"
+
+    def test_has_figure_propagated(self):
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[0]]
+        reply = "=== PAGE 1 ===\nText [FIGURE] end\n[HAS_FIGURE]"
+        client = self._mock_google_client(reply)
+        results = _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        _, has_fig = results[0]
+        assert has_fig is True
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Vision pipeline — Google path (mocked, real fitz pages)
+# ══════════════════════════════════════════════════════════════════════════════
+
+@pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
+class TestVisionPipelineGoogle:
+    """generate_markdown with Google client mocked — verifies the Google dispatch path."""
+
+    def _mock_google_client(self, n_pages, has_figure_on_page=None):
+        lines = []
+        for i in range(1, n_pages + 1):
+            lines.append(f"=== PAGE {i} ===")
+            if has_figure_on_page == i:
+                lines.append(f"Content of page {i} [FIGURE] more text\n[HAS_FIGURE]")
+            else:
+                lines.append(f"UNIQUE_GOOGLE_TEXT page {i}")
+        response_text = "\n".join(lines)
+        client = MagicMock()
+        client.models.generate_content.return_value.text = response_text
+        return client
+
+    def test_google_client_used_when_available(self, tmp_path):
+        doc = fitz.open(str(REAL_PDF))
+        n_image = sum(1 for i in range(len(doc)) if _page_is_image_based(doc[i]))
+        g_client = self._mock_google_client(n_image)
+
+        with patch.object(_mod, "_try_get_google_client", return_value=(g_client, "gemma-4-31b-it")):
+            generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
+
+        assert g_client.models.generate_content.call_count == 1
+
+    def test_google_text_appears_in_output(self, tmp_path):
+        doc = fitz.open(str(REAL_PDF))
+        n_image = sum(1 for i in range(len(doc)) if _page_is_image_based(doc[i]))
+        g_client = self._mock_google_client(n_image)
+
+        with patch.object(_mod, "_try_get_google_client", return_value=(g_client, "gemma-4-31b-it")):
+            md_path = generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
+
+        assert "UNIQUE_GOOGLE_TEXT" in Path(md_path).read_text()
+
+    def test_has_figure_saves_image_and_embeds_reference(self, tmp_path):
+        doc = fitz.open(str(REAL_PDF))
+        n_image = sum(1 for i in range(len(doc)) if _page_is_image_based(doc[i]))
+        g_client = self._mock_google_client(n_image, has_figure_on_page=1)
+
+        with patch.object(_mod, "_try_get_google_client", return_value=(g_client, "gemma-4-31b-it")):
             md_path = generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
 
         assert (tmp_path / "images" / "fig1.jpeg").exists()
         assert "![fig1" in Path(md_path).read_text()
 
-    def test_model_text_appears_in_output(self, tmp_path):
-        marker = "UNIQUE_VISION_MARKER_99"
-        client = self._mock_client(f"Page content containing {marker}.")
-        with patch.object(_mod, "_get_anthropic_client", return_value=client):
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Vision pipeline — Anthropic fallback (Google absent, Anthropic mocked)
+# ══════════════════════════════════════════════════════════════════════════════
+
+@pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
+class TestVisionPipelineAnthropicFallback:
+    """When _try_get_google_client returns None, Anthropic is used per-page."""
+
+    def _mock_anthropic_client(self, reply="Extracted page text."):
+        c = MagicMock()
+        c.messages.create.return_value.content = [MagicMock(text=reply)]
+        return c
+
+    def test_anthropic_called_per_page_when_google_absent(self, tmp_path):
+        client = self._mock_anthropic_client()
+        with (
+            patch.object(_mod, "_try_get_google_client", return_value=None),
+            patch.object(_mod, "_get_anthropic_client", return_value=(client, "claude-haiku-4-5")),
+        ):
+            generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
+
+        doc = fitz.open(str(REAL_PDF))
+        expected = sum(1 for i in range(len(doc)) if _page_is_image_based(doc[i]))
+        assert client.messages.create.call_count == expected
+
+    def test_anthropic_text_appears_in_output(self, tmp_path):
+        marker = "UNIQUE_ANTHROPIC_MARKER_77"
+        client = self._mock_anthropic_client(f"Page content containing {marker}.")
+        with (
+            patch.object(_mod, "_try_get_google_client", return_value=None),
+            patch.object(_mod, "_get_anthropic_client", return_value=(client, "claude-haiku-4-5")),
+        ):
             md_path = generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
         assert marker in Path(md_path).read_text()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Integration tests — real PDF on disk
+# Integration — real API calls
 # ══════════════════════════════════════════════════════════════════════════════
+
+@pytest.mark.integration
+class TestGoogleAuth:
+    """Verifies that _try_get_google_client() produces a working client via a live ping."""
+
+    def test_google_key_can_reach_api(self):
+        if not _has_google_auth():
+            pytest.skip("No GOOGLE_API_KEY available")
+        from google.genai.errors import ClientError
+        result = _try_get_google_client()
+        assert result is not None, "Expected (client, model) but got None"
+        client, model = result
+        try:
+            response = client.models.generate_content(
+                model=model,
+                contents=["Reply with the single word: OK"],
+            )
+            assert response.text.strip() != ""
+        except ClientError as e:
+            if e.code != 429:
+                raise
+            # 429 rate limit proves the connection and auth work — pass.
+
+
+@pytest.mark.integration
+class TestAnthropicAuth:
+    """Verifies that _get_anthropic_client() produces a working client via a live ping."""
+
+    def test_anthropic_key_can_reach_api(self):
+        if not _has_anthropic_auth():
+            pytest.skip("No Anthropic credentials available")
+        import anthropic as _anthropic
+        client, model = _get_anthropic_client()
+        try:
+            msg = client.messages.create(
+                model=model,
+                max_tokens=256,
+                messages=[{"role": "user", "content": "reply ok"}],
+            )
+            text = next((b.text for b in msg.content if hasattr(b, "text")), None)
+            assert text is not None and text.strip() != ""
+        except _anthropic.RateLimitError:
+            # 429 proves the connection and auth work — pass.
+            pass
+
 
 @pytest.mark.integration
 @pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
 class TestRealPDF:
     def test_extract_images_zero_without_vision(self, tmp_path):
-        # ADA462991.pdf stores every page as a full-page JPEG xref.
-        # The skip_page_backgrounds filter should drop all 21 of them, yielding 0.
         count = extract_pdf_images(str(REAL_PDF), str(tmp_path))
         assert count == 0
 
     def test_images_dir_empty_without_vision(self, tmp_path):
         extract_pdf_images(str(REAL_PDF), str(tmp_path))
         images_dir = tmp_path / "images"
-        # Directory is created but contains no files
         assert images_dir.exists()
         assert list(images_dir.iterdir()) == []
 
@@ -496,17 +664,12 @@ class TestRealPDF:
         assert Path(md_path).stat().st_size > 0
 
     def test_markdown_has_no_spurious_page_images(self, tmp_path):
-        # Without --analyze-formulas, page-background scans must NOT appear as
-        # Markdown image references in the output.
         md_path = generate_markdown(str(REAL_PDF), str(tmp_path))
-        content = Path(md_path).read_text()
-        assert "![fig" not in content
+        assert "![fig" not in Path(md_path).read_text()
 
     def test_markdown_contains_ocr_text(self, tmp_path):
         md_path = generate_markdown(str(REAL_PDF), str(tmp_path))
-        content = Path(md_path).read_text()
-        # The OCR text layer should be present regardless of vision mode
-        assert "FRAGMENTATION" in content.upper()
+        assert "FRAGMENTATION" in Path(md_path).read_text().upper()
 
     def test_markdown_contains_heading(self, tmp_path):
         md_path = generate_markdown(str(REAL_PDF), str(tmp_path))
@@ -514,21 +677,28 @@ class TestRealPDF:
         assert any(line.startswith("#") for line in lines)
 
     def test_generate_markdown_with_vision(self, tmp_path):
-        if not _has_anthropic_auth():
-            pytest.skip("No Anthropic credentials available")
+        """Live Google vision call — sends all pages combined in one request.
+
+        ADA462991.pdf is a fragmentation report with equations. The heuristic
+        path reads the OCR text layer but cannot produce LaTeX — it has no math
+        fonts or Unicode math density to trigger _block_is_formula. Presence of
+        $$ or $ in the output therefore proves vision ran and extracted math.
+        """
+        if not _has_google_auth():
+            pytest.skip("No GOOGLE_API_KEY available")
         md_path = generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
         content = Path(md_path).read_text()
-        assert len(content) > 500
-        assert "FRAGMENTATION" in content.upper() or any(line.startswith("#") for line in content.splitlines())
+        has_display_math = "$$" in content
+        has_inline_math = bool(re.search(r'\$[^$]+\$', content))
+        assert has_display_math or has_inline_math, (
+            "Vision extraction should produce LaTeX math from this equations-heavy PDF; "
+            "got none — vision may have fallen back to heuristic for all pages"
+        )
 
     def test_ocrd_pdf_passes_scanned_check(self):
-        # Every page is a full-page JPEG, but all pages carry an OCR text layer,
-        # so none should be counted as scanned.
         doc = fitz.open(str(REAL_PDF))
-        _assert_not_scanned(doc)  # must not raise
+        _assert_not_scanned(doc)
 
     def test_all_pages_are_image_based(self):
-        # ADA462991.pdf is a scanned document — every page should be identified
-        # as image-based so the vision pipeline can be applied per-page.
         doc = fitz.open(str(REAL_PDF))
         assert all(_page_is_image_based(doc[i]) for i in range(len(doc)))
