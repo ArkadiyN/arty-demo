@@ -48,3 +48,6 @@ Thumbs.db
 
 # Quarto build cache
 .quarto/
+
+# Raw source PDFs under doc-reference (processed output is committed, not the PDFs)
+doc-reference/**/*.pdf
