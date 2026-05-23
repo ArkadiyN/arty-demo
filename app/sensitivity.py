@@ -70,15 +70,9 @@ with st.sidebar:
         )
 
     with st.expander("Target"):
-        posture = st.radio("Posture", ["Standing (0.5 m)", "Prone (0.25 m)", "Custom"])
-        if posture == "Standing (0.5 m)":
-            w = 0.5
-        elif posture == "Prone (0.25 m)":
-            w = 0.25
-        else:
-            w = st.slider(
-                "Presented width  [m]", 0.05, 1.5, float(TargetParams().w), step=0.05
-            )
+        w = st.slider(
+            "Presented width  [m]", 0.05, 1.5, float(TargetParams().w), step=0.05
+        )
 
     max_radius = st.slider("Analysis radius  [m]", 100.0, 500.0, 300.0, step=10.0)
 
