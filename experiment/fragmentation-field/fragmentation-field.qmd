@@ -9,14 +9,15 @@ jupyter: python3
 
 ## Sources
 
-Sources collected in `doc-reference/fragmentation/` and used in deriving this model:
+Sources collected in `doc-reference/` and used in deriving this model:
 
 | File | Source |
 |------|--------|
-| `gurney-equations-fragmentation/rspa.1947.0042.md` | Mott (1947) "Fragmentation of shell cases", *Proc. Roy. Soc. A* 189 — distribution law and γ calibration table |
-| `fragment-size-distribution-conwep/…` | Gold (2017) PAFRAG fragment size model — eq. (16) for μ |
-| `explosion-fragment-model/…` | Felix, Colwill & Harris (2022) *Defence Technology* — multi-region spatial model; cited in Check 3 for fragment-count bias note |
-| `ada462991-fragment-velocity/ADA462991.md` | Gold (2007) PAFRAG engineering model |
+| `fragmentation/gurney-equations-fragmentation/rspa.1947.0042.md` | Mott (1947) "Fragmentation of shell cases", *Proc. Roy. Soc. A* 189 — distribution law and γ calibration table |
+| `fragmentation/fragment-size-distribution-conwep/…` | Gold (2017) PAFRAG fragment size model — eq. (16) for μ; 3× expansion rule of thumb |
+| `fragmentation/explosion-fragment-model/…` | Felix, Colwill & Harris (2022) *Defence Technology* — fragment shape, aspect ratio, and air resistance |
+| `fragmentation/ada462991-fragment-velocity/ADA462991.md` | Gold (2007) PAFRAG engineering model — velocity distribution vs. spray angle |
+| `wound-ballistics/fas-es310-damage-criteria/…` | FAS/Navy (1998) ES-310 — Pk\|hit anchors and multi-hit formula |
 
 ---
 
@@ -732,35 +733,91 @@ A real artillery shell has three distinct zones: a pointed nose (ogive), a cylin
 body, and a flat base. The Gurney *cylinder* formula models only the body. The nose
 fragments spray forward at steep upward angles; the base fragments spray backward
 and downward. Together these zones account for roughly 20–30 % of the steel mass
-but produce none of the fragments in the current model. Result: the model
-*underestimates* total fragment count and misses the forward- and rear-sector hazard.
+but produce none of the fragments in the current model. Gold (2007) explicitly
+accounts for the tail boom and fuze as separate mass contributors; the one-region
+PAFRAG assumption treats the entire shell as a single cylinder, omitting both end
+zones (Gold 2017, §2). Result: the model *underestimates* total fragment count and
+misses the forward- and rear-sector hazard.
 
 **2 · Fragments do not all fly in one horizontal plane.**
 The cylindrical body does spray predominantly sideways (Figure 4 cross-section), but
-even within the cylinder there is an elevation spread of roughly ±15°–30° around
-horizontal, caused by the oblique angle at which the detonation wave meets the wall.
-The current model puts every fragment at exactly θ = 0° (horizontal), a delta function
-in elevation. This is the dominant contribution for a cylindrical shell, but it means
-the model misses fragments that fly over a prone target or clip a standing target near
-the head or feet.
+even within the cylinder there is an elevation spread around horizontal caused by the
+oblique angle at which the detonation wave meets the wall. Gold (2007, Figs. 3 and 9)
+shows fragment velocity varying continuously with spray angle ψ; the elevation spread
+is roughly ±15°–30°. The current model puts every fragment at exactly θ = 0°
+(horizontal), a delta function in elevation. This is the dominant contribution for a
+cylindrical shell, but it means the model misses fragments that fly over a prone target
+or clip a standing target near the head or feet.
 
 **3 · One velocity for every fragment.**
 Gurney gives a single initial speed V₀ for all fragments, regardless of mass, position
-in the shell, or local explosive density. Real fragments have a velocity distribution
-of roughly ±10–15 % around the Gurney mean. The Mott distribution already captures
-mass spread; combining it with a velocity distribution would widen the lethality
-envelope at short range and narrow it at long range.
+in the shell, or local explosive density. Gold (2007, Fig. 9) shows the measured
+fragment velocity distribution spanning roughly ±10–15 % around the Gurney mean. The
+Mott distribution already captures mass spread; combining it with a velocity
+distribution would widen the lethality envelope at short range and narrow it at long
+range. The Gurney constant itself (2 700 m/s for Comp-B) is a nominal tabulated value;
+aging, temperature, and lot-to-lot density variation can shift it by a few percent,
+which propagates linearly into V₀ and quadratically into fragment kinetic energy
+(no collected source — general explosive engineering).
 
 **4 · The shell falls vertically (90° angle of fall).**
 A shell fired from a gun and landing at 4–6 km range hits the ground at an angle of
 fall of roughly 20°–35°, not 90°. When the axis is tilted from vertical, the
 horizontal spray disk tilts with it: more fragments go forward and downward, fewer go
 rearward and upward. The symmetric circle in Figure 5 becomes an ellipse elongated
-along the line of fire, with the forward sector roughly 30–50 % denser than the
-rear sector. This is the most practically important gap for a field artillery scenario.
+along the line of fire, with the forward sector roughly 30–50 % denser than the rear
+sector. Gold (2017, §2) shows that the detonation wave interaction angle varies
+continuously with the shell geometry, producing azimuthal asymmetry whenever the
+shell axis is not aligned with the detonation direction. This is the most practically
+important gap for a field artillery scenario.
 
 **5 · Shell parameters are not sourced from a collected document.**
 Wall thickness, projectile mass, and charge mass are taken from US Army TM 9-1901
 (cited in code comments) but that manual is not collected in `doc-reference/`.
 If these inputs are wrong, every output shifts — V₀ scales with M/C, and μ scales
 as r_bu³.
+
+**6 · Mott input uncertainties amplify super-linearly.**
+The break-up radius r_bu is derived from the V/V₀ ≈ 3 expansion criterion, which
+Gold (2017, §2) describes as "accepted as a rule of thumb for routine one-region
+PAFRAG modeling" with only fair agreement to high-speed photography. Steel ductility
+variation means harder steel fractures earlier (smaller r_bu, smaller fragments) and
+softer steel fractures later; this carries ~10–20 % uncertainty in r_bu. Because
+μ ∝ r_bu³ (Gold 2017, eq. 5), a 15 % error in r_bu produces a 50 % error in μ.
+Similarly, γ and σ_F each carry ~25 % uncertainty — Mott (1947, Table 1) brackets
+γ at 53–67 for steels ranging from 0.2%C to 0.3%C — and both enter μ as the 3/2
+power (Gold 2017, eq. 5), giving roughly 35–40 % uncertainty in the fragment size
+scale. The R₅₀ sensitivity sweep above captures the σ_F range but not the joint
+uncertainty.
+
+**7 · All fragments are tumbling irregular chunks.**
+The drag model uses C_D = 0.65, appropriate for a randomly oriented irregular
+fragment. Felix et al. (2022, §2.3) document that real fragments are 2–6× longer
+than they are wide, and note that shape "has a significant effect on the air
+resistance restricting the velocity of the fragment." Some of these elongated splinters
+fly with their long axis aligned to the velocity vector (edge-on), producing
+C_D ≈ 0.2–0.4 and reaching 20–40 % further than the model predicts. The fraction of
+aero-stable splinters is not known from first principles; arena tests suggest it is a
+small minority but they dominate the far-field hazard.
+
+**8 · Lethality model assumes no protection and open ground.**
+The ES-310 Pk|hit curve (FAS/Navy 1998) is calibrated for standing unprotected
+infantry: the 4 kJ "heavy kill" anchor is explicitly described as the
+armour-penetrating threshold, meaning the lower anchors (100 J, 1 kJ) apply to bare
+flesh only. Three scenarios are unmodelled: (a) body armour reduces torso
+vulnerability by a factor of roughly 3–5×; (b) a soldier in a foxhole or behind
+cover has only their head and shoulders exposed, reducing presented area by ~80–90 %;
+(c) ground ricochet can redirect fragments that would otherwise miss — particularly
+relevant at shallow angles of fall. All three effects are bounded and could be added
+as scalar multipliers on the presented area w.
+
+**9 · Poisson statistics break down at high fragment density.**
+p_kill = 1 − exp(−N_eff) is correct for a single target: if multiple lethal
+fragments hit, the target is still dead once, and the formula saturates to 1.
+The ES-310 multi-hit formula (FAS/Navy 1998) gives the same per-target result via
+Pk = 1 − (1 − Pk|hit)^N_hits. For a *formation*, however, the model computes each
+soldier's p_kill independently using the full fragment flux — it ignores depletion
+(a fragment that kills soldier A is unavailable to kill soldier B). At close range
+(≤ 50 m) with squad-density formations, this overestimates total expected kills.
+The fix is a hypergeometric draw over the finite fragment count; it is not needed
+for single-target or sparse-formation analysis.
