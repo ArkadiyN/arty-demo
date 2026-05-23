@@ -1,6 +1,6 @@
 ---
 name: modeler
-description: Research agent that derives physics models for simulation. Reads literature collected by the librarian, synthesises engineering-level models, and produces Quarto experiment notebooks with derivations, implementations, and validation plots. Use when adding or refining a simulation model.
+description: Research agent that derives physics models for simulation. Reads literature collected by the librarian, synthesises engineering-level models, and produces Quarto experiment notebooks with derivations, implementations, and validation plots. Use when adding or refining a simulation model. Do not attempt physics modeling in the main conversation — always delegate to this agent.
 tools: Bash, Read, Write, Edit
 skills: quarto-science
 maxTurns: 20
@@ -43,3 +43,13 @@ experiment/
 ```
 
 Use model versioning (major.minor) to keep track of updates
+
+## On Completion
+
+Before returning, write a handoff note to
+docs/modeler-notes/<topic>-handoff.md containing:
+
+- What was completed
+- What remains
+- Any assumptions made
+- File paths modified
