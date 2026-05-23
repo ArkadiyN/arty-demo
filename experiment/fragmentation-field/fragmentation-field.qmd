@@ -821,3 +821,16 @@ soldier's p_kill independently using the full fragment flux — it ignores deple
 (≤ 50 m) with squad-density formations, this overestimates total expected kills.
 The fix is a hypergeometric draw over the finite fragment count; it is not needed
 for single-target or sparse-formation analysis.
+
+**10 · The fragment distribution is continuous — there are no individual fragments.**
+N_eff is computed by integrating the Mott PDF n(m) over mass, treating the fragment
+cloud as a smooth density rather than a discrete set of projectiles. This gives the
+ensemble-mean outcome over many rounds; a single detonation will produce a finite
+count of fragments that scatter around that mean. For the bulk of sub-gram fragments
+this is a good approximation — the count is large and the law of large numbers
+applies. For the heavy tail (multi-gram fragments, counts in the tens to hundreds),
+the discrete nature matters: a single large fragment that happens to land on a target
+is a rare but high-consequence event that the mean integral undersells. Monte Carlo
+simulation — drawing a finite sample from the Mott distribution and propagating each
+fragment individually — would capture this variance. The threshold above which
+discrete sampling is preferable to the continuous integral is not yet determined.
