@@ -1,0 +1,3 @@
+# Quarto notebooks contain LaTeX math blocks that mdformat corrupts
+# (doubles backslashes, strips \, thin-space, escapes subscript underscores)
+*.qmd
