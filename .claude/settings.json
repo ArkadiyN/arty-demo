@@ -19,4 +19,5 @@
      "Write(.claude/worktrees/*)",
      "Edit(.claude/worktrees/*)"
     ]
+  }
 }
