@@ -656,7 +656,7 @@ ax.set_aspect("equal")
 ax.set_xlabel("East [m]"); ax.set_ylabel("North [m]")
 ax.set_title(
     f"Fragmentation Field — 105 mm M1 HE Ground Burst (axis-vertical)\n"
-    f"R₅₀ = {R50:.0f} m  |  79 J threshold  |  standing person"
+    f"R₅₀ = {R50:.0f} m  |  ES-310 Pk|hit  |  standing person"
 )
 ax.plot(0, 0, "k+", ms=10, markeredgewidth=2, label="Burst point")
 ax.legend(loc="upper right", fontsize=8)
@@ -717,7 +717,7 @@ for sf_mpa in [600, 700, 800, 900, 1000]:
   range (angle of fall ≈ 20°–35°), the forward sector receives ≈ 30–50% more
   fragment density than the rear sector. This will be modelled in a follow-on
   iteration.
-- The 79 J threshold applies to standing unprotected infantry. Against a prone
+- The ES-310 Pk|hit curve is calibrated for standing unprotected infantry. Against a prone
   target the presented area halves and the effective lethal radius shrinks ~30%.
 
 ---
