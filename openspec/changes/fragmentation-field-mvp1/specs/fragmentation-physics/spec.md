@@ -72,11 +72,11 @@ ______________________________________________________________________
 
 ### Requirement: compute_frag_field returns a complete result struct
 
-The module SHALL expose `compute_frag_field(shell, mott, drag, target, r_max, n_r) -> FragFieldResult` integrating all sub-models and returning a `FragFieldResult` dataclass with fields: `r` (range array), `p_kill` (per-range kill probability), `ke_by_mass` (dict of representative masses → KE arrays), `field_x`, `field_y`, `field_pk` (2D field arrays), `r50` (scalar), `N0` (total fragment count), `mu` (Mott half-mass).
+The module SHALL expose `compute_frag_field(shell, mott, drag, target, max_radius, n_r) -> FragFieldResult` integrating all sub-models and returning a `FragFieldResult` dataclass with fields: `r` (radial distance from burst array), `p_kill` (per-distance kill probability), `ke_by_mass` (dict of representative masses → KE arrays), `field_x`, `field_y`, `field_pk` (2D field arrays), `r50` (scalar), `N0` (total fragment count), `mu` (Mott half-mass).
 
-#### Scenario: p_kill is strictly decreasing with range
+#### Scenario: p_kill is strictly decreasing with distance from burst
 
-- **WHEN** called with default params and `r_max=300`
+- **WHEN** called with default params and `max_radius=300`
 - **THEN** `result.p_kill` is monotonically non-increasing
 
 #### Scenario: R₅₀ is within expected range for 105mm M1 HE

@@ -80,7 +80,7 @@ with st.sidebar:
                 "Presented width  [m]", 0.05, 1.5, float(TargetParams().w), step=0.05
             )
 
-    r_max = st.slider("Max range  [m]", 100.0, 500.0, 300.0, step=10.0)
+    max_radius = st.slider("Analysis radius  [m]", 100.0, 500.0, 300.0, step=10.0)
 
 # ---------------------------------------------------------------------------
 # Build param structs
@@ -105,11 +105,11 @@ target = TargetParams(w=w)
 
 
 @st.cache_data
-def _compute(shell, mott, drag, target, r_max):
-    return compute_frag_field(shell, mott, drag, target, r_max=r_max)
+def _compute(shell, mott, drag, target, max_radius):
+    return compute_frag_field(shell, mott, drag, target, max_radius=max_radius)
 
 
-result = _compute(shell, mott, drag, target, r_max)
+result = _compute(shell, mott, drag, target, max_radius)
 
 # ---------------------------------------------------------------------------
 # Headline metrics
@@ -132,28 +132,33 @@ left, right = st.columns(2)
 
 # Figure 1 — Mott cumulative distribution
 with left:
-    m_vals = np.logspace(-4, np.log10(500), 300)  # grams
+    m_vals = np.logspace(np.log10(0.01), np.log10(150), 300)  # grams, 10 mg–150 g
     n_vals = result.N0 * np.exp(-np.sqrt(m_vals * 1e-3 / result.mu))
     fig1 = go.Figure()
     fig1.add_trace(
         go.Scatter(
             x=m_vals,
-            y=n_vals,
+            y=np.maximum(n_vals, 0.5),  # clip below 1 so log axis stays meaningful
             mode="lines",
             line=dict(color="#1f77b4", width=2),
-            name="N(>m)",
+            name="N(≥m)",
         )
     )
     fig1.update_layout(
         title="Mott Cumulative Fragment Count",
-        xaxis=dict(title="Fragment mass  [g]", type="log"),
-        yaxis=dict(title="N fragments with mass ≥ m", type="log"),
+        xaxis=dict(title="Fragment mass  [g]", type="log", tickformat=".2g"),
+        yaxis=dict(
+            title="Fragments with mass ≥ m  [count]",
+            type="log",
+            range=[0, np.log10(result.N0 * 2)],
+            tickformat=".2g",
+        ),
         height=340,
-        margin=dict(t=40, b=40, l=60, r=20),
+        margin=dict(t=40, b=40, l=70, r=20),
     )
     st.plotly_chart(fig1, use_container_width=True)
 
-# Figure 2 — KE vs range
+# Figure 2 — KE vs distance from burst
 with right:
     fig2 = go.Figure()
     colours = ["#2ca02c", "#ff7f0e", "#d62728"]
@@ -167,20 +172,40 @@ with right:
                 name=f"{m_g} g",
             )
         )
-    fig2.add_hline(
-        y=100,
-        line=dict(dash="dot", color="gray"),
-        annotation_text="100 J (ES-310 light)",
-    )
-    fig2.add_hline(
-        y=1000,
-        line=dict(dash="dot", color="gray"),
-        annotation_text="1 kJ (ES-310 moderate)",
-    )
+    # Reference lines as explicit traces — add_hline misbehaves on log axes
+    for y_ref, label in [
+        (100, "100 J (ES-310 light)"),
+        (1000, "1 kJ (ES-310 moderate)"),
+    ]:
+        fig2.add_trace(
+            go.Scatter(
+                x=[result.r[0], result.r[-1]],
+                y=[y_ref, y_ref],
+                mode="lines",
+                line=dict(dash="dot", color="gray", width=1),
+                name=label,
+                showlegend=False,
+            )
+        )
+        fig2.add_annotation(
+            x=result.r[-1],
+            y=np.log10(y_ref),
+            text=label,
+            xanchor="right",
+            yanchor="bottom",
+            showarrow=False,
+            font=dict(size=10, color="gray"),
+            yref="y",
+        )
     fig2.update_layout(
-        title="Fragment KE vs Range",
-        xaxis_title="Range  [m]",
-        yaxis=dict(title="Kinetic energy  [J]", type="log"),
+        title="Fragment KE vs Distance from Burst",
+        xaxis_title="Distance from burst  [m]",
+        yaxis=dict(
+            title="Kinetic energy  [J]",
+            type="log",
+            range=[-1, 5],  # 0.1 J – 100 kJ
+            tickformat=".2g",
+        ),
         height=340,
         margin=dict(t=40, b=40, l=60, r=20),
         legend=dict(title="Mass"),
@@ -189,7 +214,7 @@ with right:
 
 left2, right2 = st.columns(2)
 
-# Figure 3 — p_kill vs range
+# Figure 3 — p_kill vs distance from burst
 with left2:
     fig3 = go.Figure()
     fig3.add_trace(
@@ -209,8 +234,8 @@ with left2:
     )
     fig3.add_hline(y=0.5, line=dict(dash="dot", color="gray"))
     fig3.update_layout(
-        title="P(kill) vs Range",
-        xaxis_title="Range  [m]",
+        title="P(kill) vs Distance from Burst",
+        xaxis_title="Distance from burst  [m]",
         yaxis=dict(title="P(kill)", range=[0, 1]),
         height=340,
         margin=dict(t=40, b=40, l=60, r=20),

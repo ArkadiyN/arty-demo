@@ -13,7 +13,7 @@
 - [x] 2.5 Extract and implement `retardation_coeff(m, drag)` from notebook
 - [x] 2.6 Extract and implement `pk_given_hit(E)` with ES-310 anchors from notebook
 - [x] 2.7 Extract and implement `expected_kills(r, N0, mu, V0, drag, target)` from notebook
-- [x] 2.8 Implement `compute_frag_field(shell, mott, drag, target, r_max, n_r)` composing all sub-functions and returning `FragFieldResult`
+- [x] 2.8 Implement `compute_frag_field(shell, mott, drag, target, max_radius, n_r)` composing all sub-functions and returning `FragFieldResult`
 
 ## 3. Shell Registry
 

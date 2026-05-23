@@ -45,7 +45,7 @@ class TargetParams:
 
 @dataclass
 class FragFieldResult:
-    r: np.ndarray  # range values [m]
+    r: np.ndarray  # radial distance from burst [m]
     p_kill: np.ndarray  # p_kill at each r
     r50: float  # range at which p_kill = 0.5 [m]
     ke_by_mass: dict[float, np.ndarray]  # {mass_g: KE array [J]}
@@ -147,21 +147,21 @@ def compute_frag_field(
     mott: MottParams = MottParams(),
     drag: DragParams = DragParams(),
     target: TargetParams = TargetParams(),
-    r_max: float = 300.0,
+    max_radius: float = 300.0,
     n_r: int = 200,
 ) -> FragFieldResult:
     V0 = gurney_velocity(shell)
     mu, N0 = mott_params(shell, mott, V0)
 
-    r = np.linspace(1.0, r_max, n_r)
+    r = np.linspace(1.0, max_radius, n_r)
     N_eff = expected_kills(r, N0, mu, V0, drag, shell.rho_steel, target.w)
     pk = 1.0 - np.exp(-N_eff)
 
-    # R₅₀: range where p_kill crosses 0.5
+    # R₅₀: distance from burst where p_kill crosses 0.5
     idx50 = np.argmin(np.abs(pk - 0.5))
     r50 = float(r[idx50])
 
-    # KE vs range for three representative masses
+    # KE vs distance from burst for three representative masses
     rep_masses_g = [0.5, 5.0, 50.0]
     rep_masses_kg = np.array([m * 1e-3 for m in rep_masses_g])
     lam_rep = retardation_coeff(rep_masses_kg, drag, shell.rho_steel)
@@ -171,7 +171,7 @@ def compute_frag_field(
 
     # 2D field (radially symmetric, interpolated from 1D result)
     grid_n = 120
-    xy = np.linspace(-r_max, r_max, grid_n)
+    xy = np.linspace(-max_radius, max_radius, grid_n)
     X, Y = np.meshgrid(xy, xy)
     R_grid = np.sqrt(X**2 + Y**2)
     pk_grid = np.interp(R_grid.ravel(), r, pk, left=float(pk[0]), right=0.0)

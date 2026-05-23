@@ -1,5 +1,5 @@
 ---
-title: "Fragmentation Field Model"
+title: Fragmentation Field Model
 format:
   html:
     code-fold: true
@@ -11,15 +11,15 @@ jupyter: python3
 
 Sources collected in `doc-reference/` and used in deriving this model:
 
-| File | Source |
-|------|--------|
+| File                                                             | Source                                                                                                         |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `fragmentation/gurney-equations-fragmentation/rspa.1947.0042.md` | Mott (1947) "Fragmentation of shell cases", *Proc. Roy. Soc. A* 189 — distribution law and γ calibration table |
-| `fragmentation/fragment-size-distribution-conwep/…` | Gold (2017) PAFRAG fragment size model — eq. (16) for μ; 3× expansion rule of thumb |
-| `fragmentation/explosion-fragment-model/…` | Felix, Colwill & Harris (2022) *Defence Technology* — fragment shape, aspect ratio, and air resistance |
-| `fragmentation/ada462991-fragment-velocity/ADA462991.md` | Gold (2007) PAFRAG engineering model — velocity distribution vs. spray angle |
-| `wound-ballistics/fas-es310-damage-criteria/…` | FAS/Navy (1998) ES-310 — Pk\|hit anchors and multi-hit formula |
+| `fragmentation/fragment-size-distribution-conwep/…`              | Gold (2017) PAFRAG fragment size model — eq. (16) for μ; 3× expansion rule of thumb                            |
+| `fragmentation/explosion-fragment-model/…`                       | Felix, Colwill & Harris (2022) *Defence Technology* — fragment shape, aspect ratio, and air resistance         |
+| `fragmentation/ada462991-fragment-velocity/ADA462991.md`         | Gold (2007) PAFRAG engineering model — velocity distribution vs. spray angle                                   |
+| `wound-ballistics/fas-es310-damage-criteria/…`                   | FAS/Navy (1998) ES-310 — Pk\|hit anchors and multi-hit formula                                                 |
 
----
+______________________________________________________________________
 
 ## Background
 
@@ -28,8 +28,8 @@ produced by a detonating HE artillery shell — Phase 1 MVP of the WW2 field art
 demonstration. Three sub-models are integrated:
 
 1. **Gurney equation** — initial fragment velocity from explosive energy and M/C mass ratio.
-2. **Mott distribution** — number and mass distribution of fragments from shell break-up statistics.
-3. **Drag decay** — fragment kinetic energy vs. ground distance, assuming flat (horizontal) trajectories.
+1. **Mott distribution** — number and mass distribution of fragments from shell break-up statistics.
+1. **Drag decay** — fragment kinetic energy vs. ground distance, assuming flat (horizontal) trajectories.
 
 **Scope constraints and known limitations:**
 
@@ -50,7 +50,7 @@ demonstration. Three sub-models are integrated:
 
 The default parameters are for a **WW2 105 mm M1 HE shell** loaded with Comp-B.
 
----
+______________________________________________________________________
 
 ## Governing Equations
 
@@ -59,15 +59,15 @@ The default parameters are for a **WW2 105 mm M1 HE shell** loaded with Comp-B.
 For a cylindrical shell the Gurney formula gives initial fragment velocity $V_0$:
 
 $$
-V_0 = \sqrt{2E} \left(\frac{M}{C} + \tfrac{1}{2}\right)^{-1/2} \quad (1)
+V_0 = \\sqrt{2E} \\left(\\frac{M}{C} + \\tfrac{1}{2}\\right)^{-1/2} \\quad (1)
 $$
 
-| Symbol | Description | Unit |
-|--------|-------------|------|
-| $\sqrt{2E}$ | Gurney energy constant (explosive-dependent) | m/s |
-| $M$ | Metal (shell body) mass | kg |
-| $C$ | Explosive charge mass | kg |
-| $V_0$ | Initial fragment velocity | m/s |
+| Symbol       | Description                                  | Unit |
+| ------------ | -------------------------------------------- | ---- |
+| $\\sqrt{2E}$ | Gurney energy constant (explosive-dependent) | m/s  |
+| $M$          | Metal (shell body) mass                      | kg   |
+| $C$          | Explosive charge mass                        | kg   |
+| $V_0$        | Initial fragment velocity                    | m/s  |
 
 Gurney constants: 2 440 m/s (TNT), 2 700 m/s (Comp-B), 2 930 m/s (RDX).
 
@@ -79,26 +79,26 @@ volume of explosive products (V/V₀ ≈ 3). For a cylindrical geometry the inne
 radius grows as:
 
 $$
-r_{i,\text{bu}} = r_{i,0}\,\sqrt{3} \quad (2a)
+r\_{i,\\text{bu}} = r\_{i,0},\\sqrt{3} \\quad (2a)
 $$
 
 Assuming the steel wall is incompressible (volume conserved during radial expansion):
 
 $$
-r_{o,\text{bu}} = \sqrt{r_{i,\text{bu}}^2 + (r_{o,0}^2 - r_{i,0}^2)} \quad (2b)
+r\_{o,\\text{bu}} = \\sqrt{r\_{i,\\text{bu}}^2 + (r\_{o,0}^2 - r\_{i,0}^2)} \\quad (2b)
 $$
 
 The Mott formula uses the **mean** shell radius at break-up:
 
 $$
-r_{\text{bu}} = \tfrac{1}{2}(r_{i,\text{bu}} + r_{o,\text{bu}}) \quad (2c)
+r\_{\\text{bu}} = \\tfrac{1}{2}(r\_{i,\\text{bu}} + r\_{o,\\text{bu}}) \\quad (2c)
 $$
 
-| Symbol | Description | Unit |
-|--------|-------------|------|
-| $r_{i,0}$, $r_{o,0}$ | Initial inner/outer radii | m |
-| $r_{i,\text{bu}}$, $r_{o,\text{bu}}$ | Inner/outer radii at break-up | m |
-| $r_{\text{bu}}$ | Mean shell radius at break-up | m |
+| Symbol                                   | Description                   | Unit |
+| ---------------------------------------- | ----------------------------- | ---- |
+| $r\_{i,0}$, $r\_{o,0}$                   | Initial inner/outer radii     | m    |
+| $r\_{i,\\text{bu}}$, $r\_{o,\\text{bu}}$ | Inner/outer radii at break-up | m    |
+| $r\_{\\text{bu}}$                        | Mean shell radius at break-up | m    |
 
 ### 3 · Mott: Fragment Mass Distribution
 
@@ -106,89 +106,89 @@ At break-up, stress-release waves arrest further fracture in their wake (Mott 19
 The cumulative fragment count is:
 
 $$
-N(m) = N_0 \, \exp\!\left(-\sqrt{m / \mu}\right) \quad (3)
+N(m) = N_0 , \\exp!\\left(-\\sqrt{m / \\mu}\\right) \\quad (3)
 $$
 
-where $N_0 = M_{\text{shell}} / (2\mu)$ and the half-weight $\mu$ (half the average
+where $N_0 = M\_{\\text{shell}} / (2\\mu)$ and the half-weight $\\mu$ (half the average
 fragment mass) from the PAFRAG-Mott formulation (Gold 2017, eq. 16) is:
 
 $$
-\mu = \sqrt{\frac{2}{\rho}}\left(\frac{\sigma_F}{\gamma}\right)^{3/2}
-\left(\frac{r_{\text{bu}}}{V_0}\right)^3 \quad (4)
+\\mu = \\sqrt{\\frac{2}{\\rho}}\\left(\\frac{\\sigma_F}{\\gamma}\\right)^{3/2}
+\\left(\\frac{r\_{\\text{bu}}}{V_0}\\right)^3 \\quad (4)
 $$
 
-This is algebraically identical to the form $\frac{1}{2}(2\sigma_F/\rho^{1/3}\gamma)^{3/2}(r/V_0)^3$;
+This is algebraically identical to the form $\\frac{1}{2}(2\\sigma_F/\\rho^{1/3}\\gamma)^{3/2}(r/V_0)^3$;
 equation (4) matches the PAFRAG source notation exactly.
 
-| Symbol | Description | Unit | Value (105 mm M1) |
-|--------|-------------|------|-------------------|
-| $\rho$ | Shell steel density | kg/m³ | 7 850 |
-| $\sigma_F$ | Dynamic flow stress at fracture | Pa | 800 × 10⁶ |
-| $\gamma$ | Mott statistical fragmentation parameter | — | 65 |
-| $r_{\text{bu}}$ | Mean shell radius at break-up | m | computed |
-| $\mu$ | Half the average fragment mass | kg | computed |
+| Symbol            | Description                              | Unit  | Value (105 mm M1) |
+| ----------------- | ---------------------------------------- | ----- | ----------------- |
+| $\\rho$           | Shell steel density                      | kg/m³ | 7 850             |
+| $\\sigma_F$       | Dynamic flow stress at fracture          | Pa    | 800 × 10⁶         |
+| $\\gamma$         | Mott statistical fragmentation parameter | —     | 65                |
+| $r\_{\\text{bu}}$ | Mean shell radius at break-up            | m     | computed          |
+| $\\mu$            | Half the average fragment mass           | kg    | computed          |
 
-**Note on $\gamma$ and $\sigma_F$:** These are the dominant uncertainties.
+**Note on $\\gamma$ and $\\sigma_F$:** These are the dominant uncertainties.
 Mott (1947) Table 1 gives γ ≈ 53 for 0.2%C steel and γ ≈ 67 for 0.3%C steel.
 US M1 shell bodies use SAE 1045 steel (≈ 0.45%C); γ ≈ 65 is a central estimate.
 Dynamic flow stress at high strain rate is typically 800–1 000 MPa for hardened steel,
 higher than the quasi-static value of 600 MPa. The sensitivity section explores both.
 
-The most probable fragment mass (mode of the number-weighted PDF) is $m_{\text{mode}} = \mu/4$.
+The most probable fragment mass (mode of the number-weighted PDF) is $m\_{\\text{mode}} = \\mu/4$.
 
 ### 4 · Drag: Velocity Decay Along Flat Trajectory
 
 For a fragment of mass $m$ flying horizontally, dividing the drag equation of motion by $v$:
 
 $$
-m \frac{dv}{ds} = -\tfrac{1}{2}\,\rho_{\text{air}}\,C_D\,A_f\,v \quad (5)
+m \\frac{dv}{ds} = -\\tfrac{1}{2},\\rho\_{\\text{air}},C_D,A_f,v \\quad (5)
 $$
 
 This integrates to exponential decay:
 
 $$
-v(s) = V_0\,e^{-\lambda s}, \qquad
-\lambda(m) = \frac{\rho_{\text{air}}\,C_D\,C_{\text{shape}}}{2\,\rho^{2/3}}\,m^{-1/3} \quad (6)
+v(s) = V_0,e^{-\\lambda s}, \\qquad
+\\lambda(m) = \\frac{\\rho\_{\\text{air}},C_D,C\_{\\text{shape}}}{2,\\rho^{2/3}},m^{-1/3} \\quad (6)
 $$
 
 where the mean presented area of a tumbling irregular fragment scales as
-$A_f = C_{\text{shape}}(m/\rho)^{2/3}$, so smaller fragments decelerate faster.
+$A_f = C\_{\\text{shape}}(m/\\rho)^{2/3}$, so smaller fragments decelerate faster.
 
-| Symbol | Description | Unit | Value |
-|--------|-------------|------|-------|
-| $\rho_{\text{air}}$ | Air density (sea level) | kg/m³ | 1.225 |
-| $C_D$ | Drag coefficient, tumbling fragment | — | 0.65 |
-| $C_{\text{shape}}$ | Mean presented-area factor vs. equal-volume cube | — | 0.90 |
+| Symbol                 | Description                                      | Unit  | Value |
+| ---------------------- | ------------------------------------------------ | ----- | ----- |
+| $\\rho\_{\\text{air}}$ | Air density (sea level)                          | kg/m³ | 1.225 |
+| $C_D$                  | Drag coefficient, tumbling fragment              | —     | 0.65  |
+| $C\_{\\text{shape}}$   | Mean presented-area factor vs. equal-volume cube | —     | 0.90  |
 
 ### 5 · Kinetic Energy and Fragmentation Field
 
 Kinetic energy at range $s$:
 
 $$
-E_k(s,m) = \tfrac{1}{2}\,m\,V_0^2\,e^{-2\lambda(m)\,s} \quad (7)
+E_k(s,m) = \\tfrac{1}{2},m,V_0^2,e^{-2\\lambda(m),s} \\quad (7)
 $$
 
-The minimum fragment mass still lethal ($E_k \geq E_{\text{leth}}$) at distance $r$
+The minimum fragment mass still lethal ($E_k \\geq E\_{\\text{leth}}$) at distance $r$
 satisfies the transcendental equation obtained by inverting (7):
 
 $$
-\frac{\rho_{\text{air}}\,C_D\,C_{\text{shape}}}{2\,\rho^{2/3}}\cdot
-\frac{r}{m_{\min}^{1/3}} = \ln\!\sqrt{\frac{m_{\min}\,V_0^2}{2\,E_{\text{leth}}}} \quad (8)
+\\frac{\\rho\_{\\text{air}},C_D,C\_{\\text{shape}}}{2,\\rho^{2/3}}\\cdot
+\\frac{r}{m\_{\\min}^{1/3}} = \\ln!\\sqrt{\\frac{m\_{\\min},V_0^2}{2,E\_{\\text{leth}}}} \\quad (8)
 $$
 
 This is solved numerically by bisection. The number of lethal fragments at range $r$:
 
 $$
-N_{\text{lethal}}(r) = N\!\left(m_{\min}(r)\right) \quad (9)
+N\_{\\text{lethal}}(r) = N!\\left(m\_{\\min}(r)\\right) \\quad (9)
 $$
 
 Hit probability on a standing person of presented width $w$ (Poisson):
 
 $$
-P_{\text{hit}}(r) = 1 - \exp\!\left(-\frac{N_{\text{lethal}}(r)\,w}{2\pi r}\right) \quad (10)
+P\_{\\text{hit}}(r) = 1 - \\exp!\\left(-\\frac{N\_{\\text{lethal}}(r),w}{2\\pi r}\\right) \\quad (10)
 $$
 
----
+______________________________________________________________________
 
 ## Parameters
 
@@ -246,7 +246,7 @@ print(f"  Shell body (M)   : {mass_shell:.2f} kg")
 print(f"  M/C ratio        : {mass_shell/mass_charge:.2f}")
 ```
 
----
+______________________________________________________________________
 
 ## Implementation
 
@@ -378,7 +378,7 @@ for m_g in [0.5, 1, 5, 10, 50]:
     print(f"  N(m > {m_g:4.1f} g)   : {mott_N(np.array([m_g*1e-3]), N0, mu)[0]:.0f}")
 ```
 
----
+______________________________________________________________________
 
 ## Validation
 
@@ -421,10 +421,10 @@ lethality threshold.
 
 Two distinct benchmarks apply:
 
-| Benchmark | Source | Expected range for N(> 0.5 g) |
-|-----------|--------|-------------------------------|
-| **Mott model self-consistency** | Gold (2017) uses γ = 50, Comp-B, similar velocity | 3 000–8 000 |
-| **Arena test recovery** | Physical shells, ~50–70% recovery efficiency for > 0.5 g | 800–3 000 |
+| Benchmark                       | Source                                                   | Expected range for N(> 0.5 g) |
+| ------------------------------- | -------------------------------------------------------- | ----------------------------- |
+| **Mott model self-consistency** | Gold (2017) uses γ = 50, Comp-B, similar velocity        | 3 000–8 000                   |
+| **Arena test recovery**         | Physical shells, ~50–70% recovery efficiency for > 0.5 g | 800–3 000                     |
 
 The model is compared against the first benchmark; arena counts are lower because of
 recovery losses, not a model defect.
@@ -466,8 +466,8 @@ print(f"  KE(s=0) = {ke0:.2f} J,  ½mV₀² = {ke_exp:.2f} J  "
 ### Check 6: Lethal-mass bisection correctness
 
 The bisection helper `min_lethal_mass` (used internally) is validated against a
-closed-form solution. At s = 0, drag is zero, so ½ m V₀² = E\_ref exactly →
-m\_min = 2 E\_ref / V₀². Using E\_ref = 79 J as a convenient reference point.
+closed-form solution. At s = 0, drag is zero, so ½ m V₀² = E_ref exactly →
+m_min = 2 E_ref / V₀². Using E_ref = 79 J as a convenient reference point.
 
 ```{python}
 E_ref = 79.0  # J — used only as a bisection validation reference, not the model threshold
@@ -486,7 +486,7 @@ assert m_min_far == 2.0, f"expected m_hi=2.0 at extreme range, got {m_min_far}"
 print("  ✓ returns m_hi at extreme range (no lethal fragments)")
 ```
 
----
+______________________________________________________________________
 
 ## Fragmentation Field Plots
 
@@ -533,8 +533,8 @@ for e_j, pk_v, col in zip(_PK_E, _PK_VAL, ["gold", "orange", "red"]):
     ax.axhline(e_j, color=col, ls="--", lw=1.2,
                label=f"ES-310: {e_j/1e3 if e_j>=1000 else e_j:.0f}{'kJ' if e_j>=1000 else 'J'} → Pk={pk_v}")
 ax.set_yscale("log")
-ax.set_xlabel("Range s [m]"); ax.set_ylabel("Kinetic energy [J]")
-ax.set_title("Fragment KE vs. Range — 105 mm M1")
+ax.set_xlabel("Distance from burst s [m]"); ax.set_ylabel("Kinetic energy [J]")
+ax.set_title("Fragment KE vs. Distance from Burst — 105 mm M1")
 ax.legend(title="Fragment mass", fontsize=8)
 fig.tight_layout()
 plt.savefig("ke_vs_range.png", dpi=120, bbox_inches="tight")
@@ -670,7 +670,7 @@ plt.savefig("frag_field_2d.png", dpi=120, bbox_inches="tight")
 plt.show()
 ```
 
----
+______________________________________________________________________
 
 ## Key Findings
 
@@ -721,7 +721,7 @@ for sf_mpa in [600, 700, 800, 900, 1000]:
 - The ES-310 Pk|hit curve is calibrated for standing unprotected infantry. Against a prone
   target the presented area halves and the effective lethal radius shrinks ~30%.
 
----
+______________________________________________________________________
 
 ## Model Limitations — What the Gurney Cylinder Assumption Ignores
 
