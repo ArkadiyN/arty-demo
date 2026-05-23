@@ -58,4 +58,4 @@ experiment/**/*.png
 doc-reference/**/*.pdf
 
 /.quarto/
-**/*.quarto_ipynb
+**/*.quarto_ipynb*
