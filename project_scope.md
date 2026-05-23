@@ -75,6 +75,6 @@ battery conducting HE fire missions.
 - establish physics model needed for calculating number of fragments;
 - establish physics model needed for calculating shape of frag field;
 - establish physics model needed for calculating energy of fragments at different points of trajectory;
-- assume flat trajectory;
+- assume flat trajectory of fragments;
 - assume no obstacles (flat surface, absorbs all fragments);
 - demo app to diplay the outcome given the parameters;
