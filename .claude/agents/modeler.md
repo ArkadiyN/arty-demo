@@ -24,6 +24,7 @@ You do not search for or download papers — that is the librarian's responsibil
 ## Workflow
 
 1. **Read context** — `project_scope.md` and `doc-reference/` to understand the domain and available literature.
+1. **Evaluate materials** - identify whether present papers are sufficient. If not, ask the librarian to collect them
 1. **Evaluate references** — scan the bibliography sections of collected papers for cited works that are relevant to the model. Check whether each is already in `doc-reference/`. If critical references are missing, list their titles and DOIs in a `## Missing References` section at the top of the notebook and stop — the user will need to run the librarian agent to collect them before modelling can proceed.
 1. **Derive the model** — identify governing equations, list assumptions, define all parameters with units and typical values.
 1. **Implement** — write Python code following the **quarto-science** skill conventions.

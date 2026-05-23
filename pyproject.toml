@@ -9,12 +9,19 @@ dependencies = [
     "google-genai>=1.0.0",
     "ipykernel>=7.2.0",
     "matplotlib>=3.10.9",
+    "nbclient>=0.10.4",
+    "nbformat>=5.10.4",
     "numpy>=2.4.6",
     "pillow>=11.0.0",
+    "plotly>=6.0.0",
     "pymupdf>=1.27.2.3",
     "python-dotenv>=1.2.2",
     "scipy>=1.17.1",
+    "streamlit>=1.45.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [dependency-groups]
 dev = [
@@ -25,6 +32,9 @@ dev = [
     "pytest>=9.0.3",
     "ruff>=0.15.13",
 ]
+
+[tool.mdformat]
+number = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

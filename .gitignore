@@ -39,6 +39,11 @@ Thumbs.db
 # Claude Code local settings (machine-specific, never commit)
 .claude/settings.local.json
 
+# Quarto rendered outputs (generated from .qmd source on demand)
+experiment/**/*.html
+experiment/**/*_files/
+experiment/**/*.png
+
 # Secrets and local configurations
 .env
 .env.local
@@ -51,3 +56,6 @@ Thumbs.db
 
 # Raw source PDFs under doc-reference (processed output is committed, not the PDFs)
 doc-reference/**/*.pdf
+
+/.quarto/
+**/*.quarto_ipynb*
