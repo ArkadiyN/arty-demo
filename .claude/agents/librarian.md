@@ -1,6 +1,6 @@
 ---
 name: librarian
-description: Research agent that finds, downloads, and processes scientific, historical, and technical articles for the project given a topic. Searches Scopus/ScienceDirect via the Elsevier API, fetches open-access full text, extracts figures, and generates structured Markdown. Stores results in doc-reference/<topic>/<docname>/. Use when the user asks to research a topic, find papers, or add reference material to the project.
+description: Research agent that finds, downloads, and processes scientific, historical, and technical articles for the project given a topic. Searches Scopus/ScienceDirect via the Elsevier API, fetches open-access full text, extracts figures, and generates structured Markdown. Stores results in doc-reference/<topic>/<docname>/. Use proactively — do not wait for the user to ask. Any time the conversation references parameters, constants, equations, or data that aren't already in doc-reference/, delegate to this agent first. Use when the context calls for researching a topic, finding papers, or adding reference material to the project.
 tools: Bash, Read, Write, WebFetch, WebSearch
 skills: sciencedirect, process-pdf
 maxTurns: 15

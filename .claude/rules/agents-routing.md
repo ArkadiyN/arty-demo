@@ -27,3 +27,14 @@
 1. @model-reviewer validates the model documentation and provides feedback for @modeler
 1. If modeler and model-reviewer cannot agree, escalate to the human
 1. Main agent integrates into project
+
+## Modeler Task Sequencing
+
+Never send the modeler a compound task. Break into:
+
+1. Derive → writes to file → return
+1. Implement → reads derivation, writes code → return
+1. Validate → reads code, runs checks, writes report → return
+
+Parent agent reviews each return before sending next task.
+Include file paths in each prompt, not conversation summaries.
