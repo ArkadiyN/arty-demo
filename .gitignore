@@ -56,3 +56,6 @@ experiment/**/*.png
 
 # Raw source PDFs under doc-reference (processed output is committed, not the PDFs)
 doc-reference/**/*.pdf
+
+/.quarto/
+**/*.quarto_ipynb
