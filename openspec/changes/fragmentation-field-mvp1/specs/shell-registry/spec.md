@@ -12,7 +12,7 @@
 #### Scenario: Preset values match notebook defaults
 
 - **WHEN** `SHELLS["105mm M1 HE"]` is accessed
-- **THEN** `gurney_const == 2700.0`, `mass_shell == 14.97`, `mass_charge == 2.18`, `r_inner == 0.0519`, `wall_t == 0.011`
+- **THEN** `filler.name == "TNT"`, `filler.gurney_const == 2440.0`, `mass_total == 14.97`, `mass_filler == 2.18`, `wall_t == 0.011`
 
 ______________________________________________________________________
 

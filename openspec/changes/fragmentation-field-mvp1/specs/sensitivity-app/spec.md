@@ -13,7 +13,7 @@ ______________________________________________________________________
 
 ### Requirement: Parameter sliders are grouped by model section
 
-The app SHALL display sliders in four collapsible groups matching the model structure: **Shell & Explosive** (`gurney_const`, `mass_shell`, `mass_charge`, `r_inner`, `wall_t`), **Mott Fragmentation** (`gamma`, `sigma_f`, `rho_steel`), **Drag** (`C_D`, `rho_air`), **Target** (`w` with a standing/prone radio as a shortcut).
+The app SHALL display controls in four collapsible groups matching the model structure: **Shell & Explosive** (filler type selectbox from `FILLERS`, `mass_total`, `mass_filler`, `caliber`, `wall_t`), **Mott Fragmentation** (`gamma`, `sigma_f`, `rho_steel`), **Drag** (`C_D`, `rho_air`), **Target** (`w`).
 
 #### Scenario: Slider ranges cover the uncertainty bands from the notebook
 
@@ -33,7 +33,7 @@ The app SHALL display four figures — Mott cumulative distribution, KE vs range
 
 #### Scenario: 2D field reflects target width change
 
-- **WHEN** user selects "prone" target posture
+- **WHEN** user moves the presented width slider
 - **THEN** the 2D field figure re-renders with a visibly smaller lethal radius
 
 ______________________________________________________________________

@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from arty.fragmentation import (
+    FILLERS,
     DragParams,
     MottParams,
     ShellParams,
@@ -25,7 +26,8 @@ def test_shell_params_defaults():
     assert s.wall_t == pytest.approx(0.011)
     assert s.mass_total == pytest.approx(14.97)
     assert s.mass_filler == pytest.approx(2.18)
-    assert s.gurney_const == pytest.approx(2700.0)
+    assert s.filler.name == "TNT"
+    assert s.filler.gurney_const == pytest.approx(2440.0)
     assert s.rho_steel == pytest.approx(7850.0)
 
 
@@ -51,8 +53,8 @@ def test_gurney_velocity_in_bracket():
 
 
 def test_gurney_velocity_increases_with_gurney_const():
-    v_low = gurney_velocity(ShellParams(gurney_const=2440.0))
-    v_high = gurney_velocity(ShellParams(gurney_const=2930.0))
+    v_low = gurney_velocity(ShellParams(filler=FILLERS["TNT"]))
+    v_high = gurney_velocity(ShellParams(filler=FILLERS["RDX"]))
     assert v_high > v_low
 
 
@@ -153,7 +155,8 @@ def test_shell_registry_contains_105mm():
 
 def test_105mm_preset_values():
     s = SHELLS["105mm M1 HE"]
-    assert s.gurney_const == pytest.approx(2700.0)
+    assert s.filler.name == "TNT"
+    assert s.filler.gurney_const == pytest.approx(2440.0)
     assert s.mass_total == pytest.approx(14.97)
     assert s.mass_filler == pytest.approx(2.18)
 
@@ -162,4 +165,4 @@ def test_adding_second_shell_does_not_break_existing(monkeypatch):
     import arty.shells as shells_mod
 
     monkeypatch.setitem(shells_mod.SHELLS, "test-shell", ShellParams(caliber=0.075))
-    assert shells_mod.SHELLS["105mm M1 HE"].gurney_const == pytest.approx(2700.0)
+    assert shells_mod.SHELLS["105mm M1 HE"].filler.name == "TNT"

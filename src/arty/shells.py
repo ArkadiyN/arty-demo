@@ -1,4 +1,4 @@
-from arty.fragmentation import ShellParams
+from arty.fragmentation import FILLERS, ShellParams
 
 SHELLS: dict[str, ShellParams] = {
     "105mm M1 HE": ShellParams(
@@ -7,7 +7,7 @@ SHELLS: dict[str, ShellParams] = {
         mass_total=14.97,
         mass_filler=2.18,
         mass_deductions=0.75,
-        gurney_const=2700.0,
+        filler=FILLERS["TNT"],
         rho_steel=7850.0,
     ),
 }

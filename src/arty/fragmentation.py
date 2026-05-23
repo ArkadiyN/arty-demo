@@ -10,13 +10,26 @@ import numpy as np
 
 
 @dataclass(frozen=True)
+class FillerParams:
+    name: str
+    gurney_const: float  # Gurney energy constant sqrt(2E) [m/s]
+
+
+FILLERS: dict[str, FillerParams] = {
+    "TNT":    FillerParams("TNT",    2440.0),
+    "Comp-B": FillerParams("Comp-B", 2700.0),
+    "RDX":    FillerParams("RDX",    2830.0),
+}
+
+
+@dataclass(frozen=True)
 class ShellParams:
     caliber: float = 0.105  # outer diameter [m]
     wall_t: float = 0.011  # cylindrical wall thickness [m]
     mass_total: float = 14.97  # total projectile mass [kg]
     mass_filler: float = 2.18  # explosive filler mass [kg]
     mass_deductions: float = 0.75  # fuze + rotating band [kg]
-    gurney_const: float = 2700.0  # Gurney constant sqrt(2E) [m/s]
+    filler: FillerParams = FILLERS["TNT"]  # explosive type
     rho_steel: float = 7850.0  # steel density [kg/m³]
 
 
@@ -87,7 +100,7 @@ def _shell_geometry(shell: ShellParams) -> tuple[float, float, float, float]:
 
 def gurney_velocity(shell: ShellParams) -> float:
     _, _, _, mass_shell = _shell_geometry(shell)
-    return shell.gurney_const / np.sqrt(mass_shell / shell.mass_filler + 0.5)
+    return shell.filler.gurney_const / np.sqrt(mass_shell / shell.mass_filler + 0.5)
 
 
 def mott_params(shell: ShellParams, mott: MottParams, V0: float) -> tuple[float, float]:

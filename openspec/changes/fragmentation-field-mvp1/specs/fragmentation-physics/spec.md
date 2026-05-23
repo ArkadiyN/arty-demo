@@ -2,12 +2,12 @@
 
 ### Requirement: Parameter structs define all model inputs
 
-The module SHALL expose four dataclasses — `ShellParams`, `MottParams`, `DragParams`, `TargetParams` — with typed fields and default values matching the validated 105mm M1 HE parameters from the Quarto notebook. All fields SHALL have defaults so callers can override only what they need.
+The module SHALL expose four dataclasses — `ShellParams`, `MottParams`, `DragParams`, `TargetParams` — with typed fields and default values matching the validated 105mm M1 HE parameters from the Quarto notebook. All fields SHALL have defaults so callers can override only what they need. Explosive type SHALL be encoded via `FillerParams` (name, gurney_const) with a `FILLERS` registry; `ShellParams.filler` references a `FillerParams` instance.
 
 #### Scenario: Default construction matches notebook values
 
 - **WHEN** `ShellParams()` is constructed with no arguments
-- **THEN** `gurney_const == 2700.0`, `mass_shell == 14.97`, `mass_charge == 2.18`
+- **THEN** `filler.name == "TNT"`, `filler.gurney_const == 2440.0`, `mass_total == 14.97`, `mass_filler == 2.18`
 
 #### Scenario: Field override leaves others unchanged
 
@@ -16,7 +16,7 @@ The module SHALL expose four dataclasses — `ShellParams`, `MottParams`, `DragP
 
 ______________________________________________________________________
 
-### Requirement: Gurney velocity is computed from shell and charge mass
+### Requirement: Gurney velocity is computed from shell and filler mass
 
 The module SHALL expose `gurney_velocity(shell: ShellParams) -> float` returning initial fragment velocity in m/s using the Gurney cylinder formula.
 

@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from arty.fragmentation import (
+    FILLERS,
     DragParams,
     MottParams,
     ShellParams,
@@ -26,13 +27,12 @@ with st.sidebar:
     preset = SHELLS[shell_name]
 
     with st.expander("Shell & Explosive", expanded=True):
-        gurney_const = st.slider(
-            "Gurney constant √(2E)  [m/s]",
-            2000.0,
-            3200.0,
-            float(preset.gurney_const),
-            step=10.0,
+        filler_name = st.selectbox(
+            "Filler type",
+            list(FILLERS.keys()),
+            index=list(FILLERS.keys()).index(preset.filler.name),
         )
+        filler = FILLERS[filler_name]
         mass_total = st.slider(
             "Total projectile mass  [kg]", 5.0, 50.0, float(preset.mass_total), step=0.1
         )
@@ -86,7 +86,7 @@ shell = ShellParams(
     mass_total=mass_total,
     mass_filler=mass_filler,
     mass_deductions=preset.mass_deductions,
-    gurney_const=gurney_const,
+    filler=filler,
     rho_steel=rho_steel,
 )
 mott = MottParams(gamma=gamma, sigma_f=sigma_f * 1e6)

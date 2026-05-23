@@ -48,7 +48,7 @@ demonstration. Three sub-models are integrated:
   velocity.
 - No obstacles; flat absorbing surface.
 
-The default parameters are for a **WW2 105 mm M1 HE shell** loaded with Comp-B.
+The default parameters are for a **WW2 105 mm M1 HE shell** loaded with TNT.
 
 ______________________________________________________________________
 
@@ -196,7 +196,7 @@ ______________________________________________________________________
 import numpy as np
 
 # --- Explosive ---
-gurney_const = 2700.0     # sqrt(2E) Comp-B [m/s]
+gurney_const = 2440.0     # sqrt(2E) TNT [m/s]
 
 # --- Shell geometry (105 mm M1 HE) ---
 caliber_m   = 0.105       # outer diameter [m]
@@ -211,7 +211,7 @@ r_bu        = 0.5 * (r_inner_bu + r_outer_bu)                      # mean radius
 
 # --- Mass (TM 9-1901) ---
 mass_total  = 14.97       # total projectile [kg]
-mass_filler = 2.18        # Comp-B filler [kg]
+mass_filler = 2.18        # TNT filler [kg]
 # Shell body = total − filler − fuze (≈ 0.45 kg) − rotating band (≈ 0.30 kg)
 mass_shell  = mass_total - mass_filler - 0.75
 
@@ -241,7 +241,7 @@ print(f"  r_outer (bu)     : {r_outer_bu*1e3:.1f} mm  (wall volume conserved)")
 print(f"  r_mean  (bu)     : {r_bu*1e3:.1f} mm  ← used in Mott formula")
 print(f"\n=== Mass ===")
 print(f"  Projectile       : {mass_total:.2f} kg")
-print(f"  Filler (Comp-B)  : {mass_filler:.2f} kg")
+print(f"  Filler (TNT)     : {mass_filler:.2f} kg")
 print(f"  Shell body (M)   : {mass_shell:.2f} kg")
 print(f"  M/C ratio        : {mass_shell/mass_filler:.2f}")
 ```
@@ -755,7 +755,7 @@ in the shell, or local explosive density. Gold (2007, Fig. 9) shows the measured
 fragment velocity distribution spanning roughly ±10–15 % around the Gurney mean. The
 Mott distribution already captures mass spread; combining it with a velocity
 distribution would widen the lethality envelope at short range and narrow it at long
-range. The Gurney constant itself (2 700 m/s for Comp-B) is a nominal tabulated value;
+range. The Gurney constant itself (2 440 m/s for TNT) is a nominal tabulated value;
 aging, temperature, and lot-to-lot density variation can shift it by a few percent,
 which propagates linearly into V₀ and quadratically into fragment kinetic energy
 (no collected source — general explosive engineering).
