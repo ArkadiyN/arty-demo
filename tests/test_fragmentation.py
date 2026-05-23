@@ -24,7 +24,7 @@ def test_shell_params_defaults():
     assert s.caliber == pytest.approx(0.105)
     assert s.wall_t == pytest.approx(0.011)
     assert s.mass_total == pytest.approx(14.97)
-    assert s.mass_charge == pytest.approx(2.18)
+    assert s.mass_filler == pytest.approx(2.18)
     assert s.gurney_const == pytest.approx(2700.0)
     assert s.rho_steel == pytest.approx(7850.0)
 
@@ -155,7 +155,7 @@ def test_105mm_preset_values():
     s = SHELLS["105mm M1 HE"]
     assert s.gurney_const == pytest.approx(2700.0)
     assert s.mass_total == pytest.approx(14.97)
-    assert s.mass_charge == pytest.approx(2.18)
+    assert s.mass_filler == pytest.approx(2.18)
 
 
 def test_adding_second_shell_does_not_break_existing(monkeypatch):

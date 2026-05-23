@@ -36,8 +36,8 @@ with st.sidebar:
         mass_total = st.slider(
             "Total projectile mass  [kg]", 5.0, 50.0, float(preset.mass_total), step=0.1
         )
-        mass_charge = st.slider(
-            "Charge mass  [kg]", 0.5, 12.0, float(preset.mass_charge), step=0.05
+        mass_filler = st.slider(
+            "Filler mass  [kg]", 0.5, 12.0, float(preset.mass_filler), step=0.05
         )
         caliber_mm = st.slider(
             "Caliber  [mm]", 75.0, 155.0, float(preset.caliber * 1e3), step=1.0
@@ -84,7 +84,7 @@ shell = ShellParams(
     caliber=caliber_mm / 1e3,
     wall_t=wall_t_mm / 1e3,
     mass_total=mass_total,
-    mass_charge=mass_charge,
+    mass_filler=mass_filler,
     mass_deductions=preset.mass_deductions,
     gurney_const=gurney_const,
     rho_steel=rho_steel,
@@ -109,7 +109,7 @@ result = _compute(shell, mott, drag, target, max_radius)
 # Headline metrics
 # ---------------------------------------------------------------------------
 
-mass_shell = shell.mass_total - shell.mass_charge - shell.mass_deductions
+mass_shell = shell.mass_total - shell.mass_filler - shell.mass_deductions
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("R₅₀", f"{result.r50:.0f} m")
 col2.metric("V₀", f"{result.V0:.0f} m/s")

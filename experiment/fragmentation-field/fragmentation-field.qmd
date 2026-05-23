@@ -44,7 +44,7 @@ demonstration. Three sub-models are integrated:
   the line of fire, with more fragments projected forward and aft than to the sides. The
   angle-of-fall correction is deferred to a later model iteration.
 - Shell dimensions and mass are fully used: caliber and wall thickness drive the break-up
-  radius → Mott half-mass; shell mass and charge mass drive the Gurney M/C ratio → initial
+  radius → Mott half-mass; shell mass and filler mass drive the Gurney M/C ratio → initial
   velocity.
 - No obstacles; flat absorbing surface.
 
@@ -66,7 +66,7 @@ $$
 | ------------ | -------------------------------------------- | ---- |
 | $\\sqrt{2E}$ | Gurney energy constant (explosive-dependent) | m/s  |
 | $M$          | Metal (shell body) mass                      | kg   |
-| $C$          | Explosive charge mass                        | kg   |
+| $C$          | Explosive filler mass                        | kg   |
 | $V_0$        | Initial fragment velocity                    | m/s  |
 
 Gurney constants: 2 440 m/s (TNT), 2 700 m/s (Comp-B), 2 930 m/s (RDX).
@@ -211,9 +211,9 @@ r_bu        = 0.5 * (r_inner_bu + r_outer_bu)                      # mean radius
 
 # --- Mass (TM 9-1901) ---
 mass_total  = 14.97       # total projectile [kg]
-mass_charge = 2.18        # Comp-B filler [kg]
-# Shell body = total − charge − fuze (≈ 0.45 kg) − rotating band (≈ 0.30 kg)
-mass_shell  = mass_total - mass_charge - 0.75
+mass_filler = 2.18        # Comp-B filler [kg]
+# Shell body = total − filler − fuze (≈ 0.45 kg) − rotating band (≈ 0.30 kg)
+mass_shell  = mass_total - mass_filler - 0.75
 
 # --- Steel (SAE 1045, ~0.45%C) ---
 rho_steel   = 7850.0      # density [kg/m³]
@@ -241,9 +241,9 @@ print(f"  r_outer (bu)     : {r_outer_bu*1e3:.1f} mm  (wall volume conserved)")
 print(f"  r_mean  (bu)     : {r_bu*1e3:.1f} mm  ← used in Mott formula")
 print(f"\n=== Mass ===")
 print(f"  Projectile       : {mass_total:.2f} kg")
-print(f"  Charge (Comp-B)  : {mass_charge:.2f} kg")
+print(f"  Filler (Comp-B)  : {mass_filler:.2f} kg")
 print(f"  Shell body (M)   : {mass_shell:.2f} kg")
-print(f"  M/C ratio        : {mass_shell/mass_charge:.2f}")
+print(f"  M/C ratio        : {mass_shell/mass_filler:.2f}")
 ```
 
 ______________________________________________________________________
@@ -362,7 +362,7 @@ def p_kill(N_eff: np.ndarray) -> np.ndarray:
 ```
 
 ```{python}
-V0 = gurney_velocity(gurney_const, mass_shell, mass_charge)
+V0 = gurney_velocity(gurney_const, mass_shell, mass_filler)
 mu = mott_half_mass(rho_steel, sigma_F, gamma_mott, r_bu, V0)
 N0 = mass_shell / (2.0 * mu)
 
@@ -392,7 +392,7 @@ print("Gurney velocity vs. M/C:")
 for mc in [4.0, 5.0, 5.6, 6.0, 7.0, 8.0]:
     print(f"  M/C={mc:.1f}  →  {gurney_const/np.sqrt(mc+0.5):.0f} m/s")
 in_bracket = 900 <= V0 <= 1400
-print(f"\n  105 mm M1: M/C={mass_shell/mass_charge:.2f}  V0={V0:.0f} m/s  "
+print(f"\n  105 mm M1: M/C={mass_shell/mass_filler:.2f}  V0={V0:.0f} m/s  "
       f"{'✓ in bracket' if in_bracket else '⚠ outside bracket'}")
 assert in_bracket
 ```
@@ -772,7 +772,7 @@ shell axis is not aligned with the detonation direction. This is the most practi
 important gap for a field artillery scenario.
 
 **5 · Shell parameters are not sourced from a collected document.**
-Wall thickness, projectile mass, and charge mass are taken from US Army TM 9-1901
+Wall thickness, projectile mass, and filler mass are taken from US Army TM 9-1901
 (cited in code comments) but that manual is not collected in `doc-reference/`.
 If these inputs are wrong, every output shifts — V₀ scales with M/C, and μ scales
 as r_bu³.

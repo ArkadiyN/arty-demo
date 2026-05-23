@@ -14,7 +14,7 @@ class ShellParams:
     caliber: float = 0.105  # outer diameter [m]
     wall_t: float = 0.011  # cylindrical wall thickness [m]
     mass_total: float = 14.97  # total projectile mass [kg]
-    mass_charge: float = 2.18  # explosive charge mass [kg]
+    mass_filler: float = 2.18  # explosive filler mass [kg]
     mass_deductions: float = 0.75  # fuze + rotating band [kg]
     gurney_const: float = 2700.0  # Gurney constant sqrt(2E) [m/s]
     rho_steel: float = 7850.0  # steel density [kg/m³]
@@ -76,7 +76,7 @@ def _shell_geometry(shell: ShellParams) -> tuple[float, float, float, float]:
     r_inner_bu = r_inner * np.sqrt(3.0)
     r_outer_bu = np.sqrt(r_inner_bu**2 + (r_outer**2 - r_inner**2))
     r_bu = 0.5 * (r_inner_bu + r_outer_bu)
-    mass_shell = shell.mass_total - shell.mass_charge - shell.mass_deductions
+    mass_shell = shell.mass_total - shell.mass_filler - shell.mass_deductions
     return r_outer, r_inner, r_bu, mass_shell
 
 
@@ -87,7 +87,7 @@ def _shell_geometry(shell: ShellParams) -> tuple[float, float, float, float]:
 
 def gurney_velocity(shell: ShellParams) -> float:
     _, _, _, mass_shell = _shell_geometry(shell)
-    return shell.gurney_const / np.sqrt(mass_shell / shell.mass_charge + 0.5)
+    return shell.gurney_const / np.sqrt(mass_shell / shell.mass_filler + 0.5)
 
 
 def mott_params(shell: ShellParams, mott: MottParams, V0: float) -> tuple[float, float]:
