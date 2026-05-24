@@ -377,6 +377,13 @@ print(f"  Half-weight μ    : {mu*1e3:.2f} g")
 print(f"  Avg frag mass 2μ : {2*mu*1e3:.2f} g")
 print(f"  Mode mass  μ/4   : {mu/4*1e3:.2f} g")
 print(f"  Total frags N0   : {N0:.0f}")
+
+# Cavity/wall-thickness ratio: doctrinal break-up diagnostic.
+# r_inner and wall_t are the initial (pre-detonation) shell geometry from §3.
+cavity_wall_ratio = (2 * r_inner) / wall_t   # inner diameter / wall thickness
+print(f"  Cavity/wall-thickness ratio (d_i / t_w) : {cavity_wall_ratio:.1f}")
+print(f"    Doctrinal reference: 25-pdr ≈ 4, ideal ≈ 10")
+print(f"    Higher ratio → more, smaller fragments (lower μ)")
 for m_g in [0.5, 1, 5, 10, 50]:
     print(f"  N(m > {m_g:4.1f} g)   : {mott_N(np.array([m_g*1e-3]), N0, mu)[0]:.0f}")
 ```
@@ -487,6 +494,31 @@ print("  ✓ bisection matches closed form at s=0")
 m_min_far = min_lethal_mass(10000.0, V0, E_ref, rho_air, C_D, C_shape, rho_steel)
 assert m_min_far == 2.0, f"expected m_hi=2.0 at extreme range, got {m_min_far}"
 print("  ✓ returns m_hi at extreme range (no lethal fragments)")
+```
+
+### Check 5b: Historical spot-check — 3.5 g fragment at 61 m → Pk ≈ 50%
+
+A British WW2 source states that a fragment of 1/8 oz (~3.5 g) or more has a 50%
+probability of being lethal at 200 feet (~61 m) from the point of burst, given a hit
+on a vital organ. This is a conditional probability — Pk|hit, exactly what our model
+computes. We verify this at ground burst (hb ≈ 0, AoF = 0°, cross-range y = 61 m)
+using the standing-target geometry.
+
+```{python}
+# Check 5b — historical spot-check: 3.5 g fragment at 61 m
+m_ref   = 3.5e-3          # kg  (1/8 oz)
+s_ref   = 61.0            # m   (200 ft slant range — ground burst, y = 61 m)
+# Use 105 mm M1 default shell params already defined above
+lam_ref = retardation_coeff(np.array([m_ref]), rho_air, C_D, C_shape, rho_steel)[0]
+V_s     = V0 * np.exp(-lam_ref * s_ref)
+KE_s    = 0.5 * m_ref * V_s**2
+Pk_s    = pk_given_hit(KE_s)
+print(f"3.5 g fragment at {s_ref:.0f} m:")
+print(f"  Retained velocity : {V_s:.1f} m/s")
+print(f"  Kinetic energy    : {KE_s:.1f} J")
+print(f"  Pk|hit (ES-310)   : {Pk_s:.2%}")
+assert 0.35 <= Pk_s <= 0.65, f"Expected Pk ≈ 50%, got {Pk_s:.1%}"
+print("  ✓ PASS — within ±15% of historical 50% datum")
 ```
 
 ______________________________________________________________________
@@ -837,3 +869,23 @@ is a rare but high-consequence event that the mean integral undersells. Monte Ca
 simulation — drawing a finite sample from the Mott distribution and propagating each
 fragment individually — would capture this variance. The threshold above which
 discrete sampling is preferable to the continuous integral is not yet determined.
+
+**11 · Lethality threshold: kill vs. wound semantics (from A7).**
+The ES-310 Pk(KE) curve anchors lethality at 100 J (10% kill), 1 kJ (50% kill), and
+4 kJ (90% kill), calibrated against pistol-calibre rounds on a uniformed soldier.
+British WW2 research (1941) established that ~1 g splinters require only ~6.8 J to
+produce an incapacitating wound in unprotected tissue — roughly 15× below the ES-310
+10% floor. The two thresholds measure different outcomes:
+
+| Source              | Outcome modelled                         | ~50% threshold (1 g fragment) |
+| ------------------- | ---------------------------------------- | ----------------------------- |
+| British 1941        | Wound (skin penetration, bare flesh)     | ~6.8 J                        |
+| German Rohne        | Incapacitation (uniformed soldier)       | ~80 J                         |
+| ES-310 (this model) | Kill (remove from combat)                | ~1 000 J                      |
+
+Consequence: fragments below ~100 J are assigned Pk = 0. A 1 g fragment carries 100 J
+only out to ~90 m slant range; the British data suggest it wounds to ~250 m. Since
+the Mott distribution peak for a 105 mm shell is near 0.3 g (by count), the model's
+lethality estimate is carried almost entirely by the multi-gram tail and will
+understate area effect relative to WW2 casualty data if "wound" is the operational
+criterion. See §9.2 for the Sturdivan tissue-penetration model as a future replacement.
