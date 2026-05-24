@@ -4,17 +4,22 @@ import streamlit as st
 
 from arty.fragmentation import (
     FILLERS,
+    PRONE,
+    STANDING,
+    BurstParams,
     DragParams,
     MottParams,
+    PostureParams,
     ShellParams,
-    TargetParams,
-    compute_frag_field,
+    compute_frag_field_3d,
 )
 from arty.shells import SHELLS
 
 st.set_page_config(page_title="Fragmentation Field — Sensitivity", layout="wide")
 st.title("Fragmentation Field Sensitivity")
-st.caption("105 mm HE ground burst · Gurney + Mott + ES-310 Pk|hit · flat trajectory")
+st.caption(
+    "HE airburst · Gurney + Mott + ES-310 Pk|hit · 3D belt spray + A_p(γ) posture model"
+)
 
 # ---------------------------------------------------------------------------
 # Sidebar — all parameters
@@ -69,12 +74,19 @@ with st.sidebar:
             "Air density  [kg/m³]", 0.90, 1.40, float(DragParams().rho_air), step=0.01
         )
 
-    with st.expander("Target"):
-        w = st.slider(
-            "Presented width  [m]", 0.05, 1.5, float(TargetParams().w), step=0.05
+    with st.expander("Burst Geometry"):
+        h_b = st.slider("Burst height  h_b  [m]", 0.0, 20.0, float(BurstParams().h_b), step=0.5)
+        angle_of_fall = st.slider(
+            "Angle of fall  [°]", 0, 90, int(BurstParams().angle_of_fall), step=5
+        )
+        spray_half_angle = st.slider(
+            "Belt half-angle  δ  [°]", 5, 30, int(BurstParams().spray_half_angle), step=1
         )
 
-    max_radius = st.slider("Analysis radius  [m]", 100.0, 500.0, 300.0, step=10.0)
+    with st.expander("Target"):
+        posture_name = st.radio("Posture", ["Standing", "Prone"], index=0)
+
+    max_radius = st.slider("Analysis radius  [m]", 40.0, 200.0, 80.0, step=10.0)
 
 # ---------------------------------------------------------------------------
 # Build param structs
@@ -91,7 +103,8 @@ shell = ShellParams(
 )
 mott = MottParams(gamma=gamma, sigma_f=sigma_f * 1e6)
 drag = DragParams(C_D=C_D, rho_air=rho_air)
-target = TargetParams(w=w)
+burst = BurstParams(h_b=h_b, angle_of_fall=float(angle_of_fall), spray_half_angle=float(spray_half_angle))
+posture: PostureParams = STANDING if posture_name == "Standing" else PRONE
 
 # ---------------------------------------------------------------------------
 # Compute (cached)
@@ -99,19 +112,18 @@ target = TargetParams(w=w)
 
 
 @st.cache_data
-def _compute(shell, mott, drag, target, max_radius):
-    return compute_frag_field(shell, mott, drag, target, max_radius=max_radius)
+def _compute(shell, mott, drag, burst, posture, max_radius):
+    return compute_frag_field_3d(shell, mott, drag, burst, posture, max_radius=max_radius)
 
 
-result = _compute(shell, mott, drag, target, max_radius)
+result = _compute(shell, mott, drag, burst, posture, max_radius)
 
 # ---------------------------------------------------------------------------
 # Headline metrics
 # ---------------------------------------------------------------------------
 
-mass_shell = shell.mass_total - shell.mass_filler - shell.mass_deductions
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("R₅₀", f"{result.r50:.0f} m")
+col1.metric("R₅₀ (cross-range)", f"{result.r50_cross:.0f} m")
 col2.metric("V₀", f"{result.V0:.0f} m/s")
 col3.metric("N₀ (total frags)", f"{result.N0:.0f}")
 col4.metric("μ (half-mass)", f"{result.mu * 1e3:.2f} g")
@@ -132,7 +144,7 @@ with left:
     fig1.add_trace(
         go.Scatter(
             x=m_vals,
-            y=np.maximum(n_vals, 0.5),  # clip below 1 so log axis stays meaningful
+            y=np.maximum(n_vals, 0.5),
             mode="lines",
             line=dict(color="#1f77b4", width=2),
             name="N(≥m)",
@@ -152,37 +164,36 @@ with left:
     )
     st.plotly_chart(fig1, use_container_width=True)
 
-# Figure 2 — KE vs distance from burst
+# Figure 2 — KE vs cross-range distance
 with right:
+    x_vals = np.linspace(-max_radius, max_radius, len(result.r_cross))
     fig2 = go.Figure()
     colours = ["#2ca02c", "#ff7f0e", "#d62728"]
     for (m_g, ke_arr), colour in zip(result.ke_by_mass.items(), colours):
         fig2.add_trace(
             go.Scatter(
-                x=result.r,
+                x=x_vals,
                 y=ke_arr,
                 mode="lines",
                 line=dict(color=colour, width=2),
                 name=f"{m_g} g",
             )
         )
-    # Reference lines as explicit traces — add_hline misbehaves on log axes
     for y_ref, label in [
         (100, "100 J (ES-310 light)"),
         (1000, "1 kJ (ES-310 moderate)"),
     ]:
         fig2.add_trace(
             go.Scatter(
-                x=[result.r[0], result.r[-1]],
+                x=[x_vals[0], x_vals[-1]],
                 y=[y_ref, y_ref],
                 mode="lines",
                 line=dict(dash="dot", color="gray", width=1),
-                name=label,
                 showlegend=False,
             )
         )
         fig2.add_annotation(
-            x=result.r[-1],
+            x=x_vals[-1],
             y=np.log10(y_ref),
             text=label,
             xanchor="right",
@@ -192,12 +203,12 @@ with right:
             yref="y",
         )
     fig2.update_layout(
-        title="Fragment KE vs Distance from Burst",
-        xaxis_title="Distance from burst  [m]",
+        title="Fragment KE vs Cross-Range Distance",
+        xaxis_title="Cross-range  y  [m]",
         yaxis=dict(
             title="Kinetic energy  [J]",
             type="log",
-            range=[-1, 5],  # 0.1 J – 100 kJ
+            range=[-1, 5],
             tickformat=".2g",
         ),
         height=340,
@@ -208,35 +219,35 @@ with right:
 
 left2, right2 = st.columns(2)
 
-# Figure 3 — p_kill vs distance from burst
+# Figure 3 — P(kill) vs cross-range distance
 with left2:
     fig3 = go.Figure()
     fig3.add_trace(
         go.Scatter(
-            x=result.r,
-            y=result.p_kill,
+            x=x_vals,
+            y=result.pk_cross,
             mode="lines",
             line=dict(color="#9467bd", width=2),
             name="P(kill)",
         )
     )
     fig3.add_vline(
-        x=result.r50,
+        x=result.r50_cross,
         line=dict(dash="dash", color="#9467bd"),
-        annotation_text=f"R₅₀ = {result.r50:.0f} m",
+        annotation_text=f"R₅₀ = {result.r50_cross:.0f} m",
         annotation_position="top right",
     )
     fig3.add_hline(y=0.5, line=dict(dash="dot", color="gray"))
     fig3.update_layout(
-        title="P(kill) vs Distance from Burst",
-        xaxis_title="Distance from burst  [m]",
+        title="P(kill) vs Cross-Range Distance",
+        xaxis_title="Cross-range  y  [m]",
         yaxis=dict(title="P(kill)", range=[0, 1]),
         height=340,
         margin=dict(t=40, b=40, l=60, r=20),
     )
     st.plotly_chart(fig3, use_container_width=True)
 
-# Figure 4 — 2D fragmentation field
+# Figure 4 — 2D fragmentation field (asymmetric footprint)
 with right2:
     fig4 = go.Figure()
     fig4.add_trace(
@@ -261,9 +272,9 @@ with right2:
         )
     )
     fig4.update_layout(
-        title=f"2D Fragmentation Field  ·  R₅₀ = {result.r50:.0f} m",
-        xaxis=dict(title="East  [m]", scaleanchor="y"),
-        yaxis_title="North  [m]",
+        title=f"2D Fragmentation Field  ·  R₅₀ = {result.r50_cross:.0f} m",
+        xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
+        yaxis_title="Cross-range  y  [m]",
         height=340,
         margin=dict(t=40, b=40, l=60, r=20),
     )

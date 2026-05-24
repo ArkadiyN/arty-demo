@@ -51,9 +51,43 @@ class TargetParams:
     w: float = 0.5  # presented width of target [m]
 
 
+@dataclass(frozen=True)
+class BurstParams:
+    h_b: float = 2.0             # burst height above ground [m]
+    angle_of_fall: float = 30.0  # shell angle of fall [degrees], 0=horizontal 90=vertical
+    spray_half_angle: float = 15.0  # belt half-width δ [degrees]
+
+
+@dataclass(frozen=True)
+class PostureParams:
+    w_perp: float  # body width [m]
+    h: float       # vertical extent (standing height of silhouette) [m]
+    d: float       # top-down depth (belly-to-back for standing) [m]
+
+
+STANDING = PostureParams(w_perp=0.5, h=1.7, d=0.3)
+PRONE    = PostureParams(w_perp=0.5, h=0.3, d=1.8)
+
+
 # ---------------------------------------------------------------------------
-# Result struct
+# Result structs
 # ---------------------------------------------------------------------------
+
+
+@dataclass
+class FragField3dResult:
+    field_x: np.ndarray               # 2D meshgrid X [m]
+    field_y: np.ndarray               # 2D meshgrid Y [m]
+    field_pk: np.ndarray              # P(kill) on 2D grid
+    r_cross: np.ndarray               # cross-range distances at x=0 [m]
+    pk_cross: np.ndarray              # P(kill) along cross-range slice
+    r50_cross: float                  # R50 along cross-range [m]
+    ke_by_mass: dict[float, np.ndarray]
+    N0: float
+    mu: float
+    V0: float
+    burst: BurstParams
+    posture: PostureParams
 
 
 @dataclass
@@ -122,6 +156,11 @@ def retardation_coeff(m: np.ndarray, drag: DragParams, rho_steel: float) -> np.n
         / (2.0 * rho_steel ** (2.0 / 3.0))
         * m ** (-1.0 / 3.0)
     )
+
+
+def presented_area(gamma: float, posture: PostureParams) -> float:
+    """Projected target area [m²] for fragment arriving at elevation angle gamma (radians)."""
+    return posture.w_perp * (posture.h * np.cos(gamma) + posture.d * np.sin(gamma))
 
 
 def pk_given_hit(E: np.ndarray) -> np.ndarray:
@@ -201,4 +240,146 @@ def compute_frag_field(
         N0=N0,
         mu=mu,
         V0=V0,
+    )
+
+
+# ---------------------------------------------------------------------------
+# 3D burst geometry helpers
+# ---------------------------------------------------------------------------
+
+
+def _shell_axis(alpha_rad: float) -> np.ndarray:
+    return np.array([-np.cos(alpha_rad), 0.0, -np.sin(alpha_rad)])
+
+
+def _perp_basis(alpha_rad: float) -> tuple[np.ndarray, np.ndarray]:
+    e1 = np.array([np.sin(alpha_rad), 0.0, -np.cos(alpha_rad)])
+    e2 = np.array([0.0, 1.0, 0.0])
+    return e1, e2
+
+
+def _fragment_direction(
+    Theta: float, psi: float, e_axis: np.ndarray, e1: np.ndarray, e2: np.ndarray
+) -> np.ndarray:
+    return (
+        np.cos(Theta) * e_axis
+        + np.sin(Theta) * (np.cos(psi) * e1 + np.sin(psi) * e2)
+    )
+
+
+def _ground_intercept(d_hat: np.ndarray, h_b: float) -> np.ndarray | None:
+    """Return (x_g, y_g) where ray from (0,0,h_b) in direction d_hat hits z=0, or None."""
+    if d_hat[2] >= 0.0:
+        return None
+    t = h_b / (-d_hat[2])
+    return np.array([d_hat[0] * t, d_hat[1] * t])
+
+
+def _expected_kills_3d_point(
+    x_g: float,
+    y_g: float,
+    h_b: float,
+    alpha_rad: float,
+    delta_rad: float,
+    N0: float,
+    mu: float,
+    V0: float,
+    drag: DragParams,
+    rho_steel: float,
+    posture: PostureParams,
+    m_grid: np.ndarray,
+    pdf: np.ndarray,
+    lam: np.ndarray,
+) -> float:
+    s = np.sqrt(x_g**2 + y_g**2 + h_b**2)
+    if s < 1e-6:
+        return 0.0
+
+    # Belt polar angle of this ground patch
+    e_axis = _shell_axis(alpha_rad)
+    r_vec = np.array([x_g, y_g, -h_b]) / s  # unit vector from burst to patch
+    cos_Theta = np.dot(r_vec, e_axis)
+    if abs(cos_Theta) > np.sin(delta_rad):
+        return 0.0  # outside belt window
+
+    sin_Theta = np.sqrt(max(0.0, 1.0 - cos_Theta**2))
+    if sin_Theta < 1e-9:
+        return 0.0
+
+    gamma = np.arcsin(np.clip(h_b / s, -1.0, 1.0))
+    Ap = presented_area(gamma, posture)
+
+    E = 0.5 * m_grid * (V0 * np.exp(-lam * s)) ** 2
+    integrand = pdf * pk_given_hit(E) * Ap / (2.0 * np.pi * s**2 * 2.0 * sin_Theta * delta_rad)
+    return float(np.trapezoid(integrand, m_grid))
+
+
+# ---------------------------------------------------------------------------
+# 3D top-level entry point
+# ---------------------------------------------------------------------------
+
+
+def compute_frag_field_3d(
+    shell: ShellParams = ShellParams(),
+    mott: MottParams = MottParams(),
+    drag: DragParams = DragParams(),
+    burst: BurstParams = BurstParams(),
+    posture: PostureParams = STANDING,
+    max_radius: float = 80.0,
+    n_grid: int = 80,
+    n_mass: int = 300,
+) -> FragField3dResult:
+    V0 = gurney_velocity(shell)
+    mu, N0 = mott_params(shell, mott, V0)
+
+    alpha_rad = np.radians(burst.angle_of_fall)
+    delta_rad = np.radians(burst.spray_half_angle)
+
+    m_grid = np.logspace(-6, np.log10(0.5), n_mass)
+    pdf = N0 / (2.0 * np.sqrt(mu * m_grid)) * np.exp(-np.sqrt(m_grid / mu))
+    lam = retardation_coeff(m_grid, drag, shell.rho_steel)
+
+    xy = np.linspace(-max_radius, max_radius, n_grid)
+    X, Y = np.meshgrid(xy, xy)
+    field_pk = np.zeros_like(X)
+
+    for i in range(n_grid):
+        for j in range(n_grid):
+            N_eff = _expected_kills_3d_point(
+                X[i, j], Y[i, j], burst.h_b, alpha_rad, delta_rad,
+                N0, mu, V0, drag, shell.rho_steel, posture,
+                m_grid, pdf, lam,
+            )
+            field_pk[i, j] = 1.0 - np.exp(-N_eff)
+
+    # Cross-range slice at x=0 (j nearest x=0)
+    j0 = np.argmin(np.abs(xy))
+    r_cross = np.abs(xy)
+    pk_cross = field_pk[:, j0]
+    # R50 along cross-range
+    idx50 = np.argmin(np.abs(pk_cross - 0.5))
+    r50_cross = float(np.abs(xy[idx50]))
+
+    # KE vs cross-range for representative masses
+    rep_masses_g = [0.5, 5.0, 50.0]
+    rep_masses_kg = np.array([m * 1e-3 for m in rep_masses_g])
+    lam_rep = retardation_coeff(rep_masses_kg, drag, shell.rho_steel)
+    ke_by_mass: dict[float, np.ndarray] = {}
+    for m_g, lam_j in zip(rep_masses_g, lam_rep):
+        s_cross = np.sqrt(xy**2 + burst.h_b**2)
+        ke_by_mass[m_g] = 0.5 * (m_g * 1e-3) * (V0 * np.exp(-lam_j * s_cross)) ** 2
+
+    return FragField3dResult(
+        field_x=X,
+        field_y=Y,
+        field_pk=field_pk,
+        r_cross=r_cross,
+        pk_cross=pk_cross,
+        r50_cross=r50_cross,
+        ke_by_mass=ke_by_mass,
+        N0=N0,
+        mu=mu,
+        V0=V0,
+        burst=burst,
+        posture=posture,
     )

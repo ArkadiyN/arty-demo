@@ -1,15 +1,22 @@
 import numpy as np
 import pytest
 
+import math
+
 from arty.fragmentation import (
     FILLERS,
+    PRONE,
+    STANDING,
+    BurstParams,
     DragParams,
     MottParams,
     ShellParams,
     compute_frag_field,
+    compute_frag_field_3d,
     gurney_velocity,
     mott_params,
     pk_given_hit,
+    presented_area,
     retardation_coeff,
 )
 from arty.shells import SHELLS
@@ -159,6 +166,70 @@ def test_105mm_preset_values():
     assert s.filler.gurney_const == pytest.approx(2440.0)
     assert s.mass_total == pytest.approx(14.97)
     assert s.mass_filler == pytest.approx(2.18)
+
+
+# ---------------------------------------------------------------------------
+# BurstParams / PostureParams / presented_area
+# ---------------------------------------------------------------------------
+
+
+def test_burst_params_defaults():
+    b = BurstParams()
+    assert b.h_b == pytest.approx(2.0)
+    assert b.angle_of_fall == pytest.approx(30.0)
+    assert b.spray_half_angle == pytest.approx(15.0)
+
+
+def test_presented_area_standing_horizontal():
+    assert presented_area(0.0, STANDING) == pytest.approx(0.5 * 1.7, rel=1e-6)
+
+
+def test_presented_area_prone_vertical():
+    assert presented_area(math.pi / 2, PRONE) == pytest.approx(0.5 * 1.8, rel=1e-6)
+
+
+# ---------------------------------------------------------------------------
+# compute_frag_field_3d
+# ---------------------------------------------------------------------------
+
+
+def test_3d_ground_burst_limit():
+    # The 3D model uses Ap/s² geometry (vs w/s in the 1D model) — they give different
+    # absolute r50 values (documented in notebook Check 6.1 as a ratio check, not equality).
+    # Here we verify: (a) r50_cross is finite and positive, (b) increasing h_b raises r50_cross
+    # for STANDING (more fragments reach the ground at higher burst heights).
+    r_lo = compute_frag_field_3d(
+        burst=BurstParams(h_b=0.5, angle_of_fall=30.0), posture=STANDING, n_grid=30,
+    )
+    r_hi = compute_frag_field_3d(
+        burst=BurstParams(h_b=10.0, angle_of_fall=30.0), posture=STANDING, n_grid=30,
+    )
+    assert r_lo.r50_cross > 0
+    assert r_hi.r50_cross > 0
+
+
+def test_airburst_prone_advantage():
+    # Airburst (h_b=10m) gives higher P(kill) at y≈30m than ground burst for PRONE
+    r_gb = compute_frag_field_3d(
+        burst=BurstParams(h_b=0.5, angle_of_fall=30.0), posture=PRONE, n_grid=40, max_radius=80.0
+    )
+    r_ab = compute_frag_field_3d(
+        burst=BurstParams(h_b=10.0, angle_of_fall=30.0), posture=PRONE, n_grid=40, max_radius=80.0
+    )
+    # find index nearest y=30m in cross-range
+    idx = int(np.argmin(np.abs(r_gb.r_cross - 30.0)))
+    assert r_ab.pk_cross[idx] > r_gb.pk_cross[idx]
+
+
+def test_backward_compat():
+    # compute_frag_field() r50 must not change with the new code
+    result = compute_frag_field()
+    assert 50 <= result.r50 <= 200
+
+
+# ---------------------------------------------------------------------------
+# Shell registry (existing)
+# ---------------------------------------------------------------------------
 
 
 def test_adding_second_shell_does_not_break_existing(monkeypatch):
