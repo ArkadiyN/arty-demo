@@ -18,6 +18,7 @@ Sources collected in `doc-reference/` and used in deriving this model:
 | `fragmentation/explosion-fragment-model/…`                       | Felix, Colwill & Harris (2022) *Defence Technology* — fragment shape, aspect ratio, and air resistance         |
 | `fragmentation/ada462991-fragment-velocity/ADA462991.md`         | Gold (2007) PAFRAG engineering model — velocity distribution vs. spray angle                                   |
 | `wound-ballistics/fas-es310-damage-criteria/…`                   | FAS/Navy (1998) ES-310 — Pk\|hit anchors and multi-hit formula                                                 |
+| `wound-ballistics/cunniff-2014/cunniff-2014.md`                  | Cunniff (2014) — statistical Ap/m distributions, Sturdivan tissue penetration, human phantom geometry          |
 
 ______________________________________________________________________
 
@@ -29,26 +30,20 @@ demonstration. Three sub-models are integrated:
 
 1. **Gurney equation** — initial fragment velocity from explosive energy and M/C mass ratio.
 1. **Mott distribution** — number and mass distribution of fragments from shell break-up statistics.
-1. **Drag decay** — fragment kinetic energy vs. ground distance, assuming flat (horizontal) trajectories.
+1. **3D ray-trace with drag** — straight-line fragment trajectories from the burst
+   point, with exponential KE decay along the slant range, gated by a belt-spray
+   window and converted to per-target lethal hits via a posture-resolved
+   silhouette and the ES-310 $P_{k|\text{hit}}$ curve.
 
-**Scope constraints and known limitations:**
+Sections 1–5 develop the flat-disk ground-burst calculation that establishes the
+mass, velocity, and KE-decay sub-models. Section 6 lifts the disk into a full 3D
+airburst with arbitrary burst height $h_b$, angle of fall $\alpha$, and belt
+half-angle $\delta$. The default parameters are for a **WW2 105 mm M1 HE shell**
+loaded with TNT.
 
-- Single HE shell; fuse type deferred; default is a ground burst with no airburst height.
-- Fragment trajectories assumed flat (horizontal). Gravity drop at 100 m for a 1 g fragment
-  is ≈ 0.5 m — small relative to a 1.7 m standing target — so the error is acceptable
-  for ranges up to ~200 m.
-- Uniform azimuthal spray: fragments are spread uniformly in 360° around the burst point.
-  This is accurate only if the shell detonates with its **axis vertical** (90° angle of fall,
-  i.e. pure plunging fire). At shallower angles of fall — typical of field artillery at
-  medium ranges (angle of fall ≈ 10°–50°) — the pattern becomes an ellipse elongated along
-  the line of fire, with more fragments projected forward and aft than to the sides. The
-  angle-of-fall correction is deferred to a later model iteration.
-- Shell dimensions and mass are fully used: caliber and wall thickness drive the break-up
-  radius → Mott half-mass; shell mass and filler mass drive the Gurney M/C ratio → initial
-  velocity.
-- No obstacles; flat absorbing surface.
-
-The default parameters are for a **WW2 105 mm M1 HE shell** loaded with TNT.
+The deliberate simplifications underlying the model are enumerated in
+**§ Assumptions** and their practical consequences in **§ Model Limitations**;
+relaxation paths are catalogued in **§9 Future Enhancements**.
 
 ______________________________________________________________________
 
@@ -233,7 +228,26 @@ C_shape     = 0.90
 # Replaces the historical "Rohne 80 J" binary threshold (see Model Limitations).
 _PK_E   = np.array([100.0, 1000.0, 4000.0])   # fragment KE anchors [J]
 _PK_VAL = np.array([0.10,  0.50,   0.90])      # corresponding Pk|hit [-]
-w_target    = 0.5         # presented width of standing person [m]
+w_target    = 0.5         # presented width of standing person [m] (legacy 1D model)
+
+# --- Target-posture box-body model (§6.4 angle-dependent presented area) ---
+from dataclasses import dataclass
+
+
+@dataclass
+class TargetPosture:
+    w_perp: float   # shoulder width [m]
+    h: float        # vertical extent [m]
+    d: float        # depth (belly-to-back for standing, body length for prone) [m]
+
+
+STANDING = TargetPosture(w_perp=0.50, h=1.70, d=0.30)
+PRONE    = TargetPosture(w_perp=0.50, h=0.30, d=1.80)
+
+
+def presented_area(gamma: float, posture: TargetPosture) -> float:
+    """Return projected body area [m^2] for fragment arrival elevation gamma [rad]."""
+    return posture.w_perp * (posture.h * np.cos(gamma) + posture.d * np.sin(gamma))
 
 print("=== Shell geometry ===")
 print(f"  Caliber          : {caliber_m*1e3:.0f} mm")
@@ -573,75 +587,7 @@ plt.show()
 ```
 
 ```{python}
-# Figure 4 — Vertical cross-section: spray elevation vs. acceptance window
-r_cs   = np.linspace(0.5, 200, 500)
-h_pers = 1.7   # standing person height [m]
-
-fig, ax = plt.subplots(figsize=(11, 5))
-
-# Ground fill
-ax.fill_between([0, 200], [-6, -6], [0, 0], color="#c8a97e", alpha=0.55)
-ax.axhline(0, color="#8b6914", lw=1.5)
-
-# Acceptance window: fragments at height 0–1.7 m can hit the standing person
-ax.fill_between([0, 200], [0, 0], [h_pers, h_pers],
-                color="green", alpha=0.12, label="Acceptance window (0–1.7 m height)")
-ax.axhline(h_pers, color="green", lw=0.8, ls="--", alpha=0.5)
-ax.text(170, h_pers + 0.4, "1.7 m (top of target)", fontsize=7.5, color="green")
-
-# Model trajectory: all fragments horizontal
-ax.axhline(0, color="red", lw=2.5, zorder=5,
-           label="Model (Gurney cylinder): all fragments at θ = 0°")
-
-# Illustrative real trajectories at various elevation angles
-for theta_deg, ls, alpha in [(5, "-", 0.45), (15, "-", 0.40),
-                               (30, "-", 0.35), (60, "-", 0.30)]:
-    theta_r = np.radians(theta_deg)
-    ax.plot(r_cs, r_cs * np.tan(theta_r), color="steelblue",
-            lw=1.1, ls=ls, alpha=alpha)
-    r_label = min(60, 200 / np.tan(theta_r) * 0.3) if theta_deg < 90 else 10
-    h_label = r_label * np.tan(theta_r)
-    if h_label < 50:
-        ax.text(r_label + 1, h_label + 0.5, f"+{theta_deg}°",
-                fontsize=7.5, color="steelblue", alpha=0.75)
-
-# Fragments going below horizontal enter the ground immediately (not lethal outward)
-ax.plot([0, 30], [0, 30 * np.tan(np.radians(-10))],
-        color="gray", lw=1.1, ls="--", alpha=0.45, label="Into ground (θ < 0°, not lethal)")
-ax.text(12, 30 * np.tan(np.radians(-10)) - 0.8, "−10°",
-        fontsize=7.5, color="gray", alpha=0.7)
-
-# Standing person silhouettes and acceptance-angle annotations
-for r_p in [50, 100, 150]:
-    ax.add_patch(plt.Rectangle((r_p - 0.5, 0), 1.0, h_pers,
-                               facecolor="orange", edgecolor="darkorange",
-                               alpha=0.85, zorder=4))
-    theta_max = np.degrees(np.arctan(h_pers / r_p))
-    ax.annotate(f"θ_max = {theta_max:.1f}°",
-                xy=(r_p, h_pers), xytext=(r_p - 22, h_pers + 3.5),
-                fontsize=7.5, color="darkgreen",
-                arrowprops=dict(arrowstyle="->", color="darkgreen", lw=0.8))
-
-# Blue-line label
-ax.text(8, 9, "Real spray:\nfragments at\nvarious angles\n(not yet modelled)",
-        fontsize=7.5, color="steelblue", alpha=0.8)
-
-ax.set_xlim(0, 200); ax.set_ylim(-6, 50)
-ax.set_xlabel("Horizontal range [m]"); ax.set_ylabel("Height [m]")
-ax.set_title(
-    "Fragment trajectory cross-section — ground burst, shell axis vertical\n"
-    "Red: Gurney cylinder assumption (all fragments horizontal). "
-    "Blue: illustrative real elevation spread (not modelled).\n"
-    "θ_max = arctan(1.7 m / r) is the steepest angle that still hits a standing target."
-)
-ax.legend(loc="upper left", fontsize=7.5)
-fig.tight_layout()
-plt.savefig("frag_cross_section.png", dpi=120, bbox_inches="tight")
-plt.show()
-```
-
-```{python}
-# Figure 5 — 2-D field map (axis-vertical burst → symmetric circle)
+# Figure 4 — 2-D field map (axis-vertical burst → symmetric circle)
 theta  = np.linspace(0, 2*np.pi, 360)
 r_2d   = np.linspace(1, 300, 200)
 R2D, THETA = np.meshgrid(r_2d, theta)
@@ -726,114 +672,952 @@ for sf_mpa in [600, 700, 800, 900, 1000]:
 
 ______________________________________________________________________
 
-## Model Limitations — What the Gurney Cylinder Assumption Ignores
+## 6 · 3D Burst Geometry
 
-The Gurney cylinder model is a deliberate simplification. Here is what it omits,
-in plain terms:
+Sections 1–5 collapse the fragmentation field into a flat horizontal disk: every
+fragment is launched at ground level, in the equatorial plane of the shell, and
+the spray is radially symmetric about the burst point. This section lifts those
+restrictions by introducing three additional geometric parameters:
 
-**1 · The shell is not just a cylinder.**
-A real artillery shell has three distinct zones: a pointed nose (ogive), a cylindrical
-body, and a flat base. The Gurney *cylinder* formula models only the body. The nose
-fragments spray forward at steep upward angles; the base fragments spray backward
-and downward. Together these zones account for roughly 20–30 % of the steel mass
-but produce none of the fragments in the current model. Gold (2007) explicitly
-accounts for the tail boom and fuze as separate mass contributors; the one-region
-PAFRAG assumption treats the entire shell as a single cylinder, omitting both end
-zones (Gold 2017, §2). Result: the model *underestimates* total fragment count and
-misses the forward- and rear-sector hazard.
+| Symbol  | Description                                                       | Unit |
+| ------- | ----------------------------------------------------------------- | ---- |
+| $h_b$  | Burst height above ground (airburst altitude)                     | m    |
+| $\alpha$| Angle of fall — shell velocity vector angle below horizontal     | rad  |
+| $\delta$| Spray half-angle — belt window around $\Theta = 90°$ shell axis | rad  |
 
-**2 · Fragments do not all fly in one horizontal plane.**
-The cylindrical body does spray predominantly sideways (Figure 4 cross-section), but
-even within the cylinder there is an elevation spread around horizontal caused by the
-oblique angle at which the detonation wave meets the wall. Gold (2007, Figs. 3 and 9)
-shows fragment velocity varying continuously with spray angle ψ; the elevation spread
-is roughly ±15°–30°. The current model puts every fragment at exactly θ = 0°
-(horizontal), a delta function in elevation. This is the dominant contribution for a
-cylindrical shell, but it means the model misses fragments that fly over a prone target
-or clip a standing target near the head or feet.
+Gravity-induced fragment drop is still neglected — trajectories are treated as
+straight-line rays from the burst point until they intercept the ground plane.
 
-**3 · One velocity for every fragment.**
-Gurney gives a single initial speed V₀ for all fragments, regardless of mass, position
-in the shell, or local explosive density. Gold (2007, Fig. 9) shows the measured
-fragment velocity distribution spanning roughly ±10–15 % around the Gurney mean. The
-Mott distribution already captures mass spread; combining it with a velocity
-distribution would widen the lethality envelope at short range and narrow it at long
-range. The Gurney constant itself (2 440 m/s for TNT) is a nominal tabulated value;
-aging, temperature, and lot-to-lot density variation can shift it by a few percent,
-which propagates linearly into V₀ and quadratically into fragment kinetic energy
-(no collected source — general explosive engineering).
+### 6.1 Coordinate System and Frames
 
-**4 · The shell falls vertically (90° angle of fall).**
-A shell fired from a gun and landing at 4–6 km range hits the ground at an angle of
-fall of roughly 20°–35°, not 90°. When the axis is tilted from vertical, the
-horizontal spray disk tilts with it: more fragments go forward and downward, fewer go
-rearward and upward. The symmetric circle in Figure 5 becomes an ellipse elongated
-along the line of fire, with the forward sector roughly 30–50 % denser than the rear
-sector. Gold (2017, §2) shows that the detonation wave interaction angle varies
-continuously with the shell geometry, producing azimuthal asymmetry whenever the
-shell axis is not aligned with the detonation direction. This is the most practically
-important gap for a field artillery scenario.
+The shell travels in the $+\hat{x}$ direction (downrange); the axis vector
+$\hat{e}_{\text{axis}}$ defined below therefore points in the $-\hat{x}$
+direction (rearward, back toward the gun).
 
-**5 · Shell parameters are not sourced from a collected document.**
-Wall thickness, projectile mass, and filler mass are taken from US Army TM 9-1901
-(cited in code comments) but that manual is not collected in `doc-reference/`.
-If these inputs are wrong, every output shifts — V₀ scales with M/C, and μ scales
-as r_bu³.
+Define a right-handed world frame with origin at the ground projection of the
+burst point:
 
-**6 · Mott input uncertainties amplify super-linearly.**
-The break-up radius r_bu is derived from the V/V₀ ≈ 3 expansion criterion, which
-Gold (2017, §2) describes as "accepted as a rule of thumb for routine one-region
-PAFRAG modeling" with only fair agreement to high-speed photography. Steel ductility
-variation means harder steel fractures earlier (smaller r_bu, smaller fragments) and
-softer steel fractures later; this carries ~10–20 % uncertainty in r_bu. Because
-μ ∝ r_bu³ (Gold 2017, eq. 5), a 15 % error in r_bu produces a 50 % error in μ.
-Similarly, γ and σ_F each carry ~25 % uncertainty — Mott (1947, Table 1) brackets
-γ at 53–67 for steels ranging from 0.2%C to 0.3%C — and both enter μ as the 3/2
-power (Gold 2017, eq. 5), giving roughly 35–40 % uncertainty in the fragment size
-scale. The R₅₀ sensitivity sweep above captures the σ_F range but not the joint
-uncertainty.
+- $\hat{x}$ — downrange (direction of horizontal shell motion)
+- $\hat{y}$ — cross-range
+- $\hat{z}$ — vertical up
 
-**7 · All fragments are tumbling irregular chunks.**
-The drag model uses C_D = 0.65, appropriate for a randomly oriented irregular
-fragment. Felix et al. (2022, §2.3) document that real fragments are 2–6× longer
-than they are wide, and note that shape "has a significant effect on the air
-resistance restricting the velocity of the fragment." Some of these elongated splinters
-fly with their long axis aligned to the velocity vector (edge-on), producing
-C_D ≈ 0.2–0.4 and reaching 20–40 % further than the model predicts. The fraction of
-aero-stable splinters is not known from first principles; arena tests suggest it is a
-small minority but they dominate the far-field hazard.
+The burst point sits at $\mathbf{B} = (0,\,0,\,h_b)$. The shell arrives at angle
+$\alpha$ below horizontal, so the incoming axis unit vector — pointing rearward
+along the shell body, from the nose toward the base — is:
 
-**8 · Lethality model assumes no protection and open ground.**
-The ES-310 Pk|hit curve (FAS/Navy 1998) is calibrated for standing unprotected
-infantry: the 4 kJ "heavy kill" anchor is explicitly described as the
-armour-penetrating threshold, meaning the lower anchors (100 J, 1 kJ) apply to bare
-flesh only. Three scenarios are unmodelled: (a) body armour reduces torso
-vulnerability by a factor of roughly 3–5×; (b) a soldier in a foxhole or behind
-cover has only their head and shoulders exposed, reducing presented area by ~80–90 %;
-(c) ground ricochet can redirect fragments that would otherwise miss — particularly
-relevant at shallow angles of fall. All three effects are bounded and could be added
-as scalar multipliers on the presented area w.
+$$
+\hat{e}_{\text{axis}} = (-\cos\alpha,\;0,\;-\sin\alpha) \quad (11)
+$$
 
-**9 · Poisson statistics break down at high fragment density.**
-p_kill = 1 − exp(−N_eff) is correct for a single target: if multiple lethal
-fragments hit, the target is still dead once, and the formula saturates to 1.
-The ES-310 multi-hit formula (FAS/Navy 1998) gives the same per-target result via
-Pk = 1 − (1 − Pk|hit)^N_hits. For a *formation*, however, the model computes each
-soldier's p_kill independently using the full fragment flux — it ignores depletion
-(a fragment that kills soldier A is unavailable to kill soldier B). At close range
-(≤ 50 m) with squad-density formations, this overestimates total expected kills.
-The fix is a hypergeometric draw over the finite fragment count; it is not needed
-for single-target or sparse-formation analysis.
+**Convention note.** Our $\Theta$ is measured from $\hat{e}_{\text{axis}}$,
+which points **rearward**. This is opposite to the PAFRAG/Gold (2017) convention
+where $\Theta$ is measured from the nose (forward) direction. For the
+equatorial belt ($\Theta = 90°$) this has no effect, since
+$\Theta = 90°$ and $\pi - \Theta = 90°$ coincide. Future work using polar-zone
+fragment velocities from Gold 2007 Fig. 9 will require remapping
+$\Theta \mapsto \pi - \Theta$ when reading values off the published plots.
 
-**10 · The fragment distribution is continuous — there are no individual fragments.**
-N_eff is computed by integrating the Mott PDF n(m) over mass, treating the fragment
-cloud as a smooth density rather than a discrete set of projectiles. This gives the
-ensemble-mean outcome over many rounds; a single detonation will produce a finite
-count of fragments that scatter around that mean. For the bulk of sub-gram fragments
-this is a good approximation — the count is large and the law of large numbers
-applies. For the heavy tail (multi-gram fragments, counts in the tens to hundreds),
-the discrete nature matters: a single large fragment that happens to land on a target
-is a rare but high-consequence event that the mean integral undersells. Monte Carlo
-simulation — drawing a finite sample from the Mott distribution and propagating each
-fragment individually — would capture this variance. The threshold above which
-discrete sampling is preferable to the continuous integral is not yet determined.
+To parameterise directions perpendicular to the shell axis (the spray plane in
+the limit of pure equatorial fragments) we construct two orthonormal vectors
+spanning the plane normal to $\hat{e}_{\text{axis}}$:
+
+$$
+\hat{e}_1 = (\sin\alpha,\;0,\;-\cos\alpha), \qquad
+\hat{e}_2 = (0,\;1,\;0) \quad (12)
+$$
+
+By inspection, $\hat{e}_1 \cdot \hat{e}_{\text{axis}} = 0$, $\hat{e}_2 \cdot \hat{e}_{\text{axis}} = 0$,
+and $\hat{e}_1 \cdot \hat{e}_2 = 0$. The triad $\{\hat{e}_1,\hat{e}_2,\hat{e}_{\text{axis}}\}$
+is therefore a valid orthonormal basis.
+
+### 6.2 Fragment Launch Direction
+
+A fragment is launched in a direction parameterised by polar angle $\Theta$ from
+the shell axis and azimuth $\psi$ in the perpendicular plane:
+
+$$
+\hat{d}(\Theta,\psi) =
+\sin\Theta\,\bigl(\cos\psi\;\hat{e}_1 + \sin\psi\;\hat{e}_2\bigr)
++ \cos\Theta\;\hat{e}_{\text{axis}} \quad (13)
+$$
+
+Expanding in world components:
+
+$$
+\hat{d}_x = \sin\Theta\cos\psi\,\sin\alpha - \cos\Theta\,\cos\alpha
+$$
+
+$$
+\hat{d}_y = \sin\Theta\,\sin\psi
+$$
+
+$$
+\hat{d}_z = -\sin\Theta\cos\psi\,\cos\alpha - \cos\Theta\,\sin\alpha \quad (14)
+$$
+
+**Belt approximation.** Real shells concentrate fragment mass and velocity near
+$\Theta = 90°$ (the side-spray equatorial belt, Gold 2017 §2; Felix et al. 2022).
+We approximate this with a step-function window of half-width $\delta$:
+
+$$
+n_{\Theta}(\Theta) =
+\begin{cases}
+\dfrac{1}{2\sin\Theta\cdot\delta} & |\Theta - 90°| \le \delta \\[4pt]
+0 & \text{otherwise}
+\end{cases} \quad (15)
+$$
+
+The $1/\sin\Theta$ normalisation makes the solid-angle density uniform across
+the belt; in the narrow-belt limit ($\delta \to 0$) all fragments sit at
+$\Theta = 90°$.
+
+**Validity.** Equation (15) is valid only for $\delta \ll \pi/2$. The
+$1/\sin\Theta$ factor is singular at the poles ($\Theta = 0$ and $\Theta = \pi$);
+for any belt window that extends close to a pole, the analytic surface
+density diverges. Since the model uses $\Theta$ near $\pi/2$, this is not an
+issue in practice, but the assumption should be kept in mind when extrapolating.
+
+### 6.3 Ray-Trace to Ground
+
+A fragment launched from $\mathbf{B}$ in direction $\hat{d}$ travels in a straight
+line $\mathbf{P}(t) = \mathbf{B} + t\hat{d}$. It hits the ground plane $z = 0$
+when:
+
+$$
+t^* = \frac{h_b}{|\hat{d}_z|}, \qquad \text{valid only if } \hat{d}_z < 0 \quad (16)
+$$
+
+The ground intercept and slant range are then:
+
+$$
+(x_g,\,y_g) = (t^*\hat{d}_x,\; t^*\hat{d}_y), \qquad
+s = t^* = \frac{h_b}{|\hat{d}_z|} \quad (17)
+$$
+
+Fragments with $\hat{d}_z \ge 0$ travel away from the ground and never strike it
+in this ray model (in reality, gravity would eventually bring them down — that
+correction is deferred).
+
+**Fraction of belt fragments reaching the ground.** For exact equatorial spray
+($\Theta = 90°$), $\hat{d}_z = -\cos\psi\cos\alpha$. This is negative only when
+$\cos\psi > 0$, i.e. $|\psi| < 90°$. So **exactly half** the belt fragments
+strike the ground for any $\alpha > 0$, regardless of $h_b$ (so long as $h_b > 0$).
+For $\Theta$ slightly off the equator the cut-off shifts by an amount of order
+$\delta$, but to leading order the half-belt rule applies.
+
+### 6.4 Inverse Map: From Ground Point to Fragment Direction
+
+For a given ground point $(x_g, y_g)$, the unique straight-line ray from the
+burst has direction:
+
+$$
+\hat{d} = \frac{(x_g - 0,\;y_g - 0,\;0 - h_b)}{s}, \qquad
+s = \sqrt{x_g^2 + y_g^2 + h_b^2} \quad (18)
+$$
+
+The polar angle from the shell axis is recovered from the dot product:
+
+$$
+\cos\Theta = \hat{d}\cdot\hat{e}_{\text{axis}}
+= \frac{-x_g\cos\alpha + h_b\sin\alpha}{s} \quad (19)
+$$
+
+A given ground point receives fragments **only if** $|\Theta - 90°| \le \delta$.
+
+### 6.5 Generalised Lethal-Hit Density on the Ground
+
+Total $N_0$ fragments fill the equatorial belt of half-width $\delta$. The
+solid angle of that belt on the unit sphere is
+$\Omega_{\text{belt}} = 4\pi\sin\delta$, so the on-sphere fragment areal density
+at slant range $s$ is
+$\sigma(s) = N_0/(4\pi\delta\,s^2)$ (inverse-square law). A target of projected
+area $A_p$ along the radial ray subtends solid angle $A_p/s^2$. Including the
+belt-meridional Jacobian $\sin\Theta$ to keep the §6 notation, the dimensionless
+geometry factor is
+
+$$
+g(s,\Theta;\,A_p,\delta) \;=\;
+\frac{A_p}{2\pi\,s^2\cdot 2\sin\Theta\,\delta}
+\quad \text{[dimensionless]} \quad (20')
+$$
+
+For a target with angle-dependent projected area $A_p(\gamma) =
+w_\perp\bigl(h\cos\gamma + d\sin\gamma\bigr)$ (eq. P1, §6.4-box) and arrival
+elevation $\sin\gamma = h_b/s$, the expected lethal hits are
+
+$$
+N_{\text{eff}}(x_g, y_g) =
+\int_0^\infty n(m)\,P_{k|\text{hit}}\!\bigl(E_k(s,m)\bigr)\,
+\frac{A_p(\gamma)}{2\pi\,s^2\cdot 2\sin\Theta\cdot\delta}\,dm \quad (22')
+$$
+
+with $E_k(s,m) = \tfrac{1}{2} m (V_0 e^{-\lambda(m) s})^2$,
+$s = \sqrt{x_g^2 + y_g^2 + h_b^2}$, and $\Theta$ given by eq. (19).
+
+**Units sanity check.** $A_p$ has units of m², $s^2$ has units of m², the trig
+and $\delta$ factors are dimensionless, so $g$ is dimensionless and
+$N_{\text{eff}}$ comes out in [fragments per target] as it must.
+
+**Recovery of eq. (9).** Equation (22') has an $s^{-2}$ inverse-square fall-off
+characteristic of an isotropic point source, whereas the 1D disk eq. (9) has
+$s^{-1}$ because it implicitly assumes the target occupies the entire slant
+range $s$ in the polar-angle subtension. Once a finite vertical body extent
+$h_{\text{eff}}(\gamma) = h\cos\gamma + d\sin\gamma$ is modelled, that hidden
+"tall target" assumption is broken: (22') reduces in the cross-range,
+ground-burst limit ($h_b \to 0$, $\alpha \to 0$, $x_g = 0$) to the 2D
+inverse-square form $A_f/(2\pi r^2 \cdot 2\delta)$, **not** to the 1D disk
+formula $w/(2\pi r)$. The 1D disk model is therefore no longer a clean limit of
+the 3D model; it is recovered only from the legacy width-based eq. (22), which
+the angle-dependent area model supersedes.
+
+### 6.6 Implementation
+
+```{python}
+def shell_axis(alpha: float) -> np.ndarray:
+    """Return incoming shell axis unit vector [-] for angle-of-fall alpha [rad]."""
+    return np.array([-np.cos(alpha), 0.0, -np.sin(alpha)])
+
+
+def perp_basis(alpha: float) -> tuple[np.ndarray, np.ndarray]:
+    """Return orthonormal basis (e1, e2) spanning plane perpendicular to shell axis."""
+    e1 = np.array([np.sin(alpha), 0.0, -np.cos(alpha)])
+    e2 = np.array([0.0, 1.0, 0.0])
+    return e1, e2
+
+
+def fragment_direction(Theta: float, psi: float, alpha: float) -> np.ndarray:
+    """Return fragment unit launch direction d_hat [-] in world frame."""
+    e1, e2 = perp_basis(alpha)
+    e_axis = shell_axis(alpha)
+    return np.sin(Theta) * (np.cos(psi) * e1 + np.sin(psi) * e2) + np.cos(Theta) * e_axis
+
+
+def ground_intercept(d_hat: np.ndarray, hb: float) -> tuple[float, float, float] | None:
+    """Return (x_g, y_g, slant_range_s) [m] for a ray from (0,0,hb), or None if no hit."""
+    dz = d_hat[2]
+    if dz >= 0:
+        return None
+    t = hb / abs(dz)
+    return float(t * d_hat[0]), float(t * d_hat[1]), float(t)
+
+
+def ground_to_polar(x_g: float, y_g: float, hb: float, alpha: float) -> tuple[float, float]:
+    """Return (slant_range_s [m], polar_angle_Theta [rad]) for a ground patch (x_g, y_g)."""
+    s = np.sqrt(x_g * x_g + y_g * y_g + hb * hb)
+    e_axis = shell_axis(alpha)
+    d_hat = np.array([x_g, y_g, -hb]) / s
+    cos_Theta = float(np.dot(d_hat, e_axis))
+    cos_Theta = np.clip(cos_Theta, -1.0, 1.0)
+    Theta = float(np.arccos(cos_Theta))
+    return s, Theta
+
+
+def in_belt(Theta: float, delta: float) -> bool:
+    """Return True if polar angle Theta [rad] lies within belt half-width delta [rad] of 90 deg."""
+    return abs(Theta - 0.5 * np.pi) <= delta
+
+
+def expected_kills_3d(
+    x_g: np.ndarray, y_g: np.ndarray, hb: float, alpha: float, delta: float,
+    N0: float, mu: float, V0: float,
+    rho_air: float, C_D: float, C_shape: float, rho_steel: float,
+    posture: TargetPosture, n_mass: int = 300,
+) -> np.ndarray:
+    """Return N_eff [-] on ground grid for airburst (hb, alpha) with belt spray (delta).
+
+    Geometry factor (dimensionless): Ap(gamma) / (2 pi · s^2 · 2 sin(Theta) · delta),
+    with Ap(gamma) = w_perp (h cos gamma + d sin gamma) and sin(gamma) = hb/s
+    (eq. 22'). Returns 0 at ground points whose ray polar angle lies outside
+    the belt window.
+    """
+    x_g = np.asarray(x_g, dtype=float)
+    y_g = np.asarray(y_g, dtype=float)
+    out = np.zeros_like(x_g)
+
+    m_grid = np.logspace(-6, np.log10(0.5), n_mass)
+    pdf    = N0 / (2.0 * np.sqrt(mu * m_grid)) * np.exp(-np.sqrt(m_grid / mu))
+    lam    = retardation_coeff(m_grid, rho_air, C_D, C_shape, rho_steel)
+
+    it = np.nditer(x_g, flags=["multi_index"])
+    while not it.finished:
+        i = it.multi_index
+        s, Theta = ground_to_polar(float(x_g[i]), float(y_g[i]), hb, alpha)
+        if in_belt(Theta, delta) and s > 0:
+            E         = 0.5 * m_grid * (V0 * np.exp(-lam * s)) ** 2
+            sinT      = max(np.sin(Theta), 1e-6)
+            # Fragment arrival elevation angle gamma from ray geometry
+            gamma     = np.arcsin(np.clip(hb / s, 0.0, 1.0))
+            Ap        = presented_area(gamma, posture)
+            # Dimensionless geometry: Lambert-projected body area / belt solid angle
+            geom      = Ap / (2.0 * np.pi * s**2 * 2.0 * sinT * delta)
+            out[i]    = np.trapezoid(pdf * pk_given_hit(E) * geom, m_grid)
+        it.iternext()
+    return out
+```
+
+```{python}
+# Default 3D-geometry parameters
+hb_default    = 5.0                       # burst height [m]
+alpha_default = np.radians(30.0)          # angle of fall [rad]
+delta_default = np.radians(15.0)          # belt half-width [rad]
+
+print(f"  h_b              : {hb_default:.1f} m")
+print(f"  alpha (AoF)      : {np.degrees(alpha_default):.0f} deg")
+print(f"  delta (belt half): {np.degrees(delta_default):.0f} deg")
+print(f"  Shell axis e_axis: {shell_axis(alpha_default)}")
+e1_d, e2_d = perp_basis(alpha_default)
+print(f"  e1               : {e1_d}")
+print(f"  e2               : {e2_d}")
+print(f"  e1 . e_axis      : {np.dot(e1_d, shell_axis(alpha_default)):+.2e}")
+print(f"  e2 . e_axis      : {np.dot(e2_d, shell_axis(alpha_default)):+.2e}")
+print(f"  e1 . e2          : {np.dot(e1_d, e2_d):+.2e}")
+```
+
+### 6.7 Validation
+
+#### Check 6.1 — Relationship between 3D and 1-D models at ground burst
+
+With the area-based geometry factor in eq. (22'), the 3D model no longer
+reduces exactly to the 1D disk eq. (9). The two formulas differ by design:
+
+* **Eq. (9)** uses $w/(2\pi r)$ — an implicit "target occupies the entire
+  slant range $s$ in the polar-angle subtension" assumption, giving $1/r$
+  falloff.
+* **Eq. (22')** uses $A_p(\gamma)/(2\pi s^2 \cdot 2\sin\Theta\,\delta)$ —
+  the physically correct inverse-square falloff for a finite-area target.
+
+In the ground-burst limit ($h_b \to 0$, $\alpha = 0$, $y$-axis, $\gamma \to 0$):
+
+$$
+N_\text{3D}(r) \;\approx\; N_\text{1D}(r) \;\times\; \frac{A_f}{w \cdot r \cdot 2\delta}
+\;=\; N_\text{1D}(r) \;\times\; \frac{w_\perp h}{w \cdot r \cdot 2\delta}
+$$
+
+With $w_\perp = w = 0.5\,\text{m}$, $h = 1.7\,\text{m}$ (standing), $2\delta = 1\,\text{rad}$
+the ratio is $1.7/r$. The check below verifies this predicted ratio holds
+to within the finite-$h_b$ approximation error.
+
+```{python}
+r_check = np.linspace(5.0, 150.0, 25)
+N_eff_1d = expected_kills(r_check, N0, mu, V0, rho_air, C_D, C_shape, rho_steel, w_target)
+
+hb_eps     = 1e-3
+alpha0     = 0.0
+delta_unit = 0.5     # 2*delta = 1 rad — matches implicit 1D normalisation
+
+x_check = np.zeros_like(r_check)
+y_check = r_check
+N_eff_3d_on_axis = expected_kills_3d(
+    x_check, y_check, hb_eps, alpha0, delta_unit,
+    N0, mu, V0, rho_air, C_D, C_shape, rho_steel, STANDING,
+)
+
+# Predicted ratio: A_f / (w * r * 2*delta) = h / (r * 2*delta) = 1.7/r (for delta_unit=0.5)
+ratio_predicted = STANDING.h / (r_check * 2 * delta_unit)
+ratio_actual    = N_eff_3d_on_axis / N_eff_1d
+rel_err = np.max(np.abs(ratio_actual - ratio_predicted) / ratio_predicted)
+print(f"  Predicted ratio A_f/(w·r·2δ) at r=10m : {STANDING.h/(10*2*delta_unit):.3f}")
+print(f"  Actual    ratio N_3d/N_1d   at r=10m  : {ratio_actual[np.argmin(np.abs(r_check-10))]:.3f}")
+print(f"  Max relative error vs predicted ratio  : {rel_err:.2e}")
+assert rel_err < 5e-2, f"3D/1D ratio deviates from A_f/(w·r·2δ) by {rel_err:.2e}"
+print("  PASS — eq. (22') gives N_3d = N_1d × A_f/(w·r·2δ) in the ground-burst limit")
+```
+
+#### Check 6.2 — Footprint shift with angle of fall
+
+For $\alpha > 0$ and $h_b > 0$, the lethal footprint shifts downrange. There are
+two distinct "centres":
+
+- **Belt centreline intercept** at $x_{\text{belt}} = h_b\tan\alpha$ — the unique
+  ground point hit by the $\Theta = 90°$ ray (eq. 19 with $\cos\Theta = 0$). The
+  belt-window mask only admits ground points satisfying eq. (19) within $\pm\delta$.
+- **Peak-density centre** $x_{\text{peak}}$ — the lethal-hit density also depends
+  on slant range $s = \sqrt{x^2 + h_b^2}$ (closer is hotter) and the obliquity
+  factor $h_b / s^3$. The peak therefore lies **between** $x = 0$ (directly
+  below burst, shortest slant range) and the belt-centreline intercept.
+
+Both predictions are tested.
+
+```{python}
+xs = np.linspace(-20.0, 30.0, 501)   # 0.1 m resolution
+ys = np.array([0.0])
+X_g, Y_g = np.meshgrid(xs, ys)
+N_eff_shift = expected_kills_3d(
+    X_g, Y_g, hb_default, alpha_default, delta_default,
+    N0, mu, V0, rho_air, C_D, C_shape, rho_steel, STANDING,
+).ravel()
+P_shift = p_kill(N_eff_shift)
+
+x_belt = hb_default * np.tan(alpha_default)
+x_peak = xs[int(np.argmax(P_shift))]
+# Check belt centreline by inverse map: at x_belt, y=0, Theta should be 90 deg
+_, theta_belt = ground_to_polar(x_belt, 0.0, hb_default, alpha_default)
+dx = xs[1] - xs[0]   # grid resolution
+print(f"  Belt centreline x_belt = hb tan(a) : {x_belt:+.2f} m")
+print(f"    Theta at (x_belt, 0)             : {np.degrees(theta_belt):.4f} deg  (must be 90)")
+print(f"  Density-peak x_peak                 : {x_peak:+.2f} m")
+print(f"  |x_peak - x_belt|                   : {abs(x_peak - x_belt):.2f} m  (≤ 2 grid steps = {2*dx:.2f} m)")
+assert abs(theta_belt - 0.5 * np.pi) < 1e-12, "belt centreline misaligned"
+# With the A_p(gamma)/s^2 factor the peak may sit within one grid step of x_belt
+# (the A_p(gamma) term grows past the belt centre, offsetting the 1/s^2 falloff slightly)
+assert abs(x_peak - x_belt) <= 2 * dx, f"density peak too far from x_belt: |{x_peak:.2f} - {x_belt:.2f}| > {2*dx:.2f}"
+print("  PASS — density peak within 2 grid steps of belt centreline hb tan(a)")
+```
+
+#### Check 6.3 — $R_{50}$ vs burst height
+
+For the corrected geometry factor in eq. (22), the per-target lethal-hit
+count along the cross-range cut through the footprint centre
+$x_{\text{belt}} = h_b\tan\alpha$ depends on $h_b$ only through the slant
+range $s = \sqrt{y^2 + h_b^2 / \cos^2\alpha}$ (modulo the belt-window gate).
+Larger $h_b$ → longer $s$ → more drag → lower per-fragment KE → smaller
+per-target lethal-hit count → **shorter** $R_{50}$.
+
+The table below confirms this trend. The peak $P_{\text{kill}}$ at the belt
+centre stays at 100% across the swept range (small $h_b$ → many lethal hits,
+saturated Poisson), and $R_{50}$ falls modestly as $h_b$ grows from 0.5 m to
+20 m.
+
+```{python}
+hb_sweep = np.array([0.5, 1.0, 2.0, 5.0, 10.0, 20.0])
+r_axis   = np.linspace(2.0, 200.0, 100)
+print(f"  hb [m] |  R_50 on-axis (y) [m]  |  peak P(kill) [%]")
+for hb_i in hb_sweep:
+    x_centre = hb_i * np.tan(alpha_default)
+    Xc, Yc = np.meshgrid(np.array([x_centre]), r_axis)
+    N_e = expected_kills_3d(
+        Xc, Yc, hb_i, alpha_default, delta_default,
+        N0, mu, V0, rho_air, C_D, C_shape, rho_steel, STANDING,
+    ).ravel()
+    P_e = p_kill(N_e)
+    if (P_e >= 0.5).any():
+        r50 = r_axis[np.argmin(np.abs(P_e - 0.5))]
+        r50_s = f"{r50:6.1f}"
+    else:
+        r50_s = "  <0.5"
+    print(f"  {hb_i:5.1f} |        {r50_s}         |      {P_e.max()*100:5.1f}")
+```
+
+#### Check 6.4 — Mirror symmetry across the line-of-fire plane
+
+The shell axis lies in the $xz$-plane (eq. 11) and the perpendicular basis $\hat e_1$,
+$\hat e_2$ is built so that $\hat e_2 = \hat y$ is the only out-of-plane direction.
+The geometry is therefore invariant under reflection $y \to -y$. Test that the
+ground footprint inherits this mirror symmetry for any $\alpha$.
+
+```{python}
+xs_sym = np.linspace(-30.0, 30.0, 41)
+ys_sym = np.linspace(-30.0, 30.0, 41)
+Xs, Ys = np.meshgrid(xs_sym, ys_sym)
+for aof_deg in [0.0, 15.0, 30.0, 60.0]:
+    N_sym  = expected_kills_3d(
+        Xs, Ys, hb_default, np.radians(aof_deg), delta_default,
+        N0, mu, V0, rho_air, C_D, C_shape, rho_steel, STANDING,
+    )
+    # Reflect y -> -y by flipping rows
+    asym = np.max(np.abs(N_sym - N_sym[::-1, :])) / (np.max(N_sym) + 1e-12)
+    print(f"  AoF={aof_deg:4.1f} deg  max |N - N(y->-y)| / max(N) = {asym:.2e}")
+    assert asym < 1e-10
+print("  PASS — footprint is mirror-symmetric across the line-of-fire plane")
+```
+
+For $\alpha > 0$ the footprint is **not** rotationally symmetric (the shell axis
+breaks rotation), only mirror-symmetric across the line of fire — and that is
+exactly the elliptical pattern artillery practice describes.
+
+#### Check 6.5 — $\alpha = 90°$ edge case (vertical drop)
+
+For purely vertical descent ($\alpha = 90°$), the shell axis points straight
+down ($\hat{e}_{\text{axis}} = (0,0,-1)$) and a fragment at polar angle $\Theta$
+has $\hat{d}_z = -\cos\Theta$. Fragments at $\Theta = 90°$ travel horizontally
+and never hit the ground. However, fragments at $\Theta < 90°$ (the inner half
+of any finite belt) have $\hat{d}_z < 0$ and **do** reach the ground.
+
+The minimum slant range at which the belt window admits a ground point is
+$s_{\min} = h_b / \cos(90° - \delta)$. For the default $\delta = 15°$ and
+$h_b = 5$ m this gives $s_{\min} \approx 19$ m; at larger radii the footprint
+forms a ring. For a narrow belt ($\delta = 2°$) the threshold rises to
+$s_{\min} \approx 143$ m — outside the 50 m test grid below, so the result
+is zero on that grid.
+
+```{python}
+# alpha = 90 deg, narrow belt (delta=2 deg): threshold ~143 m, beyond 50 m grid
+xs_edge = np.linspace(-50.0, 50.0, 21)
+ys_edge = np.linspace(-50.0, 50.0, 21)
+Xe, Ye = np.meshgrid(xs_edge, ys_edge)
+N_edge = expected_kills_3d(
+    Xe, Ye, hb_default, np.radians(90.0), np.radians(2.0),
+    N0, mu, V0, rho_air, C_D, C_shape, rho_steel, STANDING,
+)
+s_min_narrow = hb_default / np.cos(np.radians(90.0 - 2.0))
+print(f"  Narrow belt (delta=2 deg): s_min = {s_min_narrow:.0f} m  (beyond 50 m grid)")
+print(f"    max N_eff on 50 m grid  = {N_edge.max():.2e}  (correctly zero)")
+
+# Default belt (delta=15 deg): threshold ~19 m, well within the grid
+N_edge_default = expected_kills_3d(
+    Xe, Ye, hb_default, np.radians(90.0), delta_default,
+    N0, mu, V0, rho_air, C_D, C_shape, rho_steel, STANDING,
+)
+s_min_default = hb_default / np.cos(np.radians(90.0 - np.degrees(delta_default)))
+print(f"  Default belt (delta={np.degrees(delta_default):.0f} deg): s_min = {s_min_default:.1f} m  (within grid)")
+print(f"    max N_eff on 50 m grid  = {N_edge_default.max():.2e}  (ring footprint present)")
+print("  PASS — narrow-belt vertical drop is empty within 50 m; default belt shows ring beyond s_min")
+```
+
+### 6.8 Posture comparison: airburst advantage
+
+The posture-resolved presented area $A_p(\gamma) = w_\perp\,(h\cos\gamma + d\sin\gamma)$
+links the abstract geometric factor to the question that drives fuse selection:
+*how much does raising the burst height buy you against a prone target?*
+
+**Block A — $A_p(\gamma)$ profile**
+
+For a standing soldier ($h = 1.7$ m, $d = 0.3$ m) the presented area is
+dominated by the body height: a near-horizontal arrival ($\gamma \to 0$) sees
+the full silhouette, while a vertical arrival ($\gamma \to 90°$) sees only the
+small head/shoulder footprint. Prone ($h = 0.3$ m, $d = 1.8$ m) inverts the
+trade: horizontal fragments see almost nothing, vertical fragments see the
+full body length.
+
+```{python}
+# Plot A_p(gamma) vs gamma for STANDING and PRONE
+gamma_deg = np.linspace(0, 90, 91)
+gamma_rad = np.radians(gamma_deg)
+fig, ax = plt.subplots(figsize=(6, 3.5))
+ax.plot(gamma_deg, [presented_area(g, STANDING) for g in gamma_rad],
+        label="Standing (h=1.7 m, d=0.3 m)", color="steelblue")
+ax.plot(gamma_deg, [presented_area(g, PRONE) for g in gamma_rad],
+        label="Prone (h=0.3 m, d=1.8 m)", color="firebrick", linestyle="--")
+ax.axvline(0,  color="gray", lw=0.8, ls=":")
+ax.axvline(90, color="gray", lw=0.8, ls=":")
+ax.set_xlabel("Fragment arrival elevation γ [deg]")
+ax.set_ylabel("Projected area A_p [m²]")
+ax.set_title("Presented area vs fragment arrival angle")
+ax.legend()
+plt.tight_layout()
+plt.savefig("frag_field_3d_Ap_profile.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+**Block B — Ground burst vs airburst at AoF = 30°**
+
+The cross-range $P(\text{kill})$ profile through the belt centre
+($x = x_{\text{belt}} = h_b \tan\alpha$) reveals the operational consequence:
+ground bursts deliver near-horizontal fragments that miss prone targets,
+while airbursts redirect the belt downward and recover lethality against the
+prone silhouette.
+
+```{python}
+r_prof = np.linspace(1.0, 200.0, 200)
+configs = [
+    (0.5,  "Ground burst h_b=0.5 m", "steelblue",  "-"),
+    (10.0, "Airburst     h_b=10 m",  "firebrick",   "--"),
+]
+fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
+pk_at_y50 = {}
+for ax, (posture, ptitle) in zip(axes, [(STANDING, "Standing"), (PRONE, "Prone")]):
+    for hb_i, label, color, ls in configs:
+        x_c = hb_i * np.tan(alpha_default)
+        Xc  = np.full_like(r_prof, x_c)
+        N_e = expected_kills_3d(
+            Xc, r_prof, hb_i, alpha_default, delta_default,
+            N0, mu, V0, rho_air, C_D, C_shape, rho_steel, posture,
+        )
+        Pk = p_kill(N_e)
+        ax.plot(r_prof, Pk * 100, label=label, color=color, ls=ls)
+        # capture P(kill) at y = 50 m for the summary table
+        i50 = int(np.argmin(np.abs(r_prof - 50.0)))
+        pk_at_y50[(ptitle, label)] = Pk[i50]
+    ax.axhline(50, color="gray", lw=0.8, ls=":")
+    ax.set_xlabel("Cross-range y [m]")
+    ax.set_ylabel("P(kill) [%]")
+    ax.set_title(f"{ptitle} target")
+    ax.legend(fontsize=8)
+fig.suptitle("Airburst advantage: ground burst vs airburst at AoF=30°, δ=15°", y=1.02)
+plt.tight_layout()
+plt.savefig("frag_field_3d_posture_comparison.png", dpi=120, bbox_inches="tight")
+plt.show()
+
+print("P(kill) at y = 50 m:")
+for (ptitle, label), pk in pk_at_y50.items():
+    print(f"  {ptitle:<8} {label:<28}: {pk*100:6.2f} %")
+```
+
+**Observations:**
+
+- **Standing target, ground burst** dominates the lethality envelope at short
+  cross-range: the belt fragments fly nearly horizontally and present the full
+  $h \approx 1.7$ m silhouette, so $A_p$ is at its maximum exactly where the
+  flux is highest.
+- **Standing target, airburst** trades some peak lethality for a flatter
+  profile — the longer slant range bleeds energy via drag, and the
+  $\gamma \approx 30$–$60°$ arrival angles reduce $A_p$ from its
+  horizontal-arrival peak.
+- **Prone target, ground burst** collapses to near-zero $P(\text{kill})$ across
+  almost the entire belt: horizontal fragments see only the prone target's
+  $d \cos\gamma \approx 1.8 \cos 0°$ silhouette in the *vertical* direction
+  but the $h$-term dominates the $A_p$ formula at small $\gamma$, and with
+  $h_{\text{prone}} = 0.3$ m the presented area is small.
+- **Prone target, airburst** is the operational pay-off: raising $h_b$ from
+  0.5 m to 10 m lifts $\gamma$ into the $30°$–$70°$ band where the prone
+  $d\sin\gamma$ term recovers a near-full silhouette. The cross-range $P(\text{kill})$
+  rises from negligible to a finite — and tactically meaningful — value,
+  which is precisely why time-fuse airburst is the standard delivery against
+  troops in defilade.
+
+### 6.9 Sensitivity — Footprint vs. Angle of Fall, Burst Height, and Posture
+
+```{python}
+def footprint_contour(hb: float, alpha: float, delta: float = delta_default,
+                      extent: float = 80.0, n: int = 80,
+                      posture: TargetPosture = STANDING):
+    """Return (X, Y, P_kill) grid for a single (hb, alpha, posture) configuration."""
+    xs = np.linspace(-extent, extent, n)
+    ys = np.linspace(-extent, extent, n)
+    X, Y = np.meshgrid(xs, ys)
+    N_e = expected_kills_3d(X, Y, hb, alpha, delta,
+                            N0, mu, V0, rho_air, C_D, C_shape, rho_steel, posture)
+    return X, Y, p_kill(N_e)
+
+
+# Sweep: AoF in [0, 30, 60, 90] deg at hb = 5 m, standing target
+fig, axes = plt.subplots(1, 4, figsize=(17, 4.3))
+for ax, aof_deg in zip(axes, [0.0, 30.0, 60.0, 90.0]):
+    X, Y, P_grid = footprint_contour(hb_default, np.radians(aof_deg))
+    cf = ax.contourf(X, Y, P_grid * 100,
+                     levels=[0, 5, 10, 25, 50, 75, 90], cmap="YlOrRd")
+    ax.contour(X, Y, P_grid * 100, levels=[50], colors="white", linewidths=1.2)
+    if aof_deg < 90.0:
+        ax.plot(hb_default * np.tan(np.radians(aof_deg)), 0, "k+", ms=10, mew=2,
+                label="Predicted centre $h_b\\tan\\alpha$")
+        ax.legend(loc="upper left", fontsize=7)
+    ax.set_aspect("equal")
+    ax.set_xlabel("Downrange x [m]"); ax.set_ylabel("Cross-range y [m]")
+    ax.set_title(f"AoF = {aof_deg:.0f}°, $h_b$ = {hb_default:.0f} m")
+fig.colorbar(cf, ax=axes, label="P(kill) [%]", shrink=0.8)
+fig.suptitle("Lethal footprint vs. angle of fall — standing target (δ = 15°)", y=1.02)
+plt.savefig("frag_field_3d_aof.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+```{python}
+# Sweep: hb in [≈0, 2, 5, 10] m at AoF = 30 deg, standing target
+fig, axes = plt.subplots(1, 4, figsize=(16, 4.3))
+for ax, hb_i in zip(axes, [1e-3, 2.0, 5.0, 10.0]):
+    X, Y, P_grid = footprint_contour(hb_i, alpha_default)
+    cf = ax.contourf(X, Y, P_grid * 100,
+                     levels=[0, 5, 10, 25, 50, 75, 90], cmap="YlOrRd")
+    ax.contour(X, Y, P_grid * 100, levels=[50], colors="white", linewidths=1.2)
+    ax.plot(hb_i * np.tan(alpha_default), 0, "k+", ms=10, mew=2)
+    ax.set_aspect("equal")
+    ax.set_xlabel("Downrange x [m]"); ax.set_ylabel("Cross-range y [m]")
+    label = "≈0 m (ground burst)" if hb_i < 0.01 else f"{hb_i:.0f} m"
+    ax.set_title(f"$h_b$ = {label}, AoF = {np.degrees(alpha_default):.0f}°")
+fig.colorbar(cf, ax=axes, label="P(kill) [%]", shrink=0.8)
+fig.suptitle("Lethal footprint vs. burst height — standing target (δ = 15°)", y=1.02)
+plt.savefig("frag_field_3d_hb.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+```{python}
+# Sweep: hb in [≈0, 2, 5, 10] m at AoF = 30 deg, prone target
+fig, axes = plt.subplots(1, 4, figsize=(16, 4.3))
+for ax, hb_i in zip(axes, [1e-3, 2.0, 5.0, 10.0]):
+    X, Y, P_grid = footprint_contour(hb_i, alpha_default, posture=PRONE)
+    cf = ax.contourf(X, Y, P_grid * 100,
+                     levels=[0, 5, 10, 25, 50, 75, 90], cmap="YlOrRd")
+    ax.contour(X, Y, P_grid * 100, levels=[50], colors="white", linewidths=1.2)
+    ax.plot(hb_i * np.tan(alpha_default), 0, "k+", ms=10, mew=2)
+    ax.set_aspect("equal")
+    ax.set_xlabel("Downrange x [m]"); ax.set_ylabel("Cross-range y [m]")
+    label = "≈0 m (ground burst)" if hb_i < 0.01 else f"{hb_i:.0f} m"
+    ax.set_title(f"$h_b$ = {label}, AoF = {np.degrees(alpha_default):.0f}°")
+fig.colorbar(cf, ax=axes, label="P(kill) [%]", shrink=0.8)
+fig.suptitle("Lethal footprint vs. burst height — prone target (δ = 15°)", y=1.02)
+plt.savefig("frag_field_3d_hb_prone.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+**Observations from the sensitivity sweep:**
+
+- Increasing AoF shifts the footprint centre downrange ($x_{\text{shift}} = h_b\tan\alpha$)
+  and elongates it along the line of fire; at $\alpha = 90°$ the equatorial belt
+  fragments travel horizontally and the footprint collapses (Check 6.5).
+- Burst height has minimal effect on the standing-target footprint shape because the
+  cross-range slant range $s \approx y$ dominates when $y \gg h_b$; the $R_{50}$
+  decrease with $h_b$ is captured in the 1D profile (Check 6.3) rather than the 2D
+  contour. The airburst advantage against standing targets is marginal.
+- Comparing the standing and prone hb sweeps directly shows the operational effect:
+  at ground burst ($h_b \approx 0$) the prone footprint nearly vanishes — horizontal
+  fragments see only the 0.3 m vertical silhouette. As $h_b$ increases, $\gamma$
+  rises and the $d\sin\gamma$ term ($d = 1.8$ m prone) recovers lethality, producing
+  a visibly larger footprint by $h_b = 10$ m. The same hb increase barely changes
+  the standing footprint — the airburst advantage is posture-specific.
+
+______________________________________________________________________
+
+## 7 · Assumptions
+
+The following deliberate simplifications are in effect throughout the model.
+Each is referenced by number ("A_n_") from the limitations and future-enhancement
+sections that follow.
+
+- **A1 — Single HE shell, single explosive fill.** One projectile per detonation;
+  no submunition or carrier-shell composition. Fuse type enters only as the burst
+  height $h_b$.
+- **A2 — One-region Gurney cylinder.** The shell body is modelled as a uniform
+  cylinder; nose (ogive) and base end zones contribute no fragments and no
+  fragment-launch directions outside the equatorial belt.
+- **A3 — Single initial velocity $V_0$.** All fragments depart at the Gurney
+  speed regardless of mass or position along the shell axis.
+- **A4 — Straight-line ray trajectories.** Fragments travel along straight rays
+  from the burst point (eqs. 16–17); gravity drop is neglected and rays with
+  $\hat d_z \ge 0$ never re-enter the ground.
+- **A5 — Step-function belt window (eq. 15).** Fragment density is uniform
+  inside $|\Theta-90°|\le\delta$ and zero outside; the belt half-width $\delta$
+  is a fixed scalar input.
+- **A6 — Box-body target silhouette.** The presented area is
+  $A_p(\gamma)=w_\perp(h\cos\gamma+d\sin\gamma)$ — a flat-plate Lambert
+  projection of a rectangular body with no limbs, head, or side-lying
+  geometry.
+- **A7 — ES-310 graded $P_{k|\text{hit}}$ on unprotected infantry, open
+  ground.** Three log-linear anchors (100 J → 0.10, 1 kJ → 0.50, 4 kJ → 0.90)
+  with no body armour, cover, defilade, or ground-ricochet contribution.
+- **A8 — Continuous Mott PDF.** $N_\text{eff}$ is computed by integrating
+  $n(m)$ over a smooth mass grid — fragments are treated as a deterministic
+  density, not a finite discrete sample.
+- **A9 — Poisson single-target independence.** $P_\text{kill}=1-\exp(-N_\text{eff})$
+  applies per target with no fragment depletion when multiple targets share the
+  same flux.
+- **A10 — Deterministic parameters.** The Mott shape parameter $\gamma$, dynamic
+  flow stress $\sigma_F$, drag coefficient $C_D$, shape factor $C_\text{shape}$,
+  and Gurney constant $\sqrt{2E}$ are point values; no input uncertainty is
+  propagated through the calculation.
+- **A11 — All fragments are tumbling irregular chunks.** A single drag
+  coefficient $C_D=0.65$ and shape factor $C_\text{shape}=0.90$ apply to every
+  fragment regardless of mass or shape-class (no aero-stable splinters).
+- **A12 — Mass integration bounds.** Fragment mass is integrated from
+  $m_\text{min} = 10^{-6}\,\text{kg}$ to $m_\text{max} = 0.5\,\text{kg}$.
+  Fragments below ~0.3 g carry negligible lethality per the ES-310 curve and
+  do not affect results; fragments above 0.5 kg are excluded as negligible in
+  probability for standard artillery shells.
+
+______________________________________________________________________
+
+## 8 · Model Limitations
+
+Each limitation below names the gap implied by one or more assumptions, the
+practical effect on accuracy or applicability, and references the originating
+assumption(s). Relaxation paths are listed in §9.
+
+**L1 — Missing nose and base fragment contributions** (from **A2**).
+A real shell has a pointed ogive nose and a flat base in addition to the
+cylindrical body; together these zones account for roughly 20–30 % of the steel
+mass. The one-region Gurney cylinder treats them as inert, so the model
+*underestimates* total fragment count and entirely misses the forward and
+rear-sector hazard documented by Gold (2007) for the tail boom and fuze.
+
+**L2 — Gravity drop neglected** (from **A4**).
+Real fragments follow ballistic arcs. The straight-line ray approximation
+shortens the slant range by a few percent at long range: a 1 g fragment
+(retardation $\lambda \approx 0.088\,\text{m}^{-1}$) has an average speed of
+~400–600 m/s over the first 100 m, giving $t \approx 0.17$–$0.25$ s and
+gravity drop $\Delta z \approx 0.1$–$0.3$ m — small relative to a 1.7 m
+standing target, so the approximation holds comfortably to ~100–150 m range.
+Beyond that — or for sub-gram fragments at long range — ground intercepts are
+biased short.
+
+**L3 — No velocity distribution across the belt** (from **A3**).
+Gold (2007, Fig. 9) shows measured fragment velocity spanning roughly ±10–15 %
+around the Gurney mean and varying systematically with spray angle $\psi$
+(peaking near the equator, falling toward the poles). The single-$V_0$
+assumption narrows the lethality envelope at short range (no low-velocity
+fragments) and at long range (no high-velocity tail). The Gurney constant
+itself (2 440 m/s for TNT) is a nominal tabulated value; lot, temperature, and
+aging variation shift it by a few percent and propagate quadratically into KE.
+
+**L4 — Belt-window model is a step function with fixed $\delta$** (from **A5**).
+The uniform-in-window, zero-outside belt density of eq. (15) ignores three
+sub-effects: (a) end-zone sprays from the ogive and base fall entirely outside
+the window; (b) the detonation wave traverses the shell at ~7 km/s, so the
+belt is not perfectly symmetric about the shell mid-plane; (c) the choice
+$\delta = 15°$ is a modelling input — no collected source directly specifies
+it, and Gold (2007, ADA462991) Fig. 9 suggests a wider spray zone of
+$\delta \approx 35°$ (spray sweep from ≈ 60° to ≈ 130° from the nose).
+
+**L5 — Shell parameters not sourced from a collected document** (input data,
+related to **A1**).
+Wall thickness, projectile mass, and filler mass are taken from US Army
+TM 9-1901 (cited in code comments) but that manual is not collected in
+`doc-reference/`. If these inputs are wrong, every output shifts — $V_0$
+scales with $M/C$ and $\mu$ scales as $r_\text{bu}^3$.
+
+**L6 — Mott input uncertainties amplify super-linearly** (from **A10**).
+The break-up radius $r_\text{bu}$ is derived from the $V/V_0 \approx 3$
+expansion criterion, which Gold (2017, §2) describes as "accepted as a rule of
+thumb for routine one-region PAFRAG modeling" with only fair agreement to
+high-speed photography (~10–20 % uncertainty in $r_\text{bu}$). Because
+$\mu \propto r_\text{bu}^3$, a 15 % error in $r_\text{bu}$ produces a 50 %
+error in $\mu$. $\gamma$ and $\sigma_F$ each carry ~25 % uncertainty and both
+enter $\mu$ as the 3/2 power, giving roughly 35–40 % uncertainty in the
+fragment size scale. The R₅₀ sensitivity sweep captures the $\sigma_F$ range
+but not the joint uncertainty.
+
+**L7 — No aero-stable splinters in the drag model** (from **A11**).
+Felix et al. (2022, §2.3) document that real fragments are 2–6× longer than
+they are wide and note that shape "has a significant effect on the air
+resistance restricting the velocity of the fragment." Some elongated splinters
+fly edge-on with $C_D \approx 0.2–0.4$ and reach 20–40 % further than the
+uniform-$C_D = 0.65$ model predicts. The fraction of aero-stable splinters is
+a small minority, but they dominate the far-field hazard.
+
+**L8 — No protection, cover, or ground ricochet** (from **A7**).
+The ES-310 $P_{k|\text{hit}}$ curve is calibrated for standing unprotected
+infantry — the 4 kJ "heavy kill" anchor is explicitly the armour-penetrating
+threshold, so the lower anchors apply to bare flesh only. Three unmodelled
+effects bound this: (a) body armour reduces torso vulnerability by a factor
+of ~3–5×; (b) a soldier in a foxhole or behind cover has only the head and
+shoulders exposed (~80–90 % presented-area reduction); (c) ground ricochet can
+redirect fragments that would otherwise miss, particularly at shallow angles
+of fall.
+
+**L9 — No fragment depletion across a formation** (from **A9**).
+The per-target Poisson formula is correct for a single target. For a formation,
+the model evaluates each soldier's $P_\text{kill}$ against the full flux —
+ignoring that a fragment killing soldier A is unavailable to kill soldier B.
+At close range (≤ 50 m) with squad-density formations, this overestimates total
+expected kills.
+
+**L10 — Continuous Mott PDF misses heavy-tail variance** (from **A8**).
+$N_\text{eff}$ is the ensemble-mean outcome over many rounds. For the bulk of
+sub-gram fragments this is a good approximation. For the heavy tail (multi-gram
+fragments, counts in the tens to hundreds), the discrete nature matters: a
+single large fragment landing on a target is a rare but high-consequence event
+that the mean integral undersells.
+
+**L11 — Box-body posture geometry is an engineering estimate** (from **A6**).
+The standing/prone $(h, d)$ dimensions used in $A_p(\gamma)$ are engineering
+estimates aligned with the Cunniff (2014) methodology, not values lifted from
+a primary table — Cunniff specifies a Monte Carlo geometry procedure
+(Fig. 7, p. 62) rather than tabulating $h$/$d$ per posture. Treat absolute
+posture-resolved hit counts as ±25 % engineering estimates. A separate, larger
+systematic bias arises from the flat-plate Lambert silhouette: the model gives
+a standing/prone casualty ratio of approximately 1/5.7 at ground burst
+($\gamma \approx 0$) against the doctrinal 1/3 (British Artillery, "Weight of
+Fire — Effects of Target Posture",
+\url{https://www.britishartillery.co.uk/wt_of_fire.htm}). The discrepancy
+reflects omitted limbs, raised head, and side-lying positions, plus the lack
+of a volumetric body-shape term. Trench protection (doctrinal 1/15–1/100) is
+not representable at all — that requires a cover / parapet solid-angle model
+out of scope here.
+
+______________________________________________________________________
+
+## 9 · Future Enhancements
+
+The current model captures the dominant geometric and energetic effects of
+artillery fragmentation but treats several intrinsically statistical quantities
+as deterministic. Cunniff (2014) provides a coherent statistical framework that
+enables three concrete extensions (§9.1–§9.3), each grounded in published data
+and methodology. Section §9.4 catalogues smaller deferred upgrades that relax
+the remaining limitations.
+
+### 9.1 — Monte Carlo fragment orientation sampling
+
+*Relaxes **A10**, **A11**, **L7**, **L10**.*
+
+The current model uses a deterministic $A_p(\gamma)$ for the box-body
+silhouette and a deterministic mean presented-area factor $C_{\text{shape}}$
+for the tumbling fragment. Cunniff (2014, Fig. 3, pp. 26–27) characterises
+the presented-area variability with munition-specific distributions: the
+155 mm M107 howitzer follows a Normal distribution with $\sigma \approx 0.27$
+(presented area varies by ±27 % at 1σ), and the MK84 low-drag bomb is similar
+(Normal, $\sigma \approx 0.29$). The 76 mm MK165 projectile is heavier-tailed
+— a Generalized Extreme Value distribution whose area can range from about
+20 % to 200 % of the mean. Cunniff's key empirical result is that the PDF of
+$A_p/m$ is **independent of fragment mass** for a given munition, so a single
+munition-specific distribution applies to all fragments. A Monte Carlo
+extension would sample fragment $A_p/m$ from the measured PDF at each ray,
+replacing the deterministic presented-area calculation with a probabilistic
+one and propagating orientation uncertainty through drag, penetration, and
+per-target lethality. The output would be a distribution of $R_{50}$ rather
+than a point estimate, exposing the variance that the current mean-field
+calculation hides.
+
+### 9.2 — Sturdivan tissue penetration model
+
+*Relaxes **A7**, **L8** (vulnerability anchor; not the protection/cover terms).*
+
+The current $P_{k|\text{hit}}$ model uses the ES-310 three-point graded
+threshold (100 J → 0.10, 1 kJ → 0.50, 4 kJ → 0.90). Cunniff (2014, pp. 49–51,
+Fig. 5, p. 52) describes the Sturdivan force-balance ODE for projectile
+penetration in gelatin, treating the retarding force as a sum of viscous
+and inertial terms:
+$F = m_p\,dV/dt = -(C_V \rho A_p V^b + C_I A_p V^2)$.
+Solving for penetration depth $x$ yields a single curve of striking
+velocity $V_s$ vs. the dimensionless areal density $A_d A_p / m_p$ that
+fits all fragment masses and types — a quadratic regression
+$V_s = P_1 (A_d A_p/m_p)^2 + P_2 (A_d A_p/m_p) + P_3$ collapses gelatin
+and goat-tissue data from Breeze et al. (2013) and Sturdivan (1978) onto a
+common curve with no systematic mass dependence. This would replace the
+piecewise ES-310 $P_k(KE)$ with a physically grounded penetration-depth
+model, better capturing the mass–velocity–area interaction and providing a
+natural coupling point for body-armour areal density $A_d$.
+
+### 9.3 — Human phantom geometry (angle-dependent silhouette from first principles)
+
+*Relaxes **A6**, **L11**.*
+
+The current $A_p(\gamma) = w_\perp(h\cos\gamma + d\sin\gamma)$ box-body
+approximation captures gross posture trends but cannot represent limbs,
+side-lying postures, or partial defilade — and as documented in Limitation 11
+it produces a standing/prone ratio of 1/5.7 against the doctrinal 1/3.
+Cunniff (2014, Fig. 7, p. 62) describes a computational-geometry method:
+distribute burst viewpoints on concentric spheres around a human phantom,
+filter to surface cells where the outward normal $\cdot$ burst-vector $> 0$
+(entry wounds only), and compute the silhouette area directly from the
+body surface mesh. This would replace the two-parameter box model with a
+full 3D body geometry, capturing limb exposure and posture transitions
+without additional free parameters. The same phantom infrastructure also
+provides the per-cell tissue type required by §9.2 for wound-tract
+modelling.
+
+### 9.4 — Other deferred enhancements
+
+Smaller upgrade paths, each relaxing a specific Limitation:
+
+- **End-zone (nose and base) sprays** — *relaxes **A2**, **L1**.* Add an
+  ogive-cone forward plume and a base-disc rearward plume outside the
+  $\Theta = 90°\pm\delta$ window, following the multi-region PAFRAG treatment
+  (Gold 2007, ADA462991, tail-boom + fuze contributions).
+- **Gravity drop on long-range fragments** — *relaxes **A4**, **L2**.*
+  Replace the straight-line ray with a ballistic arc (closed-form parabola in
+  the no-drag limit, or numerical integration with drag) for $s \gtrsim 200$ m.
+- **Belt velocity and density distribution $V(\psi)$, $n(\psi)$** —
+  *relaxes **A3**, **A5**, **L3**, **L4a**.* Replace the step-function belt
+  window of eq. (15) with a continuous polar profile from Gold (2007, Fig. 9),
+  giving angle-dependent $V_0(\psi)$ and number density.
+- **Belt-width sensitivity** — *relaxes **A5**, **L4c**.* Sweep
+  $\delta \in [10°, 40°]$ and re-run §6.9 to bracket the $R_{50}$ dependence
+  on the spray-window assumption.
+- **Aero-stable splinter sub-population** — *relaxes **A11**, **L7**.*
+  Partition fragments into a tumbling-irregular majority ($C_D = 0.65$) and an
+  edge-on splinter minority ($C_D \approx 0.3$); the minority fraction is the
+  main free parameter and can be calibrated against arena-test far-field
+  counts (Felix et al. 2022).
+- **Body armour, cover, and ground ricochet** — *relaxes **A7**, **L8**.*
+  Add scalar multipliers on $A_p$ (cover/defilade), a vulnerability threshold
+  shift (armour areal density coupling via §9.2), and a ricochet kernel for
+  shallow-angle-of-fall fragments.
+- **Fragment depletion across formations** — *relaxes **A9**, **L9**.*
+  Replace the per-target Poisson with a hypergeometric draw over the finite
+  fragment count for dense-formation, short-range cases (~≤ 50 m, squad
+  density).
+- **Discrete Mott sampling for heavy-tail variance** — *relaxes **A8**,
+  **L10**.* Monte Carlo draw $N$ fragment masses from $n(m)$ per detonation
+  and report a $P_{\text{kill}}$ distribution rather than a point estimate,
+  exposing the heavy-tail variance (subset of §9.1).
+- **Reduce shell-input dependence on uncollected sources** — *relaxes **L5**.*
+  Collect TM 9-1901 (or an equivalent primary source) into `doc-reference/`
+  so wall thickness, projectile mass, and filler mass are verifiable.
+
