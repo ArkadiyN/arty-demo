@@ -1354,6 +1354,330 @@ plt.show()
   a visibly larger footprint by $h_b = 10$ m. The same hb increase barely changes
   the standing footprint — the airburst advantage is posture-specific.
 
+### 6.10 Fragment spray geometry — diagnostic
+
+The footprint contours in §6.9 hide the underlying ray pattern behind a
+mass-and-lethality integral. This diagnostic section strips the lethality away
+and visualises the raw fragment-ray geometry from eqs. (13)–(17) so the reader
+can see *exactly* where individual fragments go. Three common misconceptions
+are addressed:
+
+1. **"Only four directions?"** — No. The belt at $\Theta = 90°$ is a continuous
+   circle of azimuths $\psi \in [0, 2\pi)$, parameterised by the orthonormal
+   pair $(\hat{e}_1, \hat{e}_2)$. Sampling $\psi$ at 4 points is a
+   visualisation choice, not a physical limit.
+2. **"No expanding disc on the ground?"** — Not in general. A disc only appears
+   for a perfectly vertical shell ($\alpha = 90°$). At $\alpha = 0°$ the belt
+   is vertical, so its ground projection collapses to a 1D stripe along $y$.
+   At intermediate $\alpha$ the projection is an asymmetric oval.
+3. **"What does the $\pm 15°$ allowance do?"** — It widens the belt circle
+   into a band on the unit sphere. Projected to the ground, the
+   single-stripe at $\alpha = 0°$ becomes a narrow hourglass band; the
+   ring at $\alpha = 90°$ becomes a ring annulus.
+
+#### Figure 1 — 3D fragment ray fan ($\alpha = 0°$)
+
+The cell below draws every belt fragment as a 3D ray from the burst point
+$\mathbf{B} = (0,0,h_b)$. Blue rays hit the ground; grey-dashed rays travel
+upward and never intercept $z = 0$ in this gravity-free model. Orange rays
+mark the $\Theta = 75°$ and $\Theta = 105°$ edges of the spray belt at the
+single azimuth $\psi = 0$ (downward-most fragment) so the reader can see how
+the $\pm 15°$ window relates to the central ring.
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 — registers 3d projection
+
+# Local copies of §6.2/§6.3 geometry — keep cell self-contained.
+def _shell_axis(a):  return np.array([-np.cos(a), 0.0, -np.sin(a)])
+def _perp_basis(a):
+    return (np.array([np.sin(a), 0.0, -np.cos(a)]),
+            np.array([0.0,       1.0, 0.0]))
+def _d_hat(Theta, psi, a):
+    e1, e2 = _perp_basis(a); ea = _shell_axis(a)
+    return (np.sin(Theta) * (np.cos(psi) * e1 + np.sin(psi) * e2)
+            + np.cos(Theta) * ea)
+def _ground_hit(B, d, max_len=80.0):
+    """Return endpoint of ray from B in direction d, clipped at z=0 or max_len."""
+    if d[2] < 0:
+        t = B[2] / abs(d[2])
+        return B + t * d, True
+    return B + max_len * d, False
+
+hb_diag = 5.0
+B = np.array([0.0, 0.0, hb_diag])
+alpha = 0.0
+psis = np.linspace(0.0, 2 * np.pi, 24, endpoint=False)
+
+fig = plt.figure(figsize=(8.5, 7.0))
+ax = fig.add_subplot(111, projection="3d")
+
+# Ground plane
+xx, yy = np.meshgrid(np.linspace(-30, 30, 2), np.linspace(-30, 30, 2))
+ax.plot_surface(xx, yy, np.zeros_like(xx), alpha=0.15, color="grey",
+                edgecolor="none")
+
+# Equatorial belt rays (Theta = 90°)
+for psi in psis:
+    d = _d_hat(np.pi / 2, psi, alpha)
+    P, hit = _ground_hit(B, d)
+    color = "tab:blue" if hit else "grey"
+    style = "-" if hit else "--"
+    lw = 1.2 if hit else 0.7
+    ax.plot([B[0], P[0]], [B[1], P[1]], [B[2], P[2]],
+            color=color, linestyle=style, linewidth=lw, alpha=0.85)
+
+# +/-15° envelope at psi=0 (the downward-most spoke)
+for Th_deg, lbl in [(75.0, "Θ=75°"), (105.0, "Θ=105°")]:
+    d = _d_hat(np.radians(Th_deg), 0.0, alpha)
+    P, hit = _ground_hit(B, d, max_len=40.0)
+    ax.plot([B[0], P[0]], [B[1], P[1]], [B[2], P[2]],
+            color="tab:orange", linewidth=2.0, label=lbl)
+
+ax.scatter([0], [0], [hb_diag], color="red", s=60, label="Burst B")
+ax.set_xlim(-30, 30); ax.set_ylim(-30, 30); ax.set_zlim(0, 15)
+ax.set_xlabel("x  (downrange) [m]")
+ax.set_ylabel("y  (cross-range) [m]")
+ax.set_zlabel("z [m]")
+ax.set_title("Fragment ray fan — AoF = 0°, Θ = 90° ± 15°\n"
+             "(blue = ground-hitting, grey-dashed = upward, orange = belt edges at ψ=0)")
+ax.legend(loc="upper left", fontsize=8)
+ax.view_init(elev=18, azim=-60)
+plt.tight_layout()
+plt.savefig("frag_spray_3d_aof0.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+**What to look for.** The 24 blue/grey rays form a continuous ring lying
+entirely in the $y$-$z$ plane (the shell axis $\hat{e}_{\text{axis}}$ at
+$\alpha = 0°$ points along $-\hat{x}$, so the spray plane is normal to $\hat{x}$).
+Half the ring (rays with $\cos\psi > 0$) heads down and reaches the ground; the
+other half heads up and escapes. The orange edges show how widening $\Theta$
+to $\pm 15°$ tilts the downward-most ray forward and backward along $x$,
+producing the band geometry visible in Figure 2.
+
+#### Figure 2 — Ground impact pattern (top-down, three AoF angles)
+
+This figure dumps 240 Monte-Carlo rays per AoF, keeps only those reaching
+$z=0$, and scatter-plots the impact points $(x_g, y_g)$. The three subplots
+show how the same physical belt projects to wildly different ground patterns
+depending on shell orientation.
+
+```{python}
+fig, axes = plt.subplots(1, 3, figsize=(15, 5.0))
+
+n_Theta = 5
+n_psi   = 48
+Theta_grid = np.radians(np.linspace(75.0, 105.0, n_Theta))
+psi_grid   = np.linspace(0.0, 2 * np.pi, n_psi, endpoint=False)
+
+for ax, aof_deg in zip(axes, [0.0, 30.0, 90.0]):
+    a = np.radians(aof_deg)
+    xs, ys = [], []
+    for Th in Theta_grid:
+        for ps in psi_grid:
+            d = _d_hat(Th, ps, a)
+            if d[2] < 0:
+                t = hb_diag / abs(d[2])
+                xs.append(t * d[0]); ys.append(t * d[1])
+    xs = np.array(xs); ys = np.array(ys)
+    ax.scatter(xs, ys, s=8, alpha=0.55, color="tab:blue",
+               edgecolors="none", label=f"{len(xs)} hits / {n_Theta*n_psi} rays")
+    ax.plot(0, 0, "rx", ms=10, mew=2, label="Below burst")
+    ax.set_xlim(-50, 50); ax.set_ylim(-50, 50)
+    ax.set_aspect("equal")
+    ax.axhline(0, color="grey", linewidth=0.4)
+    ax.axvline(0, color="grey", linewidth=0.4)
+    ax.set_xlabel("Downrange x [m]")
+    ax.set_ylabel("Cross-range y [m]")
+    ax.set_title(f"AoF = {aof_deg:.0f}°")
+    ax.legend(loc="upper right", fontsize=7)
+
+fig.suptitle("Fragment ground impacts — 240 rays sampled from Θ ∈ [75°,105°], "
+             "ψ ∈ [0°,360°), $h_b$ = 5 m", y=1.02)
+plt.tight_layout()
+plt.savefig("frag_spray_ground_impacts.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+**What to look for.**
+
+- **AoF = 0°:** an hourglass / bowtie band centred on $x = 0$, widening with
+  $|y|$. At $\Theta = 90°$ exactly the impacts lie on the line $x = 0$; the
+  $\pm 15°$ window opens that line into a band, with the width growing as
+  $|x_g| = h_b|\cot\Theta|/|\cos\psi|$.
+- **AoF = 30°:** the band shifts downrange and tilts. The point directly below
+  the burst no longer receives any fragment (a cross-range gap appears at small
+  $|y|$), because the belt is now tilted such that no ray reaches $(0,0)$.
+- **AoF = 90°:** a clean annular ring around the origin. The vertical shell
+  projects its horizontal belt to a circular footprint; the origin itself
+  receives nothing because the belt rays at $\Theta = 90°$ are perfectly
+  horizontal ($\hat{d}_z = 0$). The $\pm 15°$ window thickens the ring into
+  an annulus whose inner/outer radii are $h_b\cot(90°+15°) \approx 1.34$ m and
+  $h_b\cot(75°) \approx 1.34$ m — symmetric, as expected.
+
+#### Figure 3 — Belt cross-section in the $y$-$z$ plane ($\alpha = 0°$)
+
+The 3D fan in Figure 1 collapses to a clean 2D arc when viewed along the
+$x$-axis (the shell axis direction at $\alpha = 0°$). This last diagnostic
+makes that arc explicit and labels the ground intersection.
+
+```{python}
+fig, ax = plt.subplots(figsize=(7.5, 6.0))
+
+alpha = 0.0
+psi_arc = np.linspace(-np.deg2rad(89), np.deg2rad(89), 40)
+
+# Theta = 90° belt — y and z components only (all rays have x=0 at α=0°)
+for psi in psi_arc:
+    d = _d_hat(np.pi / 2, psi, alpha)
+    L = 20.0  # ray length for drawing
+    ax.annotate("", xy=(L * d[1], hb_diag + L * d[2]),
+                xytext=(0, hb_diag),
+                arrowprops=dict(arrowstyle="->", color="tab:blue",
+                                alpha=0.45, lw=0.7))
+
+# Theta = 75° and Theta = 105° arcs (orange) — same ψ sweep
+for Th_deg, col in [(75.0, "tab:orange"), (105.0, "tab:red")]:
+    Th = np.radians(Th_deg)
+    for psi in psi_arc[::3]:  # subsample for clarity
+        d = _d_hat(Th, psi, alpha)
+        L = 20.0
+        ax.annotate("", xy=(L * d[1], hb_diag + L * d[2]),
+                    xytext=(0, hb_diag),
+                    arrowprops=dict(arrowstyle="->", color=col,
+                                    alpha=0.5, lw=0.8))
+
+# Ground line
+ax.axhline(0, color="black", linewidth=1.2)
+ax.text(-19, 0.4, "Ground (z=0)", fontsize=9)
+
+# Burst point
+ax.plot(0, hb_diag, "ro", ms=8, label="Burst B = (0,0,5)")
+
+# Mark ground hit range for the Θ=90° belt: y_g spans (-∞, +∞) since x_g=0
+# but only for |ψ|<90°. Mark the y_g at ψ=±60° as illustrative.
+for psi_mark in [-np.radians(60), np.radians(60)]:
+    d = _d_hat(np.pi / 2, psi_mark, alpha)
+    t = hb_diag / abs(d[2])
+    yg = t * d[1]
+    ax.plot(yg, 0, "bs", ms=6)
+    ax.annotate(f"ψ={np.degrees(psi_mark):+.0f}° → y_g={yg:+.1f} m",
+                xy=(yg, 0), xytext=(yg, -1.8), fontsize=8,
+                ha="center", color="tab:blue")
+
+ax.set_xlim(-20, 20); ax.set_ylim(-3, 18)
+ax.set_aspect("equal")
+ax.set_xlabel("y  (cross-range) [m]")
+ax.set_ylabel("z  (height) [m]")
+ax.set_title("Belt cross-section in y-z plane — AoF = 0°\n"
+             "All rays share x = 0 (belt is a circle, not four points)")
+
+# Build a clean legend
+from matplotlib.lines import Line2D
+proxies = [
+    Line2D([0], [0], color="tab:blue",   lw=2, label="Θ = 90° (equatorial belt)"),
+    Line2D([0], [0], color="tab:orange", lw=2, label="Θ = 75° (forward edge of belt)"),
+    Line2D([0], [0], color="tab:red",    lw=2, label="Θ = 105° (rearward edge of belt)"),
+    Line2D([0], [0], color="red", marker="o", linestyle="", label="Burst B"),
+]
+ax.legend(handles=proxies, loc="upper right", fontsize=8)
+plt.tight_layout()
+plt.savefig("frag_spray_cross_section.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+**What to look for.** Every blue arrow lies in the page ($y$-$z$ plane) with
+$\hat{d}_x = 0$ — the equatorial belt at $\alpha = 0°$ is a flat circle whose
+ground projection collapses to the line $x = 0$, $y \in \mathbb{R}$. The
+orange and red arrows at $\Theta = 75°$ and $\Theta = 105°$ tilt slightly out
+of the page (they carry $\hat{d}_x = \pm\sin 15°$); that out-of-plane
+component is what spreads the AoF = 0° impact stripe in Figure 2 into a
+finite-width band. The ring is **not** four discrete rays — it is a continuous
+$\psi$ family, and the $\pm 15°$ allowance is a *thickness* of that ring, not
+a rotation of it.
+
+### 6.11 Comparison with classical doctrine — sources of difference
+
+A reader comparing Figure 2 above with the classical illustration *"Ground
+and Air Burst Fragmentation Patterns from the Point of Burst at Different
+Angles of Descent"* (top-and-side-view footprints at angles of fall
+$\alpha = 0°, 15°, 30°, \dots, 90°$) will notice three mismatches:
+
+| Angle of fall | Classical doctrine pattern | Our §6.10 Figure 2 pattern |
+|---|---|---|
+| $\alpha = 0°$ | Closed cross-range oval, centred near burst | 1D stripe along $x = 0$ (thin band with $\pm 15°$ window) |
+| $\alpha = 30°$ | Forward-shifted oval, smoothly filled | Offset oval with a gap directly under the burst |
+| $\alpha = 90°$ | Full filled circle below burst | Thin annulus, $r \approx h_b\tan\delta \approx 1.3$ m |
+
+These mismatches are not bugs — they are direct, predictable consequences
+of two of the documented assumptions (A4 and A5). We list them in order of
+contribution.
+
+**1. Belt spray vs. spherical spray (A5).** The classical illustration tacitly
+assumes a *quasi-isotropic* fragment distribution: contributions from the
+nose ogive, the base plate, fuze fragments, and case irregularities populate
+the full unit sphere of launch directions. Our model truncates fragment
+density to a step-function belt $|\Theta - 90°| \le \delta$ (eq. 15, A5).
+Outside that belt the density is identically zero — so all forward-firing
+and rearward-firing fragments that fill the doctrinal oval are removed by
+definition. A real 105 mm M1 shell does concentrate fragments at the
+equatorial belt (it is well approximated as a Gurney cylinder, A2), but
+roughly 10–20 % of the fragment count comes from the end zones; that
+minority is what makes the doctrinal footprint *closed* rather than *open*
+on the upwind side.
+
+**2. No gravity (A4 — straight-line rays).** This is the dominant driver of
+the $\alpha = 0°$ stripe. For a horizontal shell, the belt at $\Theta = 90°$
+forms a vertical circle in the $y$–$z$ plane (Figure 3 above). Under the
+straight-line ray model only fragments with $\hat d_z < 0$ ever reach the
+ground, and for the equatorial belt at $\alpha = 0°$ those fragments all
+satisfy $\hat d_x = 0$ — hence the stripe at $x = 0$. With gravity, every
+fragment with $\hat d_z \ge 0$ that the model currently discards as
+"upward, never returns" instead follows a ballistic arc
+
+$$
+x_g(\hat d) \;=\; \hat d_x V_0 \, t^* , \qquad
+t^* \;=\; \frac{\hat d_z V_0 + \sqrt{(\hat d_z V_0)^2 + 2 g h_b}}{g} ,
+\quad (54)
+$$
+
+landing downrange (and sometimes upwind, for rays with small negative
+$\hat d_x$) at distances of order $V_0\sqrt{2h_b/g} \approx
+1{,}200\sqrt{2 \cdot 5/9.81} \approx 1{,}200$ m for $V_0 \approx 1200$ m/s.
+Practically, drag truncates this to a few hundred metres, but it is more
+than enough to *close* the AoF = 0° oval on the downrange side and create
+the classical cross-range-wide footprint.
+
+**3. Consequence at $\alpha = 90°$ (A5 again).** At a vertical shell
+($\alpha = 90°$), the equatorial belt is exactly horizontal: $\hat d_z = 0$
+for every $\psi$ at $\Theta = 90°$. These rays never strike the ground
+under A4. Only the belt edges $\Theta = 90° \pm \delta$ carry a downward
+component, and they land on a thin annulus of inner/outer radius
+
+$$
+r_{\text{ann}} \;=\; h_b \tan\delta \;\approx\; 5\,\text{m} \cdot \tan 15°
+\;\approx\; 1.34\,\text{m} . \quad (55)
+$$
+
+The doctrinal full circle requires fragments at *all* values of $\Theta$ —
+in particular contributions from the forward cone ($\Theta \to 0°$) that
+shower the ground directly under the burst. Removing the A5 belt window
+(and replacing it with a continuous $n(\Theta)$, as in the
+PAFRAG/Gold profile cited in §9.4) recovers the filled disc.
+
+**Which assumption to relax first.** Gravity (A4) closes most of the
+$\alpha = 0°$ stripe-vs-oval gap and has the largest doctrinal-fidelity
+payoff for low-angle-of-fall airbursts; it is listed as a deferred
+enhancement in §9.4 ("Gravity drop on long-range fragments"). The
+belt-only window (A5) closes the $\alpha = 90°$ annulus-vs-disc gap and
+is listed in §9.4 ("End-zone sprays", "Belt velocity and density
+distribution"). A Monte Carlo orientation sweep (§9.1) is orthogonal —
+it widens the $R_{50}$ confidence interval but does not change the
+*shape* of the footprint. For matching the classical illustration the
+priority order is therefore A4 → A5 → A2 (end-zone plumes).
+
 ______________________________________________________________________
 
 ## 7 · Assumptions
