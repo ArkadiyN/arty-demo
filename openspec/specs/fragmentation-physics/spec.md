@@ -93,7 +93,7 @@ ______________________________________________________________________
 
 ### Requirement: compute_frag_field_3d returns asymmetric 2D footprint
 
-The module SHALL expose `compute_frag_field_3d(shell, mott, drag, burst, posture, max_radius, n_grid) -> FragField3dResult`. The result SHALL include `field_x`, `field_y`, `field_pk` (2D arrays), `r_cross` / `pk_cross` (cross-range slice evaluated at exactly x=0, independent of grid resolution), `r50_cross` (R50 along cross-range), and the diagnostics `N0`, `mu`, `V0`, `ke_by_mass`.
+The module SHALL expose `compute_frag_field_3d(shell, mott, drag, burst, posture, max_radius, n_grid) -> FragField3dResult`. The result SHALL include `field_x`, `field_y`, `field_pk` (2D arrays), `r_cross` / `pk_cross` (cross-range slice evaluated at exactly x=0, independent of grid resolution), `r50_cross` (R50 along cross-range), and the diagnostics `N0`, `mu`, `V0`, `ke_by_mass`, and `r_ke`. `r_ke` SHALL be a 1D radial distance array from 0 to `max_radius` (inclusive), and `ke_by_mass` SHALL be indexed by `r_ke` (not by cross-range position).
 
 #### Scenario: Cross-range slice has no spurious gap at y=0
 
@@ -104,6 +104,16 @@ The module SHALL expose `compute_frag_field_3d(shell, mott, drag, burst, posture
 
 - **WHEN** called with `BurstParams(h_b=10.0)` vs `BurstParams(h_b=0.001)`, `PRONE` posture
 - **THEN** `pk_cross` at the index nearest y=30m is higher for h_b=10
+
+#### Scenario: r_ke spans 0 to max_radius with n_grid points
+
+- **WHEN** called with any valid params and `n_grid=N`
+- **THEN** `r_ke[0] == 0.0`, `r_ke[-1] == max_radius`, and `len(r_ke) == N`
+
+#### Scenario: KE at s=0 equals ½mV₀² within 0.1%
+
+- **WHEN** `ke_by_mass` is evaluated at `r_ke[0]` (i.e., s=0) for any representative mass m
+- **THEN** the value equals `0.5 * m * V0**2` within 0.1%
 
 ______________________________________________________________________
 

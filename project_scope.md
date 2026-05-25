@@ -68,13 +68,12 @@ battery conducting HE fire missions.
 - **mission visualization** - impact areas with effects on a map
 - **learning tools visualization** - frag field/mine action, trajectories
 
-## Phase 1 MVP
+## Phase 1 MVP (in progress)
 
 ### Fragmentation Field
 
 - establish physics model needed for calculating number of fragments;
 - establish physics model needed for calculating shape of frag field;
 - establish physics model needed for calculating energy of fragments at different points of trajectory;
-- assume flat trajectory of fragments;
-- assume no obstacles (flat surface, absorbs all fragments);
+- establish physics model needed for calculating target hit/casulties;
 - demo app to diplay the outcome given the parameters;

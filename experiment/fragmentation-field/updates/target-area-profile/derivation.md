@@ -4,7 +4,7 @@
 **Date:** 2026-05-23
 **Status:** derivation only — no code or .qmd modifications
 **Related:** `experiment/fragmentation-field/fragmentation-field.qmd` §6, eq. (20)–(22)
-**Companion:** `docs/modeler-notes/target-area-profile-scoping.md`
+**Companion:** `./scoping.md`
 
 ______________________________________________________________________
 
