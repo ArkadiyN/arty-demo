@@ -164,7 +164,7 @@ with left:
     )
     st.plotly_chart(fig1, use_container_width=True)
 
-# Figure 2 — KE vs cross-range distance
+# Figure 2 — KE vs slant range
 with right:
     x_vals = np.linspace(-max_radius, max_radius, len(result.r_cross))
     fig2 = go.Figure()
@@ -217,65 +217,36 @@ with right:
     )
     st.plotly_chart(fig2, use_container_width=True)
 
-left2, right2 = st.columns(2)
+st.divider()
 
-# Figure 3 — P(kill) vs cross-range distance
-with left2:
-    fig3 = go.Figure()
-    fig3.add_trace(
-        go.Scatter(
-            x=x_vals,
-            y=result.pk_cross,
-            mode="lines",
-            line=dict(color="#9467bd", width=2),
-            name="P(kill)",
-        )
+# Figure 3 — 2D fragmentation field (asymmetric footprint)
+fig3 = go.Figure()
+fig3.add_trace(
+    go.Heatmap(
+        x=result.field_x[0],
+        y=result.field_y[:, 0],
+        z=result.field_pk,
+        colorscale="RdYlGn_r",
+        zmin=0,
+        zmax=1,
+        colorbar=dict(title="P(kill)"),
     )
-    fig3.add_vline(
-        x=result.r50_cross,
-        line=dict(dash="dash", color="#9467bd"),
-        annotation_text=f"R₅₀ = {result.r50_cross:.0f} m",
-        annotation_position="top right",
+)
+fig3.add_trace(
+    go.Scatter(
+        x=[0],
+        y=[0],
+        mode="markers",
+        marker=dict(symbol="cross", size=12, color="black"),
+        name="Burst point",
+        showlegend=False,
     )
-    fig3.add_hline(y=0.5, line=dict(dash="dot", color="gray"))
-    fig3.update_layout(
-        title="P(kill) vs Cross-Range Distance",
-        xaxis_title="Cross-range  y  [m]",
-        yaxis=dict(title="P(kill)", range=[0, 1]),
-        height=340,
-        margin=dict(t=40, b=40, l=60, r=20),
-    )
-    st.plotly_chart(fig3, use_container_width=True)
-
-# Figure 4 — 2D fragmentation field (asymmetric footprint)
-with right2:
-    fig4 = go.Figure()
-    fig4.add_trace(
-        go.Heatmap(
-            x=result.field_x[0],
-            y=result.field_y[:, 0],
-            z=result.field_pk,
-            colorscale="RdYlGn_r",
-            zmin=0,
-            zmax=1,
-            colorbar=dict(title="P(kill)"),
-        )
-    )
-    fig4.add_trace(
-        go.Scatter(
-            x=[0],
-            y=[0],
-            mode="markers",
-            marker=dict(symbol="cross", size=12, color="black"),
-            name="Burst point",
-            showlegend=False,
-        )
-    )
-    fig4.update_layout(
-        title=f"2D Fragmentation Field  ·  R₅₀ = {result.r50_cross:.0f} m",
-        xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
-        yaxis_title="Cross-range  y  [m]",
-        height=340,
-        margin=dict(t=40, b=40, l=60, r=20),
-    )
-    st.plotly_chart(fig4, use_container_width=True)
+)
+fig3.update_layout(
+    title=f"2D Fragmentation Field  ·  R₅₀ = {result.r50_cross:.0f} m",
+    xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
+    yaxis_title="Cross-range  y  [m]",
+    height=500,
+    margin=dict(t=40, b=40, l=60, r=20),
+)
+st.plotly_chart(fig3, use_container_width=True)

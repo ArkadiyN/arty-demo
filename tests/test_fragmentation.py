@@ -227,6 +227,18 @@ def test_backward_compat():
     assert 50 <= result.r50 <= 200
 
 
+def test_cross_range_no_gap():
+    # With even n_grid, x=0 is not a grid point. The x=0 sweep must still give
+    # P(kill) > 0 at y=0 — no spurious belt-filter shadow.
+    r = compute_frag_field_3d(
+        burst=BurstParams(h_b=0.0, angle_of_fall=0.0, spray_half_angle=15.0),
+        posture=STANDING,
+        n_grid=80,
+    )
+    mid = len(r.pk_cross) // 2
+    assert r.pk_cross[mid] > 0.5
+
+
 # ---------------------------------------------------------------------------
 # Shell registry (existing)
 # ---------------------------------------------------------------------------
