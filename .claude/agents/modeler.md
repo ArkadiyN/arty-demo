@@ -33,23 +33,41 @@ You do not search for or download papers — that is the librarian's responsibil
 
 ## Output
 
-All output goes into `experiment/<modelname>/`:
+All artifacts for a model live under `experiment/<model>/`. The exact file
+you write depends on which workflow the parent agent invoked (see
+`.claude/rules/agents-routing.md`):
 
 ```
 experiment/
-  <modelname>/
-    <modelname>.qmd    ← Quarto notebook (derivation + code + plots)
-    _quarto.yml        ← project config if needed
+  <model>/
+    <model>.qmd                          ← integrated, reader-facing notebook
+    _quarto.yml                          ← project config if needed
+    challenges/
+      <question>.qmd                     ← Workflow A — "does X matter?" verdict
+    updates/
+      <change-slug>/
+        scoping.md                       ← Workflow B — scoping pass
+        derivation.md                    ← Workflow B — derivation pass
+        review.md                        ← written by @model-reviewer
 ```
 
-Use model versioning (major.minor) to keep track of updates
+- **Assessment** (Workflow A) → write a standalone `.qmd` under
+  `challenges/`. Do not modify the main model.
+- **Update** (Workflow B) → write one artifact per pass under
+  `updates/<change-slug>/`. Never combine scoping and derivation in one
+  prompt. Integration into the main `<model>.qmd` is a separate, explicitly
+  requested pass.
+
+Use model versioning (major.minor) in the main `<model>.qmd` change log to
+track updates.
 
 ## On Completion
 
-Before returning, write a handoff note to
-docs/modeler-notes/<topic>-handoff.md containing:
+Return a brief summary in your final message containing:
 
-- What was completed
-- What remains
+- What was completed (which artifact, which file path)
+- What remains for subsequent passes
 - Any assumptions made
-- File paths modified
+- Whether literature was sufficient or @librarian is needed next
+
+Do not write a separate handoff file — the return message is the handoff.

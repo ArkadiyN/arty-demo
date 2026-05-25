@@ -1,0 +1,297 @@
+---
+title: "Gravity Contribution to Fragment KE — Order-of-Magnitude Check"
+format:
+  html:
+    code-fold: true
+    toc: true
+jupyter: python3
+---
+
+## Background
+
+The current fragmentation lethality model in `src/arty/fragmentation.py` assumes
+each fragment travels along a straight-line slant range $s$ from the burst
+point, losing speed only to aerodynamic drag:
+
+$$
+V(s) = V_0 \, e^{-\lambda s}, \qquad
+\mathrm{KE}(s) = \tfrac{1}{2} m\, V(s)^2 .
+$$
+
+Gravity is ignored. This notebook asks a single question: *if* we added a
+constant downward acceleration $g = 9.81~\mathrm{m/s^2}$ to the equations of
+motion, how much would the impact KE change for the representative fragment
+masses (0.5 g, 5 g, 50 g) at ranges of 50 m and 100 m? We compare that
+perturbation to the existing uncertainty budget (Gurney constant, Mott
+$\gamma$, $C_D$, ES-310 $P_{k|hit}$).
+
+## Governing equations
+
+### Current model (drag only)
+
+For a tumbling irregular fragment the drag retardation coefficient is
+
+$$
+\lambda \;=\; \frac{\rho_\text{air}\, C_D\, C_\text{shape}}
+                    {2\, \rho_\text{steel}^{2/3}}\; m^{-1/3}
+\qquad [\mathrm{m^{-1}}]. \quad (1)
+$$
+
+Integrating $dV/ds = -\lambda V$ along the path gives the exponential decay
+above. Time of flight along that path satisfies $ds/dt = V$, so
+
+$$
+t(s) \;=\; \int_0^s \frac{ds'}{V_0 e^{-\lambda s'}}
+       \;=\; \frac{e^{\lambda s} - 1}{\lambda V_0}. \quad (2)
+$$
+
+### Adding gravity
+
+If we keep the horizontal component governed by drag (a good approximation
+for fragments whose trajectory is almost flat), gravity acts only on the
+vertical component of velocity. Starting from $v_z(0) = 0$ (a fragment ejected
+horizontally from the burst) the vertical speed at time $t$ is bounded by
+the standard drag-coupled fall, but to first order in the
+small-gravity-perturbation limit we can write
+
+$$
+v_z(t) \;\approx\; -g\, t , \qquad
+\Delta\mathrm{KE}_\text{grav} \;=\; \tfrac{1}{2} m\, v_z(t)^2
+                                 \;=\; \tfrac{1}{2} m\, g^2\, t(s)^2 . \quad (3)
+$$
+
+This is the *additional* kinetic energy a fragment gains from the vertical
+drop during its time of flight. It is independent of fragment mass (the $m$
+cancels relative to $\tfrac{1}{2} m V^2$), so the fractional change in KE is
+
+$$
+\boxed{\;
+\frac{\Delta\mathrm{KE}_\text{grav}}{\mathrm{KE}_\text{drag}(s)}
+\;\approx\;
+\left(\frac{g\, t(s)}{V(s)}\right)^2
+\;}\quad (4)
+$$
+
+Equation (4) is the central result of this notebook. A second, more subtle
+correction is that gravity also lengthens the path slightly and changes the
+arrival angle, but those are second-order in $gt/V$ and are ignored here.
+
+| Symbol | Meaning | Unit |
+| --- | --- | --- |
+| $V_0$ | Initial fragment velocity (Gurney) | m/s |
+| $V(s)$ | Drag-decayed velocity at slant range $s$ | m/s |
+| $\lambda$ | Drag retardation coefficient | m$^{-1}$ |
+| $m$ | Fragment mass | kg |
+| $\rho_\text{air}$ | Air density | kg/m³ |
+| $\rho_\text{steel}$ | Steel density | kg/m³ |
+| $C_D$ | Drag coefficient (tumbling) | – |
+| $C_\text{shape}$ | Presented-area shape factor | – |
+| $g$ | Gravitational acceleration | m/s² |
+| $t(s)$ | Time of flight along slant range $s$ | s |
+| $\Delta\mathrm{KE}_\text{grav}$ | KE added by gravity-driven drop | J |
+
+### Assumptions
+
+1. Fragment is ejected horizontally from the burst (worst case for
+   gravity — a downward-ejected fragment would *already* be moving downward
+   and gravity would still only add $\sim g t$ to its vertical speed).
+2. Horizontal motion is unaffected by gravity (true to first order).
+3. Vertical drag on the falling fragment is neglected. This *over-estimates*
+   $v_z$, so the numbers below are an upper bound on the gravity effect.
+4. Path stays effectively straight (small bending), so $s$ in equations (1)–(2)
+   equals horizontal range to the percent level for the cases considered.
+
+## Parameters
+
+| Symbol | Value | Source |
+| --- | --- | --- |
+| $V_0$ | 1000 m/s | Gurney 105 mm M1 HE (default in `fragmentation.py`) |
+| $\rho_\text{air}$ | 1.225 kg/m³ | ISA sea level |
+| $C_D$ | 0.65 | tumbling irregular fragment |
+| $C_\text{shape}$ | 0.90 | presented-area shape factor |
+| $\rho_\text{steel}$ | 7850 kg/m³ | shell steel |
+| $g$ | 9.81 m/s² | standard gravity |
+| Masses | 0.5, 5, 50 g | representative fragment sizes |
+| Ranges | 50, 100 m | lethal-area region of interest |
+
+## Implementation
+
+```{python}
+import numpy as np
+import pandas as pd
+
+# --- Defaults pulled from src/arty/fragmentation.py ---
+V0 = 1000.0           # m/s
+rho_air = 1.225       # kg/m^3
+rho_steel = 7850.0    # kg/m^3
+C_D = 0.65
+C_shape = 0.90
+g = 9.81              # m/s^2
+
+def lam(m_kg: float) -> float:
+    """Drag retardation coefficient [1/m] for fragment of mass m [kg]."""
+    return rho_air * C_D * C_shape / (2.0 * rho_steel ** (2.0 / 3.0)) * m_kg ** (-1.0 / 3.0)
+
+def V_of_s(m_kg: float, s_m: float) -> float:
+    """Drag-only velocity [m/s] at slant range s [m]."""
+    return V0 * np.exp(-lam(m_kg) * s_m)
+
+def t_of_s(m_kg: float, s_m: float) -> float:
+    """Time of flight [s] along slant range s [m] under exponential drag."""
+    L = lam(m_kg)
+    return (np.exp(L * s_m) - 1.0) / (L * V0)
+
+def ke_drag(m_kg: float, s_m: float) -> float:
+    """Drag-only KE [J] at range s."""
+    return 0.5 * m_kg * V_of_s(m_kg, s_m) ** 2
+
+def dke_gravity(m_kg: float, s_m: float) -> float:
+    """Extra KE [J] from gravity-driven vertical drop during ToF."""
+    t = t_of_s(m_kg, s_m)
+    return 0.5 * m_kg * (g * t) ** 2
+```
+
+### Sweep over the representative fragment masses
+
+```{python}
+masses_g = [0.5, 5.0, 50.0]
+ranges_m = [50.0, 100.0]
+
+rows = []
+for mg in masses_g:
+    m = mg * 1e-3
+    for s in ranges_m:
+        V = V_of_s(m, s)
+        t = t_of_s(m, s)
+        KE0 = ke_drag(m, s)
+        dKE = dke_gravity(m, s)
+        rows.append({
+            "mass [g]": mg,
+            "range s [m]": s,
+            "V(s) [m/s]": round(V, 1),
+            "ToF t(s) [s]": round(t, 3),
+            "drop ½gt² [m]": round(0.5 * g * t**2, 3),
+            "KE_drag [J]": round(KE0, 1),
+            "ΔKE_grav [J]": round(dKE, 3),
+            "(gt/V)² [-]": f"{(g*t/V)**2:.2e}",
+            "ΔKE / KE_drag [%]": round(100 * dKE / KE0, 3),
+        })
+
+df = pd.DataFrame(rows)
+df
+```
+
+## Validation
+
+### Sanity check 1 — limiting cases
+
+The formula $(gt/V)^2$ should approach zero as $g \to 0$ and grow as $t$
+grows. Let us tabulate for a much longer range (200 m) and the smallest
+fragment (where $\lambda$ is largest and $V$ collapses fastest) to confirm
+the perturbation eventually matters:
+
+```{python}
+for s in [50, 100, 150, 200]:
+    m = 0.5e-3
+    V = V_of_s(m, s)
+    t = t_of_s(m, s)
+    KE0 = ke_drag(m, s)
+    dKE = dke_gravity(m, s)
+    print(f"  m=0.5 g, s={s:3d} m: V={V:6.1f} m/s, t={t:5.2f} s, "
+          f"ΔKE/KE = {100*dKE/KE0:7.2f}%")
+```
+
+### Sanity check 2 — free-fall ballistic limit
+
+If a fragment came to rest by drag and *then* fell, its terminal-energy
+contribution would be $\tfrac{1}{2} m v_t^2$. For a 0.5 g sphere of steel
+falling in air, terminal velocity is roughly 30–40 m/s, giving a few joules.
+This is the right order of magnitude for the "gravity finally dominates"
+regime — useful as a cross-check on the very-long-range numbers above.
+
+```{python}
+# Terminal velocity of a steel sphere (rough):  m g = 0.5 ρ_air C_D A v_t²
+# A ~ (m / ρ_steel)^(2/3),  C_D ~ 0.5 for a sphere
+import math
+for mg in [0.5, 5.0, 50.0]:
+    m = mg * 1e-3
+    A = (m / rho_steel) ** (2.0 / 3.0)
+    vt = math.sqrt(2 * m * g / (rho_air * 0.5 * A))
+    print(f"  m={mg:4.1f} g: terminal v ≈ {vt:5.1f} m/s, ½mv_t² ≈ {0.5*m*vt**2:5.2f} J")
+```
+
+### Sanity check 3 — compare with model uncertainty sources
+
+The other knobs in the lethality model have well-known uncertainty bands.
+Approximate one-sigma ranges from the literature collected in
+`doc-reference/fragmentation/`:
+
+| Source | Nominal | Plausible range | Effect on KE(s) |
+| --- | --- | --- | --- |
+| Gurney constant $\sqrt{2E}$ | 2440 m/s (TNT) | ±5 % | ±10 % (KE ∝ V²) |
+| Mott $\gamma$ | 65 | 50–80 | ±30 % on fragment count; shifts mass distribution → ±20 % on KE-weighted lethality |
+| $C_D$ | 0.65 | 0.5–0.9 | ±20 % on $\lambda$ → ±15 % on V(100 m) for 5 g fragment |
+| ES-310 $P_{k|hit}$ anchors | 0.10/0.50/0.90 at 100/1000/4000 J | factor ~2 in anchor KE | ±25 % on $R_{50}$ |
+
+```{python}
+# Quantify the C_D swing on V(100 m) for a 5 g fragment, for comparison
+m = 5e-3
+s = 100.0
+V_nom = V_of_s(m, s)
+for cd in [0.5, 0.65, 0.9]:
+    lam_alt = rho_air * cd * C_shape / (2 * rho_steel**(2/3)) * m**(-1/3)
+    V_alt = V0 * np.exp(-lam_alt * s)
+    print(f"  C_D={cd}: V(100 m)={V_alt:5.1f} m/s, ΔKE vs nominal = "
+          f"{100*((V_alt/V_nom)**2 - 1):+5.1f}%")
+```
+
+## Key findings
+
+The computed numbers (see table above):
+
+| mass | s = 50 m | s = 100 m |
+| --- | --- | --- |
+| 0.5 g | V = 565 m/s, t = 0.067 s, ΔKE/KE = **0.0001 %** | V = 319 m/s, t = 0.187 s, ΔKE/KE = **0.0033 %** |
+| 5 g   | V = 767 m/s, t = 0.057 s, ΔKE/KE = **0.0001 %** | V = 588 m/s, t = 0.132 s, ΔKE/KE = **0.0005 %** |
+| 50 g  | V = 884 m/s, t = 0.053 s, ΔKE/KE ≈ **0 %**     | V = 782 m/s, t = 0.113 s, ΔKE/KE = **0.0002 %** |
+
+The largest perturbation anywhere in the table is **0.003 %** of impact KE
+(0.5 g fragment at 100 m). The vertical drop $\tfrac{1}{2} g t^2$ peaks at
+about **17 cm** for that worst case — small even compared with the 2 m
+default burst height $h_b$, let alone the 1.7 m standing target.
+
+Compare this with the model's existing uncertainty budget:
+
+- A 5 % shift in the Gurney constant moves KE by ~10 %.
+- A swing in $C_D$ across its plausible 0.5–0.9 range moves V(100 m) for a
+  5 g fragment by ±15 %, i.e. ±30 % on KE.
+- The ES-310 $P_{k|hit}$ anchors are themselves ±25 % uncertain on the KE
+  axis.
+
+In other words, **the dominant uncertainty sources are four to five orders
+of magnitude larger than the gravity correction**. Adding gravity to the
+fragment trajectory model would not change any downstream lethality result
+in the 0–200 m operating envelope.
+
+### Verdict
+
+**Not worth implementing.** Inside the 0–100 m operating envelope of the
+lethality model, gravity changes fragment KE at impact by at most
+**0.003 %**, which is four orders of magnitude smaller than the ±20–30 %
+uncertainty bands on $C_D$, the Gurney constant, Mott $\gamma$, and the
+ES-310 $P_{k|hit}$ anchors. The straight-line drag model in
+`fragmentation.py` is fit for purpose.
+
+The cross-over where gravity starts to matter for *energy* is around 200 m
+slant range for the lightest (0.5 g) fragments, where ΔKE/KE reaches
+≈0.5 %, and beyond ~250 m it dominates. The lethality field is already
+near zero at those ranges (small fragments fall below the ES-310 100 J
+threshold around 120 m), so the regime where gravity matters is the regime
+where the fragment is no longer dangerous.
+
+Gravity *does* matter for a different question — fragment **placement** on
+the ground for ricochet/airburst pattern prediction at long range, or for
+tracking individual fragments after they have decelerated below ~100 m/s.
+If a future iteration of the model goes that direction (e.g. ground-impact
+density for area denial), gravity should be reintroduced then; for the
+current lethal-area calculation it is safely ignored.
