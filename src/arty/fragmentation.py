@@ -45,7 +45,7 @@ STEELS: dict[str, SteelParams] = {
 @dataclass(frozen=True)
 class ShellParams:
     caliber: float = 0.105           # outer diameter [m]
-    wall_t: float = 0.01051          # cylindrical wall thickness [m]
+    wall_t: float = 0.009208         # cylindrical wall thickness [m]
     mass_total: float = 14.97        # total projectile mass [kg]
     mass_filler: float = 2.18        # explosive filler mass [kg]
     mass_deductions: float = 0.75    # fuze + rotating band [kg]

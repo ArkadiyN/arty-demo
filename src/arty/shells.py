@@ -3,7 +3,7 @@ from arty.fragmentation import FILLERS, STEELS, ShellParams
 SHELLS: dict[str, ShellParams] = {
     "105mm M1 HE": ShellParams(
         caliber=0.105,
-        wall_t=0.01051,       # 0.5625" min wall from manufacturing drawing
+        wall_t=0.009208,      # 0.3625" min wall from M60 smoke drawing (shared body)
         mass_total=14.97,     # 33 lb complete with fuze
         mass_filler=2.18,     # cast TNT
         mass_deductions=0.75,

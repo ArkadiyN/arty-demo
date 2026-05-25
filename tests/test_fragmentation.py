@@ -96,7 +96,7 @@ def test_steel_params_ww2_us():
 def test_shell_params_defaults():
     s = ShellParams()
     assert s.caliber == pytest.approx(0.105)
-    assert s.wall_t == pytest.approx(0.01051)
+    assert s.wall_t == pytest.approx(0.009208)
     assert s.mass_total == pytest.approx(14.97)
     assert s.mass_filler == pytest.approx(2.18)
     assert s.filler.name == "TNT"
