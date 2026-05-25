@@ -82,6 +82,7 @@ class FragField3dResult:
     r_cross: np.ndarray               # cross-range distances at x=0 [m]
     pk_cross: np.ndarray              # P(kill) along cross-range slice
     r50_cross: float                  # R50 along cross-range [m]
+    r_ke: np.ndarray                  # radial slant range for ke_by_mass [m]
     ke_by_mass: dict[float, np.ndarray]
     N0: float
     mu: float
@@ -365,14 +366,14 @@ def compute_frag_field_3d(
     idx50 = np.argmin(np.abs(pk_cross - 0.5))
     r50_cross = float(np.abs(xy[idx50]))
 
-    # KE vs cross-range for representative masses
+    # KE vs radial slant range for representative masses
     rep_masses_g = [0.5, 5.0, 50.0]
     rep_masses_kg = np.array([m * 1e-3 for m in rep_masses_g])
     lam_rep = retardation_coeff(rep_masses_kg, drag, shell.rho_steel)
+    r_ke = np.linspace(0, max_radius, n_grid)
     ke_by_mass: dict[float, np.ndarray] = {}
     for m_g, lam_j in zip(rep_masses_g, lam_rep):
-        s_cross = np.sqrt(xy**2 + burst.h_b**2)
-        ke_by_mass[m_g] = 0.5 * (m_g * 1e-3) * (V0 * np.exp(-lam_j * s_cross)) ** 2
+        ke_by_mass[m_g] = 0.5 * (m_g * 1e-3) * (V0 * np.exp(-lam_j * r_ke)) ** 2
 
     return FragField3dResult(
         field_x=X,
@@ -381,6 +382,7 @@ def compute_frag_field_3d(
         r_cross=r_cross,
         pk_cross=pk_cross,
         r50_cross=r50_cross,
+        r_ke=r_ke,
         ke_by_mass=ke_by_mass,
         N0=N0,
         mu=mu,

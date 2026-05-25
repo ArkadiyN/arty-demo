@@ -164,15 +164,14 @@ with left:
     )
     st.plotly_chart(fig1, use_container_width=True)
 
-# Figure 2 — KE vs slant range
+# Figure 2 — KE vs distance from burst
 with right:
-    x_vals = np.linspace(-max_radius, max_radius, len(result.r_cross))
     fig2 = go.Figure()
     colours = ["#2ca02c", "#ff7f0e", "#d62728"]
     for (m_g, ke_arr), colour in zip(result.ke_by_mass.items(), colours):
         fig2.add_trace(
             go.Scatter(
-                x=x_vals,
+                x=result.r_ke,
                 y=ke_arr,
                 mode="lines",
                 line=dict(color=colour, width=2),
@@ -185,7 +184,7 @@ with right:
     ]:
         fig2.add_trace(
             go.Scatter(
-                x=[x_vals[0], x_vals[-1]],
+                x=[result.r_ke[0], result.r_ke[-1]],
                 y=[y_ref, y_ref],
                 mode="lines",
                 line=dict(dash="dot", color="gray", width=1),
@@ -193,7 +192,7 @@ with right:
             )
         )
         fig2.add_annotation(
-            x=x_vals[-1],
+            x=result.r_ke[-1],
             y=np.log10(y_ref),
             text=label,
             xanchor="right",
@@ -203,8 +202,8 @@ with right:
             yref="y",
         )
     fig2.update_layout(
-        title="Fragment KE vs Cross-Range Distance",
-        xaxis_title="Cross-range  y  [m]",
+        title="Fragment KE vs Distance from Burst",
+        xaxis_title="Slant range  s  [m]",
         yaxis=dict(
             title="Kinetic energy  [J]",
             type="log",
