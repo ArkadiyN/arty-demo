@@ -151,6 +151,15 @@ def test_ke_by_mass_keys():
     assert 50.0 in result.ke_by_mass
 
 
+def test_ke_by_mass_radial():
+    result = compute_frag_field_3d(max_radius=80.0, n_grid=80)
+    assert result.r_ke[0] == pytest.approx(0.0)
+    assert result.r_ke[-1] == pytest.approx(80.0)
+    assert len(result.r_ke) == 80
+    expected_ke0 = 0.5 * 0.5e-3 * result.V0 ** 2
+    assert result.ke_by_mass[0.5][0] == pytest.approx(expected_ke0, rel=1e-3)
+
+
 # ---------------------------------------------------------------------------
 # Shell registry
 # ---------------------------------------------------------------------------
