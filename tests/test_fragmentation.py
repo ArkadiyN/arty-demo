@@ -4,11 +4,11 @@ Tests for src/arty/fragmentation.py and src/arty/shells.py
 Coverage map
 ============
 
-ShellParams / MottParams  (dataclass defaults and field isolation)
+SteelParams / ShellParams  (dataclass defaults and field isolation)
   • Default ShellParams matches the validated 105mm M1 HE notebook values:
-    caliber, wall_t, mass_total, mass_filler, filler name/gurney_const, rho_steel.
-  • Default MottParams gives gamma=65 and sigma_f=800 MPa.
-  • Overriding one MottParams field leaves all others at their defaults.
+    caliber, wall_t, mass_total, mass_filler, filler name/gurney_const.
+  • Default steel (WW2 US HE Shell) gives rho=7850, sigma_f=800 MPa, gamma=65.
+  • ShellParams.steel is the WW2 US HE Shell entry.
 
 gurney_velocity
   • Result for default 105mm M1 HE falls in the 900–1400 m/s published bracket.
@@ -35,10 +35,10 @@ compute_frag_field  (1-D radially-symmetric model)
   • ke_by_mass contains keys for the three representative masses: 0.5, 5, 50 g.
 
 Shell registry  (arty.shells)
-  • "105mm M1 HE" is present in SHELLS.
-  • Its filler, gurney_const, mass_total, and mass_filler match notebook values.
-  • Adding a second shell does not mutate the existing "105mm M1 HE" entry
-    (monkeypatched to avoid polluting the global registry).
+  • "105mm M1 HE" and "155mm M107 HE" are present in SHELLS.
+  • M1 filler, gurney_const, mass_total, and mass_filler match spec values.
+  • M107 mass_total, mass_filler, and wall_t match 1943 spec values.
+  • Adding a third shell does not mutate existing entries (monkeypatched).
 
 BurstParams / PostureParams / presented_area
   • Default BurstParams: h_b=2 m, angle_of_fall=30°, spray_half_angle=15°.
@@ -56,10 +56,10 @@ compute_frag_field_3d  (3-D belt-spray burst model)
     len=n_grid, and ke_by_mass[0.5][0] ≈ ½ × 0.5 g × V₀².
 """
 
+import math
+
 import numpy as np
 import pytest
-
-import math
 
 from arty.fragmentation import (
     FILLERS,
@@ -67,8 +67,9 @@ from arty.fragmentation import (
     STANDING,
     BurstParams,
     DragParams,
-    MottParams,
     ShellParams,
+    SteelParams,
+    STEELS,
     compute_frag_field,
     compute_frag_field_3d,
     gurney_velocity,
@@ -81,30 +82,27 @@ from arty.shells import SHELLS
 
 
 # ---------------------------------------------------------------------------
-# ShellParams defaults
+# SteelParams / ShellParams defaults
 # ---------------------------------------------------------------------------
+
+
+def test_steel_params_ww2_us():
+    steel = STEELS["WW2 US HE Shell"]
+    assert steel.rho == pytest.approx(7850.0)
+    assert steel.sigma_f == pytest.approx(800e6)
+    assert steel.gamma == pytest.approx(65.0)
 
 
 def test_shell_params_defaults():
     s = ShellParams()
     assert s.caliber == pytest.approx(0.105)
-    assert s.wall_t == pytest.approx(0.011)
+    assert s.wall_t == pytest.approx(0.01051)
     assert s.mass_total == pytest.approx(14.97)
     assert s.mass_filler == pytest.approx(2.18)
     assert s.filler.name == "TNT"
     assert s.filler.gurney_const == pytest.approx(2440.0)
-    assert s.rho_steel == pytest.approx(7850.0)
-
-
-def test_mott_params_defaults():
-    m = MottParams()
-    assert m.gamma == pytest.approx(65.0)
-    assert m.sigma_f == pytest.approx(800e6)
-
-
-def test_field_override_leaves_others_unchanged():
-    m = MottParams(gamma=53.0)
-    assert m.sigma_f == pytest.approx(800e6)
+    assert s.steel.name == "WW2 US HE Shell"
+    assert s.steel.rho == pytest.approx(7850.0)
 
 
 # ---------------------------------------------------------------------------
@@ -130,9 +128,8 @@ def test_gurney_velocity_increases_with_gurney_const():
 
 def test_mott_fragment_count_in_pafrag_range():
     shell = ShellParams()
-    mott = MottParams()
     V0 = gurney_velocity(shell)
-    mu, N0 = mott_params(shell, mott, V0)
+    mu, N0 = mott_params(shell, V0)
     # Fragments heavier than 0.5 g: N(>0.5g) = N0 * exp(-sqrt(0.5e-3 / mu))
     n_gt_half_g = N0 * np.exp(-np.sqrt(0.5e-3 / mu))
     assert 3000 <= n_gt_half_g <= 8000, f"N(>0.5g)={n_gt_half_g:.0f} outside 3000–8000"
@@ -140,11 +137,12 @@ def test_mott_fragment_count_in_pafrag_range():
 
 def test_higher_gamma_gives_smaller_mu():
     # mu ∝ (sigma_f / gamma)^1.5 — higher gamma means smaller average fragment mass
-    shell = ShellParams()
-    V0 = gurney_velocity(shell)
-    mu_at_53, _ = mott_params(shell, MottParams(gamma=53.0), V0)
-    mu_at_67, _ = mott_params(shell, MottParams(gamma=67.0), V0)
-    assert mu_at_67 < mu_at_53
+    V0 = gurney_velocity(ShellParams())
+    shell_lo = ShellParams(steel=SteelParams(name="lo", rho=7850.0, sigma_f=800e6, gamma=53.0))
+    shell_hi = ShellParams(steel=SteelParams(name="hi", rho=7850.0, sigma_f=800e6, gamma=67.0))
+    mu_lo, _ = mott_params(shell_lo, V0)
+    mu_hi, _ = mott_params(shell_hi, V0)
+    assert mu_hi < mu_lo
 
 
 # ---------------------------------------------------------------------------
@@ -154,7 +152,7 @@ def test_higher_gamma_gives_smaller_mu():
 
 def test_retardation_decreasing_with_mass():
     masses = np.array([0.001, 0.01, 0.1])
-    lam = retardation_coeff(masses, DragParams(), ShellParams().rho_steel)
+    lam = retardation_coeff(masses, DragParams(), ShellParams().steel.rho)
     assert all(lam[i] > lam[i + 1] for i in range(len(lam) - 1))
 
 
@@ -227,12 +225,27 @@ def test_shell_registry_contains_105mm():
     assert "105mm M1 HE" in SHELLS
 
 
+def test_shell_registry_contains_155mm():
+    assert "155mm M107 HE" in SHELLS
+
+
 def test_105mm_preset_values():
     s = SHELLS["105mm M1 HE"]
     assert s.filler.name == "TNT"
     assert s.filler.gurney_const == pytest.approx(2440.0)
     assert s.mass_total == pytest.approx(14.97)
     assert s.mass_filler == pytest.approx(2.18)
+    assert s.steel.name == "WW2 US HE Shell"
+
+
+def test_155mm_m107_preset_values():
+    s = SHELLS["155mm M107 HE"]
+    assert s.caliber == pytest.approx(0.155)
+    assert s.wall_t == pytest.approx(0.01429, rel=1e-3)
+    assert s.mass_total == pytest.approx(43.09, rel=1e-3)
+    assert s.mass_filler == pytest.approx(6.863, rel=1e-3)
+    assert s.filler.name == "TNT"
+    assert s.steel.name == "WW2 US HE Shell"
 
 
 # ---------------------------------------------------------------------------
@@ -283,13 +296,11 @@ def test_airburst_prone_advantage():
     r_ab = compute_frag_field_3d(
         burst=BurstParams(h_b=10.0, angle_of_fall=30.0), posture=PRONE, n_grid=40, max_radius=80.0
     )
-    # find index nearest y=30m in cross-range
     idx = int(np.argmin(np.abs(r_gb.r_cross - 30.0)))
     assert r_ab.pk_cross[idx] > r_gb.pk_cross[idx]
 
 
 def test_backward_compat():
-    # compute_frag_field() r50 must not change with the new code
     result = compute_frag_field()
     assert 50 <= result.r50 <= 200
 
@@ -307,12 +318,13 @@ def test_cross_range_no_gap():
 
 
 # ---------------------------------------------------------------------------
-# Shell registry (existing)
+# Shell registry isolation
 # ---------------------------------------------------------------------------
 
 
-def test_adding_second_shell_does_not_break_existing(monkeypatch):
+def test_adding_third_shell_does_not_break_existing(monkeypatch):
     import arty.shells as shells_mod
 
     monkeypatch.setitem(shells_mod.SHELLS, "test-shell", ShellParams(caliber=0.075))
     assert shells_mod.SHELLS["105mm M1 HE"].filler.name == "TNT"
+    assert shells_mod.SHELLS["155mm M107 HE"].filler.name == "TNT"
