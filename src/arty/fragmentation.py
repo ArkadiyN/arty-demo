@@ -23,26 +23,40 @@ FILLERS: dict[str, FillerParams] = {
 
 
 @dataclass(frozen=True)
-class ShellParams:
-    caliber: float = 0.105  # outer diameter [m]
-    wall_t: float = 0.011  # cylindrical wall thickness [m]
-    mass_total: float = 14.97  # total projectile mass [kg]
-    mass_filler: float = 2.18  # explosive filler mass [kg]
-    mass_deductions: float = 0.75  # fuze + rotating band [kg]
-    filler: FillerParams = FILLERS["TNT"]  # explosive type
-    rho_steel: float = 7850.0  # steel density [kg/m³]
+class SteelParams:
+    name: str
+    rho: float = 7850.0      # density [kg/m³]
+    sigma_f: float = 800e6   # dynamic fracture stress [Pa]
+    gamma: float = 65.0      # Mott fragmentation parameter [-]
+
+
+STEELS: dict[str, SteelParams] = {
+    # US WW2 HE shells (M1 105mm, M107 155mm): min YS 65 ksi, 15% elongation.
+    # sigma_f / gamma calibrated to M1 PAFRAG fragment-count data.
+    "WW2 US HE Shell": SteelParams(
+        name="WW2 US HE Shell",
+        rho=7850.0,
+        sigma_f=800e6,
+        gamma=65.0,
+    ),
+}
 
 
 @dataclass(frozen=True)
-class MottParams:
-    gamma: float = 65.0  # Mott statistical fragmentation parameter [-]
-    sigma_f: float = 800e6  # dynamic flow stress at fracture [Pa]
+class ShellParams:
+    caliber: float = 0.105           # outer diameter [m]
+    wall_t: float = 0.01051          # cylindrical wall thickness [m]
+    mass_total: float = 14.97        # total projectile mass [kg]
+    mass_filler: float = 2.18        # explosive filler mass [kg]
+    mass_deductions: float = 0.75    # fuze + rotating band [kg]
+    filler: FillerParams = FILLERS["TNT"]
+    steel: SteelParams = STEELS["WW2 US HE Shell"]
 
 
 @dataclass(frozen=True)
 class DragParams:
-    C_D: float = 0.65  # drag coefficient, tumbling irregular fragment
-    C_shape: float = 0.90  # presented-area shape factor
+    C_D: float = 0.65       # drag coefficient, tumbling irregular fragment
+    C_shape: float = 0.90   # presented-area shape factor
     rho_air: float = 1.225  # air density [kg/m³]
 
 
@@ -53,8 +67,8 @@ class TargetParams:
 
 @dataclass(frozen=True)
 class BurstParams:
-    h_b: float = 2.0             # burst height above ground [m]
-    angle_of_fall: float = 30.0  # shell angle of fall [degrees], 0=horizontal 90=vertical
+    h_b: float = 2.0              # burst height above ground [m]
+    angle_of_fall: float = 30.0   # shell angle of fall [degrees], 0=horizontal 90=vertical
     spray_half_angle: float = 15.0  # belt half-width δ [degrees]
 
 
@@ -138,11 +152,11 @@ def gurney_velocity(shell: ShellParams) -> float:
     return shell.filler.gurney_const / np.sqrt(mass_shell / shell.mass_filler + 0.5)
 
 
-def mott_params(shell: ShellParams, mott: MottParams, V0: float) -> tuple[float, float]:
+def mott_params(shell: ShellParams, V0: float) -> tuple[float, float]:
     _, _, r_bu, mass_shell = _shell_geometry(shell)
     mu = (
-        np.sqrt(2.0 / shell.rho_steel)
-        * (mott.sigma_f / mott.gamma) ** 1.5
+        np.sqrt(2.0 / shell.steel.rho)
+        * (shell.steel.sigma_f / shell.steel.gamma) ** 1.5
         * (r_bu / V0) ** 3
     )
     N0 = mass_shell / (2.0 * mu)
@@ -197,32 +211,28 @@ def expected_kills(
 
 def compute_frag_field(
     shell: ShellParams = ShellParams(),
-    mott: MottParams = MottParams(),
     drag: DragParams = DragParams(),
     target: TargetParams = TargetParams(),
     max_radius: float = 300.0,
     n_r: int = 200,
 ) -> FragFieldResult:
     V0 = gurney_velocity(shell)
-    mu, N0 = mott_params(shell, mott, V0)
+    mu, N0 = mott_params(shell, V0)
 
     r = np.linspace(1.0, max_radius, n_r)
-    N_eff = expected_kills(r, N0, mu, V0, drag, shell.rho_steel, target.w)
+    N_eff = expected_kills(r, N0, mu, V0, drag, shell.steel.rho, target.w)
     pk = 1.0 - np.exp(-N_eff)
 
-    # R₅₀: distance from burst where p_kill crosses 0.5
     idx50 = np.argmin(np.abs(pk - 0.5))
     r50 = float(r[idx50])
 
-    # KE vs distance from burst for three representative masses
     rep_masses_g = [0.5, 5.0, 50.0]
     rep_masses_kg = np.array([m * 1e-3 for m in rep_masses_g])
-    lam_rep = retardation_coeff(rep_masses_kg, drag, shell.rho_steel)
+    lam_rep = retardation_coeff(rep_masses_kg, drag, shell.steel.rho)
     ke_by_mass: dict[float, np.ndarray] = {}
     for m_g, lam_j in zip(rep_masses_g, lam_rep):
         ke_by_mass[m_g] = 0.5 * (m_g * 1e-3) * (V0 * np.exp(-lam_j * r)) ** 2
 
-    # 2D field (radially symmetric, interpolated from 1D result)
     grid_n = 120
     xy = np.linspace(-max_radius, max_radius, grid_n)
     X, Y = np.meshgrid(xy, xy)
@@ -296,12 +306,11 @@ def _expected_kills_3d_point(
     if s < 1e-6:
         return 0.0
 
-    # Belt polar angle of this ground patch
     e_axis = _shell_axis(alpha_rad)
-    r_vec = np.array([x_g, y_g, -h_b]) / s  # unit vector from burst to patch
+    r_vec = np.array([x_g, y_g, -h_b]) / s
     cos_Theta = np.dot(r_vec, e_axis)
     if abs(cos_Theta) > np.sin(delta_rad):
-        return 0.0  # outside belt window
+        return 0.0
 
     sin_Theta = np.sqrt(max(0.0, 1.0 - cos_Theta**2))
     if sin_Theta < 1e-9:
@@ -322,7 +331,6 @@ def _expected_kills_3d_point(
 
 def compute_frag_field_3d(
     shell: ShellParams = ShellParams(),
-    mott: MottParams = MottParams(),
     drag: DragParams = DragParams(),
     burst: BurstParams = BurstParams(),
     posture: PostureParams = STANDING,
@@ -331,14 +339,14 @@ def compute_frag_field_3d(
     n_mass: int = 300,
 ) -> FragField3dResult:
     V0 = gurney_velocity(shell)
-    mu, N0 = mott_params(shell, mott, V0)
+    mu, N0 = mott_params(shell, V0)
 
     alpha_rad = np.radians(burst.angle_of_fall)
     delta_rad = np.radians(burst.spray_half_angle)
 
     m_grid = np.logspace(-6, np.log10(0.5), n_mass)
     pdf = N0 / (2.0 * np.sqrt(mu * m_grid)) * np.exp(-np.sqrt(m_grid / mu))
-    lam = retardation_coeff(m_grid, drag, shell.rho_steel)
+    lam = retardation_coeff(m_grid, drag, shell.steel.rho)
 
     xy = np.linspace(-max_radius, max_radius, n_grid)
     X, Y = np.meshgrid(xy, xy)
@@ -348,16 +356,15 @@ def compute_frag_field_3d(
         for j in range(n_grid):
             N_eff = _expected_kills_3d_point(
                 X[i, j], Y[i, j], burst.h_b, alpha_rad, delta_rad,
-                N0, mu, V0, drag, shell.rho_steel, posture,
+                N0, mu, V0, drag, shell.steel.rho, posture,
                 m_grid, pdf, lam,
             )
             field_pk[i, j] = 1.0 - np.exp(-N_eff)
 
-    # Cross-range slice at exactly x=0 (separate sweep, grid-alignment-independent)
     pk_cross = np.array([
         1.0 - np.exp(-_expected_kills_3d_point(
             0.0, float(y_g), burst.h_b, alpha_rad, delta_rad,
-            N0, mu, V0, drag, shell.rho_steel, posture,
+            N0, mu, V0, drag, shell.steel.rho, posture,
             m_grid, pdf, lam,
         ))
         for y_g in xy
@@ -366,10 +373,9 @@ def compute_frag_field_3d(
     idx50 = np.argmin(np.abs(pk_cross - 0.5))
     r50_cross = float(np.abs(xy[idx50]))
 
-    # KE vs radial slant range for representative masses
     rep_masses_g = [0.5, 5.0, 50.0]
     rep_masses_kg = np.array([m * 1e-3 for m in rep_masses_g])
-    lam_rep = retardation_coeff(rep_masses_kg, drag, shell.rho_steel)
+    lam_rep = retardation_coeff(rep_masses_kg, drag, shell.steel.rho)
     r_ke = np.linspace(0, max_radius, n_grid)
     ke_by_mass: dict[float, np.ndarray] = {}
     for m_g, lam_j in zip(rep_masses_g, lam_rep):

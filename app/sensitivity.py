@@ -8,9 +8,9 @@ from arty.fragmentation import (
     STANDING,
     BurstParams,
     DragParams,
-    MottParams,
     PostureParams,
     ShellParams,
+    SteelParams,
     compute_frag_field_3d,
 )
 from arty.shells import SHELLS
@@ -53,17 +53,17 @@ with st.sidebar:
 
     with st.expander("Mott Fragmentation"):
         gamma = st.slider(
-            "γ (Mott parameter)", 53.0, 80.0, float(MottParams().gamma), step=1.0
+            "γ (Mott parameter)", 53.0, 80.0, float(preset.steel.gamma), step=1.0
         )
         sigma_f = st.slider(
             "σ_F dynamic flow stress  [MPa]",
             600.0,
             1200.0,
-            float(MottParams().sigma_f / 1e6),
+            float(preset.steel.sigma_f / 1e6),
             step=10.0,
         )
         rho_steel = st.slider(
-            "Steel density  [kg/m³]", 7600.0, 8000.0, float(preset.rho_steel), step=10.0
+            "Steel density  [kg/m³]", 7600.0, 8000.0, float(preset.steel.rho), step=10.0
         )
 
     with st.expander("Drag"):
@@ -92,6 +92,12 @@ with st.sidebar:
 # Build param structs
 # ---------------------------------------------------------------------------
 
+steel = SteelParams(
+    name=preset.steel.name,
+    rho=rho_steel,
+    sigma_f=sigma_f * 1e6,
+    gamma=gamma,
+)
 shell = ShellParams(
     caliber=caliber_mm / 1e3,
     wall_t=wall_t_mm / 1e3,
@@ -99,9 +105,8 @@ shell = ShellParams(
     mass_filler=mass_filler,
     mass_deductions=preset.mass_deductions,
     filler=filler,
-    rho_steel=rho_steel,
+    steel=steel,
 )
-mott = MottParams(gamma=gamma, sigma_f=sigma_f * 1e6)
 drag = DragParams(C_D=C_D, rho_air=rho_air)
 burst = BurstParams(h_b=h_b, angle_of_fall=float(angle_of_fall), spray_half_angle=float(spray_half_angle))
 posture: PostureParams = STANDING if posture_name == "Standing" else PRONE
@@ -112,11 +117,11 @@ posture: PostureParams = STANDING if posture_name == "Standing" else PRONE
 
 
 @st.cache_data
-def _compute(shell, mott, drag, burst, posture, max_radius):
-    return compute_frag_field_3d(shell, mott, drag, burst, posture, max_radius=max_radius)
+def _compute(shell, drag, burst, posture, max_radius):
+    return compute_frag_field_3d(shell, drag, burst, posture, max_radius=max_radius)
 
 
-result = _compute(shell, mott, drag, burst, posture, max_radius)
+result = _compute(shell, drag, burst, posture, max_radius)
 
 # ---------------------------------------------------------------------------
 # Headline metrics
