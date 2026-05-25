@@ -352,11 +352,16 @@ def compute_frag_field_3d(
             )
             field_pk[i, j] = 1.0 - np.exp(-N_eff)
 
-    # Cross-range slice at x=0 (j nearest x=0)
-    j0 = np.argmin(np.abs(xy))
+    # Cross-range slice at exactly x=0 (separate sweep, grid-alignment-independent)
+    pk_cross = np.array([
+        1.0 - np.exp(-_expected_kills_3d_point(
+            0.0, float(y_g), burst.h_b, alpha_rad, delta_rad,
+            N0, mu, V0, drag, shell.rho_steel, posture,
+            m_grid, pdf, lam,
+        ))
+        for y_g in xy
+    ])
     r_cross = np.abs(xy)
-    pk_cross = field_pk[:, j0]
-    # R50 along cross-range
     idx50 = np.argmin(np.abs(pk_cross - 0.5))
     r50_cross = float(np.abs(xy[idx50]))
 
