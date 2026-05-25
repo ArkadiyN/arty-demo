@@ -1,3 +1,61 @@
+r"""
+Tests for src/arty/fragmentation.py and src/arty/shells.py
+
+Coverage map
+============
+
+ShellParams / MottParams  (dataclass defaults and field isolation)
+  • Default ShellParams matches the validated 105mm M1 HE notebook values:
+    caliber, wall_t, mass_total, mass_filler, filler name/gurney_const, rho_steel.
+  • Default MottParams gives gamma=65 and sigma_f=800 MPa.
+  • Overriding one MottParams field leaves all others at their defaults.
+
+gurney_velocity
+  • Result for default 105mm M1 HE falls in the 900–1400 m/s published bracket.
+  • Higher Gurney constant (RDX > TNT) always yields higher V₀.
+
+mott_params
+  • Fragment count heavier than 0.5 g lies in the 3000–8000 PAFRAG expected range
+    for the default shell.
+  • mu ∝ (σ_F / γ)^1.5 — higher gamma produces smaller average fragment mass.
+
+retardation_coeff
+  • λ is strictly decreasing with fragment mass (heavier fragments decelerate more
+    slowly), confirming the m^(−1/3) scaling.
+
+pk_given_hit  (ES-310 graded Pk|hit)
+  • Anchors: E = [100, 1000, 4000] J returns [0.10, 0.50, 0.90] exactly.
+  • Zero energy returns zero probability (left-clip).
+  • Very high energy is capped at 0.9 (right-clip).
+
+compute_frag_field  (1-D radially-symmetric model)
+  • P(kill) is monotonically non-increasing with distance from burst.
+  • R₅₀ for default 105mm M1 HE is in the 50–200 m range.
+  • field_x, field_y, field_pk arrays all share the same shape.
+  • ke_by_mass contains keys for the three representative masses: 0.5, 5, 50 g.
+
+Shell registry  (arty.shells)
+  • "105mm M1 HE" is present in SHELLS.
+  • Its filler, gurney_const, mass_total, and mass_filler match notebook values.
+  • Adding a second shell does not mutate the existing "105mm M1 HE" entry
+    (monkeypatched to avoid polluting the global registry).
+
+BurstParams / PostureParams / presented_area
+  • Default BurstParams: h_b=2 m, angle_of_fall=30°, spray_half_angle=15°.
+  • presented_area at γ=0 (horizontal fragment, STANDING) equals w_perp × h.
+  • presented_area at γ=π/2 (vertical fragment, PRONE) equals w_perp × d.
+
+compute_frag_field_3d  (3-D belt-spray burst model)
+  • r50_cross is finite and positive for both a near-ground burst and a 10 m airburst.
+  • Airburst (h_b=10 m) gives higher P(kill) at y≈30 m than ground burst for PRONE
+    (more fragments reach a prone target from above).
+  • compute_frag_field() R₅₀ is unaffected by the 3-D code path (backward compat).
+  • With even n_grid (grid never hits x=0), the dedicated x=0 sweep still returns
+    P(kill) > 0.5 at y=0 — no spurious belt-filter shadow from grid misalignment.
+  • ke_by_mass is indexed by radial slant range r_ke: r_ke[0]=0, r_ke[-1]=max_radius,
+    len=n_grid, and ke_by_mass[0.5][0] ≈ ½ × 0.5 g × V₀².
+"""
+
 import numpy as np
 import pytest
 
