@@ -1,0 +1,141 @@
+## Governing Equations
+
+### 1 · Gurney: Initial Fragment Velocity
+
+For a cylindrical shell the Gurney formula gives initial fragment velocity $V_0$:
+
+$$
+V_0 = \sqrt{2E} \left(\frac{M}{C} + \tfrac{1}{2}\right)^{-1/2} \quad (1)
+$$
+
+| Symbol      | Description                                  | Unit |
+| ----------- | -------------------------------------------- | ---- |
+| $\sqrt{2E}$ | Gurney energy constant (explosive-dependent) | m/s  |
+| $M$         | Metal (shell body) mass                      | kg   |
+| $C$         | Explosive filler mass                        | kg   |
+| $V_0$       | Initial fragment velocity                    | m/s  |
+
+Gurney constants: 2 440 m/s (TNT), 2 700 m/s (Comp-B), 2 930 m/s (RDX).
+
+### 2 · Shell Geometry at Break-up
+
+The shell expands under detonation pressure before fracturing. Pearson (1990) and
+the PAFRAG methodology set break-up at approximately three times the initial internal
+volume of explosive products (V/V₀ ≈ 3). For a cylindrical geometry the inner
+radius grows as:
+
+$$
+r_{i,\text{bu}} = r_{i,0}\,\sqrt{3} \quad (2a)
+$$
+
+Assuming the steel wall is incompressible (volume conserved during radial expansion):
+
+$$
+r_{o,\text{bu}} = \sqrt{r_{i,\text{bu}}^2 + (r_{o,0}^2 - r_{i,0}^2)} \quad (2b)
+$$
+
+The Mott formula uses the **mean** shell radius at break-up:
+
+$$
+r_{\text{bu}} = \tfrac{1}{2}(r_{i,\text{bu}} + r_{o,\text{bu}}) \quad (2c)
+$$
+
+| Symbol                                  | Description                   | Unit |
+| --------------------------------------- | ----------------------------- | ---- |
+| $r_{i,0}$, $r_{o,0}$                   | Initial inner/outer radii     | m    |
+| $r_{i,\text{bu}}$, $r_{o,\text{bu}}$ | Inner/outer radii at break-up | m    |
+| $r_{\text{bu}}$                        | Mean shell radius at break-up | m    |
+
+### 3 · Mott: Fragment Mass Distribution
+
+At break-up, stress-release waves arrest further fracture in their wake (Mott 1947).
+The cumulative fragment count is:
+
+$$
+N(m) = N_0 \, \exp\!\left(-\sqrt{m / \mu}\right) \quad (3)
+$$
+
+where $N_0 = M_{\text{shell}} / (2\mu)$ and the half-weight $\mu$ (half the average
+fragment mass) from the PAFRAG-Mott formulation (Gold 2017, eq. 16) is:
+
+$$
+\mu = \sqrt{\frac{2}{\rho}}\left(\frac{\sigma_F}{\gamma}\right)^{3/2}
+\left(\frac{r_{\text{bu}}}{V_0}\right)^3 \quad (4)
+$$
+
+This is algebraically identical to the form $\frac{1}{2}(2\sigma_F/\rho^{1/3}\gamma)^{3/2}(r/V_0)^3$;
+equation (4) matches the PAFRAG source notation exactly.
+
+| Symbol          | Description                              | Unit  | Value (105 mm M1) |
+| --------------- | ---------------------------------------- | ----- | ----------------- |
+| $\rho$         | Shell steel density                      | kg/m³ | 7 850             |
+| $\sigma_F$     | Dynamic flow stress at fracture          | Pa    | 800 × 10⁶         |
+| $\gamma$       | Mott statistical fragmentation parameter | —     | 65                |
+| $r_{\text{bu}}$| Mean shell radius at break-up            | m     | computed          |
+| $\mu$          | Half the average fragment mass           | kg    | computed          |
+
+**Note on $\gamma$ and $\sigma_F$:** These are the dominant uncertainties.
+Mott (1947) Table 1 gives γ ≈ 53 for 0.2%C steel and γ ≈ 67 for 0.3%C steel.
+US M1 shell bodies use SAE 1045 steel (≈ 0.45%C); γ ≈ 65 is a central estimate.
+Dynamic flow stress at high strain rate is typically 800–1 000 MPa for hardened steel,
+higher than the quasi-static value of 600 MPa. The sensitivity section explores both.
+
+The most probable fragment mass (mode of the number-weighted PDF) is $m_{\text{mode}} = \mu/4$.
+
+### 4 · Drag: Velocity Decay Along Flat Trajectory
+
+For a fragment of mass $m$ flying horizontally, dividing the drag equation of motion by $v$:
+
+$$
+m \frac{dv}{ds} = -\tfrac{1}{2}\,\rho_{\text{air}}\,C_D\,A_f\,v \quad (5)
+$$
+
+This integrates to exponential decay:
+
+$$
+v(s) = V_0\,e^{-\lambda s}, \qquad
+\lambda(m) = \frac{\rho_{\text{air}}\,C_D\,C_{\text{shape}}}{2\,\rho^{2/3}}\,m^{-1/3} \quad (6)
+$$
+
+where the mean presented area of a tumbling irregular fragment scales as
+$A_f = C_{\text{shape}}(m/\rho)^{2/3}$, so smaller fragments decelerate faster.
+
+| Symbol              | Description                                      | Unit  | Value |
+| ------------------- | ------------------------------------------------ | ----- | ----- |
+| $\rho_{\text{air}}$| Air density (sea level)                         | kg/m³ | 1.225 |
+| $C_D$               | Drag coefficient, tumbling fragment              | —     | 0.65  |
+| $C_{\text{shape}}$ | Mean presented-area factor vs. equal-volume cube | —     | 0.90  |
+
+### 5 · Kinetic Energy and Fragmentation Field
+
+Kinetic energy at distance $s$ from burst:
+
+$$
+E_k(s,m) = \tfrac{1}{2}\,m\,V_0^2\,e^{-2\lambda(m)\,s} \quad (7)
+$$
+
+The Mott number-density PDF (fragments per unit mass interval):
+
+$$
+n(m) = \frac{N_0}{2\sqrt{\mu\,m}}\,\exp\!\left(-\sqrt{m/\mu}\right) \quad (8)
+$$
+
+The ES-310 lethality curve $P_{k|\text{hit}}(E)$ is a log-linear interpolation between
+three anchors — 100 J → 0.10, 1 kJ → 0.50, 4 kJ → 0.90 — clipped to $[0,\,0.90]$.
+
+Expected lethal hits on a target of presented width $w$ at distance $r$
+(disk geometry, azimuthally uniform spray):
+
+$$
+N_{\text{eff}}(r) = \int_0^\infty n(m)\;P_{k|\text{hit}}\!\left(E_k(r,m)\right)\frac{w}{2\pi r}\,dm \quad (9)
+$$
+
+Kill probability (Poisson, single target):
+
+$$
+P_{\text{kill}}(r) = 1 - \exp\!\left(-N_{\text{eff}}(r)\right) \quad (10)
+$$
+
+$R_{50}$ is the distance at which $P_{\text{kill}} = 0.5$.
+
+______________________________________________________________________

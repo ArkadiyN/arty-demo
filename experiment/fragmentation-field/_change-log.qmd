@@ -1,0 +1,65 @@
+## Change Log
+
+| Version | Change | Reference |
+|---|---|---|
+| 0.1.0 | Initial single-cylinder Gurney–Mott field model. | — |
+| 0.2.0 | Add $A_p(\gamma, \text{posture})$ replacement for the width-based geometry factor (eq. 22'). | `updates/target-area-profile/derivation.md` |
+| 0.3.0 | Four-zone (ogive/cylinder/boattail/base) decomposition with zone-local Gurney, Mott, and spray angles; AoF ground projection; $A_p$-based geometry factor integrated. | `updates/frag-field-3d-geometry/derivation.md` |
+| 0.3.1 | Refactor: all physics moved to `src/arty/` (`fragmentation.py`, new `zones.py`, new `plots.py`); notebook split into per-section partials. Behaviour-preserving — no value changes. | — |
+
+______________________________________________________________________
+
+## Key Findings
+
+```{python}
+from dataclasses import replace
+
+print("=" * 58)
+print("  105 mm M1 HE — Fragmentation Field Summary")
+print("=" * 58)
+print(f"  V₀  (Gurney)          : {V0:.0f} m/s")
+print(f"  μ   (half-weight)     : {mu*1e3:.2f} g")
+print(f"  2μ  (avg frag mass)   : {2*mu*1e3:.2f} g")
+print(f"  μ/4 (mode mass)       : {mu/4*1e3:.2f} g")
+print(f"  N₀  (total frags)     : {N0:.0f}")
+print(f"  N(m > 1 g)            : {mott_N(np.array([1e-3]), N0, mu)[0]:.0f}")
+print(f"  N(m > 10 g)           : {mott_N(np.array([10e-3]), N0, mu)[0]:.0f}")
+print(f"  R₅₀ (standing, ES-310): {R50:.0f} m")
+
+print("\n  γ sensitivity (σ_F = 800 MPa fixed):")
+for g in [40, 53, 65, 80, 100]:
+    shell_g = replace(shell, steel=replace(shell.steel, gamma=float(g)))
+    mu_g, _ = mott_params(shell_g, V0)
+    N0_g  = mass_shell / (2*mu_g)
+    Ne_g  = expected_kills(r_vals, N0_g, mu_g, V0, drag, rho_steel, w_target)
+    r50_g = r_vals[np.argmin(np.abs(p_kill(Ne_g) - 0.5))]
+    n05_g = mott_N(np.array([0.5e-3]), N0_g, mu_g)[0]
+    print(f"    γ={g:>3d}  N₀={N0_g:>5.0f}  N(>0.5g)={n05_g:>5.0f}  R₅₀={r50_g:.0f} m")
+
+print("\n  σ_F sensitivity (γ = 65 fixed):")
+for sf_mpa in [600, 700, 800, 900, 1000]:
+    shell_s = replace(shell, steel=replace(shell.steel, sigma_f=sf_mpa*1e6))
+    mu_s, _ = mott_params(shell_s, V0)
+    N0_s  = mass_shell / (2*mu_s)
+    Ne_s  = expected_kills(r_vals, N0_s, mu_s, V0, drag, rho_steel, w_target)
+    r50_s = r_vals[np.argmin(np.abs(p_kill(Ne_s) - 0.5))]
+    n05_s = mott_N(np.array([0.5e-3]), N0_s, mu_s)[0]
+    print(f"    σ_F={sf_mpa} MPa  N₀={N0_s:>5.0f}  N(>0.5g)={n05_s:>5.0f}  R₅₀={r50_s:.0f} m")
+```
+
+**Parameter sensitivity notes:**
+
+- **γ** is the dominant uncertainty. For SAE 1045 steel (M1 shell), Mott's 1947
+  table brackets it at 53–67; the R₅₀ varies by ±10–15 m across this range.
+- **σ_F** (dynamic flow stress) is the second uncertainty; 800–1 000 MPa is the
+  high-strain-rate range for hardened steel. Higher σ_F produces larger average
+  fragments and a slightly larger lethal radius.
+- **Angle of fall** is not yet modelled. At angles shallower than ≈ 60°, the
+  circular field shown above becomes an ellipse. For WW2 105 mm fire at 4–6 km
+  range (angle of fall ≈ 20°–35°), the forward sector receives ≈ 30–50% more
+  fragment density than the rear sector. This will be modelled in a follow-on
+  iteration.
+- The ES-310 Pk|hit curve is calibrated for standing unprotected infantry. Against a prone
+  target the presented area halves and the effective lethal radius shrinks ~30%.
+
+______________________________________________________________________

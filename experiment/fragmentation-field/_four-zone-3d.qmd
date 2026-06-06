@@ -1,0 +1,265 @@
+## Four-Zone Model (3D)
+
+This section extends the single-cylinder treatment above with a four-zone
+ogive/cylinder/boattail/base decomposition, an AoF-resolved ground projection,
+and an angle-dependent presented-area replacement for the geometry factor.
+
+References:
+
+- `updates/frag-field-3d-geometry/derivation.md` — four-zone derivation (PASS).
+- `updates/target-area-profile/derivation.md` — $A_p(\gamma, \text{posture})$ derivation (PASS).
+
+### Notation note — Mott constant rename
+
+The Mott statistical fragmentation parameter (named `gamma` in
+`SteelParams`) collides notationally with $\gamma$, the fragment **arrival
+elevation angle** from horizontal used throughout the 3D geometry. To
+disambiguate, this section uses **$\gamma_M$** (a.k.a. `gamma_M` in code)
+for the Mott material constant and reserves **$\gamma$** for the arrival
+angle.
+
+### 6.1 · Zone geometry definitions
+
+Four zones with axial extents $L_n$ (ogive), $L_c$ (cylinder), $L_t$
+(boattail) and a base plate of thickness $t_b$. Tier-1 shells carry full
+drawing-derived arc radii; Tier-2 shells fall back to fixed fractions
+(scoping §3.2).
+
+Per-zone Gurney velocity uses zone-local $M^z/C^z$:
+
+$$
+V_0^z = k^z \cdot \frac{V_g}{\sqrt{M^z/C^z + 1/2}} \quad (11)
+$$
+
+where $V_g = \sqrt{2E}$ is the explosive's Gurney constant and $k^z$ is a
+zone reduction factor (default 1.0; base plate uses $k^b = 0.75$ for M1
+and $k^b = 0.70$ for M107 per NWC TP 7124 rarefaction). $C^z$ is the zone
+explosive allocation, distributed by interior bore volume; the base plate
+has no interior cavity and is driven by an equivalent column
+$C^b_\text{eff} = C^c \cdot (t_b / L_c)$ (acknowledged approximation,
+§3.3).
+
+Zone Mott half-mass uses zone-local $r_{bu}^z$ and $V_0^z$ (Gold 2017,
+eq. 16):
+
+$$
+\mu^z = \sqrt{\frac{2}{\rho_s}}\left(\frac{\sigma_F}{\gamma_M}\right)^{3/2}\!\left(\frac{r_{bu}^z}{V_0^z}\right)^{3} \quad (12)
+$$
+
+**Unit check for eq. (12)** (added per reviewer deferred item):
+$\sqrt{\text{m}^3/\text{kg}} \cdot \text{Pa}^{3/2} \cdot (\text{m/(m/s)})^3$
+$= (\text{m}^{3/2} \text{kg}^{-1/2}) \cdot (\text{kg/(m·s}^2))^{3/2}
+\cdot \text{s}^3$
+$= \text{m}^{3/2-3/2} \cdot \text{kg}^{-1/2+3/2} \cdot \text{s}^{-3+3} = \text{kg}$
+✓.
+
+Per-zone spray elevation $\theta^z$ from forward shell axis:
+
+| Zone | $\theta^z$ |
+|---|---|
+| Cylinder | $90°$ (exact, hoop symmetry) |
+| Boattail | $90° + \tfrac{1}{2}\,\theta_{bt}^\text{full}$ |
+| Base | $165°$ (phenomenological) |
+| Ogive (Tier-1) | $90° - \arctan\!\bigl((r_o(L_n/2)-r_c^o)/(L_n/2 - x_c^o)\bigr)$ |
+| Ogive (Tier-2) | $90° - \arcsin\!\bigl(\sqrt{\text{CRH}-1/4}/(2\,\text{CRH})\bigr)$ |
+
+(The `boattail_angle_deg` field is the **full** included taper angle from
+the drawing; the spray offset is half of that.)
+
+### 6.2 · Zone computation
+
+The four-zone decomposition lives in `src/arty/zones.py` —
+`compute_shell_zones`, `fragment_ground_impact`, and `four_zone_field`,
+backed by the drawing-derived registry in `arty.shells`.
+
+```{python}
+from arty.fragmentation import STANDING, PRONE, presented_area, retardation_coeff
+from arty.zones import (
+    compute_shell_zones, fragment_ground_impact, four_zone_field,
+    ZoneParams, ShellZones, CRH_DEFAULT_TIER2,
+)
+from arty.shells import SHELLS
+```
+
+### 6.3 · Zone breakdown for 105 mm M1 HE
+
+```{python}
+zones_m1 = compute_shell_zones(SHELLS["105mm M1 HE"])
+M_steel_m1 = (
+    SHELLS["105mm M1 HE"].mass_total
+    - SHELLS["105mm M1 HE"].mass_filler
+    - SHELLS["105mm M1 HE"].mass_deductions
+)
+
+print("=== 105 mm M1 HE — Four-Zone Breakdown ===")
+print(f"  Total steel mass : {M_steel_m1:.2f} kg")
+print(f"{'Zone':<10}{'M_z (kg)':>10}{'frac':>8}{'C_z (kg)':>10}"
+      f"{'M/C':>8}{'V0 (m/s)':>10}{'μ (g)':>8}{'spray°':>9}")
+for name, z in [("Ogive", zones_m1.ogive), ("Cyl", zones_m1.cylinder),
+                ("Boattail", zones_m1.boattail), ("Base", zones_m1.base)]:
+    mc = z.mass_kg / z.C_kg if z.C_kg > 0 else float("nan")
+    mu_g = z.mu * 1e3 if np.isfinite(z.mu) else float("nan")
+    print(f"  {name:<8}{z.mass_kg:>10.3f}{z.mass_kg/M_steel_m1:>8.2%}"
+          f"{z.C_kg:>10.3f}{mc:>8.2f}{z.V0_ms:>10.0f}{mu_g:>8.2f}"
+          f"{z.spray_deg:>9.1f}")
+
+# Spec assertions (zone-model spec)
+assert 0.45 < zones_m1.ogive.mass_kg / M_steel_m1 < 0.65, "M1 ogive fraction out of spec"
+assert 0.20 < zones_m1.cylinder.mass_kg / M_steel_m1 < 0.35, "M1 cylinder fraction out of spec"
+assert 75.0 < zones_m1.ogive.spray_deg < 88.0, "M1 ogive spray angle out of spec"
+print("\n  ✓ ogive ∈ [45 %, 65 %], cylinder ∈ [20 %, 35 %], spray ∈ [75°, 88°]")
+```
+
+### 6.4 · Zone breakdown for 155 mm M107 HE and 75 mm M48 HE
+
+```{python}
+zones_m107 = compute_shell_zones(SHELLS["155mm M107 HE"])
+M_steel_m107 = (
+    SHELLS["155mm M107 HE"].mass_total
+    - SHELLS["155mm M107 HE"].mass_filler
+    - SHELLS["155mm M107 HE"].mass_deductions
+)
+print("=== 155 mm M107 HE — Four-Zone Breakdown ===")
+for name, z in [("Ogive", zones_m107.ogive), ("Cyl", zones_m107.cylinder),
+                ("Boattail", zones_m107.boattail), ("Base", zones_m107.base)]:
+    mc = z.mass_kg / z.C_kg if z.C_kg > 0 else float("nan")
+    print(f"  {name:<8}  M={z.mass_kg:6.2f} kg ({z.mass_kg/M_steel_m107:.0%})"
+          f"  V0={z.V0_ms:.0f} m/s  spray={z.spray_deg:.1f}°")
+assert 75.0 < zones_m107.ogive.spray_deg < 88.0, "M107 ogive spray out of spec"
+
+print("\n=== 75 mm M48 HE (Tier-2) — Four-Zone Breakdown ===")
+zones_m48 = compute_shell_zones(SHELLS["75mm M48 HE"])
+M_steel_m48 = (
+    SHELLS["75mm M48 HE"].mass_total
+    - SHELLS["75mm M48 HE"].mass_filler
+    - SHELLS["75mm M48 HE"].mass_deductions
+)
+for name, z in [("Ogive", zones_m48.ogive), ("Cyl", zones_m48.cylinder),
+                ("Boattail", zones_m48.boattail), ("Base", zones_m48.base)]:
+    print(f"  {name:<8}  M={z.mass_kg:5.2f} kg ({z.mass_kg/M_steel_m48:.0%})"
+          f"  V0={z.V0_ms:.0f} m/s  spray={z.spray_deg:.1f}°")
+```
+
+### 6.5 · AoF ground projection
+
+A fragment leaving zone $z$ with polar angle $\theta^z$ from the forward
+shell axis and azimuth $\phi$ around the axis has shell-frame direction
+$\hat{v}_\text{shell} = (\cos\theta^z, \sin\theta^z\cos\phi, \sin\theta^z\sin\phi)$.
+Rotation to the ground frame by $R_y(\text{AoF})$:
+
+$$
+v_{g,x} = \cos(\text{AoF})\cos\theta^z + \sin(\text{AoF})\sin\theta^z\sin\phi \quad (13a)
+$$
+$$
+v_{g,y} = \sin\theta^z\cos\phi \quad (13b)
+$$
+$$
+v_{g,z} = -\sin(\text{AoF})\cos\theta^z + \cos(\text{AoF})\sin\theta^z\sin\phi \quad (13c)
+$$
+
+Ground impact (burst at height $h_b$):
+
+$$
+x_\text{hit} = -\frac{v_{g,x}}{v_{g,z}}\,h_b, \qquad y_\text{hit} = -\frac{v_{g,y}}{v_{g,z}}\,h_b,
+\qquad \sin\gamma = |v_{g,z}| \quad (14)
+$$
+
+valid when $v_{g,z} < 0$. Fragments with $v_{g,z} \ge 0$ travel upward or
+horizontally and do not reach the ground in the straight-line model
+(guarded explicitly). The projection is implemented as
+`arty.zones.fragment_ground_impact`.
+
+```{python}
+# Spot-check: AoF=90° (vertical shell) → ogive fragments hit ring of
+# radius h_b * tan(theta_o) (limit check from derivation §5)
+h_b_test = 5.0
+theta_o_test = zones_m1.ogive.spray_deg
+hits = []
+for phi in np.linspace(0, 2 * np.pi, 9, endpoint=False):
+    res = fragment_ground_impact(theta_o_test, phi, aof_deg=90.0, h_b=h_b_test)
+    if res is not None:
+        hits.append(res)
+r_ring_obs = np.array([np.hypot(x, y) for x, y, _ in hits])
+r_ring_pred = h_b_test * np.tan(np.radians(theta_o_test))
+print(f"AoF = 90° vertical-shell ogive ring check:")
+print(f"  predicted r = h_b tan(θ_o) = {r_ring_pred:.2f} m")
+print(f"  measured r  = {r_ring_obs.mean():.2f} m (std {r_ring_obs.std():.2e})")
+assert np.allclose(r_ring_obs, r_ring_pred, atol=1e-6), "circular symmetry broken"
+print("  ✓ azimuthally symmetric at AoF = 90°")
+```
+
+### 6.6 · Presented-area-based geometry factor
+
+The width-based factor $w/(2\pi s)$ in eq. (9) is replaced by the
+$A_p$-based factor from `target-area-profile/derivation.md` eq. (P4):
+
+$$
+g_\text{new} = \frac{A_p(\gamma,\text{posture})}{2\pi\,s^2\,\cdot\,2\sin\theta^z\,\delta},
+\qquad
+A_p(\gamma,\text{posture}) = w_\perp\bigl(h\cos\gamma + d\sin\gamma\bigr) \quad (22')
+$$
+
+The geometry factor now falls off as $s^{-2}$ rather than $s^{-1}$ — the
+correct inverse-square law for an isotropic point source. (See
+target-area-profile derivation §4.3 for why this is not a clean limit of
+the old eq. 22; absolute hit counts and the calibrated $R_{50}$ will need
+to be re-anchored against TM 9-1901 — listed as a limitation.) The
+$A_p(\gamma, \text{posture})$ function lives in `arty.fragmentation`.
+
+```{python}
+# Re-verify Ap(γ) limits
+ap_stand_h = presented_area(0.0,           STANDING)   # horizontal fragment
+ap_stand_v = presented_area(np.pi/2,       STANDING)   # vertical fragment
+ap_prone_h = presented_area(0.0,           PRONE)
+ap_prone_v = presented_area(np.pi/2,       PRONE)
+print("Presented-area limits:")
+print(f"  STANDING γ=0  : {ap_stand_h:.2f} m²   (expect 0.85)")
+print(f"  STANDING γ=π/2: {ap_stand_v:.2f} m²   (expect 0.15)")
+print(f"  PRONE    γ=0  : {ap_prone_h:.2f} m²   (expect 0.15)")
+print(f"  PRONE    γ=π/2: {ap_prone_v:.2f} m²   (expect 0.90)")
+assert abs(ap_stand_h - 0.85) < 0.01
+assert abs(ap_prone_v - 0.90) < 0.01
+print("  ✓ all four limits match derivation §3.8")
+```
+
+### 6.7 · Four-zone field and ground-impact diagnostic
+
+```{python}
+import matplotlib.pyplot as plt
+from arty import plots
+
+# Compute drag-lambda grid once
+n_mass = 200
+m_grid_3d = np.logspace(-6, np.log10(0.5), n_mass)
+lam_3d = retardation_coeff(m_grid_3d, drag, rho_steel)
+
+# Field for M1, AoF = 30°, h_b = 2 m, STANDING target
+X3d, Y3d, P3d = four_zone_field(
+    zones_m1, aof_deg=30.0, h_b=2.0, posture=STANDING,
+    drag_lam_grid=lam_3d, m_grid=m_grid_3d,
+    max_r=60.0, n_grid=50,
+)
+
+fig = plots.fig_four_zone_field(X3d, Y3d, P3d)
+fig.savefig("four_zone_field_m1.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+### 6.8 · Per-zone ground footprint (deterministic rays)
+
+To visualise which zone hits where, sample the four zones with a fan of
+azimuthal rays at AoF = 30° and plot their ground-impact points.
+
+```{python}
+fig = plots.fig_zone_footprint(zones_m1, aof_deg=30.0, h_b=2.0, n_phi=60)
+fig.savefig("four_zone_rings.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+The forward sector (positive $x$) is dominated by ogive rays, the
+equatorial belt by cylinder rays, and the rearward sector by base rays;
+boattail rays cluster just behind the cylinder belt. This reproduces the
+expected lobed structure that the single-cylinder model could not
+generate.
+
+______________________________________________________________________

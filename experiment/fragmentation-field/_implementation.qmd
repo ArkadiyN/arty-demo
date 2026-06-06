@@ -1,0 +1,31 @@
+## Implementation
+
+The model functions live in `src/arty/fragmentation.py` — `gurney_velocity`,
+`mott_params`, `mott_N`, `retardation_coeff`, `ke_at_range`,
+`min_lethal_mass`, `pk_given_hit`, `expected_kills`, and `p_kill`. The
+notebook imports and calls them; no physics is reimplemented here.
+
+```{python}
+V0 = gurney_velocity(shell)
+mu, N0 = mott_params(shell, V0)
+
+print("=== Gurney ===")
+print(f"  V0               : {V0:.0f} m/s")
+
+print("\n=== Mott ===")
+print(f"  Half-weight μ    : {mu*1e3:.2f} g")
+print(f"  Avg frag mass 2μ : {2*mu*1e3:.2f} g")
+print(f"  Mode mass  μ/4   : {mu/4*1e3:.2f} g")
+print(f"  Total frags N0   : {N0:.0f}")
+
+# Cavity/wall-thickness ratio: doctrinal break-up diagnostic.
+# r_inner and wall_t are the initial (pre-detonation) shell geometry from §3.
+cavity_wall_ratio = (2 * r_inner) / wall_t   # inner diameter / wall thickness
+print(f"  Cavity/wall-thickness ratio (d_i / t_w) : {cavity_wall_ratio:.1f}")
+print(f"    Doctrinal reference: 25-pdr ≈ 4, ideal ≈ 10")
+print(f"    Higher ratio → more, smaller fragments (lower μ)")
+for m_g in [0.5, 1, 5, 10, 50]:
+    print(f"  N(m > {m_g:4.1f} g)   : {mott_N(np.array([m_g*1e-3]), N0, mu)[0]:.0f}")
+```
+
+______________________________________________________________________

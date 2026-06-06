@@ -1,0 +1,30 @@
+## Background
+
+This notebook derives and implements the physics model for the fragmentation field
+produced by a detonating HE artillery shell — Phase 1 MVP of the WW2 field artillery
+demonstration. Three sub-models are integrated:
+
+1. **Gurney equation** — initial fragment velocity from explosive energy and M/C mass ratio.
+1. **Mott distribution** — number and mass distribution of fragments from shell break-up statistics.
+1. **Drag decay** — fragment kinetic energy vs. ground distance, assuming flat (horizontal) trajectories.
+
+**Scope constraints and known limitations:**
+
+- Single HE shell; fuse type deferred; default is a ground burst with no airburst height.
+- Fragment trajectories assumed flat (horizontal). Gravity drop at 100 m for a 1 g fragment
+  is ≈ 0.5 m — small relative to a 1.7 m standing target — so the error is acceptable
+  for ranges up to ~200 m.
+- Uniform azimuthal spray: fragments are spread uniformly in 360° around the burst point.
+  This is accurate only if the shell detonates with its **axis vertical** (90° angle of fall,
+  i.e. pure plunging fire). At shallower angles of fall — typical of field artillery at
+  medium ranges (angle of fall ≈ 10°–50°) — the pattern becomes an ellipse elongated along
+  the line of fire, with more fragments projected forward and aft than to the sides. The
+  angle-of-fall correction is deferred to a later model iteration.
+- Shell dimensions and mass are fully used: caliber and wall thickness drive the break-up
+  radius → Mott half-mass; shell mass and filler mass drive the Gurney M/C ratio → initial
+  velocity.
+- No obstacles; flat absorbing surface.
+
+The default parameters are for a **WW2 105 mm M1 HE shell** loaded with TNT.
+
+______________________________________________________________________

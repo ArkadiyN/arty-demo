@@ -1,0 +1,62 @@
+## Parameters
+
+The single-cylinder model below is a thin presentation layer over `arty`.
+All physics lives in `src/arty/fragmentation.py`; this section only builds
+the parameter structs and prints the derived geometry. The default
+105 mm M1 HE body here uses the historical TM 9-1901 cylindrical wall
+thickness of 11 mm (the four-zone section further down uses the
+drawing-derived registry geometry in `arty.shells`).
+
+```{python}
+import numpy as np
+
+from arty.fragmentation import (
+    ShellParams, DragParams, TargetParams,
+    gurney_velocity, mott_params, mott_N, retardation_coeff,
+    ke_at_range, min_lethal_mass, pk_given_hit, expected_kills, p_kill,
+    _shell_geometry, _PK_E, _PK_VAL,
+)
+
+# --- 105 mm M1 HE (single-cylinder model shell) ---
+# wall_t = 11 mm (TM 9-1901 cylindrical wall); mass deductions = fuze + band.
+shell = ShellParams(
+    caliber=0.105, wall_t=0.011,
+    mass_total=14.97, mass_filler=2.18, mass_deductions=0.75,
+)
+drag   = DragParams()      # C_D=0.65, C_shape=0.90, rho_air=1.225
+target = TargetParams()    # presented width w = 0.5 m
+
+# Derived geometry / masses from src (SI internally)
+r_outer, r_inner, r_bu, mass_shell = _shell_geometry(shell)
+r_inner_bu = r_inner * np.sqrt(3)
+r_outer_bu = np.sqrt(r_inner_bu**2 + (r_outer**2 - r_inner**2))
+
+# Convenience scalars used by later cells / plots
+gurney_const = shell.filler.gurney_const
+caliber_m    = shell.caliber
+wall_t       = shell.wall_t
+mass_total   = shell.mass_total
+mass_filler  = shell.mass_filler
+rho_steel    = shell.steel.rho
+sigma_F      = shell.steel.sigma_f
+gamma_mott   = shell.steel.gamma
+rho_air      = drag.rho_air
+C_D          = drag.C_D
+C_shape      = drag.C_shape
+w_target     = target.w
+
+print("=== Shell geometry ===")
+print(f"  Caliber          : {caliber_m*1e3:.0f} mm")
+print(f"  Wall thickness   : {wall_t*1e3:.1f} mm")
+print(f"  r_inner (0)      : {r_inner*1e3:.1f} mm")
+print(f"  r_inner (bu)     : {r_inner_bu*1e3:.1f} mm  (√3 × initial inner, 3× vol)")
+print(f"  r_outer (bu)     : {r_outer_bu*1e3:.1f} mm  (wall volume conserved)")
+print(f"  r_mean  (bu)     : {r_bu*1e3:.1f} mm  ← used in Mott formula")
+print(f"\n=== Mass ===")
+print(f"  Projectile       : {mass_total:.2f} kg")
+print(f"  Filler (TNT)     : {mass_filler:.2f} kg")
+print(f"  Shell body (M)   : {mass_shell:.2f} kg")
+print(f"  M/C ratio        : {mass_shell/mass_filler:.2f}")
+```
+
+______________________________________________________________________

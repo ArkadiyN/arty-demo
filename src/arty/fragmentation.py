@@ -51,6 +51,20 @@ class ShellParams:
     mass_deductions: float = 0.75    # fuze + rotating band [kg]
     filler: FillerParams = FILLERS["TNT"]
     steel: SteelParams = STEELS["WW2 US HE Shell"]
+    # --- Optional Tier-1 zone arc geometry (frag-field-3d-geometry update) ---
+    # Present (not None) → arc-integrated zone masses; absent → Tier-2 fractions.
+    ogive_outer_R: float | None = None     # outer ogive arc radius [m]
+    ogive_inner_R: float | None = None     # inner ogive arc radius [m]
+    ogive_len: float | None = None         # ogive axial length [m]
+    ogive_tip_dia: float | None = None     # ogive tip outer diameter [m]
+    cylinder_len: float | None = None      # cylindrical body axial length [m]
+    boattail_inner_dia: float | None = None  # base end inner bore diameter [m]
+    base_thickness: float | None = None    # base plate thickness [m]
+    boattail_len: float = 0.0              # boattail axial length [m]; 0 → no boattail
+    boattail_angle_deg: float = 0.0        # FULL included taper angle (drawing) [deg]
+    has_boattail: bool = True              # zone-existence flag
+    base_treatment: str = "dead"           # "dead" | "plate" | "mott"
+    ogive_crh: float | None = None         # Tier-2 CRH override [calibers]
 
 
 @dataclass(frozen=True)
@@ -181,6 +195,111 @@ def presented_area(gamma: float, posture: PostureParams) -> float:
 def pk_given_hit(E: np.ndarray) -> np.ndarray:
     logE = np.log10(np.clip(np.asarray(E, dtype=float), 1e-3, None))
     return np.interp(logE, np.log10(_PK_E), _PK_VAL, left=0.0, right=0.9)
+
+
+# ---------------------------------------------------------------------------
+# Mott distribution / kinematic helpers
+#   (single-cylinder convenience functions used by the notebook presentation
+#    layer; the heavier integral lives in `expected_kills`)
+# ---------------------------------------------------------------------------
+
+
+def mott_N(m: np.ndarray, N0: float, mu: float) -> np.ndarray:
+    """Cumulative fragment count N(m) — fragments with mass >= m [count].
+
+    m  : fragment mass [kg]
+    N0 : total fragment count [-]
+    mu : Mott half-weight [kg]
+    """
+    return N0 * np.exp(-np.sqrt(m / mu))
+
+
+def ke_at_range(
+    m: np.ndarray, V0: float, lam: np.ndarray, s: np.ndarray
+) -> np.ndarray:
+    """Fragment kinetic energy [J] at range s [m].
+
+    m   : fragment mass [kg]
+    V0  : initial fragment velocity [m/s]
+    lam : drag retardation coefficient [1/m]
+    s   : range from burst [m]
+    """
+    return 0.5 * m * (V0 * np.exp(-lam * s)) ** 2
+
+
+def min_lethal_mass(
+    s: float,
+    V0: float,
+    E_leth: float,
+    drag: DragParams,
+    rho_steel: float,
+    m_lo: float = 1e-6,
+    m_hi: float = 2.0,
+    tol: float = 1e-9,
+) -> float:
+    """Minimum lethal fragment mass [kg] at range s [m] via bisection on KE.
+
+    s       : range from burst [m]
+    V0      : initial fragment velocity [m/s]
+    E_leth  : lethal kinetic-energy threshold [J]
+    drag    : DragParams
+    rho_steel : steel density [kg/m³]
+
+    Returns m_hi if even the heaviest fragment is sub-lethal at this range,
+    or m_lo if even the lightest fragment is lethal (very close range).
+    """
+
+    def _ke(m: float) -> float:
+        lam = retardation_coeff(np.array([m]), drag, rho_steel)[0]
+        return ke_at_range(np.array([m]), V0, np.array([lam]), np.array([s]))[0]
+
+    if _ke(m_hi) < E_leth:
+        return m_hi
+    if _ke(m_lo) >= E_leth:
+        return m_lo
+
+    lo, hi = m_lo, m_hi
+    for _ in range(80):
+        mid = 0.5 * (lo + hi)
+        if _ke(mid) >= E_leth:
+            hi = mid
+        else:
+            lo = mid
+        if hi - lo < tol:
+            break
+    return 0.5 * (lo + hi)
+
+
+def lethal_fragments_at_range(
+    r: np.ndarray,
+    N0: float,
+    mu: float,
+    V0: float,
+    E_leth: float,
+    drag: DragParams,
+    rho_steel: float,
+) -> np.ndarray:
+    """Number of lethal fragments [count] at each ground range r [m]."""
+    out = np.empty_like(r, dtype=float)
+    for i, ri in enumerate(r):
+        m_min = min_lethal_mass(ri, V0, E_leth, drag, rho_steel)
+        out[i] = mott_N(np.array([m_min]), N0, mu)[0]
+    return out
+
+
+def p_hit(r: np.ndarray, N_leth: np.ndarray, w: float) -> np.ndarray:
+    """Hit probability at range r (Poisson, binary-threshold version).
+
+    r      : range from burst [m]
+    N_leth : lethal fragment count [-]
+    w      : presented target width [m]
+    """
+    return 1.0 - np.exp(-N_leth * w / (2.0 * np.pi * r))
+
+
+def p_kill(N_eff: np.ndarray) -> np.ndarray:
+    """P(kill) [-] from expected lethal-hit count N_eff (Poisson)."""
+    return 1.0 - np.exp(-N_eff)
 
 
 def expected_kills(

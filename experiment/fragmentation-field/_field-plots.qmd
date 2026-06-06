@@ -1,0 +1,56 @@
+## Fragmentation Field Plots
+
+Plotting is delegated to `src/arty/plots.py`; the notebook computes the
+field via `arty.fragmentation` and passes results to the figure functions.
+
+```{python}
+import matplotlib.pyplot as plt
+from arty import plots
+
+plots.apply_style()
+
+# Figure 1 — Mott mass distribution
+fig = plots.fig_mott_distribution(N0, mu)
+fig.savefig("frag_distribution.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+```{python}
+# Figure 2 — KE vs range
+fig = plots.fig_ke_vs_range(V0, drag, rho_steel,
+                            rep_masses_g=[0.5, 1, 5, 10, 25, 50], s_max=300)
+fig.savefig("ke_vs_range.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+```{python}
+# Figure 3 — Expected kills and P(kill) via ES-310 Pk|hit curve
+r_vals  = np.linspace(2, 300, 250)
+N_eff   = expected_kills(r_vals, N0, mu, V0, drag, rho_steel, w_target)
+P       = p_kill(N_eff)
+R50     = r_vals[np.argmin(np.abs(P - 0.5))]
+
+fig = plots.fig_frag_field(r_vals, N_eff, P, R50, N0, V0, mu)
+fig.savefig("frag_field.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+```{python}
+# Figure 4 — Vertical cross-section: spray elevation vs. acceptance window
+fig = plots.fig_cross_section(h_pers=1.7)
+fig.savefig("frag_cross_section.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+```{python}
+# Figure 5 — 2-D field map (axis-vertical burst → symmetric circle)
+r_2d    = np.linspace(1, 300, 200)
+N_eff_g = expected_kills(r_2d, N0, mu, V0, drag, rho_steel, w_target)
+P_grid  = p_kill(N_eff_g)
+
+fig = plots.fig_field_map_2d(r_2d, P_grid, R50)
+fig.savefig("frag_field_2d.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+______________________________________________________________________
