@@ -25,6 +25,20 @@ Start a new change using the experimental artifact-driven approach.
 
    **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
 
+1. **Decompose into single-aspect changes (physics/model work)**
+
+   If the request touches a physics or simulation model, check whether it
+   spans more than one **model aspect** before creating anything. An aspect is
+   separate if it has its own governing-equation set, its own
+   independently-validatable parameter group, or a separately PASS/FAIL-able
+   output (see `.claude/rules/agents-routing.md` → "Decompose first").
+
+   - **One aspect → one change.** Proceed normally.
+   - **N aspects → N changes.** Do NOT scaffold one change that bundles them.
+     List the aspects and their dependency order, confirm the split with the
+     user (AskUserQuestion), then create one change per aspect. Sequence
+     coupled aspects rather than merging them.
+
 1. **Determine the workflow schema**
 
    Use the default schema (omit `--schema`) unless the user explicitly requests a different workflow.
