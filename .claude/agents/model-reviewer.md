@@ -15,6 +15,9 @@ description: >-
 - Physical plausibility: does fragment count/velocity/lethal radius
   make sense for the caliber?
 - Source attribution: is everything evidenced by source references?
+- Layering: does the `.qmd` contain **no** physics, computation, parameter
+  values, or constants? Everything must be imported from `src/arty/` — flag any
+  physics that leaked into a notebook cell.
 - Constaints/Limitation check: does the document capture model limitations accurately?
 - Data-driven analysis: is there supporting data for the outcomes?
 

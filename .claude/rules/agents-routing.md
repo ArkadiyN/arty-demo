@@ -66,9 +66,9 @@ is a published verdict; **the main model is not modified**.
    criterion. Return.
 1. If the assessment needs physics not yet in `src/arty/`, delegate to
    @modeler to add it there first (src/ implementation pass). Return.
-1. Delegate to @notebook-author → writes the thin `challenges/<question>.qmd`
-   that imports from `arty`, runs it, and renders. No physics in the `.qmd`.
-   Return.
+1. Delegate to @modeler (notebook pass) → writes the thin
+   `challenges/<question>.qmd` that imports from `arty`, runs it, and renders.
+   No physics in the `.qmd`. Return.
 1. Delegate to @model-reviewer → validates the analysis and the verdict.
 1. Main agent links the challenge from the parent `.qmd` "Challenges"
    section if the verdict is reader-relevant.
@@ -95,14 +95,13 @@ result into the main `.qmd`. **Each change covers exactly one model aspect**
    into `src/arty/` modules (functions, parameters, geometry) via targeted
    `Edit`s. All project physics is common and lives here — never in the `.qmd`.
    Return.
-1. **Integrate (notebook)** — delegate to @notebook-author. It edits the
+1. **Present (notebook)** — delegate to @modeler (notebook pass). It edits the
    relevant section **partial** `experiment/<model>/_<section>.qmd` (or adds a
    new partial + `{{< include >}}` line) to import the new `src/arty/` code and
    render results, and adds a `## Change Log` entry (major.minor) referencing
    `updates/<change-slug>/derivation.md`. Edit, never rewrite. Re-render to
-   confirm clean output. Because the notebook now carries no physics, this pass
-   is small — it runs on @notebook-author (Opus is fine; the cost is in the
-   edit size, not the model).
+   confirm clean output. Because the notebook carries no physics, this pass is
+   small — the modeler is calling its own `src/arty/` code, so no handoff.
 
 Done when: physics is in `src/arty/`, the notebook reflects it, change-log
 entry exists, notebook renders.
@@ -116,47 +115,41 @@ entry exists, notebook renders.
 
 ## When to delegate to @modeler
 
-- When the **physics reasoning** is needed: deciding which model applies,
-  deriving governing equations, choosing parameters, defining validation
-  criteria. Produces markdown (`scoping.md` / `derivation.md` /
+The modeler owns a model aspect **end-to-end** (one pass per invocation):
+
+- **Physics reasoning** — which model applies, governing equations, parameters,
+  validation criteria → markdown (`scoping.md` / `derivation.md` /
   `challenges/<question>.md`).
-- When the **physics must be implemented in code**: writing or editing the
-  `src/arty/` modules from an approved derivation. All project physics is
-  common and lives in `src/arty/`, never in a `.qmd`.
-- When addressing @model-reviewer feedback on the physics.
-
-## When to delegate to @notebook-author
-
-- When the **notebook presentation** must be created or updated: a thin `.qmd`
-  (or section partial) that imports from `src/arty/`, calls, renders, and adds
-  prose / change-log entries.
-- This is presentation, not physics. The `.qmd` contains no physics — if the
-  author needs something not yet exposed by `src/arty/`, it stops and the
-  parent routes it back to @modeler. Edit the relevant partial; never rewrite
-  a whole notebook.
+- **src/ implementation** — write/edit the `src/arty/` modules from an approved
+  derivation. All project physics is common and lives in `src/arty/`, never in
+  a `.qmd`.
+- **Notebook presentation** — edit the thin `.qmd`/partial to import from
+  `src/arty/`, render, add prose / change-log, and `quarto render`. No physics
+  in the `.qmd`; if a needed function/constant isn't in `src/arty/` yet, add it
+  there (a src/ pass) first.
+- Addressing @model-reviewer feedback.
 
 ## When to delegate to @model-reviewer
 
 - When @modeler finishes a scoping doc or derivation.
-- When @notebook-author finishes an implementation or integration pass.
-- When the main model notebook is updated.
+- When @modeler finishes a src/ implementation or a notebook presentation pass.
+- When the main model notebook is updated. **Also check that no physics,
+  computation, or parameter values leaked into the `.qmd`** — everything must
+  be imported from `src/arty/`.
 
 ## Task sequencing
 
 Never send a compound task. "Compound" means **both** more than one artifact
 *and* more than one model aspect — one prompt covers one pass on one aspect.
-Physics passes (markdown + `src/arty/` code) go to @modeler; notebook
-presentation goes to @notebook-author. Edit, never rewrite, in every pass:
+All passes go to @modeler (it owns the aspect end-to-end). Edit, never rewrite,
+in every pass:
 
 1. Scoping → @modeler reads cards, writes `scoping.md` → return.
 1. Derivation → @modeler reads scoping, writes `derivation.md` → return.
 1. src/ implementation → @modeler edits `src/arty/` from the approved
    derivation → return.
-1. Notebook presentation → @notebook-author edits the `.qmd`/partial to import
-   from `arty`, render, and (updates) add the change-log entry; re-renders →
-   return.
-1. Validation → @notebook-author runs the checks the derivation specified,
-   reports pass/fail → return.
+1. Notebook presentation → @modeler edits the `.qmd`/partial to import from
+   `arty`, render, add the change-log entry, and re-render → return.
 
 Parent agent reviews each return before sending the next task.
 Include file paths in each prompt, not conversation summaries.
