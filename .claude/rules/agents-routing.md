@@ -153,3 +153,20 @@ in every pass:
 
 Parent agent reviews each return before sending the next task.
 Include file paths in each prompt, not conversation summaries.
+
+## Briefing the modeler — problems, not solutions
+
+The modeler is the physics expert; handing it the answer wastes that and
+propagates your errors. Give it only: the **goal** (what to produce and why);
+the **constraints** (prior decisions referenced by file — "implement what
+`scoping.md` resolves" — not re-derived); the **acceptance criteria** (specs,
+limiting cases, the verdict question — not the expected answer); and the
+**inputs** (files to read + external facts it cannot derive: drawing
+dimensions, the user's literal question, which paper holds what).
+
+Do **not** put the formula, the algorithm, the target number, or the code in
+the prompt — that is the work you are delegating. **Litmus test:** say *what*
+and *why*; let the modeler decide *how* and *what-value*. If you have written a
+formula, algorithm, number, or code into the prompt, delete it and state the
+goal instead. (Exception: an implementation/presentation pass may reference a
+prior pass's recorded decision in `derivation.md` — reference, don't re-derive.)
