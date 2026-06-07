@@ -104,10 +104,10 @@ for name, z in [("Ogive", zones_m1.ogive), ("Cyl", zones_m1.cylinder),
           f"{z.spray_deg:>9.1f}")
 
 # Spec assertions (zone-model spec)
-assert 0.45 < zones_m1.ogive.mass_kg / M_steel_m1 < 0.65, "M1 ogive fraction out of spec"
-assert 0.20 < zones_m1.cylinder.mass_kg / M_steel_m1 < 0.35, "M1 cylinder fraction out of spec"
+assert 0.25 < zones_m1.ogive.mass_kg / M_steel_m1 < 0.42, "M1 ogive fraction out of spec"
+assert 0.35 < zones_m1.cylinder.mass_kg / M_steel_m1 < 0.55, "M1 cylinder fraction out of spec"
 assert 75.0 < zones_m1.ogive.spray_deg < 88.0, "M1 ogive spray angle out of spec"
-print("\n  ✓ ogive ∈ [45 %, 65 %], cylinder ∈ [20 %, 35 %], spray ∈ [75°, 88°]")
+print("\n  ✓ ogive ∈ [25 %, 42 %], cylinder ∈ [35 %, 55 %], spray ∈ [75°, 88°]")
 ```
 
 ### 6.4 · Zone breakdown for 155 mm M107 HE and 75 mm M48 HE

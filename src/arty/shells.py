@@ -60,10 +60,15 @@ SHELLS: dict[str, ShellParams] = {
         mass_deductions=0.200,       # M48 PD fuze placeholder (TM 43-0001-28)
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
-        # Tier-2: arc lengths and inner-arc radius unknown from drawing
-        ogive_crh=7.51,              # 7.51 cal radius (from drawing)
-        boattail_angle_deg=9.25,     # 9°15' (from drawing)
-        boattail_len=0.03690,        # derived from radial reduction / tan(9.25°)
+        # Tier-2: inner-arc radius unknown; outer geometry from Handbook of
+        # Ballistic and Engineering Data for Ammunition Vol.1 (1930).
+        # Secant ogive: arc R=7.43 cal but only 1.18 cal used — shell looks
+        # blunt because it's a short section of a large-radius arc.
+        ogive_crh=7.43,              # 7.43 cal radius (handbook)
+        ogive_len=0.08850,           # 1.18 cal (handbook); drives secant spray angle
+        cylinder_len=0.15900,        # 2.12 cal (handbook)
+        boattail_angle_deg=9.0,      # 9° full taper (handbook)
+        boattail_len=0.03675,        # 0.49 cal (handbook)
         has_boattail=True,
         base_treatment="mott",
     ),

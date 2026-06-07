@@ -138,4 +138,132 @@ $$
 
 $R_{50}$ is the distance at which $P_{\text{kill}} = 0.5$.
 
+### 6 · Burst Geometry and Height of Burst
+
+Equations (1)–(10) describe the fragment field as a function of *slant range*
+$s$ from the burst point, with no reference to where the burst sits relative
+to the ground or where the fragments land. The disk geometry of eq. (9)
+implicitly assumes an azimuthally uniform spray intersecting a vertical
+target at the same height as the burst. Real artillery bursts occur at a
+finite **height of burst** $h_b$, and the shell arrives along a sloped
+trajectory. Both effects break the disk symmetry and govern how the
+fragment field is mapped onto the ground. The equations below are the
+foundation for the four-zone ground projection (§6.5, eq. 13–14), where
+the implementation lives in `arty.zones`.
+
+(Equation numbers (11)–(14) are reserved by the four-zone section; the new
+relations introduced here are numbered from (15).)
+
+#### Slant range and arrival elevation
+
+For a burst at height $h_b$ above flat ground, a ground patch at horizontal
+offset $(x_g, y_g)$ from the burst's ground track lies at slant range
+
+$$
+s = \sqrt{x_g^2 + y_g^2 + h_b^2} \quad (15)
+$$
+
+A fragment reaching that patch travelled along the burst-to-patch line, so
+it arrives at an **elevation angle** $\gamma$ below the horizontal given by
+
+$$
+\sin\gamma = \frac{h_b}{s} \quad (16)
+$$
+
+Directly under the burst ($x_g = y_g = 0$) the arrival is vertical
+($\gamma = 90°$); far out on the ground ($\sqrt{x_g^2+y_g^2}\gg h_b$) the
+arrival grazes the surface ($\gamma \to 0$). This $\gamma$ is exactly the
+arrival angle fed to the presented-area model $A_p(\gamma,\text{posture})$
+(§6.6).
+
+| Symbol           | Description                                   | Unit |
+| ---------------- | --------------------------------------------- | ---- |
+| $h_b$            | Height of burst above ground                  | m    |
+| $(x_g, y_g)$     | Ground-patch offset from burst ground track   | m    |
+| $s$              | Slant range, burst point to ground patch      | m    |
+| $\gamma$         | Fragment arrival elevation angle below horizontal | rad/° |
+
+#### Ground footprint scaling
+
+A fragment leaving the burst point $(0,0,h_b)$ along unit velocity
+$(\hat v_{g,x}, \hat v_{g,y}, \hat v_{g,z})$ with downward component
+$\hat v_{g,z} < 0$ strikes the ground at
+
+$$
+x_\text{hit} = -\frac{\hat v_{g,x}}{\hat v_{g,z}}\,h_b, \qquad
+y_\text{hit} = -\frac{\hat v_{g,y}}{\hat v_{g,z}}\,h_b \quad (= \text{eq. }14)
+$$
+
+(this is eq. 14 of §6.5, restated; the direction cosines come from the AoF
+rotation, eq. 13a–c). Because $h_b$ multiplies both coordinates, the entire
+ground footprint **scales linearly with burst height**: doubling $h_b$
+doubles every hit distance and quadruples the footprint area, while leaving
+the angular structure of the spray untouched. Height of burst is therefore
+the single knob that trades footprint *size* against fragment *density* and
+arrival *angle*.
+
+#### Ground burst versus airburst
+
+At $h_b = 0$ (contact burst) eq. (14) collapses: every fragment with a
+downward component hits within a few metres of the impact point. Lethality
+is intense but the lethal area is tiny — much of the spray is wasted into
+the ground or over the heads of nearby targets. As $h_b$ increases the
+footprint expands (linearly, above) and the *average* arrival angle
+$\gamma$ falls: fragments reach a given ground patch more obliquely.
+
+The arrival angle controls how much of the target a fragment "sees". For a
+standing target the presented silhouette combines a frontal term that
+scales with $\cos\gamma$ and an overhead term that scales with $\sin\gamma$:
+schematically $A_p \sim A_f\cos\gamma + A_t\sin\gamma$, with $A_f$ the
+frontal and $A_t$ the plan (overhead) silhouette. A steep overhead burst
+($\gamma\to 90°$) presents only the small plan area $A_t$ — the standing
+target is well protected; a grazing arrival ($\gamma\to 0$) presents the
+full frontal area $A_f$ — the target is maximally exposed. This is the
+mechanism encoded in `presented_area(γ, posture)` in `arty.fragmentation`
+(§6.6, eq. 22′), and it is why optimal HOB is a compromise: high enough to
+spread the footprint and lower $\gamma$ onto standing targets, low enough
+that density has not thinned below the lethal threshold.
+
+#### Angle of fall (AoF)
+
+The shell arrives along its trajectory at **angle of fall** AoF measured
+from horizontal: AoF $= 0°$ is a horizontal trajectory, AoF $= 90°$ a
+vertical plunge. AoF tilts the entire spray cone via the rotation
+$R_y(\text{AoF})$ (eq. 13a–c), breaking the azimuthal symmetry that eq. (9)
+assumes. Two limits make the effect concrete:
+
+- **AoF $= 0°$ (flat trajectory).** The equatorial (cylinder) spray forms a
+  vertical ring around the burst. Fragments going exactly sideways are
+  horizontal and never reach the ground; the downward-going half of the ring
+  does land, but projects to a transverse strip at $x = 0$ directly below the
+  burst — not a forward footprint. The extended forward and rearward ground
+  coverage comes from the ogive and base/boattail zones, whose spray cones
+  are tilted fore and aft of the equatorial plane.
+- **AoF $= 90°$ (vertical plunge).** The spray is azimuthally symmetric
+  about the vertical. Each zone's cone projects to a clean ring; a zone
+  with spray half-angle $\theta^z$ from the (now downward) shell axis
+  strikes a ring of radius
+
+$$
+r_\text{ring} = h_b\,\tan\theta^z \quad (17)
+$$
+
+  Per-zone angles $\theta^z$ are defined in §6.1; the ogive ring
+  spot-check in §6.5 verifies eq. (17) numerically.
+
+For realistic indirect fire the AoF is intermediate. WW2 105 mm howitzer
+fire at 4–6 km range falls at AoF $\approx 20°$–$35°$, so the spray cone is
+only modestly tilted: the forward sector of the footprint receives
+substantially more fragment density than the rear, and the symmetric-disk
+model of eq. (9) is a **conservative** (rear-biased, density-averaged)
+approximation of the true lobed field that the four-zone projection (§6.7)
+reproduces.
+
+| Symbol               | Description                                      | Unit |
+| -------------------- | ------------------------------------------------ | ---- |
+| AoF                  | Angle of fall, trajectory below horizontal (0°=flat, 90°=plunge) | ° |
+| $(x_\text{hit}, y_\text{hit})$ | Ground-impact coordinates of a fragment | m    |
+| $\theta^z$           | Per-zone spray half-angle from shell axis (§6.1) | °    |
+| $r_\text{ring}$      | Ground ring radius for symmetric (AoF = 90°) burst | m  |
+
 ______________________________________________________________________
