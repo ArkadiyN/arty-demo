@@ -1,12 +1,12 @@
-## MODIFIED Requirements
+## Purpose
+
+Define the fragmentation physics layer: backward-compatible `gurney_velocity` and `mott_params` functions in `fragmentation.py`, the four-zone P(kill) ground-field computation (`four_zone_field` in `arty.zones`), and the routing of `compute_frag_field_3d` through the zone model while preserving its existing public signature.
+
+## Requirements
 
 ### Requirement: gurney_velocity and mott_params are zone-aware via zones.py
 
-The per-zone Gurney velocity and Mott half-mass are computed by `arty.zones` helpers
-(`_zone_gurney`, `_zone_mott_mu`) using zone-local mass and wall thickness, not total-shell
-values. The top-level `gurney_velocity(shell)` and `mott_params(shell, V0)` functions in
-`fragmentation.py` retain their existing signatures for the single-zone (`compute_frag_field`)
-path and SHALL remain backward-compatible within 0.1%.
+`arty.zones` SHALL provide helpers `_zone_gurney` and `_zone_mott_mu` that compute per-zone Gurney velocity and Mott half-mass from zone-local mass and wall thickness. The top-level `gurney_velocity(shell)` and `mott_params(shell, V0)` in `fragmentation.py` SHALL retain their existing signatures and remain backward-compatible within 0.1%.
 
 #### Scenario: gurney_velocity backward compatibility
 
@@ -17,10 +17,7 @@ ______________________________________________________________________
 
 ### Requirement: four_zone_field accumulates per-zone P(kill) fields
 
-`arty.zones.four_zone_field(zones, aof_deg, h_b, posture, drag_lam_grid, m_grid, max_r, n_grid)`
-SHALL compute and return `(X, Y, P_kill)` meshgrids where `P_kill[i,j]` is the expected
-number of kills at ground position `(X[i,j], Y[i,j])` from the burst, summed over all four
-zones. Zones with zero mass, zero V₀, or non-finite μ are silently skipped.
+`arty.zones.four_zone_field` SHALL compute and return `(X, Y, P_kill)` meshgrids where `P_kill[i,j]` is the expected number of kills at ground position `(X[i,j], Y[i,j])` from the burst, summed over all four zones. Zones with zero mass, zero V₀, or non-finite μ SHALL be silently skipped.
 
 The per-zone geometry factor is:
 $$

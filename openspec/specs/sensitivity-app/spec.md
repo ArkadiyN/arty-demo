@@ -1,3 +1,7 @@
+## Purpose
+
+Define the behaviour of the interactive Streamlit sensitivity explorer (`app/sensitivity.py`): parameter controls, model selection (single-zone legacy vs four-zone), 2D fragmentation field heatmaps and comparison diff map, headline metrics, and the zone breakdown charts.
+
 ## Requirements
 
 ### Requirement: Shell preset dropdown controls base parameters
@@ -74,6 +78,11 @@ ______________________________________________________________________
 ### Requirement: App title and caption reflect 3D model
 
 The app title SHALL be "Fragmentation Field Sensitivity" and the caption SHALL NOT contain "flat trajectory". It SHALL reference burst height and angle of fall.
+
+#### Scenario: Title and caption are correct on load
+
+- **WHEN** the app loads with any parameter values
+- **THEN** the page title reads "Fragmentation Field Sensitivity" and the caption does not contain "flat trajectory"
 
 ______________________________________________________________________
 

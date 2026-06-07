@@ -1,4 +1,8 @@
-## MODIFIED Requirements
+## Purpose
+
+Define the shell registry (`SHELLS` dict in `arty.shells`) and the `ShellParams` dataclass fields needed to support both Tier-1 (drawing-derived arc geometry) and Tier-2 (CRH/fraction fallback) zone decomposition, including the M1, M107, and M48 presets.
+
+## Requirements
 
 ### Requirement: Shell registry exposes named presets
 
@@ -31,8 +35,6 @@ ______________________________________________________________________
 - **THEN** `filler.name == "TNT"`, `mass_total == 43.09`, `mass_filler == 6.863`, `wall_t == 0.014288`
 
 ______________________________________________________________________
-
-## ADDED Requirements
 
 ### Requirement: ShellParams carries optional Tier-1 zone arc geometry fields
 

@@ -1,4 +1,8 @@
-## MODIFIED Requirements
+## Purpose
+
+Define the burst geometry model: angle-of-fall and burst-height parameters in `BurstParams`, the angle-dependent presented-area model (`PostureParams`, `presented_area`), and the ground-impact projection function (`fragment_ground_impact`) that maps per-zone spray angles and azimuths to ground coordinates given AoF.
+
+## Requirements
 
 ### Requirement: BurstParams carries angle_of_fall and h_b
 
@@ -98,9 +102,7 @@ ______________________________________________________________________
 
 ### Requirement: Footprint scales linearly with h_b
 
-For any zone spray angle θ, AoF, and azimuth φ where `fragment_ground_impact` returns non-None,
-`(x_hit, y_hit)` SHALL scale linearly with `h_b`: doubling `h_b` SHALL double both coordinates
-within floating-point precision.
+Ground impact coordinates SHALL scale linearly with `h_b`: for any zone spray angle θ, AoF, and azimuth φ where `fragment_ground_impact` returns non-None, doubling `h_b` SHALL double both `x_hit` and `y_hit` within floating-point precision.
 
 #### Scenario: h_b doubling doubles hit coordinates
 
