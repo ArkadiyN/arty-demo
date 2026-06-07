@@ -263,11 +263,11 @@ implicit "tall target" assumption.
 
 ### 4.2 Unit check
 
-| Quantity    | Old eq. (22) factor                        | New eq. (22') factor                          |
-| ----------- | ------------------------------------------ | --------------------------------------------- |
-| Numerator   | $w$ [m]                                    | $A_p(\\gamma)$ [m²]                           |
-| Denominator | $2\\pi,s,\\cdot 2\\sin\\Theta,\\delta$ [m] | $2\\pi,s^2,\\cdot 2\\sin\\Theta,\\delta$ [m²] |
-| Ratio       | m/m = dimensionless ✓                      | m²/m² = dimensionless ✓                       |
+| Quantity    | Old eq. (22) factor                                                      | New eq. (22') factor                                                           |
+| ----------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Numerator   | $w$ [m]                                                                  | $A_p(\\gamma)$ [m²]                                                            |
+| Denominator | $(2\\pi,s,[\\text{m}]) \\cdot (2\\sin\\Theta,\\delta,[-]) = [\\text{m}]$ | $(2\\pi,s^2,[\\text{m}^2]) \\cdot (2\\sin\\Theta,\\delta,[-]) = [\\text{m}^2]$ |
+| Ratio       | m/m = dimensionless ✓                                                    | m²/m² = dimensionless ✓                                                        |
 
 The new geometry factor has units m²/m² = dimensionless as required, since
 the mass integrand $n(m),P\_{k|\\text{hit}},dm$ has units of
@@ -394,7 +394,7 @@ ______________________________________________________________________
 | $A_p$ smooth (C^∞) in $\\gamma$                                                    | ✓                                                                                                                                                                                                                                 |
 | Max $A_p = w\_\\perp\\sqrt{h^2+d^2}$ at $\\gamma^\* = \\arctan(d/h)$               | ✓ (Cauchy–Schwarz)                                                                                                                                                                                                                |
 | $A_p$ recovers Lambert cosine law for thin plate $d\\to 0$                         | ✓                                                                                                                                                                                                                                 |
-| Total expected hits over the ground integrated to $\\infty$ stays finite           | ✓ ($1/s^2$ falloff integrable in 2D outside any finite exclusion radius)                                                                                                                                                          |
+| Total expected hits over the ground integrated to $\\infty$ stays finite           | ✓ — convergence comes from $P\_{k                                                                                                                                                                                                 |
 | New eq. (22') has the inverse-square scaling expected of an isotropic point source | ✓                                                                                                                                                                                                                                 |
 | Old eq. (22) recovered as a special case?                                          | **No** — old formula carries an implicit "target spans full belt slab" assumption that is geometrically invalid for finite targets; this is documented in §4.3 and is a known consequence of the upgrade, not a derivation defect |
 | 1D disk eq. (9) recovered as a limit?                                              | **No** — same reason; documented in §4.4. The 1D disk is an idealisation that hides target vertical structure; the 3D-with-area model exposes it. The notebook's §6.5 paragraph claiming eq. (9) recovery will need a rewrite     |

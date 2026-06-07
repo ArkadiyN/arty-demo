@@ -8,21 +8,30 @@ A real artillery shell has three distinct zones: a pointed nose (ogive), a cylin
 body, and a flat base. The Gurney *cylinder* formula models only the body. The nose
 fragments spray forward at steep upward angles; the base fragments spray backward
 and downward. Together these zones account for roughly 20–30 % of the steel mass
-but produce none of the fragments in the current model. Gold (2007) explicitly
+but produce none of the fragments in the single-cylinder model. Gold (2007) explicitly
 accounts for the tail boom and fuze as separate mass contributors; the one-region
 PAFRAG assumption treats the entire shell as a single cylinder, omitting both end
-zones (Gold 2017, §2). Result: the model *underestimates* total fragment count and
-misses the forward- and rear-sector hazard.
+zones (Gold 2017, §2). Result: the v 0.1.0–0.2.0 model *underestimates* total
+fragment count and misses the forward- and rear-sector hazard.
+
+*Addressed in v 0.3.0:* the four-zone decomposition (§6.1) assigns ogive, cylinder,
+boattail, and base each their own Mott distribution, Gurney velocity, and spray
+angle, capturing both the forward ogive sector and the rearward base sector. Residual
+limitations of the zone model are listed in §12.
 
 **2 · Fragments do not all fly in one horizontal plane.**
 The cylindrical body does spray predominantly sideways (Figure 4 cross-section), but
 even within the cylinder there is an elevation spread around horizontal caused by the
 oblique angle at which the detonation wave meets the wall. Gold (2007, Figs. 3 and 9)
 shows fragment velocity varying continuously with spray angle ψ; the elevation spread
-is roughly ±15°–30°. The current model puts every fragment at exactly θ = 0°
-(horizontal), a delta function in elevation. This is the dominant contribution for a
-cylindrical shell, but it means the model misses fragments that fly over a prone target
-or clip a standing target near the head or feet.
+is roughly ±15°–30°. The v 0.1.0–0.2.0 model put every fragment at exactly θ = 0°
+(horizontal), missing fragments that fly over a prone target or clip a standing target
+near the head or feet.
+
+*Partially addressed in v 0.3.0:* each zone now sprays at its own elevation angle
+(ogive ≈ 80°, boattail ≈ 95°, base ≈ 165°), so fragments are no longer constrained
+to horizontal. Within-zone spread (±5°–10° around each zone's midpoint normal) is
+still not modelled — see limitation #4.
 
 **3 · One velocity for every fragment.**
 Gurney gives a single initial speed V₀ for all fragments, regardless of mass, position
@@ -35,16 +44,13 @@ aging, temperature, and lot-to-lot density variation can shift it by a few perce
 which propagates linearly into V₀ and quadratically into fragment kinetic energy
 (no collected source — general explosive engineering).
 
-**4 · The shell falls vertically (90° angle of fall).**
-A shell fired from a gun and landing at 4–6 km range hits the ground at an angle of
-fall of roughly 20°–35°, not 90°. When the axis is tilted from vertical, the
-horizontal spray disk tilts with it: more fragments go forward and downward, fewer go
-rearward and upward. The symmetric circle in Figure 5 becomes an ellipse elongated
-along the line of fire, with the forward sector roughly 30–50 % denser than the rear
-sector. Gold (2017, §2) shows that the detonation wave interaction angle varies
-continuously with the shell geometry, producing azimuthal asymmetry whenever the
-shell axis is not aligned with the detonation direction. This is the most practically
-important gap for a field artillery scenario.
+**4 · Single midpoint spray angle per zone (no elevation spread).**
+Each zone is assigned one spray elevation angle (the surface normal at the arc midpoint).
+Gold (2017, Fig. 9) shows that fragment velocity varies with polar angle within a zone,
+producing an elevation spread of ±5°–10° around the midpoint. This spread is not
+modelled; all fragments from a zone are treated as leaving at the same angle. The
+effect is smoothed out when the hazard field is integrated over many azimuths, but
+peak density near the zone boundary may be slightly overestimated.
 
 **5 · Shell parameters are not sourced from a collected document.**
 Wall thickness, projectile mass, and filler mass are taken from US Army TM 9-1901
@@ -165,3 +171,13 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   qualitative prediction (forward density > rearward at AoF < 90°) that
   cannot yet be checked against empirical fragment-density-vs-azimuth
   data.
+- **Hard-cutoff spray belts create unphysical dead zones between zone
+  boundaries.** Each zone's contribution to a ground point is gated by a
+  ±15° (``delta_deg``) rect-function band around the zone's nominal spray
+  angle. Ground positions falling between belts — the ≈ 0°–65° nose shadow
+  and the ≈ 110°–150° gap between boattail and base — receive zero fragment
+  density, appearing as white regions in the hazard map. In reality the
+  spray distribution is smooth and continuous (Gold 2017, Fig. 9). The
+  fix is to replace the hard acceptance test with a smooth angular weight
+  (e.g., Gaussian in polar angle), which also correctly handles overlap
+  between adjacent zones.

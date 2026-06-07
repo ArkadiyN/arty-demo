@@ -54,11 +54,10 @@ for sf_mpa in [600, 700, 800, 900, 1000]:
 - **σ_F** (dynamic flow stress) is the second uncertainty; 800–1 000 MPa is the
   high-strain-rate range for hardened steel. Higher σ_F produces larger average
   fragments and a slightly larger lethal radius.
-- **Angle of fall** is not yet modelled. At angles shallower than ≈ 60°, the
-  circular field shown above becomes an ellipse. For WW2 105 mm fire at 4–6 km
-  range (angle of fall ≈ 20°–35°), the forward sector receives ≈ 30–50% more
-  fragment density than the rear sector. This will be modelled in a follow-on
-  iteration.
+- **Angle of fall** is modelled in the four-zone field (§6). At AoF ≈ 20°–35°
+  (WW2 105 mm fire at 4–6 km), the forward sector receives more ogive-zone
+  fragments while the rear sector receives base-zone fragments; the symmetric
+  disk (eq. 9) is superseded by the asymmetric `four_zone_field` result.
 - The ES-310 Pk|hit curve is calibrated for standing unprotected infantry. Against a prone
   target the presented area halves and the effective lethal radius shrinks ~30%.
 

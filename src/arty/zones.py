@@ -77,6 +77,41 @@ def _ogive_arc_centre(R: float, D: float, L_n: float, r_tip: float) -> tuple[flo
     return 0.0, D / 2.0 - R
 
 
+def _arc_centre_two_point(
+    R: float, x1: float, r1: float, x2: float, r2: float
+) -> tuple[float, float]:
+    """Return (x_c, r_c) [m]: centre of a circular arc radius R through two points.
+
+    The arc of radius R passes through P1=(x1, r1) and P2=(x2, r2). Both
+    satisfy ``(x - x_c)^2 + (r - r_c)^2 = R^2``. Subtracting the two
+    equations gives a line in (x_c, r_c):
+
+        2(x2 - x1) x_c + 2(r2 - r1) r_c = (x2^2 + r2^2) - (x1^2 + r1^2)
+
+    which is solved for r_c(x_c) (here x2 != x1, so divide by (r2 - r1)
+    via the perpendicular-bisector parameterisation). We parameterise along
+    the perpendicular bisector of P1P2: the centre lies on it at signed
+    distance ``d`` from the midpoint M, where ``d^2 = R^2 - (|P1P2|/2)^2``.
+    Two solutions exist (±d); we pick the one with the smaller r_c (centre
+    below both endpoints) to give the convex-outward ogive arc.
+    """
+    mx = 0.5 * (x1 + x2)
+    mr = 0.5 * (r1 + r2)
+    dx = x2 - x1
+    dr = r2 - r1
+    chord = np.hypot(dx, dr)
+    half = chord / 2.0
+    # Unit perpendicular to the chord: rotate chord direction by 90 deg.
+    px = -dr / chord
+    pr = dx / chord
+    d = np.sqrt(max(0.0, R**2 - half**2))
+    # Two candidate centres
+    c1 = (mx + d * px, mr + d * pr)
+    c2 = (mx - d * px, mr - d * pr)
+    # Pick the centre with the smaller r-coordinate (below both endpoints).
+    return c1 if c1[1] <= c2[1] else c2
+
+
 def _zone_gurney(M_z: float, C_z: float, V_g: float, k: float = 1.0) -> float:
     """Zone Gurney V0 [m/s] from zone-local M/C and reduction factor k [-]."""
     if C_z <= 0.0:
@@ -150,9 +185,13 @@ def compute_shell_zones(shell: ShellParams) -> ShellZones:
         r_tip_i = max(0.0, r_tip_o - t_w)  # inner tip ~= outer tip - wall
         d_bt_i = shell.boattail_inner_dia
 
-        # 200-slice midpoint Riemann sum over the ogive
+        # 200-slice midpoint Riemann sum over the ogive.
+        # Outer arc: shoulder-tangent (outer surface is tangent to cylinder wall).
+        # Inner arc: two-point fit anchored at shoulder bore + drawing tip bore —
+        # the inner cavity does not satisfy shoulder tangency; using both drawing
+        # anchors gives zero tip-radius error vs. 8+ mm from shoulder tangency.
         xo_c, ro_c = _ogive_arc_centre(R_o, D, L_n, r_tip_o)
-        xi_c, ri_c = _ogive_arc_centre(R_i, D - 2 * t_w, L_n, r_tip_i)
+        xi_c, ri_c = _arc_centre_two_point(R_i, 0.0, D / 2.0 - t_w, L_n, r_tip_i)
         N = 200
         x_mid = (np.arange(N) + 0.5) * (L_n / N)
         r_o = ro_c + np.sqrt(np.maximum(0.0, R_o**2 - (x_mid - xo_c) ** 2))
@@ -238,9 +277,9 @@ def compute_shell_zones(shell: ShellParams) -> ShellZones:
     else:
         # ----------------- Tier-2 fraction fallback -----------------
         if shell.has_boattail:
-            fr_ogive, fr_cyl, fr_bt, fr_base = 0.53, 0.27, 0.15, 0.05
+            fr_ogive, fr_cyl, fr_bt, fr_base = 0.42, 0.36, 0.17, 0.05
         else:
-            fr_ogive, fr_cyl, fr_bt, fr_base = 0.53, 0.42, 0.00, 0.05
+            fr_ogive, fr_cyl, fr_bt, fr_base = 0.42, 0.53, 0.00, 0.05
         M_ogive = fr_ogive * M_steel
         M_cyl   = fr_cyl   * M_steel
         M_bt    = fr_bt    * M_steel
@@ -271,9 +310,21 @@ def compute_shell_zones(shell: ShellParams) -> ShellZones:
 
         # Spray angles
         crh = shell.ogive_crh if shell.ogive_crh is not None else CRH_DEFAULT_TIER2
-        spray_ogive = 90.0 - np.degrees(
-            np.arcsin(np.sqrt(crh - 0.25) / (2.0 * crh))
-        )
+        if shell.ogive_len is not None:
+            # Secant ogive: arc tangent at shoulder, length given explicitly.
+            # Midpoint at ogive_len/2 from shoulder; correct for short arcs
+            # where the full-tangent assumption (below) over-estimates forward spray.
+            x_m = shell.ogive_len / 2.0
+            R_o = crh * D
+            spray_ogive = float(np.clip(
+                np.degrees(np.arctan2(np.sqrt(max(0.0, R_o**2 - x_m**2)), x_m)),
+                60.0, 89.5,
+            ))
+        else:
+            # Full tangent ogive of this CRH — midpoint at sqrt(CRH-1/4)/2 calibers
+            spray_ogive = 90.0 - np.degrees(
+                np.arcsin(np.sqrt(crh - 0.25) / (2.0 * crh))
+            )
         spray_bt = 90.0 + 0.5 * shell.boattail_angle_deg if shell.has_boattail else 90.0
 
     # -------------------- Per-zone V0 and mu --------------------
