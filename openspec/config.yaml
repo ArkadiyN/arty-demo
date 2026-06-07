@@ -1,20 +1,52 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+# Project context — shown to the AI when creating artifacts.
+context: |
+  Domain: physics-based artillery shell fragmentation / lethality modelling.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Tech stack:
+    - Python, managed with `uv` (run things via `uv run ...`).
+    - numpy / scipy for the physics; plotly for charts.
+    - Streamlit dashboard in `app/` (e.g. app/sensitivity.py).
+    - Quarto experiment notebooks in `experiment/<model>/` (.qmd).
+
+  Code layout — IMPORTANT:
+    - ALL project physics lives in `src/arty/` modules (fragmentation.py,
+      zones.py, shells.py, plots.py). Functions, parameters, geometry,
+      constants — all here, shared by app and notebooks.
+    - NEVER put physics, computation, or parameter values in a `.qmd`.
+      Notebooks import from `arty` and render results only.
+    - Reference data and derivations live under `doc-reference/` and
+      `experiment/<model>/`.
+
+  Validation surface:
+    - Physics correctness is validated primarily by the Quarto notebook
+      rendering cleanly plus inline assertions in the notebook, NOT only by
+      pytest. pytest under `tests/` exists for the more stable modules.
+
+  Workflow ordering for physics changes — IMPORTANT:
+    - Physics modelling follows the agent-routing workflow in
+      `.claude/rules/agents-routing.md`: the experiment notebook is derived
+      and reviewed (modeler → model-reviewer) FIRST, and only then is the
+      OpenSpec change written. Do not write specs/tasks that lock in a
+      physics approach before the derivation is confirmed.
+    - Decompose one model aspect per change (its own governing equations,
+      parameter group, and independently checkable output).
+
+  Git: feature branches only (never commit to main), Conventional Commits,
+  squash incremental work into one logical commit. See
+  `.claude/rules/git-flow.md`.
+
+# Per-artifact rules.
+rules:
+  tasks:
+    - Any change that adds or modifies code under `src/` MUST include an
+      explicit task to add or update the corresponding tests/validation
+      (pytest under `tests/`, or an inline-assertion task in the relevant
+      `experiment/<model>/` notebook). Tests are the implementing agent's
+      responsibility at the apply step — do not leave src changes unverified.
+    - Tie each verification task back to a spec scenario (WHEN/THEN) so the
+      assertion is concrete.
+  specs:
+    - Write scenarios in testable WHEN/THEN/AND form so they can be turned
+      directly into assertions.
