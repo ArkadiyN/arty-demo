@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+Define the four-zone shell decomposition model in `arty.zones`: the `ShellZones` / `ZoneParams` data structures, the `compute_shell_zones` function (Tier-1 arc integration and Tier-2 fraction fallback), ogive spray-angle derivation (including secant-ogive correction), and the configurable base-plate treatment.
+
+## Requirements
 
 ### Requirement: ShellZones dataclass carries per-zone mass, wall thickness, and spray angle
 
@@ -92,10 +96,7 @@ ______________________________________________________________________
 
 ### Requirement: Tier-2 secant ogive spray angle uses ogive_len when provided
 
-When a Tier-2 shell carries `ogive_len` (the actual arc length used, shorter than the
-full tangent ogive of the same CRH), `compute_shell_zones` SHALL compute the spray angle
-from the surface normal at the midpoint of the secant arc rather than the full-tangent
-approximation:
+`compute_shell_zones` SHALL use the secant-arc surface normal formula when a Tier-2 shell carries `ogive_len` (the actual arc section used, shorter than the full tangent ogive of the same CRH), rather than the full-tangent approximation:
 
 $$
 \\theta\_\\text{spray} = \\arctan!\\left(\\frac{\\sqrt{R_o^2 - x_m^2}}{x_m}\\right),
