@@ -21,12 +21,6 @@ trigger — reuse is fine; computing a new number is.* Aggregations, unit
 conversions, ratios, calibrations and "quick transforms" count as new math
 when they encode a physical quantity.
 
-## Questions Gate — always on
-
-**Invariant:** Is this physics right / why does it do X / this is wrong" question about already-implemented physics routes to @modeler, not inline investigation
-**Trigger (litmus):** if answering means reading/debugging src/arty/, delegate.
-**Follow up:** Reviewer verification of the resulting fix follows the existing trigger.
-
 **On trigger — stop and hand off:**
 
 - If it is unclear whether new math is needed, delegate a **chart / new-math
@@ -45,6 +39,22 @@ apply. OpenSpec specs and tasks reference `derivation.md` and call `arty`;
 they never author physics. If a change needs math not yet in `src/arty/`, the
 modeler flow runs first and `apply` is **blocked** until the quantity exists.
 A new chart is just one case of this gate, not a separate rule.
+
+## Correctness-question gate — always on
+
+**Invariant:** the main agent never investigates or answers a physics-correctness
+question inline. "Is this right / why does it do X / this is wrong" about
+already-implemented physics goes to @modeler.
+
+**Trigger (litmus):** answering would mean reading or debugging `src/arty/`.
+The "let me read the implementation" reflex *is* the trigger, not an exception.
+
+**On trigger — hand off:**
+
+- @modeler investigates and answers; if it finds a defect, it fixes via the
+  normal passes (derivation → src/ → notebook).
+- @model-reviewer then independently verifies the fix (existing reviewer
+  trigger). The modeler never signs off on its own correction.
 
 ## Artifact layout
 
