@@ -61,3 +61,10 @@ doc-reference/**/*.pdf
 **/*.quarto_ipynb*
 
 **/*.quarto_ipynb
+
+# OpenSpec commands
+.claude/commands/opsx/
+
+#utils not ready
+src/utils/blueprint-measure.py
+.claude/skills/blueprint-measure/
