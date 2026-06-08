@@ -73,7 +73,13 @@ from arty.fragmentation import (
     compute_frag_field,
     compute_frag_field_3d,
     gurney_velocity,
+    ke_at_range,
+    lethal_fragments_at_range,
+    min_lethal_mass,
+    mott_N,
     mott_params,
+    p_hit,
+    p_kill,
     pk_given_hit,
     presented_area,
     retardation_coeff,
@@ -328,3 +334,185 @@ def test_adding_third_shell_does_not_break_existing(monkeypatch):
     monkeypatch.setitem(shells_mod.SHELLS, "test-shell", ShellParams(caliber=0.075))
     assert shells_mod.SHELLS["105mm M1 HE"].filler.name == "TNT"
     assert shells_mod.SHELLS["155mm M107 HE"].filler.name == "TNT"
+
+
+# ---------------------------------------------------------------------------
+# mott_N
+# ---------------------------------------------------------------------------
+
+
+def test_mott_N_at_zero_mass():
+    # N(m→0) = N0 (all fragments accounted for)
+    result = mott_N(np.array([0.0]), N0=1000.0, mu=0.001)
+    assert result[0] == pytest.approx(1000.0)
+
+
+def test_mott_N_at_mu():
+    # N(mu) = N0 * exp(-1) by definition of the half-weight parameter
+    mu = 0.005
+    result = mott_N(np.array([mu]), N0=500.0, mu=mu)
+    assert result[0] == pytest.approx(500.0 * np.exp(-1.0))
+
+
+def test_mott_N_monotone_decreasing():
+    masses = np.array([1e-4, 1e-3, 1e-2, 0.1])
+    n = mott_N(masses, N0=2000.0, mu=0.01)
+    assert all(n[i] > n[i + 1] for i in range(len(n) - 1))
+
+
+# ---------------------------------------------------------------------------
+# ke_at_range
+# ---------------------------------------------------------------------------
+
+
+def test_ke_at_range_zero_range():
+    # KE at s=0 equals ½mV₀² (no drag applied yet)
+    m = np.array([0.001, 0.01])
+    V0 = 1000.0
+    lam = np.array([0.1, 0.05])
+    s = np.array([0.0, 0.0])
+    ke = ke_at_range(m, V0, lam, s)
+    assert ke == pytest.approx(0.5 * m * V0**2)
+
+
+def test_ke_at_range_decays_with_range():
+    m = np.array([0.01])
+    V0 = 1000.0
+    lam = np.array([0.01])
+    ke_near = ke_at_range(m, V0, lam, np.array([10.0]))[0]
+    ke_far = ke_at_range(m, V0, lam, np.array([100.0]))[0]
+    assert ke_far < ke_near
+
+
+def test_ke_at_range_linear_in_mass():
+    # KE ∝ m at fixed V0, lam, s
+    V0 = 1000.0
+    lam = np.array([0.01, 0.01])
+    s = np.array([50.0, 50.0])
+    ke = ke_at_range(np.array([0.005, 0.010]), V0, lam, s)
+    assert ke[1] == pytest.approx(2.0 * ke[0], rel=1e-9)
+
+
+# ---------------------------------------------------------------------------
+# min_lethal_mass
+# ---------------------------------------------------------------------------
+
+
+def test_min_lethal_mass_returns_m_hi_when_all_sub_lethal():
+    # m_hi=0.1g at 50m with E_leth=500J: KE≈7J < 500J → all fragments sub-lethal → return m_hi
+    shell = ShellParams()
+    V0 = gurney_velocity(shell)
+    m_hi = 1e-4
+    result = min_lethal_mass(50.0, V0, E_leth=500.0, drag=DragParams(),
+                             rho_steel=shell.steel.rho, m_hi=m_hi)
+    assert result == pytest.approx(m_hi)
+
+
+def test_min_lethal_mass_returns_m_lo_when_all_lethal():
+    # m_lo=1g at 1m with E_leth=10J: KE≈485J >> 10J → even lightest fragment is lethal → return m_lo
+    shell = ShellParams()
+    V0 = gurney_velocity(shell)
+    m_lo = 1e-3
+    result = min_lethal_mass(1.0, V0, E_leth=10.0, drag=DragParams(),
+                             rho_steel=shell.steel.rho, m_lo=m_lo)
+    assert result == pytest.approx(m_lo)
+
+
+def test_min_lethal_mass_bisects_intermediate():
+    # At moderate range, bisection finds the boundary mass strictly inside (m_lo, m_hi)
+    shell = ShellParams()
+    V0 = gurney_velocity(shell)
+    result = min_lethal_mass(30.0, V0, E_leth=80.0, drag=DragParams(),
+                             rho_steel=shell.steel.rho)
+    assert 1e-6 < result < 2.0
+
+
+# ---------------------------------------------------------------------------
+# lethal_fragments_at_range
+# ---------------------------------------------------------------------------
+
+
+def test_lethal_fragments_nonnegative():
+    shell = ShellParams()
+    V0 = gurney_velocity(shell)
+    mu, N0 = mott_params(shell, V0)
+    r = np.array([1.0, 10.0, 100.0, 500.0])
+    n_leth = lethal_fragments_at_range(r, N0, mu, V0, E_leth=80.0,
+                                       drag=DragParams(), rho_steel=shell.steel.rho)
+    assert np.all(n_leth >= 0.0)
+
+
+def test_lethal_fragments_monotone_decreasing():
+    shell = ShellParams()
+    V0 = gurney_velocity(shell)
+    mu, N0 = mott_params(shell, V0)
+    r = np.array([10.0, 50.0, 150.0])
+    n_leth = lethal_fragments_at_range(r, N0, mu, V0, E_leth=80.0,
+                                       drag=DragParams(), rho_steel=shell.steel.rho)
+    assert all(n_leth[i] >= n_leth[i + 1] for i in range(len(n_leth) - 1))
+
+
+# ---------------------------------------------------------------------------
+# p_hit
+# ---------------------------------------------------------------------------
+
+
+def test_p_hit_zero_lethal_fragments():
+    r = np.array([10.0, 50.0])
+    pk = p_hit(r, N_leth=np.zeros(2), w=0.5)
+    assert pk == pytest.approx([0.0, 0.0])
+
+
+def test_p_hit_matches_formula():
+    r = np.array([10.0])
+    N_leth = np.array([5.0])
+    w = 0.5
+    expected = 1.0 - np.exp(-5.0 * 0.5 / (2.0 * np.pi * 10.0))
+    assert p_hit(r, N_leth, w)[0] == pytest.approx(expected)
+
+
+def test_p_hit_decreases_with_range():
+    r = np.array([10.0, 50.0, 200.0])
+    N_leth = np.full(3, 100.0)
+    pk = p_hit(r, N_leth, w=0.5)
+    assert all(pk[i] > pk[i + 1] for i in range(len(pk) - 1))
+
+
+# ---------------------------------------------------------------------------
+# p_kill
+# ---------------------------------------------------------------------------
+
+
+def test_p_kill_zero():
+    assert p_kill(np.array([0.0]))[0] == pytest.approx(0.0)
+
+
+def test_p_kill_half_at_log2():
+    # N_eff = ln(2) → P(kill) = 1 - exp(-ln2) = 0.5
+    assert p_kill(np.array([np.log(2.0)]))[0] == pytest.approx(0.5)
+
+
+def test_p_kill_approaches_one():
+    assert p_kill(np.array([100.0]))[0] == pytest.approx(1.0, abs=1e-6)
+
+
+# ---------------------------------------------------------------------------
+# _expected_kills_3d_point guard branches (via compute_frag_field_3d)
+# ---------------------------------------------------------------------------
+
+
+def test_3d_burst_origin_zero_hb_guard():
+    # n_grid=1 → single grid point at (0,0); h_b=0 → s=0 → guard returns 0.0
+    result = compute_frag_field_3d(burst=BurstParams(h_b=0.0), n_grid=1)
+    assert result.field_pk[0, 0] == pytest.approx(0.0)
+
+
+def test_3d_shell_axis_alignment_guard():
+    # spray_half_angle=90° and point exactly along shell axis → sin_Theta=0 → guard returns 0.0
+    # With h_b=0, AoF=0, n_grid=3, max_radius=80: grid point at (-80, 0) aligns with shell axis.
+    result = compute_frag_field_3d(
+        burst=BurstParams(h_b=0.0, angle_of_fall=0.0, spray_half_angle=90.0),
+        n_grid=3,
+        max_radius=80.0,
+    )
+    assert result.field_pk[1, 0] == pytest.approx(0.0)

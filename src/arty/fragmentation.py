@@ -382,29 +382,6 @@ def _shell_axis(alpha_rad: float) -> np.ndarray:
     return np.array([-np.cos(alpha_rad), 0.0, -np.sin(alpha_rad)])
 
 
-def _perp_basis(alpha_rad: float) -> tuple[np.ndarray, np.ndarray]:
-    e1 = np.array([np.sin(alpha_rad), 0.0, -np.cos(alpha_rad)])
-    e2 = np.array([0.0, 1.0, 0.0])
-    return e1, e2
-
-
-def _fragment_direction(
-    Theta: float, psi: float, e_axis: np.ndarray, e1: np.ndarray, e2: np.ndarray
-) -> np.ndarray:
-    return (
-        np.cos(Theta) * e_axis
-        + np.sin(Theta) * (np.cos(psi) * e1 + np.sin(psi) * e2)
-    )
-
-
-def _ground_intercept(d_hat: np.ndarray, h_b: float) -> np.ndarray | None:
-    """Return (x_g, y_g) where ray from (0,0,h_b) in direction d_hat hits z=0, or None."""
-    if d_hat[2] >= 0.0:
-        return None
-    t = h_b / (-d_hat[2])
-    return np.array([d_hat[0] * t, d_hat[1] * t])
-
-
 def _expected_kills_3d_point(
     x_g: float,
     y_g: float,

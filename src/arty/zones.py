@@ -377,6 +377,77 @@ def fragment_ground_impact(
     return (vgx * t, vgy * t, np.arcsin(min(1.0, abs(vgz))))
 
 
+def _four_zone_field_split(
+    zones: ShellZones,
+    aof_deg: float,
+    h_b: float,
+    posture: PostureParams,
+    drag_lam_grid: np.ndarray,
+    m_grid: np.ndarray,
+    max_r: float = 80.0,
+    n_grid: int = 60,
+    delta_deg: float = 15.0,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, dict[str, np.ndarray]]:
+    """Like four_zone_field but also returns per-zone P(kill) grids.
+
+    Returns ``(X, Y, pk_total, pk_by_zone)`` where ``pk_by_zone`` is a dict
+    keyed by zone name ("ogive", "cylinder", "boattail", "base").
+
+    ``pk_total`` is identical to what ``four_zone_field`` returns; the two
+    functions share the same loop body so pk_total == 1 - exp(-sum(field_N_z))
+    exactly.
+    """
+    xy = np.linspace(-max_r, max_r, n_grid)
+    X, Y = np.meshgrid(xy, xy)
+    field_N = np.zeros_like(X)
+    _zone_names = ("ogive", "cylinder", "boattail", "base")
+    field_N_by_zone = {name: np.zeros_like(X) for name in _zone_names}
+
+    aof = np.radians(aof_deg)
+    cA, sA = np.cos(aof), np.sin(aof)
+    delta = np.radians(delta_deg)
+    e_axis = np.array([cA, 0.0, -sA])
+
+    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
+                 ("boattail", zones.boattail), ("base", zones.base)]
+    for name, z in zone_list:
+        if z.mass_kg <= 1e-6 or z.V0_ms <= 0.0 or not np.isfinite(z.mu):
+            continue
+        N0_z = z.mass_kg / (2.0 * z.mu)
+        theta_z = np.radians(z.spray_deg)
+        # min vgz over all azimuths = -sin(aof + theta_z); skip zone if it
+        # can't send any fragment to the ground (all spray upward at this AoF).
+        if np.sin(aof + theta_z) <= 0.0:
+            continue
+        sin_theta_z = np.sin(theta_z)
+        pdf_z = N0_z / (2.0 * np.sqrt(z.mu * m_grid)) * np.exp(-np.sqrt(m_grid / z.mu))
+
+        for i in range(n_grid):
+            for j in range(n_grid):
+                xg, yg = X[i, j], Y[i, j]
+                s = np.sqrt(xg**2 + yg**2 + h_b**2)
+                if s < 1e-3:
+                    continue
+                r_hat = np.array([xg, yg, -h_b]) / s
+                cos_Theta = float(np.dot(r_hat, e_axis))
+                if abs(cos_Theta - np.cos(theta_z)) > np.sin(delta):
+                    continue
+                gamma = np.arcsin(min(1.0, h_b / s))
+                Ap = presented_area(gamma, posture)
+                v = z.V0_ms * np.exp(-drag_lam_grid * s)
+                E = 0.5 * m_grid * v**2
+                integrand = pdf_z * pk_given_hit(E) * Ap / (
+                    2.0 * np.pi * s**2 * 2.0 * sin_theta_z * delta
+                )
+                val = float(np.trapezoid(integrand, m_grid))
+                field_N[i, j] += val
+                field_N_by_zone[name][i, j] = val
+
+    pk_total = 1.0 - np.exp(-field_N)
+    pk_by_zone = {name: 1.0 - np.exp(-field_N_by_zone[name]) for name in _zone_names}
+    return X, Y, pk_total, pk_by_zone
+
+
 def four_zone_field(
     zones: ShellZones,
     aof_deg: float,
@@ -424,6 +495,10 @@ def four_zone_field(
             continue
         N0_z = z.mass_kg / (2.0 * z.mu)
         theta_z = np.radians(z.spray_deg)
+        # min vgz over all azimuths = -sin(aof + theta_z); skip zone if it
+        # can't send any fragment to the ground (all spray upward at this AoF).
+        if np.sin(aof + theta_z) <= 0.0:
+            continue
         sin_theta_z = np.sin(theta_z)
         pdf_z = N0_z / (2.0 * np.sqrt(z.mu * m_grid)) * np.exp(-np.sqrt(m_grid / z.mu))
 

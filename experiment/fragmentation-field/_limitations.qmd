@@ -181,3 +181,24 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   fix is to replace the hard acceptance test with a smooth angular weight
   (e.g., Gaussian in polar angle), which also correctly handles overlap
   between adjacent zones.
+- **Fragment acceptance test targets ground impact (z = 0), not body
+  intercept.** A fragment is accepted for a ground cell only if its
+  downward velocity component satisfies $v_{gz} < 0$, i.e.\
+  $\sin(\mathrm{AoF} + \theta_z) > 0$. Fragments with $v_{gz} \geq 0$
+  are discarded regardless of whether they could strike a person at
+  torso or head height.
+
+  The effect is most severe at steep angles of fall. At AoF = 90° the
+  cylinder zone ($\theta_z = 90°$) sprays exactly horizontally
+  ($v_{gz} = 0$) and is excluded entirely; the model therefore shows a
+  false safe zone of several metres around the burst point. A standing
+  soldier at 2 m would in reality be struck at chest height by these
+  horizontal fragments. For prone targets the effect is smaller (centre
+  of mass ≈ 0.3 m) but non-zero at close range.
+
+  The correct fix is to test whether the fragment ray intersects a target
+  volume spanning $[0,\, h_\text{person}]$ in height rather than the
+  $z = 0$ plane alone. Until that is implemented, P(kill) close to the
+  burst at steep AoF (≳ 70°) is underestimated for standing targets, and
+  the "inner safe ring" visible in the sensitivity app at AoF = 90° is a
+  model artefact, not real protection.

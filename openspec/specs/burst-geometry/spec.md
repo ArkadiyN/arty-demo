@@ -93,10 +93,11 @@ and does not reach the ground in the straight-line model).
   (cylinder spray direction, shell horizontal, fragment pointed straight up from AoF=0)
 - **THEN** the result is `None` (v_gz = cos(0)·sin(90°)·sin(0) = 0, does not reach ground)
 
-#### Scenario: AoF = 30°, cylinder zone, forward azimuth hits forward of burst
+#### Scenario: AoF = 30°, forward-biased spray angle hits forward of burst
 
-- **WHEN** `fragment_ground_impact(90.0, phi=π/2, aof_deg=30.0, h_b=2.0)` is called
+- **WHEN** `fragment_ground_impact(70.0, phi=0.0, aof_deg=30.0, h_b=2.0)` is called
 - **THEN** result is not `None` and `x_hit > 0` (forward hemisphere of shell axis)
+- **Note:** The cylinder zone (theta=90°) cannot produce forward ground hits at AoF=30°: `vgz = cos(AoF)·sin(phi)` is positive for phi=π/2, so those fragments travel upward and return None. A spray angle of 70° (forward-biased, phi=0) gives vgz = −sin(30°)·cos(70°) ≈ −0.17 < 0 and vgx = cos(30°)·cos(70°) ≈ 0.30 > 0.
 
 ______________________________________________________________________
 

@@ -1,5 +1,6 @@
 import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import streamlit as st
 
 from arty.fragmentation import (
@@ -12,7 +13,9 @@ from arty.fragmentation import (
     ShellParams,
     SteelParams,
     compute_frag_field_3d,
+    retardation_coeff,
 )
+from arty.zones import _four_zone_field_split, compute_shell_zones
 from arty.shells import SHELLS
 
 st.set_page_config(page_title="Fragmentation Field — Sensitivity", layout="wide")
@@ -28,8 +31,18 @@ st.caption(
 with st.sidebar:
     st.header("Parameters")
 
+    model_mode = st.radio("Model", ["Single-zone (legacy)", "Four-zone (new)"])
+
     shell_name = st.selectbox("Shell preset", list(SHELLS.keys()))
     preset = SHELLS[shell_name]
+
+    if model_mode == "Four-zone (new)":
+        tier_label = (
+            "Tier-1 · arc geometry"
+            if preset.ogive_outer_R is not None
+            else "Tier-2 · CRH fallback"
+        )
+        st.caption(tier_label)
 
     with st.expander("Shell & Explosive", expanded=True):
         filler_name = st.selectbox(
@@ -86,7 +99,10 @@ with st.sidebar:
     with st.expander("Target"):
         posture_name = st.radio("Posture", ["Standing", "Prone"], index=0)
 
-    max_radius = st.slider("Analysis radius  [m]", 40.0, 200.0, 80.0, step=10.0)
+    max_radius = st.slider(
+        "Analysis radius  [m]", 40.0, 200.0, 80.0, step=10.0,
+        help="Changing this reruns all field computations.",
+    )
 
 # ---------------------------------------------------------------------------
 # Build param structs
@@ -98,6 +114,7 @@ steel = SteelParams(
     sigma_f=sigma_f * 1e6,
     gamma=gamma,
 )
+# Pass ogive geometry fields from preset verbatim — drawing-derived, not slider-tweakable.
 shell = ShellParams(
     caliber=caliber_mm / 1e3,
     wall_t=wall_t_mm / 1e3,
@@ -106,6 +123,18 @@ shell = ShellParams(
     mass_deductions=preset.mass_deductions,
     filler=filler,
     steel=steel,
+    ogive_outer_R=preset.ogive_outer_R,
+    ogive_inner_R=preset.ogive_inner_R,
+    ogive_len=preset.ogive_len,
+    ogive_tip_dia=preset.ogive_tip_dia,
+    cylinder_len=preset.cylinder_len,
+    boattail_len=preset.boattail_len,
+    boattail_angle_deg=preset.boattail_angle_deg,
+    boattail_inner_dia=preset.boattail_inner_dia,
+    base_thickness=preset.base_thickness,
+    has_boattail=preset.has_boattail,
+    base_treatment=preset.base_treatment,
+    ogive_crh=preset.ogive_crh,
 )
 drag = DragParams(C_D=C_D, rho_air=rho_air)
 burst = BurstParams(h_b=h_b, angle_of_fall=float(angle_of_fall), spray_half_angle=float(spray_half_angle))
@@ -115,36 +144,146 @@ posture: PostureParams = STANDING if posture_name == "Standing" else PRONE
 # Compute (cached)
 # ---------------------------------------------------------------------------
 
+# Grid aligned to 2.5 m steps through 0; both models share the same grid so
+# diff subtraction is exact and slider positions map 1-to-1 to grid columns.
+_N_STEPS = int(max_radius / 2.5)
+_N_GRID = 2 * _N_STEPS + 1  # odd → includes 0 exactly
+
 
 @st.cache_data
-def _compute(shell, drag, burst, posture, max_radius):
-    return compute_frag_field_3d(shell, drag, burst, posture, max_radius=max_radius)
+def _compute_legacy(shell, drag, burst, posture, max_radius, n_grid):
+    return compute_frag_field_3d(shell, drag, burst, posture, max_radius=max_radius, n_grid=n_grid)
 
 
-result = _compute(shell, drag, burst, posture, max_radius)
+@st.cache_data
+def _compute_zones(
+    shell_name, filler_name,
+    mass_total, mass_filler, caliber_mm, wall_t_mm,
+    gamma, sigma_f, rho_steel,
+    C_D, rho_air,
+    h_b, angle_of_fall, spray_half_angle,
+    posture, max_radius, n_grid,
+):
+    preset_s = SHELLS[shell_name]
+    steel_s = SteelParams(
+        name=preset_s.steel.name,
+        rho=rho_steel,
+        sigma_f=sigma_f * 1e6,
+        gamma=gamma,
+    )
+    shell_s = ShellParams(
+        caliber=caliber_mm / 1e3,
+        wall_t=wall_t_mm / 1e3,
+        mass_total=mass_total,
+        mass_filler=mass_filler,
+        mass_deductions=preset_s.mass_deductions,
+        filler=FILLERS[filler_name],
+        steel=steel_s,
+        ogive_outer_R=preset_s.ogive_outer_R,
+        ogive_inner_R=preset_s.ogive_inner_R,
+        ogive_len=preset_s.ogive_len,
+        ogive_tip_dia=preset_s.ogive_tip_dia,
+        cylinder_len=preset_s.cylinder_len,
+        boattail_len=preset_s.boattail_len,
+        boattail_angle_deg=preset_s.boattail_angle_deg,
+        boattail_inner_dia=preset_s.boattail_inner_dia,
+        base_thickness=preset_s.base_thickness,
+        has_boattail=preset_s.has_boattail,
+        base_treatment=preset_s.base_treatment,
+        ogive_crh=preset_s.ogive_crh,
+    )
+    drag_s = DragParams(C_D=C_D, rho_air=rho_air)
+
+    zones = compute_shell_zones(shell_s)
+
+    n_mass = 200
+    m_grid = np.logspace(-6, np.log10(0.5), n_mass)
+    drag_lam_grid = retardation_coeff(m_grid, drag_s, rho_steel)
+
+    X, Y, pk_total, pk_by_zone = _four_zone_field_split(
+        zones, float(angle_of_fall), h_b, posture, drag_lam_grid, m_grid,
+        max_r=max_radius, n_grid=n_grid, delta_deg=float(spray_half_angle),
+    )
+
+    # R50 from cross-range slice at x=0 (centre column, grid is odd so exact)
+    xy = np.linspace(-max_radius, max_radius, n_grid)
+    x_idx = n_grid // 2
+    pk_cross = pk_total[:, x_idx]
+    idx50 = np.argmin(np.abs(pk_cross - 0.5))
+    r50_cross = float(np.abs(xy[idx50]))
+
+    # KE chart using cylinder zone V0
+    cyl = zones.cylinder
+    r_ke = np.linspace(0, max_radius, n_grid)
+    rep_masses_g = [0.5, 5.0, 50.0]
+    rep_masses_kg = np.array([m * 1e-3 for m in rep_masses_g])
+    lam_rep = retardation_coeff(rep_masses_kg, drag_s, rho_steel)
+    ke_by_mass: dict[float, np.ndarray] = {}
+    for m_g, lam_j in zip(rep_masses_g, lam_rep):
+        ke_by_mass[m_g] = 0.5 * (m_g * 1e-3) * (cyl.V0_ms * np.exp(-lam_j * r_ke)) ** 2
+
+    N0_cyl = cyl.mass_kg / (2.0 * cyl.mu)
+
+    return {
+        "X": X,
+        "Y": Y,
+        "pk_total": pk_total,
+        "pk_by_zone": pk_by_zone,
+        "zones": zones,
+        "r50_cross": r50_cross,
+        "r_ke": r_ke,
+        "ke_by_mass": ke_by_mass,
+        "V0_cyl": cyl.V0_ms,
+        "N0_cyl": N0_cyl,
+        "mu_cyl": cyl.mu,
+    }
+
+
+result = _compute_legacy(shell, drag, burst, posture, max_radius, _N_GRID)
+result_zones = None
+if model_mode == "Four-zone (new)":
+    result_zones = _compute_zones(
+        shell_name, filler_name,
+        mass_total, mass_filler, caliber_mm, wall_t_mm,
+        gamma, sigma_f, rho_steel,
+        C_D, rho_air,
+        h_b, angle_of_fall, spray_half_angle,
+        posture, max_radius, _N_GRID,
+    )
 
 # ---------------------------------------------------------------------------
 # Headline metrics
 # ---------------------------------------------------------------------------
 
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("R₅₀ (cross-range)", f"{result.r50_cross:.0f} m")
-col2.metric("V₀", f"{result.V0:.0f} m/s")
-col3.metric("N₀ (total frags)", f"{result.N0:.0f}")
-col4.metric("μ (half-mass)", f"{result.mu * 1e3:.2f} g")
+if model_mode == "Four-zone (new)" and result_zones is not None:
+    col1.metric("R₅₀ (cross-range)", f"{result_zones['r50_cross']:.0f} m")
+    col2.metric("V₀", f"{result_zones['V0_cyl']:.0f} m/s", delta="(cyl zone)", delta_color="off")
+    col3.metric("N₀ (total frags)", f"{result_zones['N0_cyl']:.0f}", delta="(cyl zone)", delta_color="off")
+    col4.metric("μ (half-mass)", f"{result_zones['mu_cyl'] * 1e3:.2f} g", delta="(cyl zone)", delta_color="off")
+else:
+    col1.metric("R₅₀ (cross-range)", f"{result.r50_cross:.0f} m")
+    col2.metric("V₀", f"{result.V0:.0f} m/s")
+    col3.metric("N₀ (total frags)", f"{result.N0:.0f}")
+    col4.metric("μ (half-mass)", f"{result.mu * 1e3:.2f} g")
 
 st.divider()
 
 # ---------------------------------------------------------------------------
-# Figures — 2×2 grid
+# Figures — top row: Mott CDF and KE vs distance
 # ---------------------------------------------------------------------------
+
+_r_ke = result_zones["r_ke"] if result_zones else result.r_ke
+_ke_by_mass = result_zones["ke_by_mass"] if result_zones else result.ke_by_mass
+_mu = result_zones["mu_cyl"] if result_zones else result.mu
+_N0 = result_zones["N0_cyl"] if result_zones else result.N0
 
 left, right = st.columns(2)
 
 # Figure 1 — Mott cumulative distribution
 with left:
     m_vals = np.logspace(np.log10(0.01), np.log10(150), 300)  # grams, 10 mg–150 g
-    n_vals = result.N0 * np.exp(-np.sqrt(m_vals * 1e-3 / result.mu))
+    n_vals = _N0 * np.exp(-np.sqrt(m_vals * 1e-3 / _mu))
     fig1 = go.Figure()
     fig1.add_trace(
         go.Scatter(
@@ -161,7 +300,7 @@ with left:
         yaxis=dict(
             title="Fragments with mass ≥ m  [count]",
             type="log",
-            range=[0, np.log10(result.N0 * 2)],
+            range=[0, np.log10(_N0 * 2)],
             tickformat=".2g",
         ),
         height=340,
@@ -173,10 +312,10 @@ with left:
 with right:
     fig2 = go.Figure()
     colours = ["#2ca02c", "#ff7f0e", "#d62728"]
-    for (m_g, ke_arr), colour in zip(result.ke_by_mass.items(), colours):
+    for (m_g, ke_arr), colour in zip(_ke_by_mass.items(), colours):
         fig2.add_trace(
             go.Scatter(
-                x=result.r_ke,
+                x=_r_ke,
                 y=ke_arr,
                 mode="lines",
                 line=dict(color=colour, width=2),
@@ -189,7 +328,7 @@ with right:
     ]:
         fig2.add_trace(
             go.Scatter(
-                x=[result.r_ke[0], result.r_ke[-1]],
+                x=[_r_ke[0], _r_ke[-1]],
                 y=[y_ref, y_ref],
                 mode="lines",
                 line=dict(dash="dot", color="gray", width=1),
@@ -197,7 +336,7 @@ with right:
             )
         )
         fig2.add_annotation(
-            x=result.r_ke[-1],
+            x=_r_ke[-1],
             y=np.log10(y_ref),
             text=label,
             xanchor="right",
@@ -223,34 +362,197 @@ with right:
 
 st.divider()
 
-# Figure 3 — 2D fragmentation field (asymmetric footprint)
-fig3 = go.Figure()
-fig3.add_trace(
-    go.Heatmap(
-        x=result.field_x[0],
-        y=result.field_y[:, 0],
-        z=result.field_pk,
-        colorscale="RdYlGn_r",
-        zmin=0,
-        zmax=1,
+# ---------------------------------------------------------------------------
+# 2D fragmentation field heatmap(s)
+# ---------------------------------------------------------------------------
+
+def _r50_contour(x, y, z):
+    """White R₅₀ iso-contour overlay (P(kill) = 0.5)."""
+    return go.Contour(
+        x=x, y=y, z=z,
+        contours=dict(start=0.5, end=0.5, size=1.0, coloring="none"),
+        line=dict(color="white", width=2.0),
+        showscale=False, showlegend=True, hoverinfo="skip",
+        name="R₅₀  (P=0.5)",
+    )
+
+if model_mode == "Single-zone (legacy)":
+    fig3 = go.Figure()
+    fig3.add_trace(go.Heatmap(
+        x=result.field_x[0], y=result.field_y[:, 0], z=result.field_pk,
+        colorscale="YlOrRd", zmin=0, zmax=1,
         colorbar=dict(title="P(kill)"),
+    ))
+    fig3.add_trace(_r50_contour(result.field_x[0], result.field_y[:, 0], result.field_pk))
+    fig3.add_trace(go.Scatter(x=[0], y=[0], mode="markers",
+        marker=dict(symbol="cross", size=12, color="black"), showlegend=False))
+    fig3.update_layout(
+        title=f"2D Fragmentation Field  ·  R₅₀ = {result.r50_cross:.0f} m",
+        xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
+        yaxis_title="Cross-range  y  [m]",
+        height=700,
+        margin=dict(t=40, b=40, l=60, r=20),
     )
-)
-fig3.add_trace(
-    go.Scatter(
-        x=[0],
-        y=[0],
-        mode="markers",
-        marker=dict(symbol="cross", size=12, color="black"),
-        name="Burst point",
-        showlegend=False,
+    st.plotly_chart(fig3, use_container_width=True)
+
+else:  # Four-zone (new)
+    assert result_zones is not None
+    xy_grid = result_zones["X"][0]
+    yy_grid = result_zones["Y"][:, 0]
+
+    hmap_l, hmap_r = st.columns(2)
+    with hmap_l:
+        fig_leg = go.Figure()
+        fig_leg.add_trace(go.Heatmap(
+            x=result.field_x[0], y=result.field_y[:, 0], z=result.field_pk,
+            colorscale="YlOrRd", zmin=0, zmax=1,
+            colorbar=dict(title="P(kill)"),
+        ))
+        fig_leg.add_trace(_r50_contour(result.field_x[0], result.field_y[:, 0], result.field_pk))
+        fig_leg.add_trace(go.Scatter(x=[0], y=[0], mode="markers",
+            marker=dict(symbol="cross", size=12, color="black"), showlegend=False))
+        fig_leg.update_layout(
+            title=f"Single-zone (legacy)  ·  R₅₀ = {result.r50_cross:.0f} m",
+            xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
+            yaxis_title="Cross-range  y  [m]",
+            height=600,
+            margin=dict(t=40, b=40, l=60, r=20),
+        )
+        st.plotly_chart(fig_leg, use_container_width=True)
+
+    with hmap_r:
+        fig_4z = go.Figure()
+        fig_4z.add_trace(go.Heatmap(
+            x=xy_grid, y=yy_grid, z=result_zones["pk_total"],
+            colorscale="YlOrRd", zmin=0, zmax=1,
+            colorbar=dict(title="P(kill)"),
+        ))
+        fig_4z.add_trace(_r50_contour(xy_grid, yy_grid, result_zones["pk_total"]))
+        fig_4z.add_trace(go.Scatter(x=[0], y=[0], mode="markers",
+            marker=dict(symbol="cross", size=12, color="black"), showlegend=False))
+        fig_4z.update_layout(
+            title=f"Four-zone (new)  ·  R₅₀ = {result_zones['r50_cross']:.0f} m",
+            xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
+            yaxis_title="Cross-range  y  [m]",
+            height=600,
+            margin=dict(t=40, b=40, l=60, r=20),
+        )
+        st.plotly_chart(fig_4z, use_container_width=True)
+
+    # Difference map — both grids share linspace(-max_radius, max_radius, _N_GRID)
+    diff_pk = result_zones["pk_total"] - result.field_pk
+    fig_diff = go.Figure()
+    fig_diff.add_trace(go.Heatmap(
+        x=xy_grid, y=yy_grid, z=diff_pk,
+        colorscale="RdBu_r",
+        zmid=0,
+        colorbar=dict(title="ΔP(kill)"),
+    ))
+    fig_diff.add_trace(go.Scatter(x=[0], y=[0], mode="markers",
+        marker=dict(symbol="cross", size=12, color="black"), showlegend=False))
+    fig_diff.update_layout(
+        title="Difference: Four-zone − Single-zone  (red = four-zone more lethal, blue = less)",
+        xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
+        yaxis_title="Cross-range  y  [m]",
+        height=700,
+        margin=dict(t=40, b=40, l=60, r=20),
     )
-)
-fig3.update_layout(
-    title=f"2D Fragmentation Field  ·  R₅₀ = {result.r50_cross:.0f} m",
-    xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
-    yaxis_title="Cross-range  y  [m]",
-    height=500,
-    margin=dict(t=40, b=40, l=60, r=20),
-)
-st.plotly_chart(fig3, use_container_width=True)
+    st.plotly_chart(fig_diff, use_container_width=True)
+
+    # ---------------------------------------------------------------------------
+    # Zone Breakdown
+    # ---------------------------------------------------------------------------
+
+    st.divider()
+    st.subheader("Zone Breakdown")
+
+    zones_obj = result_zones["zones"]
+    zone_names = ["ogive", "cylinder", "boattail", "base"]
+    zone_obj_list = [zones_obj.ogive, zones_obj.cylinder, zones_obj.boattail, zones_obj.base]
+
+    v0_vals = [z.V0_ms for z in zone_obj_list]
+    spray_vals = [z.spray_deg for z in zone_obj_list]
+
+    _zone_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]  # ogive/cylinder/boattail/base = C0/C1/C2/C3
+    fig_bar = make_subplots(
+        rows=1, cols=3,
+        subplot_titles=["V₀ [m/s]", "Spray angle [°]", "N(>m) fragments"],
+    )
+    for idx, (zn, v0, spray) in enumerate(zip(zone_names, v0_vals, spray_vals)):
+        c = _zone_colors[idx]
+        fig_bar.add_trace(go.Bar(x=[zn], y=[v0], name=zn, marker_color=c, showlegend=False), row=1, col=1)
+        fig_bar.add_trace(go.Bar(x=[zn], y=[spray], name=zn, marker_color=c, showlegend=False), row=1, col=2)
+
+    _mu_max = max(
+        (z.mu for z in zone_obj_list if np.isfinite(z.mu) and z.mu > 0),
+        default=0.01,
+    )
+    _m_g = np.linspace(0.0, min(5.0 * _mu_max * 1e3, 200.0), 300)  # grams
+    for idx, (zn, z) in enumerate(zip(zone_names, zone_obj_list)):
+        if not (np.isfinite(z.mu) and z.mu > 0 and z.mass_kg > 1e-6):
+            continue
+        N0_z = z.mass_kg / (2.0 * z.mu)
+        n_gt_m = N0_z * np.exp(-np.sqrt(_m_g * 1e-3 / z.mu))
+        fig_bar.add_trace(go.Scatter(
+            x=_m_g, y=n_gt_m,
+            name=zn, line=dict(color=_zone_colors[idx], width=2),
+            showlegend=True,
+        ), row=1, col=3)
+    fig_bar.update_xaxes(title_text="m [g]", row=1, col=3)
+    fig_bar.update_yaxes(title_text="frags heavier than m", row=1, col=3)
+    fig_bar.update_layout(
+        title="Zone Properties",
+        height=360,
+        margin=dict(t=60, b=40, l=60, r=20),
+        legend=dict(orientation="v", x=1.02, y=1.0, xanchor="left"),
+    )
+
+    # Grid columns are exactly the 2.5 m steps, so slider options == grid columns.
+    xy_arr = np.linspace(-max_radius, max_radius, _N_GRID)
+    _sl_col, _ = st.columns([1, 2])
+    x_slice = _sl_col.select_slider(
+        "Downrange x [m]",
+        options=[round(v, 10) for v in xy_arr.tolist()],
+        value=0.0,
+        format_func=lambda v: f"{v:+.1f} m",
+        key="x_slice",
+    )
+    x_idx = _N_STEPS + round(x_slice / 2.5)  # exact: xy_arr[_N_STEPS] == 0.0
+
+    def _xslice(grid):
+        return grid[:, x_idx]
+
+    zone_colors = {
+        "ogive": "#1f77b4",
+        "cylinder": "#ff7f0e",
+        "boattail": "#2ca02c",
+        "base": "#d62728",
+    }
+    fig_pk = go.Figure()
+    for zn, pk_grid in result_zones["pk_by_zone"].items():
+        fig_pk.add_trace(go.Scatter(
+            x=xy_arr, y=_xslice(pk_grid),
+            mode="lines",
+            line=dict(color=zone_colors.get(zn, "#888"), width=1.5, dash="dash"),
+            name=zn,
+        ))
+    fig_pk.add_trace(go.Scatter(
+        x=xy_arr, y=_xslice(result_zones["pk_total"]),
+        mode="lines",
+        line=dict(color="black", width=2.5),
+        name="total",
+    ))
+    fig_pk.update_layout(
+        title=f"Per-zone P(kill) vs Cross-range  (x = {x_slice:+.1f} m slice)",
+        xaxis_title="Cross-range  y  [m]",
+        yaxis=dict(title="P(kill)", range=[0, 1]),
+        height=360,
+        margin=dict(t=40, b=40, l=60, r=20),
+        legend=dict(title="Zone"),
+    )
+
+    brk_left, brk_right = st.columns(2)
+    with brk_left:
+        st.plotly_chart(fig_bar, use_container_width=True)
+    with brk_right:
+        st.plotly_chart(fig_pk, use_container_width=True)
