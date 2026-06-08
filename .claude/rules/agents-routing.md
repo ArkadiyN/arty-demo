@@ -21,6 +21,12 @@ trigger — reuse is fine; computing a new number is.* Aggregations, unit
 conversions, ratios, calibrations and "quick transforms" count as new math
 when they encode a physical quantity.
 
+## Questions Gate — always on
+
+**Invariant:** Is this physics right / why does it do X / this is wrong" question about already-implemented physics routes to @modeler, not inline investigation
+**Trigger (litmus):** if answering means reading/debugging src/arty/, delegate.
+**Follow up:** Reviewer verification of the resulting fix follows the existing trigger.
+
 **On trigger — stop and hand off:**
 
 - If it is unclear whether new math is needed, delegate a **chart / new-math

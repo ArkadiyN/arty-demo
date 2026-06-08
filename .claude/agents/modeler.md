@@ -89,6 +89,8 @@ Return a brief summary: what was completed (artifact + path), what remains for
 later passes, assumptions made, and whether @librarian is needed next. Do not
 write a separate handoff file — the artifact plus this summary are the handoff.
 
+Investigate and answer a correctness question about existing physics; fix via the normal passes if a defect is found.
+
 ## Memory
 
 You have a persistent project memory (survives across sessions). **Consult it
