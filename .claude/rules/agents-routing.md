@@ -4,6 +4,42 @@ Physics modelling work in this project follows one of **two named workflows**.
 Decide which one applies *before* delegating; the artifacts and "done"
 conditions differ.
 
+## New-math gate — always on
+
+This gate binds the **main agent**, in every flow and at every entry point: a
+direct request, a new chart, or while the agent is executing an OpenSpec
+`/opsx:propose` / `/opsx:apply` step. Because it constrains the agent (not a
+tool), it holds even when a skill or a task says "implement" — no tool's
+instructions override it.
+
+**Invariant:** the main agent never authors or inlines a physical or derived
+quantity. All such math lives in `src/arty/` and is produced by @modeler.
+
+**Trigger (litmus):** the work needs a physical or derived quantity that an
+`src/arty/` function does not already return. *Mentioning the model is not the
+trigger — reuse is fine; computing a new number is.* Aggregations, unit
+conversions, ratios, calibrations and "quick transforms" count as new math
+when they encode a physical quantity.
+
+**On trigger — stop and hand off:**
+
+- If it is unclear whether new math is needed, delegate a **chart / new-math
+  triage** to @modeler (describe the quantities and axes; ask the single
+  yes/no). @modeler returns *no new math* or *new math needed* (naming the
+  missing quantity) and STOPs.
+- *No new math* → proceed: build the chart / implement the task by importing
+  and calling `arty`; only layout and styling live in `app/` or the `.qmd`.
+- *New math needed* → run **Workflow B** (scoping → derivation →
+  @model-reviewer → `src/arty/`) first, then wire it up. The agent never
+  writes the math.
+
+**Inside an OpenSpec change** (we do not modify OpenSpec — this governs the
+agent running it): detect the trigger at the **proposal/design** stage, not at
+apply. OpenSpec specs and tasks reference `derivation.md` and call `arty`;
+they never author physics. If a change needs math not yet in `src/arty/`, the
+modeler flow runs first and `apply` is **blocked** until the quantity exists.
+A new chart is just one case of this gate, not a separate rule.
+
 ## Artifact layout
 
 Everything related to a model lives under that model's folder:
