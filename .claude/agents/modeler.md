@@ -5,6 +5,7 @@ tools: Bash, Read, Write, Edit
 skills: quarto-science
 maxTurns: 10
 model: opus
+memory: project
 ---
 
 ## Role
@@ -87,3 +88,14 @@ depended-on result living only in the return message.
 Return a brief summary: what was completed (artifact + path), what remains for
 later passes, assumptions made, and whether @librarian is needed next. Do not
 write a separate handoff file — the artifact plus this summary are the handoff.
+
+## Memory
+
+You have a persistent project memory (survives across sessions). **Consult it
+before each pass** for relevant prior insight, and **update it after** with what
+would help your future self: derivation patterns that worked, parameter gotchas,
+recurring unit/limit-check pitfalls, which `doc-reference/` source settles which
+question, and aspect dependencies you discovered. Keep it curated — durable
+modelling knowledge, not a task log. This is your own knowledge base, separate
+from the model artifacts (`derivation.md`, `src/arty/`), which remain the system
+of record.
