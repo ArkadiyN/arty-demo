@@ -68,6 +68,20 @@ modeler's job.
   (derivation → src/ → notebook). @model-reviewer then independently verifies
   the fix; the modeler never signs off on its own correction.
 
+## Two documentation surfaces — don't duplicate
+
+Functionality is documented in two complementary places:
+
+- **OpenSpec specs** (`openspec/specs/`) — the behavioral contract: what each
+  capability does, in testable WHEN/THEN form. Source of record for *behavior*.
+- **Model artifacts** (`derivation.md`, the `.qmd` notebook, `src/arty/`) — the
+  physics: why the math is what it is and how it's derived. Source of record for
+  the *model*.
+
+Specs reference derivations and call `arty`; they never restate the physics. A
+behavior/contract change updates the spec; a physics change updates the model
+artifacts, and the spec points to the new `derivation.md`.
+
 ## Artifact layout
 
 Everything related to a model lives under that model's folder:
