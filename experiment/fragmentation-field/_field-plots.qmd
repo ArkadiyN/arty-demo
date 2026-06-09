@@ -42,6 +42,22 @@ fig.savefig("frag_cross_section.png", dpi=120, bbox_inches="tight")
 plt.show()
 ```
 
+Figure 4b shows the **single-zone belt model** in the x–z plane: the shell
+sprays a belt **perpendicular to its own axis**, so the equatorial centre-line
+sits at $90° + \text{AoF}$ from horizontal and the bounding rays span $\pm\delta$
+about it (here $\delta = 15°$, the `BurstParams` default spray half-width). The
+belt therefore tilts with the trajectory — it is *not* a set of horizontal rays.
+Downward-going rays are traced to ground impact; upward rays are excluded.
+
+```{python}
+# Figure 4b — Elevation cross-section (single-zone belt model)
+# δ matches BurstParams.spray_half_angle default (15°). Only import + call.
+fig = plots.fig_single_zone_elevation(aof_deg=30, h_b=2.0, r_person=30,
+                                      spray_half_angle_deg=15.0)
+fig.savefig("frag_elevation_single_zone.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
 ```{python}
 # Figure 5 — 2-D field map (axis-vertical burst → symmetric circle)
 r_2d    = np.linspace(1, 300, 200)

@@ -54,3 +54,19 @@ The Per-zone P(kill) chart SHALL display P(kill) vs cross-range distance [m] for
 
 - **WHEN** the user selects "105mm M1 HE" with default burst parameters
 - **THEN** the cylinder zone line is at or above the ogive line at ranges between 20 m and 50 m from the burst point
+
+______________________________________________________________________
+
+### Requirement: Zone Breakdown section includes the elevation cross-section chart
+
+The Zone Breakdown section (four-zone mode) SHALL include the elevation cross-section chart as a third row below the Zone Properties and Per-zone P(kill) charts. The chart SHALL be full-width. In Single-zone mode the elevation chart SHALL appear as a standalone chart outside the Zone Breakdown block (which is hidden in that mode).
+
+#### Scenario: Elevation chart is visible in four-zone mode
+
+- **WHEN** the user selects "Four-zone (new)"
+- **THEN** the elevation cross-section chart is shown in the Zone Breakdown section below the existing two charts
+
+#### Scenario: Elevation chart is visible in single-zone mode
+
+- **WHEN** the user selects "Single-zone (legacy)"
+- **THEN** the elevation cross-section chart is shown outside the Zone Breakdown block (which remains hidden), using the single-zone horizontal-ray variant

@@ -398,6 +398,12 @@ def _expected_kills_3d_point(
     pdf: np.ndarray,
     lam: np.ndarray,
 ) -> float:
+    # delta->0 limit: the spray collapses to a Dirac delta on the equatorial
+    # ring. On a finite discrete grid no point lies exactly on that ring, so
+    # N_eff -> 0 everywhere. Guard the 1/delta_rad denominator below.
+    if delta_rad <= 0.0:
+        return 0.0
+
     s = np.sqrt(x_g**2 + y_g**2 + h_b**2)
     if s < 1e-6:
         return 0.0

@@ -276,6 +276,229 @@ def fig_four_zone_field(
     return fig
 
 
+def _elevation_ray(
+    ax: plt.Axes,
+    x0: float,
+    z0: float,
+    vgx: float,
+    vgz: float,
+    color: str,
+    ls: str,
+    label: str | None,
+    arrow_len: float = 25.0,
+) -> None:
+    """Draw one fragment ray from (x0, z0) in direction (vgx, vgz).
+
+    Solid line to ground impact if vgz < 0; dashed upward arrow if vgz >= 0.
+    """
+    if vgz < -1e-6:
+        t = z0 / (-vgz)
+        x_hit = x0 + vgx * t
+        ax.plot([x0, x_hit], [z0, 0.0], color=color, lw=1.8, ls=ls, label=label, zorder=3)
+        ax.plot(x_hit, 0.0, "o", color=color, ms=5, zorder=4)
+    else:
+        mag = max(float(np.sqrt(vgx**2 + vgz**2)), 1e-9)
+        x_end = x0 + vgx / mag * arrow_len
+        z_end = z0 + vgz / mag * arrow_len
+        ax.plot([x0, x_end], [z0, z_end], color=color, lw=1.5, ls="--", label=label, zorder=3)
+
+
+def fig_single_zone_elevation(
+    aof_deg: float = 30.0,
+    h_b: float = 2.0,
+    r_person: float = 30.0,
+    spray_half_angle_deg: float = 15.0,
+) -> plt.Figure:
+    """Elevation cross-section for the single-zone belt model (x-z plane, y=0).
+
+    Sprays a belt perpendicular to the shell axis e_axis = (−cosα, 0, −sinα).
+    In the x-z plane the belt appears at two azimuths: phi=+90° giving
+    (sinα, cosα) — the upper lobe (solid) — and phi=−90° giving (−sinα, −cosα)
+    — the lower lobe (dashed), whose rays reach the ground behind the burst.
+    Each lobe's bounding rays are ± δ from the equatorial centre. Rays with
+    vz < 0 are traced to ground impact; upward rays are drawn as arrows.
+
+    aof_deg              : shell angle of fall [degrees]
+    h_b                  : burst height [m]
+    r_person             : downrange person distance [m]
+    spray_half_angle_deg : belt half-width δ [degrees]
+    """
+    aof = np.radians(aof_deg)
+    cA, sA = np.cos(aof), np.sin(aof)
+    delta = np.radians(spray_half_angle_deg)
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    x_max = max(r_person * 1.4, 50.0)
+    x_min = -x_max * 0.35
+    z_max = max(h_b + 10, 15.0)
+
+    ax.fill_between([x_min, x_max], [-2, -2], [0, 0], color="#c8a97e", alpha=0.55)
+    ax.axhline(0.0, color="#8b6914", lw=1.5, zorder=2)
+
+    # Shell arrival arrow
+    L_arr = min(z_max * 0.45, 18.0)
+    ax.annotate(
+        "", xy=(0.0, h_b),
+        xytext=(-cA * L_arr, h_b + sA * L_arr),
+        arrowprops=dict(arrowstyle="->", color="0.45", lw=1.5),
+    )
+    ax.text(
+        -cA * L_arr - 0.5, h_b + sA * L_arr + 0.5,
+        f"AoF = {aof_deg:.0f}°",
+        fontsize=8, color="0.45", ha="right",
+    )
+
+    # Burst point
+    ax.plot(0, h_b, "k+", ms=14, markeredgewidth=2.5, zorder=5)
+    ax.plot(0, h_b, "ko", ms=4, zorder=5, label=f"Burst  (h_b = {h_b:.1f} m)")
+
+    # Belt geometry: equatorial plane perpendicular to shell axis.
+    # Shell direction in ground frame: (cA, -sA). Its perpendicular is (sA, cA),
+    # corresponding to beta_c = pi/2 - aof (upper lobe, phi=+90°).
+    # The opposite lobe (phi=-90°) is at beta_c + pi, direction (-sA, -cA).
+    beta_c = np.pi / 2.0 - aof          # upper-lobe centre; (cos β_c, sin β_c) = (sA, cA)
+    # Centre-line through both lobes (thin dotted)
+    cx, cz = np.cos(beta_c), np.sin(beta_c)
+    cl_len = min(z_max * 0.6, 16.0)
+    ax.plot(
+        [-cx * cl_len, cx * cl_len], [h_b - cz * cl_len, h_b + cz * cl_len],
+        color="0.55", lw=1.0, ls=":", zorder=2, label="belt centre-line (equatorial)",
+    )
+
+    # Belt-edge rays: upper lobe (solid, phi=+90°) and lower lobe (dashed, phi=−90°)
+    edge_labelled = False
+    for lobe_offset, ls in [(0.0, "-"), (np.pi, "--")]:
+        beta_lobe = beta_c + lobe_offset
+        for sign in (+1, -1):
+            beta = beta_lobe + sign * delta
+            vgx, vgz = float(np.cos(beta)), float(np.sin(beta))
+            lbl = f"belt edge  δ=±{spray_half_angle_deg:.0f}°" if not edge_labelled else None
+            edge_labelled = True
+            _elevation_ray(ax, 0.0, h_b, vgx, vgz, color="C1", ls=ls, label=lbl)
+
+    # Annotate δ at the burst point (arc on the lower lobe, where rays reach the ground)
+    arc_r = min(z_max * 0.22, 4.0)
+    beta_lo = beta_c + np.pi            # lower-lobe centre
+    arc_th = np.linspace(beta_lo - delta, beta_lo, 24)
+    ax.plot(arc_r * np.cos(arc_th), h_b + arc_r * np.sin(arc_th),
+            color="C1", lw=1.0, zorder=4)
+    th_mid = beta_lo - delta / 2.0
+    ax.text(arc_r * 1.25 * np.cos(th_mid), h_b + arc_r * 1.25 * np.sin(th_mid),
+            f"δ={spray_half_angle_deg:.0f}°", fontsize=7.5, color="C1",
+            ha="center", va="center")
+
+    # Person silhouette
+    h_pers = 1.7
+    if abs(r_person) >= 2:
+        ax.add_patch(plt.Rectangle(
+            (r_person - 0.4, 0), 0.8, h_pers,
+            facecolor="orange", edgecolor="darkorange", alpha=0.85, zorder=4,
+            label=f"Person @ {r_person:.0f} m",
+        ))
+
+    ax.set_xlim(x_min, x_max)
+    ax.set_ylim(-2, z_max)
+    ax.set_xlabel("Downrange x [m]")
+    ax.set_ylabel("Height z [m]")
+    ax.set_title(
+        f"Elevation cross-section — single-zone belt model\n"
+        f"AoF = {aof_deg:.0f}°,  h_b = {h_b:.1f} m,  δ = {spray_half_angle_deg:.0f}°  "
+        f"|  belt perpendicular to shell axis (y=0 plane)"
+    )
+    ax.legend(loc="upper right", fontsize=8)
+    ax.grid(alpha=0.35)
+    fig.tight_layout()
+    return fig
+
+
+def fig_zone_elevation(
+    zones: ShellZones,
+    aof_deg: float = 30.0,
+    h_b: float = 2.0,
+    r_person: float = 30.0,
+) -> plt.Figure:
+    """Elevation cross-section for the four-zone model (x-z plane, y=0).
+
+    For each zone draws the phi=+90° (solid) and phi=-90° (dashed) rays —
+    the only two azimuths with vgy=0, bounding the spray cone in elevation.
+    Rays reaching the ground are drawn to their impact point; upward /
+    horizontal rays are drawn as dashed arrows annotated "↑ excl."
+    """
+    zone_colours = {"ogive": "C0", "cylinder": "C1", "boattail": "C2", "base": "C3"}
+    zone_list = [
+        ("ogive",    zones.ogive),
+        ("cylinder", zones.cylinder),
+        ("boattail", zones.boattail),
+        ("base",     zones.base),
+    ]
+
+    aof = np.radians(aof_deg)
+    cA, sA = np.cos(aof), np.sin(aof)
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    x_max = max(r_person * 1.4, 50.0)
+    x_min = -x_max * 0.4
+    z_max = max(h_b + 10, 15.0)
+
+    ax.fill_between([x_min, x_max], [-2, -2], [0, 0], color="#c8a97e", alpha=0.55)
+    ax.axhline(0.0, color="#8b6914", lw=1.5, zorder=2)
+
+    # Shell arrival arrow
+    L_arr = min(z_max * 0.45, 18.0)
+    ax.annotate(
+        "", xy=(0.0, h_b),
+        xytext=(-cA * L_arr, h_b + sA * L_arr),
+        arrowprops=dict(arrowstyle="->", color="0.45", lw=1.5),
+    )
+    ax.text(
+        -cA * L_arr - 0.5, h_b + sA * L_arr + 0.5,
+        f"AoF = {aof_deg:.0f}°",
+        fontsize=8, color="0.45", ha="right",
+    )
+
+    # Burst point
+    ax.plot(0, h_b, "k+", ms=14, markeredgewidth=2.5, zorder=5)
+    ax.plot(0, h_b, "ko", ms=4, zorder=5, label="Burst")
+
+    # Per-zone fragment rays (phi=+90° solid, phi=-90° dashed)
+    for name, z in zone_list:
+        if z.mass_kg <= 1e-6:
+            continue
+        color = zone_colours[name]
+        th = np.radians(z.spray_deg)
+        cT, sT = float(np.cos(th)), float(np.sin(th))
+        for phi_sign, ls, first in [(1, "-", True), (-1, "--", False)]:
+            vgx = cA * cT + sA * sT * phi_sign
+            vgz = -sA * cT + cA * sT * phi_sign
+            lbl = f"{name}  θ={z.spray_deg:.0f}°" if first else None
+            _elevation_ray(ax, 0.0, h_b, float(vgx), float(vgz),
+                           color=color, ls=ls, label=lbl)
+
+    # Person silhouette
+    h_pers = 1.7
+    if abs(r_person) >= 2:
+        ax.add_patch(plt.Rectangle(
+            (r_person - 0.4, 0), 0.8, h_pers,
+            facecolor="orange", edgecolor="darkorange", alpha=0.85, zorder=4,
+            label=f"Person @ {r_person:.0f} m",
+        ))
+
+    ax.set_xlim(x_min, x_max)
+    ax.set_ylim(-2, z_max)
+    ax.set_xlabel("Downrange x [m]")
+    ax.set_ylabel("Height z [m]")
+    ax.set_title(
+        f"Elevation cross-section — four-zone model\n"
+        f"AoF = {aof_deg:.0f}°,  h_b = {h_b:.1f} m  |  solid=φ+90°, dashed=φ−90°  (y=0 plane)"
+    )
+    ax.legend(loc="upper right", fontsize=8, ncol=2)
+    ax.grid(alpha=0.35)
+    fig.tight_layout()
+    return fig
+
+
 def fig_zone_footprint(
     zones: ShellZones, aof_deg: float = 30.0, h_b: float = 2.0, n_phi: int = 60
 ) -> plt.Figure:

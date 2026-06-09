@@ -49,12 +49,38 @@ already-implemented physics goes to @modeler.
 **Trigger (litmus):** answering would mean reading or debugging `src/arty/`.
 The "let me read the implementation" reflex *is* the trigger, not an exception.
 
-**On trigger — hand off:**
+**On trigger — classify from the user's words:**
 
-- @modeler investigates and answers; if it finds a defect, it fixes via the
-  normal passes (derivation → src/ → notebook).
-- @model-reviewer then independently verifies the fix (existing reviewer
-  trigger). The modeler never signs off on its own correction.
+- Wrong *physical quantity, geometry, or behavior* (an angle, velocity, count,
+  lethality, where fragments go) → @modeler.
+- Wrong *presentation, layout, widget-state, or wiring* of otherwise-correct
+  values (z-order, overlap, labels, a slider not matching the chart) → an
+  app/notebook bug — fix in `app/` or the `.qmd` (calling `arty`), not @modeler.
+- Needs a quantity `arty` does not return → the new-math gate above.
+
+If the classification is clear from the prompt, route accordingly; if it is
+ambiguous (is the *number* wrong, or just its *rendering*?), ask the user one
+line. On a physics-correctness defect the brief to @modeler is the user's
+literal report plus any chart/file they named — finding and diagnosing it is the
+modeler's job.
+
+- @modeler investigates/answers; if a defect, fixes via the normal passes
+  (derivation → src/ → notebook). @model-reviewer then independently verifies
+  the fix; the modeler never signs off on its own correction.
+
+## Two documentation surfaces — don't duplicate
+
+Functionality is documented in two complementary places:
+
+- **OpenSpec specs** (`openspec/specs/`) — the behavioral contract: what each
+  capability does, in testable WHEN/THEN form. Source of record for *behavior*.
+- **Model artifacts** (`derivation.md`, the `.qmd` notebook, `src/arty/`) — the
+  physics: why the math is what it is and how it's derived. Source of record for
+  the *model*.
+
+Specs reference derivations and call `arty`; they never restate the physics. A
+behavior/contract change updates the spec; a physics change updates the model
+artifacts, and the spec points to the new `derivation.md`.
 
 ## Artifact layout
 

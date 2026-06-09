@@ -262,4 +262,22 @@ boattail rays cluster just behind the cylinder belt. This reproduces the
 expected lobed structure that the single-cylinder model could not
 generate.
 
+### 6.9 · Burst geometry cross-section (x–z plane)
+
+The elevation cross-section shows the $y = 0$ plane: shell arrival arrow,
+burst point, and the two bounding rays per zone ($\phi = +90°$ solid,
+$\phi = -90°$ dashed). Rays that reach the ground are drawn to their
+impact point; rays with $v_{gz} \ge 0$ are drawn as dashed arrows
+annotated "↑ excl." — they never enter the ground-impact model.
+
+At $\text{AoF} = 90°$ the cylinder zone (spray angle $\theta_z = 90°$)
+produces $v_{gz} = 0$ for both $\phi = \pm 90°$, which is why a near-burst
+"safe zone" appears in the four-zone field at steep angles of fall.
+
+```{python}
+fig = plots.fig_zone_elevation(zones_m1, aof_deg=30, h_b=2.0, r_person=30)
+fig.savefig("four_zone_elevation.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
 ______________________________________________________________________

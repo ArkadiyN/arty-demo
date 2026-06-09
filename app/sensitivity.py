@@ -93,7 +93,7 @@ with st.sidebar:
             "Angle of fall  [°]", 0, 90, int(BurstParams().angle_of_fall), step=5
         )
         spray_half_angle = st.slider(
-            "Belt half-angle  δ  [°]", 5, 30, int(BurstParams().spray_half_angle), step=1
+            "Belt half-angle  δ  [°]", 0, 30, int(BurstParams().spray_half_angle), step=1
         )
 
     with st.expander("Target"):
@@ -366,6 +366,170 @@ st.divider()
 # 2D fragmentation field heatmap(s)
 # ---------------------------------------------------------------------------
 
+def _hex_rgba(hex_color: str, alpha: float) -> str:
+    h = hex_color.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    return f"rgba({r},{g},{b},{alpha})"
+
+
+def _spray_cone(
+    h_b: float,
+    cA: float,
+    sA: float,
+    spray_deg: float,
+    delta_deg: float,
+    phi_sign: int,
+    color: str,
+    name: str | None,
+    n_arc: int = 16,
+    max_len: float = 30.0,
+) -> go.Scatter:
+    """Filled sector polygon for one spray lobe in the elevation (x-z) plane.
+
+    Sweeps theta from spray_deg-delta to spray_deg+delta (angle from shell axis)
+    at fixed phi_sign (±90° azimuth). All rays are capped at max_len slant
+    distance; ground-hitting rays are additionally clipped at z=0.
+    """
+    xs: list[float] = [0.0]
+    zs: list[float] = [h_b]
+    for th_deg in np.linspace(spray_deg - delta_deg, spray_deg + delta_deg, n_arc):
+        cT = float(np.cos(np.radians(float(th_deg))))
+        sT = float(np.sin(np.radians(float(th_deg))))
+        vgx = cA * cT + sA * sT * phi_sign
+        vgz = -sA * cT + cA * sT * phi_sign
+        # (vgx, vgz) is unit at phi=±90°; cap all rays at max_len slant distance
+        if h_b > 0.01 and vgz < -1e-6:
+            t = min(h_b / (-vgz), max_len)
+        else:
+            t = max_len
+        xs.append(float(vgx * t))
+        zs.append(float(h_b + vgz * t))
+    xs.append(0.0)
+    zs.append(h_b)
+    return go.Scatter(
+        x=xs, y=zs,
+        fill="toself",
+        fillcolor=_hex_rgba(color, 0.20),
+        mode="lines",
+        line=dict(color=color, width=1.5),
+        name=name or "",
+        showlegend=(name is not None),
+        hoverinfo="skip",
+    )
+
+
+_ZONE_COLOURS_ELEV = {
+    "ogive": "#1f77b4",
+    "cylinder": "#ff7f0e",
+    "boattail": "#2ca02c",
+    "base": "#d62728",
+}
+
+
+def _plotly_elevation(
+    zones_or_none,
+    aof_deg: float,
+    h_b: float,
+    x_person: float,
+    spray_half_angle_deg: float = 15.0,
+) -> go.Figure:
+    """Plotly elevation cross-section (x-z plane).
+
+    Draws filled cone polygons (phi=+90° and phi=−90° lobes) for each zone,
+    each spanning ± spray_half_angle_deg around the zone's spray_deg from the
+    shell axis. Both models respond to the spray_half_angle_deg slider.
+
+    zones_or_none=None → single-zone equatorial belt at spray_deg=90°.
+    ShellZones object  → four-zone variant (per-zone cones).
+    """
+    aof = np.radians(aof_deg)
+    cA, sA = float(np.cos(aof)), float(np.sin(aof))
+
+    x_max = max(abs(x_person) * 1.5, 50.0)
+    x_min = -x_max * 0.4
+    z_max = max(h_b + 10, 15.0)
+
+    traces: list = []
+
+    # Ground fill (rectangle)
+    traces.append(go.Scatter(
+        x=[x_min, x_max, x_max, x_min, x_min],
+        y=[-2, -2, 0, 0, -2],
+        fill="toself", fillcolor="rgba(200,169,126,0.45)",
+        line=dict(color="rgba(139,105,20,1)", width=1.5),
+        mode="lines", showlegend=False, hoverinfo="skip",
+    ))
+
+    # Shell arrival arrow (drawn as two scatter points + annotation)
+    L_arr = min(z_max * 0.45, 18.0)
+    ax_x0, ax_z0 = -cA * L_arr, h_b + sA * L_arr
+    traces.append(go.Scatter(
+        x=[ax_x0, 0.0], y=[ax_z0, h_b],
+        mode="lines",
+        line=dict(color="gray", width=2),
+        showlegend=False, hoverinfo="skip",
+    ))
+
+    # Burst point
+    traces.append(go.Scatter(
+        x=[0], y=[h_b], mode="markers+text",
+        marker=dict(symbol="cross", size=14, color="black", line=dict(width=2.5, color="black")),
+        text=[f"Burst h_b={h_b:.1f} m"], textposition="top right",
+        showlegend=False,
+    ))
+
+    if zones_or_none is None:
+        # Single-zone: equatorial belt at spray_deg=90° from shell axis
+        for phi_sign in (+1, -1):
+            traces.append(_spray_cone(
+                h_b, cA, sA,
+                spray_deg=90.0,
+                delta_deg=spray_half_angle_deg,
+                phi_sign=phi_sign,
+                color="#ff7f0e",
+                name=f"belt  δ=±{spray_half_angle_deg:.0f}°" if phi_sign == +1 else None,
+            ))
+    else:
+        zone_list = [
+            ("ogive",    zones_or_none.ogive),
+            ("cylinder", zones_or_none.cylinder),
+            ("boattail", zones_or_none.boattail),
+            ("base",     zones_or_none.base),
+        ]
+        for name, z in zone_list:
+            if z.mass_kg <= 1e-6:
+                continue
+            color = _ZONE_COLOURS_ELEV[name]
+            for phi_sign in (+1, -1):
+                traces.append(_spray_cone(
+                    h_b, cA, sA,
+                    spray_deg=float(z.spray_deg),
+                    delta_deg=spray_half_angle_deg,
+                    phi_sign=phi_sign,
+                    color=color,
+                    name=f"{name}  θ={z.spray_deg:.0f}°" if phi_sign == +1 else None,
+                ))
+
+    fig = go.Figure(data=traces)
+    mode_label = "single-zone (legacy)" if zones_or_none is None else "four-zone"
+    fig.update_layout(
+        title=f"Elevation cross-section — {mode_label}  ·  AoF={aof_deg:.0f}°, h_b={h_b:.1f} m",
+        xaxis=dict(title="Downrange x [m]", range=[x_min, x_max]),
+        yaxis=dict(title="Height z [m]", range=[-2, z_max]),
+        height=320,
+        margin=dict(t=45, b=40, l=60, r=20),
+        legend=dict(orientation="h", y=-0.22),
+    )
+    # Annotate shell arrival direction
+    fig.add_annotation(
+        x=ax_x0, y=ax_z0,
+        text=f"AoF={aof_deg:.0f}°",
+        showarrow=False, font=dict(size=10, color="gray"),
+        xanchor="right",
+    )
+    return fig
+
+
 def _r50_contour(x, y, z):
     """White R₅₀ iso-contour overlay (P(kill) = 0.5)."""
     return go.Contour(
@@ -394,6 +558,13 @@ if model_mode == "Single-zone (legacy)":
         margin=dict(t=40, b=40, l=60, r=20),
     )
     st.plotly_chart(fig3, use_container_width=True)
+    _elev_col, _ = st.columns(2)
+    with _elev_col:
+        st.plotly_chart(
+            _plotly_elevation(None, float(angle_of_fall), h_b, float(result.r50_cross),
+                              spray_half_angle_deg=float(spray_half_angle)),
+            use_container_width=True,
+        )
 
 else:  # Four-zone (new)
     assert result_zones is not None
@@ -556,3 +727,11 @@ else:  # Four-zone (new)
         st.plotly_chart(fig_bar, use_container_width=True)
     with brk_right:
         st.plotly_chart(fig_pk, use_container_width=True)
+
+    _elev_col, _ = st.columns(2)
+    with _elev_col:
+        st.plotly_chart(
+            _plotly_elevation(zones_obj, float(angle_of_fall), h_b, float(x_slice),
+                              spray_half_angle_deg=float(spray_half_angle)),
+            use_container_width=True,
+        )
