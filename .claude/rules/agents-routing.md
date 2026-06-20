@@ -62,7 +62,9 @@ If the classification is clear from the prompt, route accordingly; if it is
 ambiguous (is the *number* wrong, or just its *rendering*?), ask the user one
 line. On a physics-correctness defect the brief to @modeler is the user's
 literal report plus any chart/file they named — finding and diagnosing it is the
-modeler's job.
+modeler's job. See "Briefing subagents — problems, not solutions" below: do not
+read `src/arty/` first to sharpen the brief — that read is the gate violation,
+not a way to satisfy it.
 
 - @modeler investigates/answers; if a defect, fixes via the normal passes
   (derivation → src/ → notebook). @model-reviewer then independently verifies
@@ -232,11 +234,14 @@ in every pass:
 Parent agent reviews each return before sending the next task.
 Include file paths in each prompt, not conversation summaries.
 
-## Briefing the modeler — problems, not solutions
+## Briefing subagents — problems, not solutions
 
-The modeler is the physics expert; handing it the answer wastes that and
-propagates your errors. Give it only: the **goal** (what to produce and why);
-the **constraints** (prior decisions referenced by file — "implement what
+This applies to both @modeler (investigation/derivation) and @model-reviewer
+(review): they are the experts; handing them the answer wastes that and
+propagates your errors.
+
+**@modeler.** Give it only: the **goal** (what to produce and why); the
+**constraints** (prior decisions referenced by file — "implement what
 `scoping.md` resolves" — not re-derived); the **acceptance criteria** (specs,
 limiting cases, the verdict question — not the expected answer); and the
 **inputs** (files to read + external facts it cannot derive: drawing
@@ -248,3 +253,21 @@ and *why*; let the modeler decide *how* and *what-value*. If you have written a
 formula, algorithm, number, or code into the prompt, delete it and state the
 goal instead. (Exception: an implementation/presentation pass may reference a
 prior pass's recorded decision in `derivation.md` — reference, don't re-derive.)
+
+The same litmus applies to a correctness-investigation brief: give the
+**observable symptom**, the **question**, and **file pointers** — never a
+pre-built hypothesis or conditional answer tree. If writing the brief required
+reading `src/arty/` internals closely enough to name a variable or mechanism
+(an azimuth angle, a helper's internal loop), that read was the gate
+violation, not preparation for satisfying it — delete the specifics and let
+@modeler discover the mechanism cold.
+
+**@model-reviewer.** Give it the **background** (what was added/changed and
+why) and a **pointer** (the diff or function to review) — not a pre-itemized
+verification checklist. The reviewer's mandate already covers dimensional
+consistency, physical plausibility, boundary-condition behavior, and
+literature agreement; a supplied checklist narrows review to only what the
+main agent already suspected and crowds out everything else. If you enumerated
+specific things to check (a formula, an internal variable, a line range),
+that's the same over-read symptom as above — delete the list and point at the
+diff instead.
