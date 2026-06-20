@@ -123,12 +123,22 @@ def _block_to_markdown(block):
 # ---------------------------------------------------------------------------
 
 def _try_get_google_client():
-    """Return (client, model) if GOOGLE_API_KEY is configured, else None."""
+    """Return (client, model) if GOOGLE_API_KEY is configured, else None.
+
+    A request timeout is required here: without one, an SDK call that stalls
+    server-side (e.g. a slow multimodal response) blocks forever instead of
+    raising, since the underlying httpx client has no default deadline.
+    """
     from google import genai  # deferred so the package is optional at import time
+    from google.genai import types
     s = Settings()
     if not s.google_api_key:
         return None
-    return genai.Client(api_key=s.google_api_key), s.google_model
+    client = genai.Client(
+        api_key=s.google_api_key,
+        http_options=types.HttpOptions(timeout=s.google_timeout_ms),
+    )
+    return client, s.google_model
 
 
 def _get_anthropic_client():

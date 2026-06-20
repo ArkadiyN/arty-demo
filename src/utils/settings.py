@@ -14,6 +14,7 @@ class Settings(BaseModel):
     openrouter_model: str = "openrouter/free"
     google_api_key: str | None = None
     google_model: str = "gemma-4-31b-it"
+    google_timeout_ms: int = 120_000
 
     @model_validator(mode="before")
     @classmethod
@@ -26,4 +27,5 @@ class Settings(BaseModel):
             "openrouter_model": os.environ.get("OPENROUTER_MODEL", "openrouter/free"),
             "google_api_key": os.environ.get("GOOGLE_API_KEY"),
             "google_model": os.environ.get("GOOGLE_MODEL", "gemma-4-31b-it"),
+            "google_timeout_ms": int(os.environ.get("GOOGLE_TIMEOUT_MS", "120000")),
         }
