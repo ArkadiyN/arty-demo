@@ -349,6 +349,33 @@ def compute_shell_zones(shell: ShellParams) -> ShellZones:
     )
 
 
+def fragment_velocity(
+    theta_z_deg: float, phi_rad: float, aof_deg: float
+) -> tuple[float, float, float]:
+    """Unit ground-frame velocity of a fragment leaving a zone [-, -, -].
+
+    theta_z_deg : zone spray angle from forward axis [deg]
+    phi_rad     : azimuth around the shell axis [rad]
+    aof_deg     : angle of fall [deg] (0 = horizontal, 90 = vertical)
+
+    Returns the unit direction ``(v_gx, v_gy, v_gz)`` in the ground frame,
+    where +x is downrange, +y is cross-range and +z is up. This is the single
+    source of the AoF-rotation formula (see burst-geometry spec,
+    "fragment_ground_impact implements AoF rotation correctly"); both
+    ``fragment_ground_impact`` and the app's spray-cone renderers source the
+    ray direction from here rather than recomputing the trig.
+    """
+    th = np.radians(theta_z_deg)
+    aof = np.radians(aof_deg)
+    cT, sT = np.cos(th), np.sin(th)
+    cA, sA = np.cos(aof), np.sin(aof)
+    cP, sP = np.cos(phi_rad), np.sin(phi_rad)
+    vgx = cA * cT + sA * sT * sP
+    vgy = sT * cP
+    vgz = -sA * cT + cA * sT * sP
+    return (float(vgx), float(vgy), float(vgz))
+
+
 def fragment_ground_impact(
     theta_z_deg: float, phi_rad: float, aof_deg: float, h_b: float
 ) -> tuple[float, float, float] | None:
@@ -363,14 +390,7 @@ def fragment_ground_impact(
     fragment travels upward / horizontally (v_gz >= 0) and never reaches
     the ground in the straight-line model.
     """
-    th = np.radians(theta_z_deg)
-    aof = np.radians(aof_deg)
-    cT, sT = np.cos(th), np.sin(th)
-    cA, sA = np.cos(aof), np.sin(aof)
-    cP, sP = np.cos(phi_rad), np.sin(phi_rad)
-    vgx = cA * cT + sA * sT * sP
-    vgy = sT * cP
-    vgz = -sA * cT + cA * sT * sP
+    vgx, vgy, vgz = fragment_velocity(theta_z_deg, phi_rad, aof_deg)
     if vgz >= -1e-6:
         return None
     t = -h_b / vgz

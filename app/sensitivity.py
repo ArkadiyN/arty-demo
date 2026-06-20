@@ -19,6 +19,7 @@ from arty.zones import (
     _four_zone_field_split,
     compute_shell_zones,
     four_zone_line_split,
+    fragment_velocity,
 )
 from arty.shells import SHELLS
 
@@ -398,8 +399,7 @@ def _hex_rgba(hex_color: str, alpha: float) -> str:
 
 def _spray_cone(
     h_b: float,
-    cA: float,
-    sA: float,
+    aof_deg: float,
     spray_deg: float,
     delta_deg: float,
     phi_sign: int,
@@ -414,14 +414,12 @@ def _spray_cone(
     at fixed phi_sign (±90° azimuth). All rays are capped at max_len slant
     distance; ground-hitting rays are additionally clipped at z=0.
     """
+    phi_rad = phi_sign * (np.pi / 2.0)
     xs: list[float] = [0.0]
     zs: list[float] = [h_b]
     for th_deg in np.linspace(spray_deg - delta_deg, spray_deg + delta_deg, n_arc):
-        cT = float(np.cos(np.radians(float(th_deg))))
-        sT = float(np.sin(np.radians(float(th_deg))))
-        vgx = cA * cT + sA * sT * phi_sign
-        vgz = -sA * cT + cA * sT * phi_sign
-        # (vgx, vgz) is unit at phi=±90°; cap all rays at max_len slant distance
+        vgx, _vgy, vgz = fragment_velocity(float(th_deg), phi_rad, aof_deg)
+        # cap all rays at max_len slant distance
         if h_b > 0.01 and vgz < -1e-6:
             t = min(h_b / (-vgz), max_len)
         else:
@@ -444,7 +442,7 @@ def _spray_cone(
 
 def _spray_cone_across(
     h_b: float,
-    sA: float,
+    aof_deg: float,
     spray_deg: float,
     delta_deg: float,
     y_sign: int,
@@ -453,19 +451,16 @@ def _spray_cone_across(
     n_arc: int = 16,
     max_len: float = 30.0,
 ) -> go.Scatter:
-    """Filled sector polygon in the across (y-z) plane at phi=±90°.
+    """Filled sector polygon in the across (y-z) plane at phi=0/π.
 
-    Unlike the elevation view, AoF does not tilt this plane: vy = ±sin(theta),
-    vz = -sA*cos(theta). y_sign=+1 draws the right lobe, y_sign=-1 the left
-    (mirror).
+    At phi=0 (y_sign=+1) / phi=π (y_sign=-1): vy = ±sin(theta), vz = -sA*cos(theta).
+    y_sign=+1 draws the right lobe, y_sign=-1 the left (mirror).
     """
+    phi_rad = 0.0 if y_sign > 0 else np.pi
     ys: list[float] = [0.0]
     zs: list[float] = [h_b]
     for th_deg in np.linspace(spray_deg - delta_deg, spray_deg + delta_deg, n_arc):
-        sT = float(np.sin(np.radians(float(th_deg))))
-        cT = float(np.cos(np.radians(float(th_deg))))
-        vy = y_sign * sT
-        vz = -sA * cT
+        _vgx, vy, vz = fragment_velocity(float(th_deg), phi_rad, aof_deg)
         if h_b > 0.01 and vz < -1e-6:
             t = min(h_b / (-vz), max_len)
         else:
@@ -550,7 +545,7 @@ def _plotly_elevation(
         # Single-zone: equatorial belt at spray_deg=90° from shell axis
         for phi_sign in (+1, -1):
             traces.append(_spray_cone(
-                h_b, cA, sA,
+                h_b, aof_deg,
                 spray_deg=90.0,
                 delta_deg=spray_half_angle_deg,
                 phi_sign=phi_sign,
@@ -570,7 +565,7 @@ def _plotly_elevation(
             color = _ZONE_COLOURS_ELEV[name]
             for phi_sign in (+1, -1):
                 traces.append(_spray_cone(
-                    h_b, cA, sA,
+                    h_b, aof_deg,
                     spray_deg=float(z.spray_deg),
                     delta_deg=spray_half_angle_deg,
                     phi_sign=phi_sign,
@@ -612,7 +607,6 @@ def _plotly_elevation_across(
     equatorial belt (theta=90°) has vgz=0 and fans are horizontal — most
     interesting for off-equatorial zones (ogive, boattail, base).
     """
-    sA = float(np.sin(np.radians(aof_deg)))
     y_max = max(abs(y_person) * 1.5, 50.0)
     z_max = max(h_b + 10, 15.0)
     # Rays should extend past the plot boundary so axes do the clipping, not the
@@ -642,7 +636,7 @@ def _plotly_elevation_across(
     if zones_or_none is None:
         for y_sign in (+1, -1):
             traces.append(_spray_cone_across(
-                h_b, sA,
+                h_b, aof_deg,
                 spray_deg=90.0,
                 delta_deg=spray_half_angle_deg,
                 y_sign=y_sign,
@@ -663,7 +657,7 @@ def _plotly_elevation_across(
             color = _ZONE_COLOURS_ELEV[name]
             for y_sign in (+1, -1):
                 traces.append(_spray_cone_across(
-                    h_b, sA,
+                    h_b, aof_deg,
                     spray_deg=float(z.spray_deg),
                     delta_deg=spray_half_angle_deg,
                     y_sign=y_sign,
@@ -924,13 +918,13 @@ else:  # Four-zone (new)
     xsec_left, xsec_right = st.columns(2)
     with xsec_left:
         st.plotly_chart(
-            _plotly_elevation_across(zones_obj, float(angle_of_fall), h_b, float(x_slice),
+            _plotly_elevation_across(zones_obj, float(angle_of_fall), h_b, float(y_slice),
                                      spray_half_angle_deg=float(spray_half_angle)),
             use_container_width=True,
         )
     with xsec_right:
         st.plotly_chart(
-            _plotly_elevation(zones_obj, float(angle_of_fall), h_b, float(y_slice),
+            _plotly_elevation(zones_obj, float(angle_of_fall), h_b, float(x_slice),
                               spray_half_angle_deg=float(spray_half_angle)),
             use_container_width=True,
         )
