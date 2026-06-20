@@ -1,8 +1,9 @@
-## Purpose
+## RENAMED Requirements
 
-Define the Zone Breakdown section of the Streamlit sensitivity app (`app/sensitivity.py`): the per-zone properties bar chart, the per-zone P(kill) slice charts (cross-range and downrange), and the paired cross-section charts (across and elevation), shown only when the four-zone model is active.
+- FROM: `### Requirement: Zone Properties bar chart shows per-zone V₀, N₀, and spray angle`
+- TO: `### Requirement: Zone Properties bar chart shows per-zone V₀ and N₀`
 
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Zone breakdown section is shown in Four-zone mode
 
@@ -52,22 +53,6 @@ The Per-zone P(kill) vs Cross-range chart SHALL display P(kill) vs cross-range d
 
 ______________________________________________________________________
 
-### Requirement: Per-zone P(kill) vs downrange line chart shows zone contributions
-
-The Per-zone P(kill) vs Downrange chart SHALL display P(kill) vs downrange distance [m] for each active zone as a separate line, plus a **total** line, fixing the cross-range coordinate and sweeping downrange, evaluated via the fine-resolution line evaluator. The total line SHALL be computed from the four-zone model (not a sum of per-zone values). Zone names SHALL appear in the legend. The chart SHALL be displayed in the right column of the slice-chart row, beside the cross-range chart. The chart SHALL update when any parameter changes.
-
-#### Scenario: Total line matches the downrange slice of the heatmap
-
-- **WHEN** the per-zone downrange chart is rendered
-- **THEN** the total line values match (within floating-point tolerance) the downrange slice of the four-zone 2D heatmap at the grid coordinates the two share
-
-#### Scenario: Narrow low-burst footprint is visible
-
-- **WHEN** the burst height is low enough that the true P(kill) footprint along the downrange line is narrower than the shared 2D heatmap grid step
-- **THEN** the per-zone downrange chart's total line shows the non-zero footprint rather than reading as all-zero
-
-______________________________________________________________________
-
 ### Requirement: Zone Breakdown section includes the elevation cross-section chart
 
 The elevation cross-section chart SHALL be displayed in the right column of the cross-section row, directly below the downrange slice chart. In Single-zone mode the elevation chart SHALL appear as a standalone chart outside the Zone Breakdown block (which is hidden in that mode).
@@ -81,3 +66,19 @@ The elevation cross-section chart SHALL be displayed in the right column of the 
 
 - **WHEN** the user selects "Single-zone (legacy)"
 - **THEN** the elevation cross-section chart is shown outside the Zone Breakdown block (which remains hidden), using the single-zone horizontal-ray variant
+
+## ADDED Requirements
+
+### Requirement: Per-zone P(kill) vs downrange line chart shows zone contributions
+
+The Per-zone P(kill) vs Downrange chart SHALL display P(kill) vs downrange distance [m] for each active zone as a separate line, plus a **total** line, fixing the cross-range coordinate and sweeping downrange, evaluated via the fine-resolution line evaluator. The total line SHALL be computed from the four-zone model (not a sum of per-zone values). Zone names SHALL appear in the legend. The chart SHALL be displayed in the right column of the slice-chart row, beside the cross-range chart. The chart SHALL update when any parameter changes.
+
+#### Scenario: Total line matches the downrange slice of the heatmap
+
+- **WHEN** the per-zone downrange chart is rendered
+- **THEN** the total line values match (within floating-point tolerance) the downrange slice of the four-zone 2D heatmap at the grid coordinates the two share
+
+#### Scenario: Narrow low-burst footprint is visible
+
+- **WHEN** the burst height is low enough that the true P(kill) footprint along the downrange line is narrower than the shared 2D heatmap grid step
+- **THEN** the per-zone downrange chart's total line shows the non-zero footprint rather than reading as all-zero
