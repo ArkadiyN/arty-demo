@@ -349,6 +349,33 @@ def compute_shell_zones(shell: ShellParams) -> ShellZones:
     )
 
 
+def fragment_velocity(
+    theta_z_deg: float, phi_rad: float, aof_deg: float
+) -> tuple[float, float, float]:
+    """Unit ground-frame velocity of a fragment leaving a zone [-, -, -].
+
+    theta_z_deg : zone spray angle from forward axis [deg]
+    phi_rad     : azimuth around the shell axis [rad]
+    aof_deg     : angle of fall [deg] (0 = horizontal, 90 = vertical)
+
+    Returns the unit direction ``(v_gx, v_gy, v_gz)`` in the ground frame,
+    where +x is downrange, +y is cross-range and +z is up. This is the single
+    source of the AoF-rotation formula (see burst-geometry spec,
+    "fragment_ground_impact implements AoF rotation correctly"); both
+    ``fragment_ground_impact`` and the app's spray-cone renderers source the
+    ray direction from here rather than recomputing the trig.
+    """
+    th = np.radians(theta_z_deg)
+    aof = np.radians(aof_deg)
+    cT, sT = np.cos(th), np.sin(th)
+    cA, sA = np.cos(aof), np.sin(aof)
+    cP, sP = np.cos(phi_rad), np.sin(phi_rad)
+    vgx = cA * cT + sA * sT * sP
+    vgy = sT * cP
+    vgz = -sA * cT + cA * sT * sP
+    return (float(vgx), float(vgy), float(vgz))
+
+
 def fragment_ground_impact(
     theta_z_deg: float, phi_rad: float, aof_deg: float, h_b: float
 ) -> tuple[float, float, float] | None:
@@ -363,14 +390,7 @@ def fragment_ground_impact(
     fragment travels upward / horizontally (v_gz >= 0) and never reaches
     the ground in the straight-line model.
     """
-    th = np.radians(theta_z_deg)
-    aof = np.radians(aof_deg)
-    cT, sT = np.cos(th), np.sin(th)
-    cA, sA = np.cos(aof), np.sin(aof)
-    cP, sP = np.cos(phi_rad), np.sin(phi_rad)
-    vgx = cA * cT + sA * sT * sP
-    vgy = sT * cP
-    vgz = -sA * cT + cA * sT * sP
+    vgx, vgy, vgz = fragment_velocity(theta_z_deg, phi_rad, aof_deg)
     if vgz >= -1e-6:
         return None
     t = -h_b / vgz
@@ -446,6 +466,108 @@ def _four_zone_field_split(
     pk_total = 1.0 - np.exp(-field_N)
     pk_by_zone = {name: 1.0 - np.exp(-field_N_by_zone[name]) for name in _zone_names}
     return X, Y, pk_total, pk_by_zone
+
+
+def four_zone_line_split(
+    zones: ShellZones,
+    aof_deg: float,
+    h_b: float,
+    posture: PostureParams,
+    drag_lam_grid: np.ndarray,
+    m_grid: np.ndarray,
+    *,
+    fixed_axis: str,
+    fixed_coord: float,
+    line_coords: np.ndarray,
+    delta_deg: float = 15.0,
+) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+    """Per-zone + total P(kill) along a single fixed-x or fixed-y ground line.
+
+    Evaluates the *same* governing physics as ``_four_zone_field_split`` —
+    the spray-belt acceptance test, presented area A_p(gamma), drag
+    attenuation and Mott mass integration — but only at the ground points of
+    one 1D line, so its cost scales with ``len(line_coords)`` rather than
+    ``n_grid**2``. This lets a caller sample a slice at much finer spatial
+    resolution than the global square grid without paying the O(n_grid^2)
+    cost of tightening that grid everywhere. (At low burst height the
+    equatorial spray footprint along a slice can be narrower than the coarse
+    grid step, so a row/column read off the square grid can miss the real
+    non-zero band; sampling this line finely recovers it.)
+
+    zones, aof_deg, h_b, posture, drag_lam_grid, m_grid, delta_deg
+        Identical meaning to ``four_zone_field`` / ``_four_zone_field_split``.
+    fixed_axis  : "x" (fix downrange, sweep cross-range y) or
+                  "y" (fix cross-range, sweep downrange x).
+    fixed_coord : value [m] of the held axis.
+    line_coords : 1D array [m] of the swept-axis coordinates to evaluate.
+
+    Returns ``(pk_total, pk_by_zone)`` where each is sampled at
+    ``line_coords``: ``pk_total`` is a 1D array and ``pk_by_zone`` is a dict
+    keyed by zone name. For any ``line_coords`` point and ``fixed_coord`` that
+    coincide with the square-grid nodes used by ``_four_zone_field_split``,
+    the returned values match that grid exactly (same formula, evaluated
+    off the square-mesh constraint).
+    """
+    if fixed_axis not in ("x", "y"):
+        raise ValueError("fixed_axis must be 'x' or 'y'")
+    line_coords = np.asarray(line_coords, dtype=float)
+    n_line = line_coords.shape[0]
+
+    field_N = np.zeros(n_line)
+    _zone_names = ("ogive", "cylinder", "boattail", "base")
+    field_N_by_zone = {name: np.zeros(n_line) for name in _zone_names}
+
+    aof = np.radians(aof_deg)
+    cA, sA = np.cos(aof), np.sin(aof)
+    delta = np.radians(delta_deg)
+    e_axis = np.array([cA, 0.0, -sA])
+
+    # Ground-point coordinates along the line. The square grid uses
+    # X = xy (downrange, columns) and Y = xy (cross-range, rows); a fixed-x
+    # slice holds X and sweeps Y, a fixed-y slice holds Y and sweeps X — so
+    # the (xg, yg) assignment below reproduces those grid nodes exactly.
+    if fixed_axis == "x":
+        xg_arr = np.full(n_line, fixed_coord)
+        yg_arr = line_coords
+    else:
+        xg_arr = line_coords
+        yg_arr = np.full(n_line, fixed_coord)
+
+    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
+                 ("boattail", zones.boattail), ("base", zones.base)]
+    for name, z in zone_list:
+        if z.mass_kg <= 1e-6 or z.V0_ms <= 0.0 or not np.isfinite(z.mu):
+            continue
+        N0_z = z.mass_kg / (2.0 * z.mu)
+        theta_z = np.radians(z.spray_deg)
+        if np.sin(aof + theta_z) <= 0.0:
+            continue
+        sin_theta_z = np.sin(theta_z)
+        pdf_z = N0_z / (2.0 * np.sqrt(z.mu * m_grid)) * np.exp(-np.sqrt(m_grid / z.mu))
+
+        for k in range(n_line):
+            xg, yg = xg_arr[k], yg_arr[k]
+            s = np.sqrt(xg**2 + yg**2 + h_b**2)
+            if s < 1e-3:
+                continue
+            r_hat = np.array([xg, yg, -h_b]) / s
+            cos_Theta = float(np.dot(r_hat, e_axis))
+            if abs(cos_Theta - np.cos(theta_z)) > np.sin(delta):
+                continue
+            gamma = np.arcsin(min(1.0, h_b / s))
+            Ap = presented_area(gamma, posture)
+            v = z.V0_ms * np.exp(-drag_lam_grid * s)
+            E = 0.5 * m_grid * v**2
+            integrand = pdf_z * pk_given_hit(E) * Ap / (
+                2.0 * np.pi * s**2 * 2.0 * sin_theta_z * delta
+            )
+            val = float(np.trapezoid(integrand, m_grid))
+            field_N[k] += val
+            field_N_by_zone[name][k] = val
+
+    pk_total = 1.0 - np.exp(-field_N)
+    pk_by_zone = {name: 1.0 - np.exp(-field_N_by_zone[name]) for name in _zone_names}
+    return pk_total, pk_by_zone
 
 
 def four_zone_field(

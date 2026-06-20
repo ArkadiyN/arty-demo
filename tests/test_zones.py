@@ -34,6 +34,12 @@ _four_zone_field_split
   • Returns dict with keys ogive/cylinder/boattail/base.
   • Each per-zone pk in [0, 1] everywhere.
   • Per-zone pk <= pk_total at every grid point.
+
+four_zone_line_split
+  • fixed_axis="x" line matches the corresponding _four_zone_field_split
+    grid column (total and per-zone) at shared nodes.
+  • fixed_axis="y" line matches the corresponding _four_zone_field_split
+    grid row (total and per-zone) at shared nodes.
 """
 
 import math
@@ -47,6 +53,7 @@ from arty.zones import (
     _four_zone_field_split,
     compute_shell_zones,
     four_zone_field,
+    four_zone_line_split,
     fragment_ground_impact,
 )
 
@@ -369,3 +376,52 @@ def test_base_zone_skipped_when_all_fragments_go_upward(m1_zones, field_grids):
     assert np.all(pk_by_zone["base"] == 0.0), (
         "base zone must contribute zero pk when no fragment can reach the ground"
     )
+
+
+# ---------------------------------------------------------------------------
+# four_zone_line_split
+# ---------------------------------------------------------------------------
+
+
+def test_line_split_matches_grid_fixed_x(m1_zones, field_grids):
+    # fixed_axis="x" holds the grid's column (downrange) index and sweeps
+    # cross-range y — must reproduce that column of the square grid exactly.
+    drag_lam, m_grid = field_grids
+    max_r, n_grid = 80.0, 15
+    xy = np.linspace(-max_r, max_r, n_grid)
+    j_fixed = n_grid // 2 + 2
+
+    _, _, pk_grid, pk_by_zone_grid = _four_zone_field_split(
+        m1_zones, aof_deg=30.0, h_b=2.0, posture=STANDING,
+        drag_lam_grid=drag_lam, m_grid=m_grid, max_r=max_r, n_grid=n_grid,
+    )
+    pk_line, pk_by_zone_line = four_zone_line_split(
+        m1_zones, aof_deg=30.0, h_b=2.0, posture=STANDING,
+        drag_lam_grid=drag_lam, m_grid=m_grid,
+        fixed_axis="x", fixed_coord=xy[j_fixed], line_coords=xy,
+    )
+    np.testing.assert_array_equal(pk_line, pk_grid[:, j_fixed])
+    for name in pk_by_zone_grid:
+        np.testing.assert_array_equal(pk_by_zone_line[name], pk_by_zone_grid[name][:, j_fixed])
+
+
+def test_line_split_matches_grid_fixed_y(m1_zones, field_grids):
+    # fixed_axis="y" holds the grid's row (cross-range) index and sweeps
+    # downrange x — must reproduce that row of the square grid exactly.
+    drag_lam, m_grid = field_grids
+    max_r, n_grid = 80.0, 15
+    xy = np.linspace(-max_r, max_r, n_grid)
+    i_fixed = n_grid // 2 - 3
+
+    _, _, pk_grid, pk_by_zone_grid = _four_zone_field_split(
+        m1_zones, aof_deg=30.0, h_b=2.0, posture=STANDING,
+        drag_lam_grid=drag_lam, m_grid=m_grid, max_r=max_r, n_grid=n_grid,
+    )
+    pk_line, pk_by_zone_line = four_zone_line_split(
+        m1_zones, aof_deg=30.0, h_b=2.0, posture=STANDING,
+        drag_lam_grid=drag_lam, m_grid=m_grid,
+        fixed_axis="y", fixed_coord=xy[i_fixed], line_coords=xy,
+    )
+    np.testing.assert_array_equal(pk_line, pk_grid[i_fixed, :])
+    for name in pk_by_zone_grid:
+        np.testing.assert_array_equal(pk_by_zone_line[name], pk_by_zone_grid[name][i_fixed, :])

@@ -15,7 +15,12 @@ from arty.fragmentation import (
     compute_frag_field_3d,
     retardation_coeff,
 )
-from arty.zones import _four_zone_field_split, compute_shell_zones
+from arty.zones import (
+    _four_zone_field_split,
+    compute_shell_zones,
+    four_zone_line_split,
+    fragment_velocity,
+)
 from arty.shells import SHELLS
 
 st.set_page_config(page_title="Fragmentation Field — Sensitivity", layout="wide")
@@ -236,7 +241,27 @@ def _compute_zones(
         "V0_cyl": cyl.V0_ms,
         "N0_cyl": N0_cyl,
         "mu_cyl": cyl.mu,
+        "m_grid": m_grid,
+        "drag_lam_grid": drag_lam_grid,
     }
+
+
+# Fine slice line: 10x the coarse grid step, cheap since cost is O(n_line)
+# per zone rather than O(n_grid^2) — see arty.zones.four_zone_line_split.
+_FINE_STEP = 0.25
+
+
+@st.cache_data
+def _compute_zone_line(zones, angle_of_fall, h_b, posture, drag_lam_grid, m_grid,
+                        spray_half_angle, max_radius, fixed_axis, fixed_coord):
+    n_fine = 2 * int(max_radius / _FINE_STEP) + 1
+    line_coords = np.linspace(-max_radius, max_radius, n_fine)
+    pk_total, pk_by_zone = four_zone_line_split(
+        zones, float(angle_of_fall), h_b, posture, drag_lam_grid, m_grid,
+        fixed_axis=fixed_axis, fixed_coord=fixed_coord, line_coords=line_coords,
+        delta_deg=float(spray_half_angle),
+    )
+    return line_coords, pk_total, pk_by_zone
 
 
 result = _compute_legacy(shell, drag, burst, posture, max_radius, _N_GRID)
@@ -374,8 +399,7 @@ def _hex_rgba(hex_color: str, alpha: float) -> str:
 
 def _spray_cone(
     h_b: float,
-    cA: float,
-    sA: float,
+    aof_deg: float,
     spray_deg: float,
     delta_deg: float,
     phi_sign: int,
@@ -390,14 +414,12 @@ def _spray_cone(
     at fixed phi_sign (±90° azimuth). All rays are capped at max_len slant
     distance; ground-hitting rays are additionally clipped at z=0.
     """
+    phi_rad = phi_sign * (np.pi / 2.0)
     xs: list[float] = [0.0]
     zs: list[float] = [h_b]
     for th_deg in np.linspace(spray_deg - delta_deg, spray_deg + delta_deg, n_arc):
-        cT = float(np.cos(np.radians(float(th_deg))))
-        sT = float(np.sin(np.radians(float(th_deg))))
-        vgx = cA * cT + sA * sT * phi_sign
-        vgz = -sA * cT + cA * sT * phi_sign
-        # (vgx, vgz) is unit at phi=±90°; cap all rays at max_len slant distance
+        vgx, _vgy, vgz = fragment_velocity(float(th_deg), phi_rad, aof_deg)
+        # cap all rays at max_len slant distance
         if h_b > 0.01 and vgz < -1e-6:
             t = min(h_b / (-vgz), max_len)
         else:
@@ -408,6 +430,47 @@ def _spray_cone(
     zs.append(h_b)
     return go.Scatter(
         x=xs, y=zs,
+        fill="toself",
+        fillcolor=_hex_rgba(color, 0.20),
+        mode="lines",
+        line=dict(color=color, width=1.5),
+        name=name or "",
+        showlegend=(name is not None),
+        hoverinfo="skip",
+    )
+
+
+def _spray_cone_across(
+    h_b: float,
+    aof_deg: float,
+    spray_deg: float,
+    delta_deg: float,
+    y_sign: int,
+    color: str,
+    name: str | None,
+    n_arc: int = 16,
+    max_len: float = 30.0,
+) -> go.Scatter:
+    """Filled sector polygon in the across (y-z) plane at phi=0/π.
+
+    At phi=0 (y_sign=+1) / phi=π (y_sign=-1): vy = ±sin(theta), vz = -sA*cos(theta).
+    y_sign=+1 draws the right lobe, y_sign=-1 the left (mirror).
+    """
+    phi_rad = 0.0 if y_sign > 0 else np.pi
+    ys: list[float] = [0.0]
+    zs: list[float] = [h_b]
+    for th_deg in np.linspace(spray_deg - delta_deg, spray_deg + delta_deg, n_arc):
+        _vgx, vy, vz = fragment_velocity(float(th_deg), phi_rad, aof_deg)
+        if h_b > 0.01 and vz < -1e-6:
+            t = min(h_b / (-vz), max_len)
+        else:
+            t = max_len
+        ys.append(float(vy * t))
+        zs.append(float(h_b + vz * t))
+    ys.append(0.0)
+    zs.append(h_b)
+    return go.Scatter(
+        x=ys, y=zs,
         fill="toself",
         fillcolor=_hex_rgba(color, 0.20),
         mode="lines",
@@ -482,7 +545,7 @@ def _plotly_elevation(
         # Single-zone: equatorial belt at spray_deg=90° from shell axis
         for phi_sign in (+1, -1):
             traces.append(_spray_cone(
-                h_b, cA, sA,
+                h_b, aof_deg,
                 spray_deg=90.0,
                 delta_deg=spray_half_angle_deg,
                 phi_sign=phi_sign,
@@ -502,7 +565,7 @@ def _plotly_elevation(
             color = _ZONE_COLOURS_ELEV[name]
             for phi_sign in (+1, -1):
                 traces.append(_spray_cone(
-                    h_b, cA, sA,
+                    h_b, aof_deg,
                     spray_deg=float(z.spray_deg),
                     delta_deg=spray_half_angle_deg,
                     phi_sign=phi_sign,
@@ -526,6 +589,92 @@ def _plotly_elevation(
         text=f"AoF={aof_deg:.0f}°",
         showarrow=False, font=dict(size=10, color="gray"),
         xanchor="right",
+    )
+    return fig
+
+
+def _plotly_elevation_across(
+    zones_or_none,
+    aof_deg: float,
+    h_b: float,
+    y_person: float,
+    spray_half_angle_deg: float = 15.0,
+) -> go.Figure:
+    """Across cross-section (y-z plane, looking downrange).
+
+    Draws spray fans at phi=±90° for each zone. Unlike the elevation view the
+    two lobes are symmetric about y=0 (AoF only tilts the x-z plane). The
+    equatorial belt (theta=90°) has vgz=0 and fans are horizontal — most
+    interesting for off-equatorial zones (ogive, boattail, base).
+    """
+    y_max = max(abs(y_person) * 1.5, 50.0)
+    z_max = max(h_b + 10, 15.0)
+    # Rays should extend past the plot boundary so axes do the clipping, not the
+    # slant-range cap (which would create a visible hard stop mid-plot for
+    # horizontal rays like the equatorial belt).
+    max_ray = y_max + z_max
+
+    traces: list = []
+
+    # Ground fill
+    traces.append(go.Scatter(
+        x=[-y_max, y_max, y_max, -y_max, -y_max],
+        y=[-2, -2, 0, 0, -2],
+        fill="toself", fillcolor="rgba(200,169,126,0.45)",
+        line=dict(color="rgba(139,105,20,1)", width=1.5),
+        mode="lines", showlegend=False, hoverinfo="skip",
+    ))
+
+    # Burst point
+    traces.append(go.Scatter(
+        x=[0], y=[h_b], mode="markers+text",
+        marker=dict(symbol="cross", size=14, color="black", line=dict(width=2.5, color="black")),
+        text=[f"h_b={h_b:.1f} m"], textposition="top right",
+        showlegend=False,
+    ))
+
+    if zones_or_none is None:
+        for y_sign in (+1, -1):
+            traces.append(_spray_cone_across(
+                h_b, aof_deg,
+                spray_deg=90.0,
+                delta_deg=spray_half_angle_deg,
+                y_sign=y_sign,
+                color="#ff7f0e",
+                name=f"belt  δ=±{spray_half_angle_deg:.0f}°" if y_sign == +1 else None,
+                max_len=max_ray,
+            ))
+    else:
+        zone_list = [
+            ("ogive",    zones_or_none.ogive),
+            ("cylinder", zones_or_none.cylinder),
+            ("boattail", zones_or_none.boattail),
+            ("base",     zones_or_none.base),
+        ]
+        for name, z in zone_list:
+            if z.mass_kg <= 1e-6:
+                continue
+            color = _ZONE_COLOURS_ELEV[name]
+            for y_sign in (+1, -1):
+                traces.append(_spray_cone_across(
+                    h_b, aof_deg,
+                    spray_deg=float(z.spray_deg),
+                    delta_deg=spray_half_angle_deg,
+                    y_sign=y_sign,
+                    color=color,
+                    name=f"{name}  θ={z.spray_deg:.0f}°" if y_sign == +1 else None,
+                    max_len=max_ray,
+                ))
+
+    fig = go.Figure(data=traces)
+    mode_label = "single-zone (legacy)" if zones_or_none is None else "four-zone"
+    fig.update_layout(
+        title=f"Across cross-section — {mode_label}  ·  AoF={aof_deg:.0f}°, h_b={h_b:.1f} m",
+        xaxis=dict(title="Cross-range y [m]", range=[-y_max, y_max]),
+        yaxis=dict(title="Height z [m]", range=[-2, z_max]),
+        height=320,
+        margin=dict(t=45, b=40, l=60, r=20),
+        legend=dict(orientation="h", y=-0.22),
     )
     return fig
 
@@ -642,17 +791,15 @@ else:  # Four-zone (new)
     zone_obj_list = [zones_obj.ogive, zones_obj.cylinder, zones_obj.boattail, zones_obj.base]
 
     v0_vals = [z.V0_ms for z in zone_obj_list]
-    spray_vals = [z.spray_deg for z in zone_obj_list]
 
     _zone_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]  # ogive/cylinder/boattail/base = C0/C1/C2/C3
     fig_bar = make_subplots(
-        rows=1, cols=3,
-        subplot_titles=["V₀ [m/s]", "Spray angle [°]", "N(>m) fragments"],
+        rows=1, cols=2,
+        subplot_titles=["V₀ [m/s]", "N(>m) fragments"],
     )
-    for idx, (zn, v0, spray) in enumerate(zip(zone_names, v0_vals, spray_vals)):
+    for idx, (zn, v0) in enumerate(zip(zone_names, v0_vals)):
         c = _zone_colors[idx]
         fig_bar.add_trace(go.Bar(x=[zn], y=[v0], name=zn, marker_color=c, showlegend=False), row=1, col=1)
-        fig_bar.add_trace(go.Bar(x=[zn], y=[spray], name=zn, marker_color=c, showlegend=False), row=1, col=2)
 
     _mu_max = max(
         (z.mu for z in zone_obj_list if np.isfinite(z.mu) and z.mu > 0),
@@ -668,30 +815,20 @@ else:  # Four-zone (new)
             x=_m_g, y=n_gt_m,
             name=zn, line=dict(color=_zone_colors[idx], width=2),
             showlegend=True,
-        ), row=1, col=3)
-    fig_bar.update_xaxes(title_text="m [g]", row=1, col=3)
-    fig_bar.update_yaxes(title_text="frags heavier than m", row=1, col=3)
+        ), row=1, col=2)
+    fig_bar.update_xaxes(title_text="m [g]", row=1, col=2)
+    fig_bar.update_yaxes(title_text="frags heavier than m", row=1, col=2)
     fig_bar.update_layout(
         title="Zone Properties",
         height=360,
         margin=dict(t=60, b=40, l=60, r=20),
         legend=dict(orientation="v", x=1.02, y=1.0, xanchor="left"),
     )
+    st.plotly_chart(fig_bar, use_container_width=True)
 
     # Grid columns are exactly the 2.5 m steps, so slider options == grid columns.
     xy_arr = np.linspace(-max_radius, max_radius, _N_GRID)
-    _sl_col, _ = st.columns([1, 2])
-    x_slice = _sl_col.select_slider(
-        "Downrange x [m]",
-        options=[round(v, 10) for v in xy_arr.tolist()],
-        value=0.0,
-        format_func=lambda v: f"{v:+.1f} m",
-        key="x_slice",
-    )
-    x_idx = _N_STEPS + round(x_slice / 2.5)  # exact: xy_arr[_N_STEPS] == 0.0
-
-    def _xslice(grid):
-        return grid[:, x_idx]
+    slider_opts = [round(v, 10) for v in xy_arr.tolist()]
 
     zone_colors = {
         "ogive": "#1f77b4",
@@ -699,37 +836,93 @@ else:  # Four-zone (new)
         "boattail": "#2ca02c",
         "base": "#d62728",
     }
-    fig_pk = go.Figure()
-    for zn, pk_grid in result_zones["pk_by_zone"].items():
-        fig_pk.add_trace(go.Scatter(
-            x=xy_arr, y=_xslice(pk_grid),
-            mode="lines",
-            line=dict(color=zone_colors.get(zn, "#888"), width=1.5, dash="dash"),
-            name=zn,
-        ))
-    fig_pk.add_trace(go.Scatter(
-        x=xy_arr, y=_xslice(result_zones["pk_total"]),
-        mode="lines",
-        line=dict(color="black", width=2.5),
-        name="total",
-    ))
-    fig_pk.update_layout(
-        title=f"Per-zone P(kill) vs Cross-range  (x = {x_slice:+.1f} m slice)",
-        xaxis_title="Cross-range  y  [m]",
-        yaxis=dict(title="P(kill)", range=[0, 1]),
-        height=360,
-        margin=dict(t=40, b=40, l=60, r=20),
-        legend=dict(title="Zone"),
-    )
 
-    brk_left, brk_right = st.columns(2)
-    with brk_left:
-        st.plotly_chart(fig_bar, use_container_width=True)
-    with brk_right:
+    # --- Two-column slice charts ---
+    sl_left, sl_right = st.columns(2)
+
+    with sl_left:
+        x_slice = st.select_slider(
+            "Downrange x [m]",
+            options=slider_opts,
+            value=0.0,
+            format_func=lambda v: f"{v:+.1f} m",
+            key="x_slice",
+        )
+        line_y, pk_total_x, pk_by_zone_x = _compute_zone_line(
+            result_zones["zones"], angle_of_fall, h_b, posture,
+            result_zones["drag_lam_grid"], result_zones["m_grid"],
+            spray_half_angle, max_radius, fixed_axis="x", fixed_coord=float(x_slice),
+        )
+        fig_pk = go.Figure()
+        for zn, pk_line in pk_by_zone_x.items():
+            fig_pk.add_trace(go.Scatter(
+                x=line_y, y=pk_line,
+                mode="lines",
+                line=dict(color=zone_colors.get(zn, "#888"), width=1.5, dash="dash"),
+                name=zn,
+            ))
+        fig_pk.add_trace(go.Scatter(
+            x=line_y, y=pk_total_x,
+            mode="lines",
+            line=dict(color="black", width=2.5),
+            name="total",
+        ))
+        fig_pk.update_layout(
+            title=f"P(kill) vs Cross-range  (x = {x_slice:+.1f} m)",
+            xaxis_title="Cross-range  y  [m]",
+            yaxis=dict(title="P(kill)", range=[0, 1]),
+            height=360,
+            margin=dict(t=40, b=40, l=60, r=20),
+            legend=dict(title="Zone"),
+        )
         st.plotly_chart(fig_pk, use_container_width=True)
 
-    _elev_col, _ = st.columns(2)
-    with _elev_col:
+    with sl_right:
+        y_slice = st.select_slider(
+            "Cross-range y [m]",
+            options=slider_opts,
+            value=0.0,
+            format_func=lambda v: f"{v:+.1f} m",
+            key="y_slice",
+        )
+        line_x, pk_total_y, pk_by_zone_y = _compute_zone_line(
+            result_zones["zones"], angle_of_fall, h_b, posture,
+            result_zones["drag_lam_grid"], result_zones["m_grid"],
+            spray_half_angle, max_radius, fixed_axis="y", fixed_coord=float(y_slice),
+        )
+        fig_pk_down = go.Figure()
+        for zn, pk_line in pk_by_zone_y.items():
+            fig_pk_down.add_trace(go.Scatter(
+                x=line_x, y=pk_line,
+                mode="lines",
+                line=dict(color=zone_colors.get(zn, "#888"), width=1.5, dash="dash"),
+                name=zn,
+            ))
+        fig_pk_down.add_trace(go.Scatter(
+            x=line_x, y=pk_total_y,
+            mode="lines",
+            line=dict(color="black", width=2.5),
+            name="total",
+        ))
+        fig_pk_down.update_layout(
+            title=f"P(kill) vs Downrange  (y = {y_slice:+.1f} m)",
+            xaxis_title="Downrange  x  [m]",
+            yaxis=dict(title="P(kill)", range=[0, 1]),
+            height=360,
+            margin=dict(t=40, b=40, l=60, r=20),
+            legend=dict(title="Zone"),
+        )
+        st.plotly_chart(fig_pk_down, use_container_width=True)
+
+    # --- Two-column cross-sections ---
+    xsec_left, xsec_right = st.columns(2)
+    with xsec_left:
+        st.plotly_chart(
+            _plotly_elevation_across(zones_obj, float(angle_of_fall), h_b, float(y_slice),
+                                     spray_half_angle_deg=float(spray_half_angle)),
+            use_container_width=True,
+        )
+    with xsec_right:
         st.plotly_chart(
             _plotly_elevation(zones_obj, float(angle_of_fall), h_b, float(x_slice),
                               spray_half_angle_deg=float(spray_half_angle)),
