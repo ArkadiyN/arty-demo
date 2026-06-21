@@ -19,6 +19,7 @@ repos:
         language: system
         entry: uv run mdformat --extensions gfm --extensions frontmatter
         types: [markdown]
+        exclude: '\.claude/agent-memory/'
 
       - id: detect-secrets
         name: detect-secrets
