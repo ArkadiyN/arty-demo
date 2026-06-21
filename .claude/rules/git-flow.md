@@ -40,20 +40,9 @@ description: This file contains the Git and commit workflow rules for the projec
 - Branch names use `<type>/<slug>` — e.g. `feature/translate-ui`,
   `fix/mcp-playwright`, `chore/openspec-config`.
 
-### Known bug: subagents don't reliably inherit the worktree cwd
-
-Per [anthropics/claude-code#36182](https://github.com/anthropics/claude-code/issues/36182),
-a subagent dispatched from a session that has correctly entered a worktree
-(confirmed `EnterWorktree` switch, verified cwd) can still start its own Bash
-subprocess outside that worktree, forcing it to discover this and `cd` back in
-on every command. This is a harness bug, not a sign that `EnterWorktree` was
-used wrong — do not "fix" it by re-entering or re-checking the worktree.
-
-**Workaround (brittle, but the only one available until the bug is fixed):**
-when delegating file-touching work to any subagent while in a worktree, state
-the worktree's absolute path explicitly in the dispatch prompt, and instruct
-the subagent to anchor every Bash command and every Read/Edit/Write call to
-that absolute path — never rely on an inherited cwd.
+For known harness gotchas when *dispatching subagents* into a worktree
+(cwd inheritance, background-mode execution, Bash permission denials), see
+`.claude/rules/subagent-harness.md`.
 
 ## 2. Commit Scoping & Logical Units
 
