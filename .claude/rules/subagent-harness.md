@@ -18,8 +18,20 @@ This project's `Bash` permission allow-list only covers `Bash(uv run *)` and
 permission prompt — which, per the background-execution gotcha below, often
 cannot be granted and fails **silently**. When you need an ad-hoc check
 (unit conversion, quick numerical sanity check, anything not worth a test
-file), always run it as `uv run python3 -c "..."` or write it to a temp file
-and run `uv run python3 /tmp/check.py` — never bare `python`/`python3`/`pip`.
+file), always run it as `uv run python3 -c "..."` or write it to a file and
+run `uv run python3 <path>` — never bare `python`/`python3`/`pip`.
+
+**The scratch file itself must land under an allow-listed `Write` path** —
+`/tmp` is **not** in the allow-list (only `Write(.claude/worktrees/*)`,
+`Write(src/arty/**)`, `Write(experiment/**)`, `Write(doc-reference/**)`,
+`Write(openspec/**)`; `.claude/settings.json` /
+`.claude/settings.local.json`). A `Write` to `/tmp/check.py` is denied exactly
+like a bare `python3` Bash call, and under background-mode dispatch fails
+silently with no fallback — forcing the agent into one giant inline `-c`
+string instead, which is harder to debug and more likely to be denied itself
+on size/quoting grounds. Use `experiment/_scratch/<name>.py` instead (under
+the model folder you're already working in is fine too); delete the file when
+the check is done since it isn't a real artifact.
 
 ## Known bug: subagents don't reliably inherit the worktree cwd
 
@@ -56,8 +68,9 @@ silently auto-denied instead of prompted.
 - Stick to command shapes that cleanly match an allow-listed glob (see above
   for `uv run`); avoid shell metacharacters (backticks, `$`) in `grep`/`sed`
   patterns where a plain-text alternative exists.
-- Have subagents write nontrivial verification/check code to a temp file
-  (`Write`) and run it with a short, single-line command (e.g. `uv run python /tmp/check.py`) instead of inline multi-line `-c "..."`.
+- Have subagents write nontrivial verification/check code to a file under an
+  allow-listed `Write` path (e.g. `experiment/_scratch/check.py` — see above,
+  never `/tmp`) and run it with a short, single-line command (e.g. `uv run python experiment/_scratch/check.py`) instead of inline multi-line `-c "..."`.
 - Never assume a quiet subagent return means full success. A subagent that hit
   a permission denial should say so in its return summary (the harness's denial
   message is explicit) — the orchestrating agent must check returned summaries

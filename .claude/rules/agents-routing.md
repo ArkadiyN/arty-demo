@@ -4,6 +4,29 @@ Physics modelling work in this project follows one of **two named workflows**.
 Decide which one applies *before* delegating; the artifacts and "done"
 conditions differ.
 
+## Worktree precondition — always on
+
+This gate binds the **main agent** and is checked *before* either gate below,
+not just before Workflow A/B. **Invariant:** the main agent never dispatches
+@modeler or @model-reviewer unless it has already entered a worktree this
+session (`EnterWorktree` called, not exited).
+
+**Why this is its own gate, not folded into "new work":** both agents carry
+`memory: project` in their frontmatter, which auto-grants Write/Edit to their
+own memory directory (`.claude/agent-memory/<agent>/`) regardless of the
+agent's declared `tools:` line — see `model-reviewer.md`, whose only declared
+tools are `Read, Bash`. Both agents are instructed to consult and update that
+memory on **every pass**, including a one-line chart/new-math triage or a
+correctness-question investigation that touches no model artifact. A dispatch
+that looks read-only can still write to disk. Since `.claude/agent-memory/` is
+a git-tracked directory, whichever checkout the main agent is sitting in when
+it dispatches is where that write lands — there is no separate routing step
+that could send it elsewhere.
+
+**On trigger:** if the main agent has not entered a worktree yet, do so
+(`EnterWorktree`) before sending any prompt to @modeler or @model-reviewer,
+even a question with no expected file output.
+
 ## New-math gate — always on
 
 This gate binds the **main agent**, in every flow and at every entry point: a
