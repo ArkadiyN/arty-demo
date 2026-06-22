@@ -37,14 +37,18 @@ renamed `γ_M` / `gamma_M` in the 3D notebook to avoid clashing with `γ` =
 fragment arrival elevation angle. Watch this in any 3D-geometry derivation.
 
 **Belt-test sign-convention trap (single-zone vs four-zone).** The two paths
-use DIFFERENT `e_axis`: single-zone `_shell_axis = (−cosα,0,−sinα)` (backward),
-four-zone `e_axis = (+cosα,0,−sinα)` (forward). Tests also differ: single-zone
-`|cosΘ| ≤ sinδ` (θ=90 implicit, equatorial), four-zone `|cosΘ−cosθ^z| ≤ sinδ`.
-They AGREE for the equatorial belt (cosθ^z=0 ⇒ |cosΘ|≤sinδ; the x-sign flip is
-absorbed by the |·|). The sign only matters for non-equatorial zones, which
-exist ONLY in the four-zone path. Don't "fix" the single-zone backward axis —
-it's equivalent for θ=90. Full reasoning: `lethal-fragment-density-field/
-derivation.md` §5.4. This is what the stuck prior pass was circling.
+use DIFFERENT `e_axis`: legacy single-zone `_shell_axis = (−cosα,0,−sinα)`
+(backward), four-zone `e_axis = (+cosα,0,−sinα)` (forward). These are **not**
+provably pointwise-equivalent off the `x=0` plane — a partial (x-only) sign
+flip is not the same as negating the whole vector, and a hand-checked
+off-axis point falsifies the naive "they agree at the equatorial belt"
+argument. Do not re-derive or re-assert an analytical equivalence claim here;
+the resolved framing is "deliberate standardisation by construction, verified
+empirically," not "provably equivalent." The new single-zone
+`lethal_density_point` uses a separate `_forward_shell_axis = (+cosα,0,−sinα)`
+for this reason; the legacy `_shell_axis`/`_expected_kills_3d_point` pair is
+untouched and intentionally not reconciled. Full reasoning + the counterexample:
+`lethal-fragment-density-field/derivation.md` §5.4, `review.md`.
 
 **E_leth for binary lethal cut = 1000 J** (ES-310 P_k=0.5 anchor), NOT 79 J.
 Matches the graded `pk_given_hit` 0.5 point (`_PK_E=[100,1000,4000]`). Recorded

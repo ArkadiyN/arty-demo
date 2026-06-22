@@ -34,9 +34,3 @@ see the `min_lethal_mass`/`mott_N` validation pattern) rather than an
 analytical "it's flat there" argument. Caught 2026-06-20 in
 `experiment/fragmentation-field/updates/lethal-fragment-density-field/derivation.md`
 §6.1/§6.2 (FAIL, Moderate) — flagged in `review.md` in the same folder.
-
-Note: bash/python execution was denied in that review session for ad hoc
-numeric scripts (sandbox policy, intermittent — sometimes simple commands like
-`echo` worked, multi-line heredocs/python did not); this was worked out by
-hand arithmetic instead. Don't assume Bash will be available for verification
-— be ready to do the arithmetic manually.
