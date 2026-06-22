@@ -26,7 +26,9 @@
      "Edit(experiment/**)",
      "Write(experiment/**)",
      "Edit(doc-reference/**)",
-     "Write(doc-reference/**)"
+     "Write(doc-reference/**)",
+     "Edit(tests/**)",
+     "Write(tests/**)"
     ]
   },
   "worktree": {

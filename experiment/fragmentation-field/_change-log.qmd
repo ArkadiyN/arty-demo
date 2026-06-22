@@ -6,6 +6,7 @@
 | 0.2.0 | Add $A_p(\gamma, \text{posture})$ replacement for the width-based geometry factor (eq. 22'). | `updates/target-area-profile/derivation.md` |
 | 0.3.0 | Four-zone (ogive/cylinder/boattail/base) decomposition with zone-local Gurney, Mott, and spray angles; AoF ground projection; $A_p$-based geometry factor integrated. | `updates/frag-field-3d-geometry/derivation.md` |
 | 0.3.1 | Refactor: all physics moved to `src/arty/` (`fragmentation.py`, new `zones.py`, new `plots.py`); notebook split into per-section partials. Behaviour-preserving — no value changes. | — |
+| 0.4.0 | Add target-independent lethal-fragment density field $\rho_L(x,y,z)$ (eq. 3) for both single-zone and four-zone paths: divides out the presented-area $A_p$ and graded $P_k\|\text{hit}$ factors, counting only fragments with arrival KE $\ge E_\text{leth} = 1000$ J (ES-310 $P_k\|\text{hit}=0.5$ anchor). | `updates/lethal-fragment-density-field/derivation.md` |
 
 ______________________________________________________________________
 

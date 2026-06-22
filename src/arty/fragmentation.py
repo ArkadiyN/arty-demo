@@ -382,6 +382,133 @@ def _shell_axis(alpha_rad: float) -> np.ndarray:
     return np.array([-np.cos(alpha_rad), 0.0, -np.sin(alpha_rad)])
 
 
+def _forward_shell_axis(alpha_rad: float) -> np.ndarray:
+    """Forward shell axis in the ground frame [-]: ``(+cosα, 0, −sinα)``.
+
+    Canonical axis for the lethal-density field (derivation §5.4); both the
+    single-zone and four-zone ρ_L paths use this convention so they agree
+    pointwise off the x=0 plane. ``alpha_rad`` is the angle of fall [rad].
+    """
+    return np.array([np.cos(alpha_rad), 0.0, -np.sin(alpha_rad)])
+
+
+# ---------------------------------------------------------------------------
+# Lethal-fragment areal density ρ_L(x, y, z) — target-independent kernel
+#   (derivation: updates/lethal-fragment-density-field/derivation.md)
+# ---------------------------------------------------------------------------
+
+# Default binary lethal kinetic-energy threshold [J]: the ES-310 (FAS/Navy
+# 1998) P_k|hit = 0.5 "moderate personnel kill" anchor, matching the 0.5 point
+# of the graded pk_given_hit weighting it replaces (derivation §3).
+E_LETH_DEFAULT = 1000.0
+
+# Fixed nominal personnel presented area [m²] for the point kill-probability
+# transform P_k = 1 − exp(−ρ_L·A_ref) (pkill-poisson-field derivation §1 eq. 2,
+# §6). The standing frontal silhouette A_f = w_perp·h = 0.5·1.7 = 0.85 m²
+# (STANDING posture, line 96), frozen as a posture/angle-independent scalar —
+# NOT a live presented_area(γ, posture) call: P_k deliberately abstracts away
+# arrival angle and posture. This is an engineering convention and a LOWER
+# bound; real silhouettes with helmet/armour/kit run 10–25% larger.
+A_REF_DEFAULT = 0.85
+
+
+def build_mmin_table(
+    s_grid: np.ndarray,
+    V0: float,
+    E_leth: float,
+    drag: DragParams,
+    rho_steel: float,
+) -> np.ndarray:
+    """Minimum lethal fragment mass m_min(s) [kg] on a 1D slant-range grid [m].
+
+    Precomputes m_min by bisection once per grid node so the 3D field can
+    ``np.interp`` instead of root-finding per point (derivation §6). m_min
+    depends on slant range s only (per the zone's V0), not on direction or
+    (x,y,z) separately, which is why a 1D table suffices.
+
+    s_grid    : monotone slant-range grid [m]
+    V0        : zone initial fragment velocity [m/s]
+    E_leth    : binary lethal kinetic-energy threshold [J]
+    drag      : DragParams
+    rho_steel : steel density [kg/m³]
+    """
+    return np.array([
+        min_lethal_mass(float(s), V0, E_leth, drag, rho_steel) for s in s_grid
+    ])
+
+
+def lethal_density_point(
+    x: float,
+    y: float,
+    z: float,
+    h_b: float,
+    alpha_rad: float,
+    delta_rad: float,
+    N0: float,
+    mu: float,
+    s_grid: np.ndarray,
+    mmin_grid: np.ndarray,
+) -> float:
+    """Lethal-fragment areal density ρ_L [m⁻²] at field point (x, y, z) [m].
+
+    Single-zone (equatorial cylinder, θ = 90°) evaluation of eq. (3) of the
+    derivation: spreading factor 1/(2π s² · 2 sinθ^z · δ) with sinθ^z = sin90° = 1,
+    times the closed-form
+    Mott lethal count N0·exp(−√(m_min(s)/μ)), with the two target-coupled
+    factors (A_p, graded pk) divided out. Returns 0 outside the spray belt or
+    for δ ≤ 0 (Dirac-ring limit).
+
+    x, y, z   : field-point coordinates [m]; z is height above ground
+    h_b       : burst height above ground [m]
+    alpha_rad : angle of fall [rad]
+    delta_rad : spray-belt half-width δ [rad]
+    N0, mu    : total fragment count [-] and Mott half-mass [kg]
+    s_grid    : slant-range grid [m] for the m_min table; MUST cover the full
+                range of slant ranges this point can produce — np.interp below
+                silently clips (does not error/extrapolate) for s outside
+                [s_grid[0], s_grid[-1]], so an undersized grid biases m_min with
+                no warning. The field-builder callers size s_grid from the same
+                z they query; a direct caller must ensure the same coverage.
+    mmin_grid : m_min(s) [kg] tabulated on s_grid (from build_mmin_table)
+    """
+    if delta_rad <= 0.0:
+        return 0.0
+
+    s = np.sqrt(x**2 + y**2 + (z - h_b) ** 2)
+    if s < 1e-6:
+        return 0.0
+
+    e_axis = _forward_shell_axis(alpha_rad)
+    r_vec = np.array([x, y, z - h_b]) / s
+    cos_Theta = float(np.dot(r_vec, e_axis))
+    # Equatorial belt: θ = 90°, cosθ = 0, so the test is |cosΘ| ≤ sinδ.
+    if abs(cos_Theta) > np.sin(delta_rad):
+        return 0.0
+
+    # Spreading factor uses the *zone* spray angle θ^z, not the field point's
+    # own polar angle Θ: the belt solid angle is 2π·2·sinθ^z·δ, a fixed
+    # property of where the belt sits (frag-field-3d-geometry derivation §3.8),
+    # so the same belt area spreads the fragments regardless of where inside the
+    # belt the point falls. For the single-zone equatorial cylinder θ^z = 90°,
+    # hence sinθ^z = 1. (Using sinΘ — the legacy _expected_kills_3d_point
+    # convention — only happens to ~agree here because the narrow belt keeps
+    # Θ ≈ 90°; it inflates ρ_L by O(δ²) off the belt centre and breaks the
+    # single-vs-four-zone consistency check, which uses sinθ^z.)
+    sin_theta_z = 1.0  # sin(90°), equatorial cylinder
+
+    # np.interp silently clips outside the grid; assert (debug-mode only, off
+    # under python -O) that s is in range so an undersized caller-supplied grid
+    # surfaces loudly instead of biasing m_min.
+    assert s_grid[0] <= s <= s_grid[-1], (
+        f"s={s:.4g} m outside m_min grid [{s_grid[0]:.4g}, {s_grid[-1]:.4g}] m; "
+        "np.interp would silently clip"
+    )
+    m_min = float(np.interp(s, s_grid, mmin_grid))
+    N_leth = N0 * np.exp(-np.sqrt(m_min / mu))
+    g = 1.0 / (2.0 * np.pi * s**2 * 2.0 * sin_theta_z * delta_rad)
+    return float(g * N_leth)
+
+
 def _expected_kills_3d_point(
     x_g: float,
     y_g: float,
@@ -429,6 +556,221 @@ def _expected_kills_3d_point(
 # ---------------------------------------------------------------------------
 # 3D top-level entry point
 # ---------------------------------------------------------------------------
+
+
+def slant_range_grid(
+    max_radius: float,
+    h_b: float,
+    z_max: float,
+    n_s: int = 400,
+    s_min: float = 0.5,
+    margin: float = 1.05,
+    z_min: float | None = None,
+) -> np.ndarray:
+    """Uniform slant-range grid [m] spanning a 3D field box (derivation §6.1).
+
+    The maximum slant range to any box corner at height z_max is
+    √(2·max_radius² + (z_max − h_b)²). The minimum is the closest the box gets
+    to the burst at (0, 0, h_b): 0 in (x, y) at the origin column, and
+    max(0, h_b − z_max, z_min − h_b) in z when h_b lies outside [z_min, z_max].
+    That geometric minimum (not a fixed floor) is the grid's lower bound, so the
+    m_min table always covers every point the field-builder can query — the
+    origin column at a z-layer near h_b can reach a slant range below the old
+    fixed 0.5 floor, which silently clipped (or, in debug, tripped the
+    ``lethal_density_point`` range assertion). The lower bound is still floored
+    above the 1/s² singularity guard (``lethal_density_point`` early-returns for
+    s < 1e-6) by ``s_floor``. A ×margin factor on s_max ensures no field point
+    extrapolates off the top of the grid.
+
+    max_radius : half-extent of the (x, y) box [m]
+    h_b        : burst height above ground [m]
+    z_max      : top of the evaluated height range [m]
+    n_s        : number of grid points
+    s_min      : legacy fixed floor [m]; used only as an upper cap on the
+                 geometric lower bound so the grid never starts *above* the
+                 achievable minimum (kept for API compatibility)
+    margin     : multiplicative headroom on s_max [-]
+    z_min      : bottom of the evaluated height range [m] (default 0, the
+                 ground); the box spans z in [z_min, z_max]
+    """
+    if z_min is None:
+        z_min = 0.0
+    s_max = margin * np.sqrt(2.0 * max_radius**2 + (z_max - h_b) ** 2)
+    # Closest approach of the box to the burst: 0 in (x, y), and the gap in z
+    # only if h_b is outside [z_min, z_max]. Inside that span the origin column
+    # passes through the burst height, so the geometric minimum is 0.
+    s_geo_min = max(0.0, h_b - z_max, z_min - h_b)
+    # Floor above the singularity guard; never start above the achievable min.
+    s_floor = 1e-3
+    s_lo = min(s_min, max(s_floor, s_geo_min))
+    return np.linspace(s_lo, s_max, n_s)
+
+
+def compute_lethal_density_field_3d(
+    shell: ShellParams = ShellParams(),
+    drag: DragParams = DragParams(),
+    burst: BurstParams = BurstParams(),
+    z: float = 0.0,
+    max_radius: float = 80.0,
+    n_grid: int = 80,
+    E_leth: float = E_LETH_DEFAULT,
+    n_s: int = 400,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Single-zone lethal-density field ρ_L [m⁻²] on an (x, y) patch at height z.
+
+    Evaluates eq. (3) of the derivation (single equatorial cylinder) over a
+    square (x, y) grid at a fixed height ``z`` [m] above ground, using a
+    precomputed per-zone m_min(s) table interpolated per point (§6). All
+    physics is target-independent: A_p and the graded weighting are divided
+    out (§5.1).
+
+    Returns ``(X, Y, rho_L)`` meshgrids [m, m, m⁻²].
+    """
+    V0 = gurney_velocity(shell)
+    mu, N0 = mott_params(shell, V0)
+
+    alpha_rad = np.radians(burst.angle_of_fall)
+    delta_rad = np.radians(burst.spray_half_angle)
+
+    # This field is a single height layer (z fixed): the box spans z in [z, z],
+    # so pass z as both bounds. The closest the (x, y) patch gets to the burst
+    # at (0, 0, h_b) is |z - h_b| at the origin, which slant_range_grid uses as
+    # the table's true lower bound (covering the case z ≈ h_b, where |z - h_b|
+    # falls below the old fixed 0.5 floor and tripped the range assertion).
+    s_grid = slant_range_grid(max_radius, burst.h_b, z, n_s=n_s, z_min=z)
+    mmin_grid = build_mmin_table(s_grid, V0, E_leth, drag, shell.steel.rho)
+
+    xy = np.linspace(-max_radius, max_radius, n_grid)
+    X, Y = np.meshgrid(xy, xy)
+    rho_L = np.zeros_like(X)
+    for i in range(n_grid):
+        for j in range(n_grid):
+            rho_L[i, j] = lethal_density_point(
+                X[i, j], Y[i, j], z, burst.h_b, alpha_rad, delta_rad,
+                N0, mu, s_grid, mmin_grid,
+            )
+    return X, Y, rho_L
+
+
+def compute_lethal_density_volume_3d(
+    shell: ShellParams = ShellParams(),
+    drag: DragParams = DragParams(),
+    burst: BurstParams = BurstParams(),
+    z_max: float = 10.0,
+    max_radius: float = 80.0,
+    n_grid: int = 30,
+    n_z: int = 20,
+    E_leth: float = E_LETH_DEFAULT,
+    n_s: int = 400,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Single-zone lethal-density volume ρ_L [m⁻²] on an (x, y, z) grid.
+
+    No new physics: evaluates :func:`compute_lethal_density_field_3d` once per
+    z-layer over ``n_z`` heights from 0 to ``z_max`` [m] and stacks the per-layer
+    (X, Y, rho_L) outputs into 3D arrays. The z=0 layer is numerically identical
+    to ``compute_lethal_density_field_3d(z=0.0)`` for matching parameters.
+
+    z_max      : top of the z-extent [m] (bottom is the ground, z=0)
+    max_radius : half-extent of the (x, y) box [m]
+    n_grid     : grid resolution per x/y axis
+    n_z        : number of z-layers
+
+    Returns ``(X, Y, Z, rho_L)`` 3D meshgrids [m, m, m, m⁻²], indexed (iz, ix, iy).
+    """
+    z_layers = np.linspace(0.0, z_max, n_z)
+    X2d: np.ndarray | None = None
+    Y2d: np.ndarray | None = None
+    layers: list[np.ndarray] = []
+    for z in z_layers:
+        X2d, Y2d, rho_L_layer = compute_lethal_density_field_3d(
+            shell=shell, drag=drag, burst=burst, z=float(z),
+            max_radius=max_radius, n_grid=n_grid, E_leth=E_leth, n_s=n_s,
+        )
+        layers.append(rho_L_layer)
+
+    rho_L = np.stack(layers, axis=0)
+    assert X2d is not None and Y2d is not None
+    X = np.broadcast_to(X2d, rho_L.shape).copy()
+    Y = np.broadcast_to(Y2d, rho_L.shape).copy()
+    Z = np.broadcast_to(
+        z_layers[:, np.newaxis, np.newaxis], rho_L.shape
+    ).copy()
+    return X, Y, Z, rho_L
+
+
+def pkill_field_3d(
+    shell: ShellParams = ShellParams(),
+    drag: DragParams = DragParams(),
+    burst: BurstParams = BurstParams(),
+    z: float = 0.0,
+    max_radius: float = 80.0,
+    n_grid: int = 80,
+    E_leth: float = E_LETH_DEFAULT,
+    n_s: int = 400,
+    A_ref: float = A_REF_DEFAULT,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Single-zone point kill probability P_k [-] ∈ [0,1] on an (x, y) patch at height z.
+
+    P_k = 1 − exp(−ρ_L·A_ref), with ρ_L [m⁻²] the lethal-fragment areal density
+    (:func:`compute_lethal_density_field_3d`) and A_ref [m²] the fixed nominal
+    personnel presented area (0.85 m², standing frontal — lower bound; +10–25%
+    with kit). A pure elementwise transform of ρ_L; no new field integral
+    (pkill-poisson-field derivation eq. 1, §6).
+
+    Caveats (derivation §2, A1/A2): (A1) Poisson independence / no shielding —
+    fragment arrivals on the A_ref patch are independent, with body armour and
+    partial cover ignored. (A2) sharp lethality threshold AND P_k|hit = 1 once
+    counted — "lethal" is the binary E_leth membership inside ρ_L, and every
+    counted fragment is treated as certainly lethal; P_k is therefore more
+    pessimistic than the ES-310 ``1 − (1 − 0.5)^λ`` aggregate for the same ρ_L,
+    and is not a tissue-level wound model.
+
+    Returns ``(X, Y, P_k)`` meshgrids [m, m, -].
+    """
+    X, Y, rho_L = compute_lethal_density_field_3d(
+        shell=shell, drag=drag, burst=burst, z=z,
+        max_radius=max_radius, n_grid=n_grid, E_leth=E_leth, n_s=n_s,
+    )
+    P_k = 1.0 - np.exp(-rho_L * A_ref)
+    assert np.all((P_k >= 0.0) & (P_k <= 1.0)), "P_k outside [0,1]"
+    return X, Y, P_k
+
+
+def pkill_volume_3d(
+    shell: ShellParams = ShellParams(),
+    drag: DragParams = DragParams(),
+    burst: BurstParams = BurstParams(),
+    z_max: float = 10.0,
+    max_radius: float = 80.0,
+    n_grid: int = 30,
+    n_z: int = 20,
+    E_leth: float = E_LETH_DEFAULT,
+    n_s: int = 400,
+    A_ref: float = A_REF_DEFAULT,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Single-zone point kill probability P_k [-] ∈ [0,1] on an (x, y, z) grid.
+
+    P_k = 1 − exp(−ρ_L·A_ref), with ρ_L [m⁻²] from
+    :func:`compute_lethal_density_volume_3d` and A_ref [m²] the fixed nominal
+    personnel presented area (0.85 m², standing frontal — lower bound; +10–25%
+    with kit). A pure elementwise transform of ρ_L; no new physics
+    (pkill-poisson-field derivation eq. 1, §6). The z=0 layer is numerically
+    identical to ``pkill_field_3d(z=0.0)`` for matching parameters, inherited
+    from the ρ_L kernel through the deterministic transform (derivation §4.6).
+
+    Caveats (derivation §2, A1/A2): Poisson independence / no shielding; sharp
+    E_leth threshold with P_k|hit = 1 once counted — more pessimistic than the
+    ES-310 aggregate, not a tissue-level wound model.
+
+    Returns ``(X, Y, Z, P_k)`` 3D meshgrids [m, m, m, -], indexed (iz, ix, iy).
+    """
+    X, Y, Z, rho_L = compute_lethal_density_volume_3d(
+        shell=shell, drag=drag, burst=burst, z_max=z_max,
+        max_radius=max_radius, n_grid=n_grid, n_z=n_z, E_leth=E_leth, n_s=n_s,
+    )
+    P_k = 1.0 - np.exp(-rho_L * A_ref)
+    assert np.all((P_k >= 0.0) & (P_k <= 1.0)), "P_k outside [0,1]"
+    return X, Y, Z, P_k
 
 
 def compute_frag_field_3d(

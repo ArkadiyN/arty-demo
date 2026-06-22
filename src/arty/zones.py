@@ -22,11 +22,17 @@ from dataclasses import dataclass
 import numpy as np
 
 from arty.fragmentation import (
+    A_REF_DEFAULT,
+    DragParams,
+    E_LETH_DEFAULT,
     PostureParams,
     ShellParams,
     SteelParams,
+    _forward_shell_axis,
+    build_mmin_table,
     pk_given_hit,
     presented_area,
+    slant_range_grid,
 )
 
 # Engineering convention for Tier-2 shells lacking drawing-derived ogive
@@ -647,3 +653,309 @@ def four_zone_field(
                 field_N[i, j] += float(np.trapezoid(integrand, m_grid))
 
     return X, Y, 1.0 - np.exp(-field_N)
+
+
+# ---------------------------------------------------------------------------
+# Four-zone lethal-fragment areal density ρ_L(x, y, z) — target-independent
+#   (derivation: updates/lethal-fragment-density-field/derivation.md)
+# ---------------------------------------------------------------------------
+
+
+def lethal_density_four_zone_point(
+    zones: ShellZones,
+    x: float,
+    y: float,
+    z: float,
+    aof_deg: float,
+    h_b: float,
+    delta_deg: float,
+    s_grids: dict[str, np.ndarray],
+    mmin_grids: dict[str, np.ndarray],
+) -> float:
+    """Four-zone lethal-fragment areal density ρ_L [m⁻²] at (x, y, z) [m].
+
+    Sums eq. (3) of the derivation over the four zones: each zone uses its own
+    spray angle θ^z, Mott half-mass μ^z and count N0^z, the belt-acceptance
+    test ``|cosΘ − cosθ^z| ≤ sinδ`` on the forward axis (+cosα, 0, −sinα), and
+    its own precomputed m_min(s) table (distinct V0^z). The two target-coupled
+    factors (A_p, graded pk) are divided out. Returns 0 outside every belt or
+    for δ ≤ 0.
+
+    zones      : decomposed ShellZones
+    x, y, z    : field-point coordinates [m]; z is height above ground
+    aof_deg    : angle of fall [deg]
+    h_b        : burst height above ground [m]
+    delta_deg  : spray-belt half-width δ [deg]
+    s_grids    : per-zone slant-range grid [m], keyed by zone name; each grid
+                 MUST cover the full range of slant ranges this point can
+                 produce — np.interp below silently clips (does not
+                 error/extrapolate) for s outside [s_grid[0], s_grid[-1]], so an
+                 undersized grid biases m_min with no warning. The field-builder
+                 callers size the grids from the same z they query; a direct
+                 caller must ensure the same coverage.
+    mmin_grids : per-zone m_min(s) table [kg], keyed by zone name
+    """
+    delta = np.radians(delta_deg)
+    if delta <= 0.0:
+        return 0.0
+
+    s = np.sqrt(x**2 + y**2 + (z - h_b) ** 2)
+    if s < 1e-6:
+        return 0.0
+
+    alpha_rad = np.radians(aof_deg)
+    e_axis = _forward_shell_axis(alpha_rad)
+    r_hat = np.array([x, y, z - h_b]) / s
+    cos_Theta = float(np.dot(r_hat, e_axis))
+
+    rho = 0.0
+    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
+                 ("boattail", zones.boattail), ("base", zones.base)]
+    for name, zp in zone_list:
+        if zp.mass_kg <= 1e-6 or zp.V0_ms <= 0.0 or not np.isfinite(zp.mu):
+            continue
+        theta_z = np.radians(zp.spray_deg)
+        if abs(cos_Theta - np.cos(theta_z)) > np.sin(delta):
+            continue
+        sin_theta_z = np.sin(theta_z)
+        if sin_theta_z < 1e-9:
+            continue
+        N0_z = zp.mass_kg / (2.0 * zp.mu)
+        # np.interp silently clips outside the grid; assert (debug-mode only,
+        # off under python -O) that s is in range so an undersized
+        # caller-supplied grid surfaces loudly instead of biasing m_min.
+        sg = s_grids[name]
+        assert sg[0] <= s <= sg[-1], (
+            f"s={s:.4g} m outside {name} m_min grid [{sg[0]:.4g}, {sg[-1]:.4g}] m; "
+            "np.interp would silently clip"
+        )
+        m_min = float(np.interp(s, sg, mmin_grids[name]))
+        N_leth = N0_z * np.exp(-np.sqrt(m_min / zp.mu))
+        g = 1.0 / (2.0 * np.pi * s**2 * 2.0 * sin_theta_z * delta)
+        rho += g * N_leth
+
+    return float(rho)
+
+
+def build_zone_mmin_tables(
+    zones: ShellZones,
+    s_grid: np.ndarray,
+    E_leth: float,
+    drag: DragParams,
+    rho_steel: float,
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
+    """Per-zone (s_grid, m_min(s)) tables [m, kg] for the four-zone ρ_L field.
+
+    Each zone has a distinct V0^z, hence a distinct m_min(s); all share the
+    same s_grid. Zones with no steel / no velocity get an all-``m_hi`` table
+    (their N_leth → 0). Returns ``(s_grids, mmin_grids)`` dicts keyed by zone
+    name, each compatible with ``lethal_density_four_zone_point``.
+    """
+    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
+                 ("boattail", zones.boattail), ("base", zones.base)]
+    s_grids: dict[str, np.ndarray] = {}
+    mmin_grids: dict[str, np.ndarray] = {}
+    for name, zp in zone_list:
+        s_grids[name] = s_grid
+        if zp.mass_kg <= 1e-6 or zp.V0_ms <= 0.0 or not np.isfinite(zp.mu):
+            mmin_grids[name] = np.full_like(s_grid, 2.0)
+            continue
+        mmin_grids[name] = build_mmin_table(s_grid, zp.V0_ms, E_leth, drag, rho_steel)
+    return s_grids, mmin_grids
+
+
+def four_zone_lethal_density_field(
+    zones: ShellZones,
+    aof_deg: float,
+    h_b: float,
+    drag: DragParams,
+    rho_steel: float,
+    z: float = 0.0,
+    max_r: float = 80.0,
+    n_grid: int = 60,
+    delta_deg: float = 15.0,
+    E_leth: float = E_LETH_DEFAULT,
+    n_s: int = 400,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Four-zone lethal-density field ρ_L [m⁻²] on an (x, y) patch at height z.
+
+    Evaluates eq. (3) summed over zones at fixed height ``z`` [m] above ground
+    over a square (x, y) grid, using per-zone precomputed m_min(s) tables (§6).
+
+    zones     : decomposed ShellZones
+    aof_deg   : angle of fall [deg]
+    h_b       : burst height above ground [m]
+    drag      : DragParams (for the m_min tables)
+    rho_steel : steel density [kg/m³]
+    z         : field-point height above ground [m]
+    max_r     : half-extent of the (x, y) box [m]
+    n_grid    : grid resolution per axis
+    delta_deg : spray-belt half-width δ [deg]
+    E_leth    : binary lethal kinetic-energy threshold [J]
+    n_s       : m_min table resolution
+
+    Returns ``(X, Y, rho_L)`` meshgrids [m, m, m⁻²].
+    """
+    # This field is a single height layer (z fixed): the box spans z in [z, z],
+    # so pass z as both z_max and z_min (matching the single-zone builder).
+    # The earlier max(z, h_b) call collapsed the vertical offset to zero for
+    # layers below the burst, so s_max under-covered the box corners (whose
+    # slant range includes |z - h_b|) and tripped the np.interp range assertion
+    # at the top of the grid; using the true layer height fixes both bounds.
+    s_grid = slant_range_grid(max_r, h_b, z, n_s=n_s, z_min=z)
+    s_grids, mmin_grids = build_zone_mmin_tables(
+        zones, s_grid, E_leth, drag, rho_steel
+    )
+
+    xy = np.linspace(-max_r, max_r, n_grid)
+    X, Y = np.meshgrid(xy, xy)
+    rho_L = np.zeros_like(X)
+    for i in range(n_grid):
+        for j in range(n_grid):
+            rho_L[i, j] = lethal_density_four_zone_point(
+                zones, X[i, j], Y[i, j], z, aof_deg, h_b, delta_deg,
+                s_grids, mmin_grids,
+            )
+    return X, Y, rho_L
+
+
+def four_zone_lethal_density_volume(
+    zones: ShellZones,
+    aof_deg: float,
+    h_b: float,
+    drag: DragParams,
+    rho_steel: float,
+    z_max: float = 10.0,
+    max_r: float = 80.0,
+    n_grid: int = 30,
+    n_z: int = 20,
+    delta_deg: float = 15.0,
+    E_leth: float = E_LETH_DEFAULT,
+    n_s: int = 400,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Four-zone lethal-density volume ρ_L [m⁻²] on an (x, y, z) grid.
+
+    No new physics: evaluates :func:`four_zone_lethal_density_field` once per
+    z-layer over ``n_z`` heights from 0 to ``z_max`` [m] and stacks the per-layer
+    (X, Y, rho_L) outputs into 3D arrays. The z=0 layer is numerically identical
+    to ``four_zone_lethal_density_field(z=0.0)`` for matching parameters.
+
+    zones     : decomposed ShellZones
+    aof_deg   : angle of fall [deg]
+    h_b       : burst height above ground [m]
+    drag      : DragParams (for the m_min tables)
+    rho_steel : steel density [kg/m³]
+    z_max     : top of the z-extent [m] (bottom is the ground, z=0)
+    max_r     : half-extent of the (x, y) box [m]
+    n_grid    : grid resolution per x/y axis
+    n_z       : number of z-layers
+    delta_deg : spray-belt half-width δ [deg]
+    E_leth    : binary lethal kinetic-energy threshold [J]
+    n_s       : m_min table resolution
+
+    Returns ``(X, Y, Z, rho_L)`` 3D meshgrids [m, m, m, m⁻²], indexed (iz, ix, iy).
+    """
+    z_layers = np.linspace(0.0, z_max, n_z)
+    X2d: np.ndarray | None = None
+    Y2d: np.ndarray | None = None
+    layers: list[np.ndarray] = []
+    for z in z_layers:
+        X2d, Y2d, rho_L_layer = four_zone_lethal_density_field(
+            zones, aof_deg, h_b, drag, rho_steel, z=float(z),
+            max_r=max_r, n_grid=n_grid, delta_deg=delta_deg,
+            E_leth=E_leth, n_s=n_s,
+        )
+        layers.append(rho_L_layer)
+
+    rho_L = np.stack(layers, axis=0)
+    assert X2d is not None and Y2d is not None
+    X = np.broadcast_to(X2d, rho_L.shape).copy()
+    Y = np.broadcast_to(Y2d, rho_L.shape).copy()
+    Z = np.broadcast_to(
+        z_layers[:, np.newaxis, np.newaxis], rho_L.shape
+    ).copy()
+    return X, Y, Z, rho_L
+
+
+def four_zone_pkill_field(
+    zones: ShellZones,
+    aof_deg: float,
+    h_b: float,
+    drag: DragParams,
+    rho_steel: float,
+    z: float = 0.0,
+    max_r: float = 80.0,
+    n_grid: int = 60,
+    delta_deg: float = 15.0,
+    E_leth: float = E_LETH_DEFAULT,
+    n_s: int = 400,
+    A_ref: float = A_REF_DEFAULT,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Four-zone point kill probability P_k [-] ∈ [0,1] on an (x, y) patch at height z.
+
+    P_k = 1 − exp(−ρ_L·A_ref), with ρ_L [m⁻²] the four-zone lethal-fragment areal
+    density (:func:`four_zone_lethal_density_field`) and A_ref [m²] the fixed
+    nominal personnel presented area (0.85 m², standing frontal — lower bound;
+    +10–25% with kit). A pure elementwise transform of ρ_L; no new field integral
+    (pkill-poisson-field derivation eq. 1, §6).
+
+    Caveats (derivation §2, A1/A2): (A1) Poisson independence / no shielding —
+    fragment arrivals on the A_ref patch are independent, with body armour and
+    partial cover ignored. (A2) sharp lethality threshold AND P_k|hit = 1 once
+    counted — "lethal" is the binary E_leth membership inside ρ_L, and every
+    counted fragment is treated as certainly lethal; P_k is therefore more
+    pessimistic than the ES-310 ``1 − (1 − 0.5)^λ`` aggregate for the same ρ_L,
+    and is not a tissue-level wound model.
+
+    Returns ``(X, Y, P_k)`` meshgrids [m, m, -].
+    """
+    X, Y, rho_L = four_zone_lethal_density_field(
+        zones, aof_deg, h_b, drag, rho_steel, z=z,
+        max_r=max_r, n_grid=n_grid, delta_deg=delta_deg,
+        E_leth=E_leth, n_s=n_s,
+    )
+    P_k = 1.0 - np.exp(-rho_L * A_ref)
+    assert np.all((P_k >= 0.0) & (P_k <= 1.0)), "P_k outside [0,1]"
+    return X, Y, P_k
+
+
+def four_zone_pkill_volume(
+    zones: ShellZones,
+    aof_deg: float,
+    h_b: float,
+    drag: DragParams,
+    rho_steel: float,
+    z_max: float = 10.0,
+    max_r: float = 80.0,
+    n_grid: int = 30,
+    n_z: int = 20,
+    delta_deg: float = 15.0,
+    E_leth: float = E_LETH_DEFAULT,
+    n_s: int = 400,
+    A_ref: float = A_REF_DEFAULT,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Four-zone point kill probability P_k [-] ∈ [0,1] on an (x, y, z) grid.
+
+    P_k = 1 − exp(−ρ_L·A_ref), with ρ_L [m⁻²] from
+    :func:`four_zone_lethal_density_volume` and A_ref [m²] the fixed nominal
+    personnel presented area (0.85 m², standing frontal — lower bound; +10–25%
+    with kit). A pure elementwise transform of ρ_L; no new physics
+    (pkill-poisson-field derivation eq. 1, §6). The z=0 layer is numerically
+    identical to ``four_zone_pkill_field(z=0.0)`` for matching parameters,
+    inherited from the ρ_L kernel through the deterministic transform
+    (derivation §4.6).
+
+    Caveats (derivation §2, A1/A2): Poisson independence / no shielding; sharp
+    E_leth threshold with P_k|hit = 1 once counted — more pessimistic than the
+    ES-310 aggregate, not a tissue-level wound model.
+
+    Returns ``(X, Y, Z, P_k)`` 3D meshgrids [m, m, m, -], indexed (iz, ix, iy).
+    """
+    X, Y, Z, rho_L = four_zone_lethal_density_volume(
+        zones, aof_deg, h_b, drag, rho_steel, z_max=z_max,
+        max_r=max_r, n_grid=n_grid, n_z=n_z, delta_deg=delta_deg,
+        E_leth=E_leth, n_s=n_s,
+    )
+    P_k = 1.0 - np.exp(-rho_L * A_ref)
+    assert np.all((P_k >= 0.0) & (P_k <= 1.0)), "P_k outside [0,1]"
+    return X, Y, Z, P_k

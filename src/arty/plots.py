@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LogNorm
 
 from arty.fragmentation import (
     DragParams,
@@ -273,6 +274,120 @@ def fig_four_zone_field(
     ax.plot(0, 0, "k+", ms=10, markeredgewidth=2, label="Burst")
     ax.legend(loc="upper right", fontsize=8)
     fig.tight_layout()
+    return fig
+
+
+def fig_lethal_density_field(
+    X: np.ndarray, Y: np.ndarray, rho_L: np.ndarray, title: str
+) -> plt.Figure:
+    """Lethal-fragment areal-density field ρ_L [m⁻²] on an (x, y) ground patch.
+
+    Renders the target-independent kernel ρ_L (derivation eq. 3): lethal
+    fragments crossing a 1 m² patch. Filled log-spaced contours of the
+    already-computed field; no physics here.
+
+    X, Y  : ground meshgrids [m] (downrange x, cross-range y)
+    rho_L : lethal-density meshgrid [m⁻²]
+    title : figure title (path + burst geometry, supplied by caller)
+    """
+    fig, ax = plt.subplots(figsize=(7, 6))
+    rho_max = float(np.nanmax(rho_L))
+    if rho_max <= 0.0:
+        # Degenerate (all-zero) field — draw an empty frame rather than error.
+        ax.text(0.5, 0.5, "ρ_L ≡ 0 over patch", ha="center", va="center",
+                transform=ax.transAxes)
+    else:
+        # Log-spaced levels span four decades below the field peak so the
+        # 1/s² falloff and finite lethal reach are both visible.
+        levels = np.logspace(np.log10(rho_max) - 4, np.log10(rho_max), 9)
+        cf = ax.contourf(X, Y, np.clip(rho_L, levels[0], None),
+                         levels=levels, cmap="viridis",
+                         norm=LogNorm(vmin=levels[0], vmax=levels[-1]))
+        fig.colorbar(cf, ax=ax, label=r"$\rho_L$ [lethal frags / m$^2$]")
+    ax.set_aspect("equal")
+    ax.set_xlabel("Downrange x [m]")
+    ax.set_ylabel("Cross-range y [m]")
+    ax.set_title(title)
+    ax.annotate("→ direction of fire", xy=(0.96, 0.03), xytext=(0.65, 0.03),
+                xycoords="axes fraction",
+                arrowprops=dict(arrowstyle="->", color="0.25"), fontsize=9)
+    ax.plot(0, 0, "k+", ms=10, markeredgewidth=2, label="Burst")
+    ax.legend(loc="upper right", fontsize=8)
+    fig.tight_layout()
+    return fig
+
+
+def fig_pkill_volume(
+    X: np.ndarray,
+    Y: np.ndarray,
+    Z: np.ndarray,
+    P_k: np.ndarray,
+    title: str,
+):
+    """Interactive 3D point kill-probability field P_k(x,y,z) [-] ∈ [0,1].
+
+    Plotly counterpart of :func:`fig_lethal_density_field` for the Streamlit
+    app: renders the already-computed P_k volume (``pkill_volume_3d`` /
+    ``four_zone_pkill_volume`` — see ``pkill-poisson-field`` derivation eq. 1)
+    as a ``go.Volume`` trace (design.md D2, Round 2). An earlier round saw
+    marching-cubes faceting ("origami crane" artifact) from anisotropic,
+    over-extended sampling on the raw ρ_L field; the fix was a tighter
+    burst-centered spatial extent so the grid resolution covers the field's
+    interesting region densely, plus the tuned trace parameters below
+    (validated empirically). With those, ``go.Volume`` renders cleanly with
+    no visible faceting. Unlike ρ_L (an unbounded, multi-decade areal
+    density), P_k is a bounded probability — isomin/isomax are therefore
+    fixed to a [0,1]-relative range rather than computed from the field's max.
+    No physics here — purely rendering the supplied (X, Y, Z, P_k) grids.
+
+    The signature takes the plain ``(X, Y, Z, P_k)`` 3D meshgrids returned by
+    ``pkill_volume_3d`` / ``four_zone_pkill_volume``, flattened here for the
+    volume trace.
+
+    X, Y, Z : coordinate meshgrids [m] (downrange x, cross-range y, height z)
+    P_k     : kill-probability meshgrid [-], ∈ [0,1]
+    title   : figure title (path + burst geometry, supplied by caller)
+
+    Returns a Plotly ``go.Figure``.
+    """
+    import plotly.graph_objects as go
+
+    pk_flat = P_k.ravel()
+    pk_max = float(np.nanmax(P_k)) if pk_flat.size else 0.0
+
+    fig = go.Figure()
+    if pk_max > 0.0:
+        fig.add_trace(
+            go.Volume(
+                x=X.ravel(),
+                y=Y.ravel(),
+                z=Z.ravel(),
+                value=P_k.ravel(),
+                isomin=0.05,
+                isomax=1.0,
+                opacity=0.2,
+                surface_count=25,
+                colorscale="Hot",
+                colorbar=dict(title="P(kill) [-]"),
+                caps=dict(x_show=False, y_show=False, z_show=False),
+            )
+        )
+    else:
+        # Degenerate (all-zero) field — annotate rather than draw an empty box.
+        fig.add_annotation(
+            text="P_k ≡ 0 over volume",
+            xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+        )
+
+    fig.update_layout(
+        title=title,
+        scene=dict(
+            xaxis_title="Downrange x [m]",
+            yaxis_title="Cross-range y [m]",
+            zaxis_title="Height z [m]",
+            aspectmode="data",
+        ),
+    )
     return fig
 
 

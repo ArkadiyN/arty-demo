@@ -58,3 +58,23 @@ app-layer fix, not @modeler. Check call-site argument order whenever
 reviewing diffs that add a sibling "across/elevation" pair of plot functions
 sharing similar positional signatures — this is an easy copy-paste mistake
 between the two.
+
+**2026-06-20, `pkill-3d-surface-view` change — PASS, clean.** New
+`_fig_pkill_surface(x, y, z, title, colorscale="YlOrRd")` helper adds a
+`go.Surface` trace + a `field_view` radio toggle at all three call sites
+(single-zone, four-zone legacy panel, four-zone new panel). Verified: every
+call site passes the *exact same* `x, y, z` arrays already used by the
+adjacent (now-conditional) `go.Heatmap` branch right next to it
+(`result.field_x[0], result.field_y[:, 0], result.field_pk` and
+`xy_grid, yy_grid, result_zones["pk_total"]`) — no new grid construction, no
+recomputation, no new `src/arty/` call. `cmin=0, cmax=1` / `zaxis range=[0,1]`
+is a display-clamp matching the heatmap's pre-existing `zmin=0, zmax=1`, not
+a new constant (P(kill) bounded in [0,1] by construction per
+`fragmentation.py`'s `1 - exp(-N_eff)`, as design.md states). The 2D-only
+difference map (`diff_pk = pk_total - field_pk`) was correctly left
+untouched, matching design.md's stated non-goal of no 3D diff surface in this
+change. No formula drift, no leaked physics, no boundary issues (function has
+no math to misbehave at limits). This is the template for how a pure
+presentation-toggle change should look — use it as the comparison baseline
+for future "view toggle" or "alternate chart of the same grid" diffs in this
+file.
