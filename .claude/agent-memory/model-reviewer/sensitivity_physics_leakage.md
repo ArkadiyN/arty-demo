@@ -37,44 +37,10 @@ secondary/low-severity finding every time a new helper perpetuates it
 `arty` ray-geometry helper (or reuse of `fragment_ground_impact` directly)
 rather than re-fixing it ad hoc per review.
 
-**RESOLVED 2026-06-20:** `src/arty/zones.py` extracted the shared trig into
-`fragment_velocity(theta_z_deg, phi_rad, aof_deg) -> (vgx, vgy, vgz)` (a pure
-unit-vector helper, no h_b/guard logic); `fragment_ground_impact` now calls
-it, and `app/sensitivity.py`'s `_spray_cone`/`_spray_cone_across` both call
-it too (reconstructing `phi_rad` from `phi_sign`/`y_sign` — `phi_sign*π/2` or
-`0`/`π` — which correctly collapses to the old inline `sP=phi_sign`
-substitution since `sin(±π/2)=±1`). Verified bit-identical formula, all 34
-`tests/test_zones.py` cases (incl. the 4 burst-geometry spec scenarios) still
-pass. Treat this leakage pattern as closed for `_spray_cone`/`_spray_cone_across`
-specifically; re-open only if a *new* spray-cone-like helper reappears with
-inlined trig instead of calling `fragment_velocity`.
-
-**New secondary finding from the same diff (app-layer wiring, not physics):**
-the new `_plotly_elevation_across` call site in `app/sensitivity.py` passes
-`x_slice` (downrange) into the function's `y_person` (cross-range-sizing)
-positional parameter — an argument-order/wiring bug, not a `arty` defect.
-Per `agents-routing.md`'s correctness-question gate this routes to an
-app-layer fix, not @modeler. Check call-site argument order whenever
-reviewing diffs that add a sibling "across/elevation" pair of plot functions
-sharing similar positional signatures — this is an easy copy-paste mistake
-between the two.
-
-**2026-06-20, `pkill-3d-surface-view` change — PASS, clean.** New
-`_fig_pkill_surface(x, y, z, title, colorscale="YlOrRd")` helper adds a
-`go.Surface` trace + a `field_view` radio toggle at all three call sites
-(single-zone, four-zone legacy panel, four-zone new panel). Verified: every
-call site passes the *exact same* `x, y, z` arrays already used by the
-adjacent (now-conditional) `go.Heatmap` branch right next to it
-(`result.field_x[0], result.field_y[:, 0], result.field_pk` and
-`xy_grid, yy_grid, result_zones["pk_total"]`) — no new grid construction, no
-recomputation, no new `src/arty/` call. `cmin=0, cmax=1` / `zaxis range=[0,1]`
-is a display-clamp matching the heatmap's pre-existing `zmin=0, zmax=1`, not
-a new constant (P(kill) bounded in [0,1] by construction per
-`fragmentation.py`'s `1 - exp(-N_eff)`, as design.md states). The 2D-only
-difference map (`diff_pk = pk_total - field_pk`) was correctly left
-untouched, matching design.md's stated non-goal of no 3D diff surface in this
-change. No formula drift, no leaked physics, no boundary issues (function has
-no math to misbehave at limits). This is the template for how a pure
-presentation-toggle change should look — use it as the comparison baseline
-for future "view toggle" or "alternate chart of the same grid" diffs in this
-file.
+**Resolved going-forward:** `src/arty/zones.py` extracted the shared trig into
+`fragment_velocity(theta_z_deg, phi_rad, aof_deg) -> (vgx, vgy, vgz)`;
+`fragment_ground_impact` and `app/sensitivity.py`'s `_spray_cone`/
+`_spray_cone_across` all call it now instead of inlining the formula. Treat
+this specific pair as closed; re-open only if a *new* spray-cone-like helper
+reappears with inlined trig instead of calling `fragment_velocity` — that
+recurrence is the actual gotcha this entry exists for, not the one-time fix.
