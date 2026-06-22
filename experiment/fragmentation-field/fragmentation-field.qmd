@@ -35,6 +35,8 @@ ______________________________________________________________________
 
 {{< include _four-zone-3d.qmd >}}
 
+{{< include _lethal-density.qmd >}}
+
 {{< include _change-log.qmd >}}
 
 {{< include _limitations.qmd >}}

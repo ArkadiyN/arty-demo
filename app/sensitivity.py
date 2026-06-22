@@ -13,15 +13,18 @@ from arty.fragmentation import (
     ShellParams,
     SteelParams,
     compute_frag_field_3d,
+    pkill_volume_3d,
     retardation_coeff,
 )
 from arty.zones import (
     _four_zone_field_split,
     compute_shell_zones,
     four_zone_line_split,
+    four_zone_pkill_volume,
     fragment_velocity,
 )
 from arty.shells import SHELLS
+from arty.plots import fig_pkill_volume
 
 st.set_page_config(page_title="Fragmentation Field — Sensitivity", layout="wide")
 st.title("Fragmentation Field Sensitivity")
@@ -244,6 +247,26 @@ def _compute_zones(
         "m_grid": m_grid,
         "drag_lam_grid": drag_lam_grid,
     }
+
+
+@st.cache_data
+def _compute_volume_legacy(shell, drag, burst, max_radius, z_max, n_grid, n_z):
+    return pkill_volume_3d(
+        shell=shell, drag=drag, burst=burst,
+        max_radius=max_radius, z_max=z_max, n_grid=n_grid, n_z=n_z,
+    )
+
+
+@st.cache_data
+def _compute_volume_zones(
+    zones, angle_of_fall, h_b, drag, rho_steel, spray_half_angle,
+    max_radius, z_max, n_grid, n_z,
+):
+    return four_zone_pkill_volume(
+        zones, float(angle_of_fall), h_b, drag, rho_steel,
+        max_r=max_radius, z_max=z_max, n_grid=n_grid, n_z=n_z,
+        delta_deg=float(spray_half_angle),
+    )
 
 
 # Fine slice line: 10x the coarse grid step, cheap since cost is O(n_line)
@@ -928,3 +951,58 @@ else:  # Four-zone (new)
                               spray_half_angle_deg=float(spray_half_angle)),
             use_container_width=True,
         )
+
+# ---------------------------------------------------------------------------
+# 3D point kill-probability volume  P_k(x, y, z)
+# ---------------------------------------------------------------------------
+
+st.divider()
+with st.expander("3D Kill Probability  P(kill)(x, y, z)", expanded=False):
+    st.caption(
+        "Probability that a single representative person standing at this point "
+        "(0.85 m² nominal frontal silhouette, ignoring actual target size/posture) "
+        "is hit by at least one lethal fragment: P_k = 1 − exp(−ρ_L·A_ref), the "
+        "Poisson \"≥1 lethal hit\" transform of the target-independent lethal-"
+        "fragment areal density ρ_L shown in the 2D view above "
+        "(pkill-poisson-field derivation). Caveats: assumes independent fragment "
+        "arrivals (no shielding/armour) and treats every fragment past the lethal-"
+        "energy threshold as certainly lethal — more pessimistic than a graded "
+        "per-hit kill model."
+    )
+    vol_col1, vol_col2, vol_col3 = st.columns(3)
+    with vol_col1:
+        # Independent of the main `max_radius` slider (which can run to 200 m):
+        # go.Volume needs the grid to actually resolve the field's length scale
+        # near the burst, so this defaults much tighter (see design.md D2/D3).
+        radius_vol = st.slider(
+            "View radius  [m]", 10.0, 60.0, 30.0, step=5.0,
+            help="Independent of the main analysis radius above — kept small so "
+                 "the grid resolution below stays well-matched to the field near burst.",
+        )
+    with vol_col2:
+        z_max_vol = st.slider(
+            "Height extent  z_max  [m]", 2.0, float(max(4.0 * h_b, 20.0)),
+            float(max(2.0 * h_b, 10.0)), step=1.0,
+        )
+    with vol_col3:
+        n_grid_vol = st.select_slider("Grid resolution (x, y)", options=[25, 30, 40, 50, 60], value=40)
+    n_z_vol = 30
+
+    if model_mode == "Single-zone (legacy)":
+        X_vol, Y_vol, Z_vol, pk_vol = _compute_volume_legacy(
+            shell, drag, burst, radius_vol, z_max_vol, n_grid_vol, n_z_vol,
+        )
+        vol_title = "P(kill)(x,y,z) — Single-zone (legacy)"
+    else:
+        assert result_zones is not None
+        zones_obj = result_zones["zones"]
+        X_vol, Y_vol, Z_vol, pk_vol = _compute_volume_zones(
+            zones_obj, angle_of_fall, h_b, drag, rho_steel, spray_half_angle,
+            radius_vol, z_max_vol, n_grid_vol, n_z_vol,
+        )
+        vol_title = "P(kill)(x,y,z) — Four-zone (new)"
+
+    st.plotly_chart(
+        fig_pkill_volume(X_vol, Y_vol, Z_vol, pk_vol, vol_title),
+        use_container_width=True,
+    )

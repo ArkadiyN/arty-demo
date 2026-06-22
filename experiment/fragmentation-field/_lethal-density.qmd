@@ -1,0 +1,87 @@
+## Lethal-Fragment Density Field $\rho_L(x, y, z)$
+
+The fields above weight every fragment by a *target-coupled* factor — the
+presented area $A_p(\gamma,\text{posture})$ and the graded ES-310 $P_k|\text{hit}$
+curve. This section strips both out to expose the **target-independent kernel**
+$\rho_L$: the areal density of *lethal* fragments (each carrying kinetic energy
+$\ge E_\text{leth}$ at arrival) crossing a 1 m² patch on the ground.
+
+$$
+\rho_L(x,y,z) = \sum_z \frac{N^z\!\bigl(s; m \ge m_\text{min}^z(s)\bigr)}
+{2\pi\, s^2 \cdot 2\sin\theta^z\,\delta} \quad (3)
+$$
+
+A fragment is counted iff its surviving mass clears the slant-range-dependent
+cutoff $m_\text{min}^z(s)$, found by bisecting
+$E^z(m,s) = \tfrac{1}{2}m\,(V_0^z e^{-\lambda(m)s})^2 \ge E_\text{leth}$.
+The binary threshold is $E_\text{leth} = 1000$ J — the ES-310 moderate-kill
+anchor ($P_k|\text{hit} = 0.5$), the same energy basis as the graded curve used
+elsewhere in this notebook (derivation §3). All physics lives in
+`arty.fragmentation.compute_lethal_density_field_3d` (single-zone) and
+`arty.zones.four_zone_lethal_density_field` (four-zone); see
+`updates/lethal-fragment-density-field/derivation.md`.
+
+```{python}
+from arty.fragmentation import (
+    BurstParams, compute_lethal_density_field_3d, E_LETH_DEFAULT,
+)
+from arty.zones import four_zone_lethal_density_field
+
+# Burst geometry for this section: AoF = 30°, h_b = 2 m, δ = 15°
+# (BurstParams defaults; stated explicitly to match the prose above).
+burst = BurstParams(h_b=2.0, angle_of_fall=30.0, spray_half_angle=15.0)
+
+print(f"Binary lethal-energy threshold E_leth = {E_LETH_DEFAULT:.0f} J "
+      f"(ES-310 P_k|hit = 0.5 anchor)")
+```
+
+### Single-zone (equatorial belt)
+
+The single-cylinder path sprays one equatorial belt; $\rho_L$ is the
+axis-symmetric kernel of the eq. (9) disk with $A_p$ and the graded weight
+divided out (derivation §5.1). Burst geometry: AoF = 30°, $h_b = 2$ m, ground
+patch ($z = 0$).
+
+```{python}
+Xs, Ys, rho_L_single = compute_lethal_density_field_3d(
+    shell, drag, burst, z=0.0, max_radius=60.0, n_grid=60,
+    E_leth=E_LETH_DEFAULT,
+)
+
+fig = plots.fig_lethal_density_field(
+    Xs, Ys, rho_L_single,
+    "Lethal-Fragment Density ρ_L — Single-Zone\n"
+    "105 mm M1 HE, AoF = 30°, h_b = 2 m, z = 0",
+)
+fig.savefig("lethal_density_single_zone.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+### Four-zone
+
+The four-zone path sums eq. (3) over the ogive/cylinder/boattail/base belts,
+each with its own $\theta^z$, $V_0^z$ and $m_\text{min}^z(s)$ table. The
+forward (ogive) and rearward (base) lobes that the single belt cannot produce
+reappear here — now as raw lethal-fragment density rather than $P_k$.
+
+```{python}
+Xz, Yz, rho_L_four = four_zone_lethal_density_field(
+    zones_m1, aof_deg=30.0, h_b=2.0, drag=drag, rho_steel=rho_steel,
+    z=0.0, max_r=60.0, n_grid=50, E_leth=E_LETH_DEFAULT,
+)
+
+fig = plots.fig_lethal_density_field(
+    Xz, Yz, rho_L_four,
+    "Lethal-Fragment Density ρ_L — Four-Zone\n"
+    "105 mm M1 HE, AoF = 30°, h_b = 2 m, z = 0",
+)
+fig.savefig("lethal_density_four_zone.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+Both fields share the $s^{-2}$ inverse-square falloff and the finite lethal
+reach where $m_\text{min}^z(s)$ exceeds the heaviest fragment and $\rho_L \to 0$
+(derivation §5.3). Because $\rho_L$ carries no target term, it can be paired
+with *any* posture's $A_p(\gamma)$ downstream without recomputing the field.
+
+______________________________________________________________________
