@@ -285,6 +285,19 @@ reading `src/arty/` internals closely enough to name a variable or mechanism
 violation, not preparation for satisfying it — delete the specifics and let
 @modeler discover the mechanism cold.
 
+Two concrete shapes of this violation to watch for:
+
+- **"Specifically check whether X calls the same Y as Z, or implements its
+  own copy"** — that sentence names an internal mechanism and pre-answers the
+  structural question before @modeler looks at anything. It is the
+  investigation you are delegating; remove it and state the goal instead
+  ("verify the two paths share the same fragment-physics functions").
+- **A `Files to read:` list that enumerates specific function names** (e.g.
+  `four_zone_field, lethal_density_*, fragment_velocity`) — those names came
+  from a read you should not have done. Inputs may name top-level files
+  (`zones.py`, `fragmentation.py`) but never their internals; navigating
+  inside those files is @modeler's job.
+
 **@model-reviewer.** Give it the **background** (what was added/changed and
 why) and a **pointer** (the diff or function to review) — not a pre-itemized
 verification checklist. The reviewer's mandate already covers dimensional
