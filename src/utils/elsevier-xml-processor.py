@@ -527,7 +527,7 @@ def main():
         output_dir = args.output_dir or os.path.dirname(os.path.abspath(src))
     else:
         # Treat as DOI — fetch and cache next to cwd
-        doi = src.lstrip("doi:").strip()
+        doi = src.removeprefix("doi:").strip()
         safe = re.sub(r"[^\w\-.]", "_", doi)
         xml_path = f"{safe}.xml"
         raw = fetch_article_xml(doi)
