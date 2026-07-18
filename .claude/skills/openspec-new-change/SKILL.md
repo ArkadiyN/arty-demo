@@ -31,7 +31,7 @@ Start a new change using the experimental artifact-driven approach.
    spans more than one **model aspect** before creating anything. An aspect is
    separate if it has its own governing-equation set, its own
    independently-validatable parameter group, or a separately PASS/FAIL-able
-   output (see `.claude/rules/agents-routing.md` → "Decompose first").
+   output (see the **model-workflow** skill → "Decompose first").
 
    - **One aspect → one change.** Proceed normally.
    - **N aspects → N changes.** Do NOT scaffold one change that bundles them.
