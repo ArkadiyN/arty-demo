@@ -11,13 +11,18 @@ and downward. Together these zones account for roughly 20–30 % of the steel ma
 but produce none of the fragments in the single-cylinder model. Gold (2007) explicitly
 accounts for the tail boom and fuze as separate mass contributors; the one-region
 PAFRAG assumption treats the entire shell as a single cylinder, omitting both end
-zones (Gold 2017, §2). Result: the v 0.1.0–0.2.0 model *underestimates* total
-fragment count and misses the forward- and rear-sector hazard.
+zones (Gold 2017, §2). Consequence: the single-zone (equatorial-belt) field, taken
+alone, *underestimates* total fragment count and carries no forward- or rear-sector
+hazard.
 
-*Addressed in v 0.3.0:* the four-zone decomposition (§6.1) assigns ogive, cylinder,
-boattail, and base each their own Mott distribution, Gurney velocity, and spray
-angle, capturing both the forward ogive sector and the rearward base sector. Residual
-limitations of the zone model are listed in §12.
+*Complemented by the four-zone field (§6), not replaced:* the four-zone
+decomposition (§6.1) assigns ogive, cylinder, boattail, and base each their own
+Mott distribution, Gurney velocity, and spray angle, adding the forward ogive
+sector and the rearward base sector. The single-zone belt is **deliberately
+retained** alongside it as the drawing-data-free, absolute-magnitude baseline —
+the reference the four-zone lobe structure is measured against (three-variant
+division of labor, §6). This is a coexisting pair, not an old-to-new
+progression. Residual limitations of the zone model are listed in §12.
 
 **2 · Fragments do not all fly in one horizontal plane.**
 The cylindrical body does spray predominantly sideways (Figure 4 cross-section), but
@@ -171,6 +176,20 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   qualitative prediction (forward density > rearward at AoF < 90°) that
   cannot yet be checked against empirical fragment-density-vs-azimuth
   data.
+- **The single-zone − four-zone difference map is not a clean zone
+  attribution.** The sensitivity app's "Four-zone − Single-zone" diff
+  (§6) is *grid-exact* (both fields share the same grid, so no
+  interpolation error enters), but the single-zone baseline is the legacy
+  belt path (`_expected_kills_3d_point`), which uses a **backward**
+  shell-axis convention ($\hat{e}=(-\cos\alpha,0,-\sin\alpha)$) and a
+  different off-boresight normalization than the four-zone forward-axis
+  path. The two agree by construction only on the equatorial belt /
+  boresight plane; off it the diff conflates the genuine end-zone
+  contribution with a residual, unreconciled axis-convention and
+  normalization mismatch (belt-axis note,
+  `updates/lethal-fragment-density-field/derivation.md` §5.4). It should
+  be read as an indicator of directional (fore/aft-lobe) structure, not as
+  an exact per-zone lethality attribution.
 - **Hard-cutoff spray belts create unphysical dead zones between zone
   boundaries.** Each zone's contribution to a ground point is gated by a
   ±15° (``delta_deg``) rect-function band around the zone's nominal spray

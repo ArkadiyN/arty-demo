@@ -1,8 +1,46 @@
 ## Four-Zone Model (3D)
 
-This section extends the single-cylinder treatment above with a four-zone
-ogive/cylinder/boattail/base decomposition, an AoF-resolved ground projection,
-and an angle-dependent presented-area replacement for the geometry factor.
+This section adds a four-zone ogive/cylinder/boattail/base decomposition, an
+AoF-resolved ground projection, and an angle-dependent presented-area geometry
+factor. It does **not** retire the single-belt treatment above: the two are
+kept as **coexisting field models with a division of labor** (below), computed
+side by side.
+
+### Three field variants — naming and division of labor
+
+The model carries three distinct spatial treatments of the fragment field.
+They are easy to blur together, so this table fixes the names used throughout:
+
+| Variant | What it is | Governing eqs | Symmetry / output | Kept for |
+|---|---|---|---|---|
+| **1-D symmetric disk** | scalar lethality vs. a single radius $r$ at burst height | (9)–(10) | azimuthally uniform ring; $N_\text{eff}(r)$, $P_\text{kill}(r)$, $R_{50}$ | the calibrated absolute-lethality anchor ($R_{50}$ vs. TM 9-1901); simplest reading |
+| **Single-zone (equatorial-belt) 3-D field** | one cylinder belt projected onto the ground with AoF + height of burst | (9) kernel + (15)–(17) projection | azimuthally symmetric footprint on $(x,y,z)$ | drawing-data-free baseline (needs only bulk mass/caliber/wall); the reference the four-zone diff is measured against |
+| **Four-zone 3-D field** | four belts (ogive/cyl/boattail/base), each with its own $V_0^z$, $\mu^z$, $\theta^z$ | (11)–(14), (22′) | forward/rear **lobed** footprint, AoF-resolved | directional structure — the fore/aft lobes the single belt cannot produce |
+
+**Why both 3-D variants are live, not old-vs-new.** The single-zone belt is the
+azimuthally-symmetric baseline; the four-zone adds the fore/aft lobes from the
+end zones. The sensitivity app computes **both on the same grid**, so their
+cell-by-cell difference is **grid-exact** — no interpolation or resampling error
+enters it. That difference is a useful *indicator* of where the end zones add or
+remove lethality, but it is **not a clean physical isolation** of the
+ogive/base/boattail contribution. The single-zone baseline is the *legacy* belt
+path (`_expected_kills_3d_point`), which uses a backward shell-axis convention
+($\hat{e} = (-\cos\alpha, 0, -\sin\alpha)$) and a different off-boresight
+normalization than the four-zone path's forward axis
+($(+\cos\alpha, 0, -\sin\alpha)$). The two coincide *by construction* only on the
+equatorial belt / boresight plane; off it, the diff conflates the genuine
+end-zone signal with a residual axis-convention and normalization mismatch that
+has not been reconciled (§12; belt-axis note in
+`updates/lethal-fragment-density-field/derivation.md` §5.4). Read the diff as
+directional structure, not as an exact per-zone attribution. That diff only
+exists because both are retained. They also differ in inputs and
+validation status: the single-zone belt needs only bulk shell parameters and
+carries the calibrated absolute magnitude, whereas the four-zone needs the
+drawing-derived registry geometry (CRH, per-zone lengths) and its **absolute**
+$R_{50}$ is pending recalibration (§12) — only its *relative* zone contributions
+and lobed structure are trustworthy in absolute terms. So the single-zone belt
+is the drawing-free, absolute-magnitude reference; the four-zone is the
+directional-structure model. Neither supersedes the other.
 
 References:
 
@@ -258,9 +296,16 @@ plt.show()
 
 The forward sector (positive $x$) is dominated by ogive rays, the
 equatorial belt by cylinder rays, and the rearward sector by base rays;
-boattail rays cluster just behind the cylinder belt. This reproduces the
-expected lobed structure that the single-cylinder model could not
-generate.
+boattail rays cluster just behind the cylinder belt. This is the lobed
+structure the single-zone equatorial-belt field is deliberately silent on —
+the four-zone field's distinct contribution. This figure shows that structure
+**directly**: it plots each zone's own ground-impact rays and performs **no
+subtraction** against the belt baseline. It is not the belt-vs-four-zone cell
+difference — that diff is a separate and only *approximate* indicator of where
+the end zones add or remove lethality, and is **not** a clean per-zone
+isolation (it conflates the genuine end-zone signal with an unreconciled
+axis-convention/normalization mismatch; see "Why both 3-D variants are live"
+above and §12).
 
 ### 6.9 · Burst geometry cross-section (x–z plane)
 

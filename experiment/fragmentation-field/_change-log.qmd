@@ -7,6 +7,7 @@
 | 0.3.0 | Four-zone (ogive/cylinder/boattail/base) decomposition with zone-local Gurney, Mott, and spray angles; AoF ground projection; $A_p$-based geometry factor integrated. | `updates/frag-field-3d-geometry/derivation.md` |
 | 0.3.1 | Refactor: all physics moved to `src/arty/` (`fragmentation.py`, new `zones.py`, new `plots.py`); notebook split into per-section partials. Behaviour-preserving — no value changes. | — |
 | 0.4.0 | Add target-independent lethal-fragment density field $\rho_L(x,y,z)$ (eq. 3) for both single-zone and four-zone paths: divides out the presented-area $A_p$ and graded $P_k\|\text{hit}$ factors, counting only fragments with arrival KE $\ge E_\text{leth} = 1000$ J (ES-310 $P_k\|\text{hit}=0.5$ anchor). | `updates/lethal-fragment-density-field/derivation.md` |
+| 0.5.0 | Add point kill-probability field $P_k(x,y,z) = 1 - \exp(-\rho_L\,A_\text{ref})$ (eq. 23): a bounded $[0,1]$ Poisson "≥1 lethal hit" transform of the $\rho_L$ kernel with a fixed reference silhouette $A_\text{ref}=0.85$ m². Presents the second (binary-cut) kill-probability pathway alongside the graded per-hit route (eqs 9–10); feeds the interactive 3-D $P_k$ volume view. | `updates/pkill-poisson-field/derivation.md` |
 
 ______________________________________________________________________
 
@@ -57,8 +58,10 @@ for sf_mpa in [600, 700, 800, 900, 1000]:
   fragments and a slightly larger lethal radius.
 - **Angle of fall** is modelled in the four-zone field (§6). At AoF ≈ 20°–35°
   (WW2 105 mm fire at 4–6 km), the forward sector receives more ogive-zone
-  fragments while the rear sector receives base-zone fragments; the symmetric
-  disk (eq. 9) is superseded by the asymmetric `four_zone_field` result.
+  fragments while the rear sector receives base-zone fragments; the 1-D
+  symmetric disk (eq. 9) averages over this azimuthal structure, while the
+  asymmetric `four_zone_field` resolves it — the two are kept side by side
+  (§6 division of labor).
 - The ES-310 Pk|hit curve is calibrated for standing unprotected infantry. Against a prone
   target the presented area halves and the effective lethal radius shrinks ~30%.
 

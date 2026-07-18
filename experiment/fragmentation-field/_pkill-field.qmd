@@ -1,0 +1,102 @@
+## Point Kill Probability $P_k(x,y,z)$ — Poisson Conversion of $\rho_L$
+
+The lethal-density field $\rho_L$ above is a *flux density* [m⁻²], not a
+probability: it spans orders of magnitude near vs. far from the burst and is
+hard to read as "how dangerous is this point." This section presents the
+**second kill-probability pathway** in the model — the transform that maps
+$\rho_L$ into a bounded, reader-legible **point kill probability**
+$P_k(x,y,z)\in[0,1]$. It is derived and reviewed in full at
+`updates/pkill-poisson-field/{scoping,derivation,review}.md`; only the result
+and its role are presented here.
+
+### The transform
+
+A silhouette of fixed area $A_\text{ref}$ standing at a field point intercepts,
+on average, $\lambda = \rho_L\,A_\text{ref}$ *lethal* fragments (each already
+past the binary $E_\text{leth}=1000$ J cut baked into $\rho_L$). Modelling those
+arrivals as Poisson and asking for **at least one** hit gives
+
+$$
+P_k(x,y,z) = 1 - \exp\!\bigl(-\,\rho_L(x,y,z)\,\cdot\,A_\text{ref}\bigr) \quad (23)
+$$
+
+| Symbol            | Meaning                                                  | Unit       |
+| ----------------- | -------------------------------------------------------- | ---------- |
+| $\rho_L(x,y,z)$   | lethal-fragment areal density (eq. 3, target-independent) | m⁻²        |
+| $A_\text{ref}$    | fixed nominal personnel presented area                   | m²         |
+| $\lambda=\rho_L A_\text{ref}$ | mean lethal fragments striking the silhouette | –          |
+| $P_k(x,y,z)$      | point kill probability, eq. (23)                         | – ($\in[0,1]$) |
+
+$A_\text{ref} = 0.85$ m² is the standing frontal silhouette
+$w_\perp h = 0.5\times1.7$ — frozen as a **fixed scalar**, *not* the live
+$A_p(\gamma,\text{posture})$ used by the graded pathway above. It is an
+engineering convention and a lower bound (real silhouettes run 10–25 % larger
+with helmet/armour/kit; derivation §1). The transform is a **pure elementwise
+map** of the already-computed $\rho_L$ grid — no new field integral (derivation
+§6).
+
+### Two kill-probability pathways, one Poisson skeleton
+
+The model carries **two distinct routes** from the fragment field to a kill
+probability, and this section is the second of them. They share the Poisson
+$1-e^{-\lambda}$ form but differ in *what the mean count $\lambda$ contains* and
+*what they feed*:
+
+| | **Graded per-hit pathway** (eqs 9–10) | **Poisson binary-cut pathway** (eq. 23) |
+|---|---|---|
+| Per-hit lethality | graded ES-310 $P_{k\|\text{hit}}(E)$ curve | binary $E_\text{leth}$ membership inside $\rho_L$, then $P_{k\|\text{hit}}=1$ once counted |
+| Target coupling | live $A_p(\gamma,\text{posture})$, angle- and posture-dependent | fixed $A_\text{ref}=0.85$ m² |
+| Mean count $\lambda$ | $N_\text{eff}=\int n(m)\,P_{k\|\text{hit}}\,\tfrac{A_p}{2\pi s^2\cdots}\,dm$ | $\rho_L\,A_\text{ref}$ (pure expected lethal-hit count) |
+| Feeds | the 2-D $P_\text{kill}$ heatmaps and $R_{50}$ | the interactive **3-D $P_k(x,y,z)$ volume view** |
+
+They are **not** interchangeable and must not be composed: folding the graded
+$P_{k\|\text{hit}}(E)$ into $\rho_L$ and then exponentiating would double-count
+the per-hit probability against the Poisson hit count (derivation §2, scoping
+§3). The binary-cut $\rho_L$ and the eq. (23) reading are the *matched* pair.
+The one deliberate consequence: eq. (23) promotes each counted fragment to
+certainly-lethal ($P_{k\|\text{hit}}=1$), so $P_k$ is **more pessimistic** than
+the ES-310 $1-(1-0.5)^\lambda$ aggregate for the same $\rho_L$, and saturates
+quickly — expected, not a defect (derivation §4.7).
+
+```{python}
+from arty.fragmentation import pkill_field_3d, A_REF_DEFAULT
+from arty.zones import four_zone_pkill_field
+
+print(f"A_ref = {A_REF_DEFAULT:.2f} m² (standing frontal silhouette, fixed; "
+      f"lower bound — +10–25% with kit)")
+
+# Same burst geometry as the ρ_L section (AoF = 30°, h_b = 2 m, z = 0).
+Xk, Yk, pk_single = pkill_field_3d(
+    shell, drag, burst, z=0.0, max_radius=60.0, n_grid=60, A_ref=A_REF_DEFAULT,
+)
+Xz, Yz, pk_four = four_zone_pkill_field(
+    zones_m1, aof_deg=30.0, h_b=2.0, drag=drag, rho_steel=rho_steel,
+    z=0.0, max_r=60.0, n_grid=50, A_ref=A_REF_DEFAULT,
+)
+
+# P_k is bounded in [0,1] by construction; measure what fraction of the lethal
+# field actually saturates (P_k > 0.95) vs. sits in the graded λ≲1 fringe (§4.7).
+for name, pk in [("single-zone", pk_single), ("four-zone", pk_four)]:
+    lethal = pk[pk > 0.0]
+    frac_sat = float(np.mean(lethal > 0.95)) if lethal.size else 0.0
+    assert pk.min() >= 0.0 and pk.max() <= 1.0, "P_k outside [0,1]"
+    print(f"  {name:<11}: P_k ∈ [{pk.min():.3f}, {pk.max():.3f}], "
+          f"lethal-field cells with P_k > 0.95 = {frac_sat:.0%}")
+```
+
+The bounded $[0,1]$ range and the shape of that distribution are exactly what
+eq. (23) is expected to produce: it compresses $\rho_L$'s multi-decade dynamic
+range into a probability. At the geometry rendered here (AoF = 30°, $h_b = 2$ m,
+$z=0$), the lethal field is **fringe-dominated**, not saturated — only the few
+percent of lethal cells reported above ($\approx 3\%$ single-zone, $1\%$
+four-zone) clear $P_k>0.95$. Saturation ($\lambda\gg1$) is confined to a small
+near-burst core; the bulk of the footprint lies in the graded fringe where
+$\lambda\lesssim1$ and $P_k$ varies smoothly with $\rho_L$ (derivation §4.7).
+The saturated fraction grows toward the burst and with lower $h_b$ / steeper
+AoF, which pack more $\rho_L$ into the near field. This 2-D $z=0$ slice is the
+ground layer of the same field the app renders as an interactive 3-D volume via
+`arty.fragmentation.pkill_volume_3d` / `arty.zones.four_zone_pkill_volume` and
+`arty.plots.fig_pkill_volume`; the $z=0$ layer of the volume is numerically
+identical to this slice (derivation §4.6).
+
+______________________________________________________________________

@@ -63,3 +63,35 @@ the independent re-verification live in
 
 See [[zones_meshgrid_convention]] for the related (but distinct) grid-indexing
 pitfall in the same file.
+
+**New surface (2026-07-18): notebook prose about the app's `diff_pk` feature,
+not just derivations.** `app/sensitivity.py` computes
+`diff_pk = result_zones["pk_total"] - result.field_pk`, where `result.field_pk`
+comes from `compute_frag_field_3d` → `_expected_kills_3d_point` — the legacy
+function confirmed above to still use `_shell_axis` (`-cosα`), never
+reconciled with the four-zone `+cosα` convention, and which also carries the
+separately-confirmed `sinΘ`-vs-`sinθᶻ` bug
+([[lethal_density_field_implementation]]). A notebook/`.qmd` reframing pass
+that describes this app diff as "exact" or as isolating/attributing "exactly"
+the end-zone contribution is making the same false-equivalence claim this
+memory exists to catch, just in reader-facing prose instead of a derivation —
+apply the same skepticism: the grid alignment is exact (no interpolation
+error), but the physics on the two sides of the subtraction is not on a
+reconciled axis convention, so "exact attribution" is unsupported off the
+`x=0` plane. Flagged in `experiment/fragmentation-field/_four-zone-3d.qmd`
+(division-of-labor table + "Why both 3-D variants are live" prose, added in
+the pkill-field/two-model-coexistence documentation pass) — see that file's
+review for the specific wording.
+
+**Recurrence trap: fixing the flagged instance doesn't catch sibling
+instances of the same phrasing in the same file.** When the division-of-labor
+prose above was corrected, a second, independent instance of the same
+false-isolation framing survived untouched in §6.8 of the same
+`_four-zone-3d.qmd` ("...the four-zone field's distinct contribution,
+**isolated as the diff** against the belt baseline") — worse, that sentence
+sits under the *deterministic ray-footprint* plot (`fig_zone_footprint`),
+which performs no subtraction/diff at all, so it also misattributes the "diff"
+framing to a figure that isn't one. **How to apply going forward:** once this
+phrasing pattern is flagged anywhere in a file, `grep` the whole file for
+"isolat", "exact", and "diff" before signing off — a single corrected
+paragraph is not evidence the rest of the file was swept.
