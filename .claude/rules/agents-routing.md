@@ -7,8 +7,8 @@ lives in the **model-workflow** skill. **Load that skill (Skill tool) before
 delegating any pass to @modeler or @model-reviewer.**
 
 The three gates below bind the **main agent**, always — at every entry point
-(direct request, new chart, or an OpenSpec `/opsx:propose` / `/opsx:apply`
-step). They constrain the agent, not a tool, so they hold even when a skill or
+(direct request, new chart, or an OpenSpec step via the `openspec-propose` /
+`openspec-apply-change` skills). They constrain the agent, not a tool, so they hold even when a skill or
 task says "implement" — no tool's instructions override them.
 
 ## Gate 1 — Worktree precondition
