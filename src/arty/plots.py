@@ -23,7 +23,7 @@ from arty.fragmentation import (
     mott_N,
     retardation_coeff,
 )
-from arty.zones import ShellZones, fragment_ground_impact
+from arty.zones import ShellZones, fragment_ground_impact, fragment_velocity
 
 
 def apply_style() -> None:
@@ -582,11 +582,11 @@ def fig_zone_elevation(
         if z.mass_kg <= 1e-6:
             continue
         color = zone_colours[name]
-        th = np.radians(z.spray_deg)
-        cT, sT = float(np.cos(th)), float(np.sin(th))
+        # φ=±90° are the only azimuths with vgy=0 (cos φ=0); phi_sign is sin φ.
         for phi_sign, ls, first in [(1, "-", True), (-1, "--", False)]:
-            vgx = cA * cT + sA * sT * phi_sign
-            vgz = -sA * cT + cA * sT * phi_sign
+            vgx, _vgy, vgz = fragment_velocity(
+                z.spray_deg, phi_sign * np.pi / 2, aof_deg
+            )
             lbl = f"{name}  θ={z.spray_deg:.0f}°" if first else None
             _elevation_ray(ax, 0.0, h_b, float(vgx), float(vgz),
                            color=color, ls=ls, label=lbl)
