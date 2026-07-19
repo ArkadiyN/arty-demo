@@ -1,18 +1,19 @@
 # Model Reviewer Memory Index
 
-- [zones.py mesh/line convention](zones_meshgrid_convention.md) — X/Y meshgrid axis convention in arty.zones, validated for four_zone_line_split vs \_four_zone_field_split
-- [app/sensitivity.py physics leakage](sensitivity_physics_leakage.md) — both app/sensitivity.py and plots.py:fig_zone_elevation now call fragment_velocity; also: numeric-equivalence tests can't catch a bit-identical duplication, verify by reverting
-- [belt axis convention pitfall](belt_axis_convention_pitfall.md) — single/four-zone axis sign only agrees on x=0; also flag notebook prose claiming the app's diff_pk "exactly" isolates zone contributions
-- [min_lethal_mass saturation check](min_lethal_mass_saturation_check.md) — m_lo-saturation branch unreachable at default params + E_leth=1000J; flag "flat near burst" m_min(s) claims
-- [lethal-density field src/ implementation](lethal_density_field_implementation.md) — rho_L(x,y,z) impl review, oracle re-verification, np.interp silent-clip footgun in caller-supplied grid API
-- [P_k Poisson derivation vs ES-310 mismatch](pkill_poisson_eslevel_mismatch.md) — eq(1) must disclose Pk|hit=1 as a 2nd, separate simplification beyond rho_L's binary cut, not conflate them; re-check if eq(1)/E_leth changes
-- [derivation qualitative claims need numeric check](derivation_qualitative_claims_need_numeric_check.md) — pkill §4.7 "mostly saturated" claim was empirically false (fringe-dominated); a single spot-check point isn't the same as computing the actual fraction
-- [z-quadrature belt discontinuity](z_quadrature_belt_discontinuity.md) — target-height-intercept vertical column integral crosses ρ_L's hard belt-membership cutoff inside [0,h] at the exact false-safe-zone ring; n_z=9/12 trapezoid errs 5-34%, non-monotonically
-- [piecewise-quadrature boundary evaluation](piecewise_quadrature_boundary_evaluation.md) — even after switching to analytic-root piecewise quadrature, sampling exactly AT the root is fp-fragile; endpoint trapezoid biases ~6% at multiple r in the same ring, doubling check converges too slowly (O(1/n))
-- [quadratic root cancellation near A=0](quadratic_root_cancellation_near_A_zero.md) — eq(5)'s ζ_± root formula is fp-unstable/div-by-zero as angle_of_fall→spray_half_angle; not hit by the standard worked example, check src/ impl uses stable quadratic form
-- [numpy trapz removed](numpy_trapz_removed.md) — this project's numpy has no np.trapz, use np.trapezoid in ad-hoc verification scripts
-- [belt-edge K-generalization confirmed sound](belt_edge_K_generalization_confirmed.md) — per-zone K=cosθ^z±sinδ breakpoint quadratic verified correct both algebraically and against a fine brute-force reference; also an aof=90° equivalence check masks axis-convention bugs via rotational symmetry — retest at an asymmetric AoF
-- [four-zone test parity gap](four_zone_test_parity_gap.md) — resolved (four-zone false-safe-ring test added); pattern kept for next time a zones.py fix mirrors fragmentation.py
-- [ground-grid threshold-fraction aliasing](ground_grid_threshold_fraction_aliasing.md) — resolved via dense near-field grid + onset-radius stat (confirmed grid-stable); pattern kept for the next such notebook statistic
-- [pkill-field.qmd onset-formula typo](pkill_field_qmd_onset_formula_typo.md) — inline prose formula for inner dead-zone radius dropped a term, contradicting the same cell's own printed 100%-ring-fill result; check inline formulas numerically, not just visually against derivation.md
-- [pkill_volume penumbra: single-zone bimodal, four-zone is NOT](pkill_volume_penumbra_is_outer_not_near_burst.md) — single-zone P_k field is near-binary near the burst (confirmed grid-stable); four-zone genuinely has a real, grid-stable near-burst low-value fringe — don't generalize one path's spot-check to the other; near-burst void is a pinched bicone, not a "column"
+- [zones.py meshgrid convention](zones_meshgrid_convention.md) — X varies along columns (downrange), Y along rows (cross-range); diff loop bodies before re-deriving
+- [Physics duplicated into app/plots](sensitivity_physics_leakage.md) — flag inlined ray trig not calling fragment_velocity; numeric-equivalence tests can't catch bit-identical duplication
+- [Revert probes: stash, not checkout](revert_probe_use_stash.md) — git checkout -- <file> silently discards the whole uncommitted diff
+- [Belt axis convention pitfall](belt_axis_convention_pitfall.md) — single/four-zone axis signs agree only on x=0; re-derive "equivalence" claims algebraically, grep for sibling phrasing
+- [min_lethal_mass saturation check](min_lethal_mass_saturation_check.md) — m_lo-saturation unreachable at defaults; flag "flat near burst" m_min claims
+- [lethal-density field gotchas](lethal_density_field_implementation.md) — legacy sinΘ bug in _expected_kills_3d_point; np.interp silently clips external s_grids
+- [P_k Poisson vs ES-310](pkill_poisson_eslevel_mismatch.md) — eq(1) is the Pk|hit→1 limit; must be disclosed as a second, separate simplification
+- [Qualitative claims need numbers](derivation_qualitative_claims_need_numeric_check.md) — compute the actual fraction; one spot-check point proves nothing
+- [z-quadrature belt discontinuity](z_quadrature_belt_discontinuity.md) — column integrals of ρ_L cross a hard 0/1 cutoff; require a real convergence table or analytic piecewise
+- [Piecewise quadrature boundary sampling](piecewise_quadrature_boundary_evaluation.md) — sampling AT analytic roots is fp-fragile; require midpoint/interior nodes
+- [Quadratic root cancellation near A=0](quadratic_root_cancellation_near_A_zero.md) — belt-edge quadratic needs the stable form; probe angle_of_fall near spray_half_angle
+- [numpy trapz removed](numpy_trapz_removed.md) — use np.trapezoid in verification scripts
+- [Belt-edge K generalization](belt_edge_K_generalization_confirmed.md) — K=cosθ^z±sinδ confirmed sound; AoF=90° symmetry masks axis bugs, retest asymmetric
+- [Four-zone test parity](four_zone_test_parity_gap.md) — a zones.py mirror of a fragmentation.py fix needs the same defect-removal test, not a weaker invariant
+- [Grid threshold-fraction aliasing](ground_grid_threshold_fraction_aliasing.md) — sweep n_grid before trusting a printed % near a hard cutoff
+- [Onset formula typo pattern](pkill_field_qmd_onset_formula_typo.md) — evaluate inline .qmd prose formulas numerically against printed stats
+- [Volume penumbra per path](pkill_volume_penumbra_is_outer_not_near_burst.md) — single-zone near-binary, four-zone genuinely graded; recompute per path
