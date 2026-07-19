@@ -37,6 +37,8 @@ ______________________________________________________________________
 
 {{< include _lethal-density.qmd >}}
 
+{{< include _pkill-field.qmd >}}
+
 {{< include _change-log.qmd >}}
 
 {{< include _limitations.qmd >}}

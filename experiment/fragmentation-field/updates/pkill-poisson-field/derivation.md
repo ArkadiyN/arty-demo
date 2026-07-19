@@ -275,22 +275,37 @@ eq. (1) inherits it. (The src/ pass should still assert this slice identity on t
 
 ______________________________________________________________________
 
-### 4.7 Expected near-saturation over most of the lethal belt (record for notebook pass)
+### 4.7 Fringe-dominated field: saturation confined to a small near-burst core (notebook-verified)
 
 Because eq. (1) is the more-pessimistic `P_{k|hit} = 1` choice (step 3, A2),
-`P_k` saturates quickly: `λ = ρ_L·A_ref` with `A_ref = 0.85 m²` reaches
-`P_k = 0.817` already at `ρ_L = 2 m⁻²` and `P_k → 1` by `ρ_L ≈ 10 m⁻²`. Against
-the ρ_L kernel's reviewed magnitudes (peak ~74 m⁻² near the `s_min` floor;
-appreciable-but-not-tiny densities of order 1–10 m⁻² over much of the belt),
-**most of the spatial extent where `ρ_L` is appreciable will render as
-`P_k ≈ 1`**, with the graded variation concentrated in the thin fringe where
-`λ ≲ 1`. This is the expected/correct consequence of eq. (1), not a defect — but
-the notebook/app pass should expect a mostly-saturated colour map and choose the
-colour scale accordingly (e.g. emphasise the `[0, 1)` fringe contour, or note
-that the ES-310 `1 − 0.5^λ` form would spread the mid-range out further). The
-legibility goal from scoping §1 (compress ρ_L's multi-decade dynamic range into
-`[0,1]`) is met, but a near-saturated map trades one legibility problem for
-another; flagging here so the presentation pass addresses it deliberately.
+`P_k` saturates quickly **where `ρ_L` is large**: `λ = ρ_L·A_ref` with
+`A_ref = 0.85 m²` reaches `P_k = 0.817` already at `ρ_L = 2 m⁻²` and `P_k → 1`
+by `ρ_L ≈ 10 m⁻²`. The spatial question — *how much of the field* saturates —
+turns on where `ρ_L` actually sits, and the field is **fringe-dominated**, not
+uniformly appreciable: although `ρ_L` peaks at ~74 m⁻² near the `s_min` floor,
+that saturating core is spatially small, and `ρ_L` falls off steeply (∝ `s⁻²`
+under the eq. 22′ inverse-square geometry) so that **most lethal cells sit at
+`λ ≲ 1`**, in the graded regime where `P_k` varies smoothly with `ρ_L`.
+
+The notebook pass measured this directly at the representative burst geometry
+(AoF = 30°, `h_b = 2 m`, `z = 0`): only **~3 % (single-zone) / ~1 % (four-zone)
+of lethal-field cells clear `P_k > 0.95`** — the map is fringe-dominated, with
+full saturation (`λ ≫ 1`) confined to a small near-burst core
+(`_pkill-field.qmd`; @model-reviewer's independent re-check of the same
+geometry confirms the ~1–3 % figure).
+
+**Correction to an earlier paper estimate.** An initial estimate here
+anticipated a *mostly-saturated* map — `P_k ≈ 1` over "most of the spatial
+extent" where `ρ_L` is appreciable. That over-stated the saturated fraction: it
+treated "densities of order 1–10 m⁻² over much of the belt" as typical, whereas
+the `s⁻²` falloff confines the appreciable-`ρ_L` region to a thin near-burst
+annulus rather than "most of the extent." The saturated fraction does grow
+toward the burst and with lower `h_b` / steeper AoF (which pack more `ρ_L` into
+the near field), but at representative geometry it is a **few percent, not a
+majority**. The legibility goal from scoping §1 (compress `ρ_L`'s multi-decade
+dynamic range into `[0,1]`) is met, and — because the graded fringe *is* the
+bulk of the map — the mid-range renders legibly with a plain linear `[0,1]`
+scale; no special near-saturation colour handling is needed.
 
 ## 5 · Validation checklist status (scoping §6)
 
@@ -304,7 +319,7 @@ another; flagging here so the presentation pass addresses it deliberately.
 | Small-`ρ_L` linearisation `P_k ≈ ρ_L·A_ref` = expected lethal-hit count                                                                                                                          | §4.5          | ✓ leading term, `−λ²/2` correction                                      |
 | `z=0` slice consistent with 2D `ρ_L` field through eq. (1)                                                                                                                                       | §4.6          | ✓ inherited from `ρ_L` kernel; assert in src/                           |
 | Poisson-independence (A1) + sharp-threshold/`P_{k\|hit}=1` (A2) assumptions stated; eq. (1) is the `P_{k\|hit}=1` limit of ES-310's `1−(1−P_{k\|hit})^λ`, more pessimistic than its `0.5` anchor | §2 step 3, A2 | ✓ recorded as explicit second simplification + quantitative consequence |
-| Near-saturation of `P_k` over the appreciable-`ρ_L` belt (expected consequence)                                                                                                                  | §4.7          | ✓ flagged for notebook/colour-scale pass                                |
+| `P_k` field is fringe-dominated; saturation confined to a small near-burst core (~1–3 % of lethal cells at `P_k>0.95`)                                                                           | §4.7          | ✓ notebook-verified; corrects an earlier mostly-saturated estimate      |
 | `A_ref = 0.85 m²` fixed scalar, not `presented_area(…)`                                                                                                                                          | §1 eq. (2)    | ✓ + lower-bound caveat                                                  |
 
 All limit/validation cases pass **dimensionally and logically** on paper.

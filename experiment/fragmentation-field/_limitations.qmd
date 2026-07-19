@@ -11,13 +11,18 @@ and downward. Together these zones account for roughly 20–30 % of the steel ma
 but produce none of the fragments in the single-cylinder model. Gold (2007) explicitly
 accounts for the tail boom and fuze as separate mass contributors; the one-region
 PAFRAG assumption treats the entire shell as a single cylinder, omitting both end
-zones (Gold 2017, §2). Result: the v 0.1.0–0.2.0 model *underestimates* total
-fragment count and misses the forward- and rear-sector hazard.
+zones (Gold 2017, §2). Consequence: the single-zone (equatorial-belt) field, taken
+alone, *underestimates* total fragment count and carries no forward- or rear-sector
+hazard.
 
-*Addressed in v 0.3.0:* the four-zone decomposition (§6.1) assigns ogive, cylinder,
-boattail, and base each their own Mott distribution, Gurney velocity, and spray
-angle, capturing both the forward ogive sector and the rearward base sector. Residual
-limitations of the zone model are listed in §12.
+*Complemented by the four-zone field (§6), not replaced:* the four-zone
+decomposition (§6.1) assigns ogive, cylinder, boattail, and base each their own
+Mott distribution, Gurney velocity, and spray angle, adding the forward ogive
+sector and the rearward base sector. The single-zone belt is **deliberately
+retained** alongside it as the drawing-data-free, absolute-magnitude baseline —
+the reference the four-zone lobe structure is measured against (three-variant
+division of labor, §6). This is a coexisting pair, not an old-to-new
+progression. Residual limitations of the zone model are listed in §12.
 
 **2 · Fragments do not all fly in one horizontal plane.**
 The cylindrical body does spray predominantly sideways (Figure 4 cross-section), but
@@ -171,6 +176,20 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   qualitative prediction (forward density > rearward at AoF < 90°) that
   cannot yet be checked against empirical fragment-density-vs-azimuth
   data.
+- **The single-zone − four-zone difference map is not a clean zone
+  attribution.** The sensitivity app's "Four-zone − Single-zone" diff
+  (§6) is *grid-exact* (both fields share the same grid, so no
+  interpolation error enters), but the single-zone baseline is the legacy
+  belt path (`_expected_kills_3d_point`), which uses a **backward**
+  shell-axis convention ($\hat{e}=(-\cos\alpha,0,-\sin\alpha)$) and a
+  different off-boresight normalization than the four-zone forward-axis
+  path. The two agree by construction only on the equatorial belt /
+  boresight plane; off it the diff conflates the genuine end-zone
+  contribution with a residual, unreconciled axis-convention and
+  normalization mismatch (belt-axis note,
+  `updates/lethal-fragment-density-field/derivation.md` §5.4). It should
+  be read as an indicator of directional (fore/aft-lobe) structure, not as
+  an exact per-zone lethality attribution.
 - **Hard-cutoff spray belts create unphysical dead zones between zone
   boundaries.** Each zone's contribution to a ground point is gated by a
   ±15° (``delta_deg``) rect-function band around the zone's nominal spray
@@ -181,24 +200,34 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   fix is to replace the hard acceptance test with a smooth angular weight
   (e.g., Gaussian in polar angle), which also correctly handles overlap
   between adjacent zones.
-- **Fragment acceptance test targets ground impact (z = 0), not body
-  intercept.** A fragment is accepted for a ground cell only if its
-  downward velocity component satisfies $v_{gz} < 0$, i.e.\
-  $\sin(\mathrm{AoF} + \theta_z) > 0$. Fragments with $v_{gz} \geq 0$
-  are discarded regardless of whether they could strike a person at
-  torso or head height.
+- **False safe zone at steep angle of fall — fixed in v 0.5.1.** The
+  ground $P_k$ field previously sampled the lethal-fragment density
+  $\rho_L$ on the $z = 0$ plane alone. A person is a *vertical* target, so
+  a near-horizontal spray belt that crosses chest and head height but never
+  descends to the ground close in was scored $P_k = 0$ — a spurious inner
+  "safe ring." The effect was most severe at steep AoF: at AoF = 90° the
+  cylinder belt sprays horizontally at burst height and never reaches
+  $z = 0$ within several metres, so the model showed a false safe zone
+  where a standing soldier would in reality be struck at chest height.
 
-  The effect is most severe at steep angles of fall. At AoF = 90° the
-  cylinder zone ($\theta_z = 90°$) sprays exactly horizontally
-  ($v_{gz} = 0$) and is excluded entirely; the model therefore shows a
-  false safe zone of several metres around the burst point. A standing
-  soldier at 2 m would in reality be struck at chest height by these
-  horizontal fragments. For prone targets the effect is smaller (centre
-  of mass ≈ 0.3 m) but non-zero at close range.
+  This is now fixed. The ground field forms the mean lethal-hit count by
+  integrating $\rho_L$ over the whole column the body occupies,
+  $\lambda = w_\perp\!\int_0^{h}\!\rho_L(x,y,z)\,dz$ (§*Point Kill
+  Probability*, eq. 23; derived at
+  `updates/target-height-intercept/derivation.md`), so $P_k$ fires
+  wherever the belt illuminates any height the target spans. At the
+  defect config (AoF = 90°, $h_b = 2$ m, standing) the false-safe ring
+  that was formerly $P_k = 0$ is now lethal (the innermost true dead zone,
+  $r\lesssim1.1$ m directly under the burst where the belt passes overhead,
+  correctly remains $P_k\approx0$), and reading $(w_\perp, h)$
+  live re-couples posture — a standing target is correctly more exposed
+  than a prone one near a low high-angle burst. The remaining
+  approximation is frontal projection only ($\gamma = 0$; no obliquity
+  $\cos\gamma$ and no top-down footprint), which leaves prone exposure
+  under steep arrival *conservative-low* — a documented refinement
+  (derivation §4, §7 A1), not the false-safe artefact.
 
-  The correct fix is to test whether the fragment ray intersects a target
-  volume spanning $[0,\, h_\text{person}]$ in height rather than the
-  $z = 0$ plane alone. Until that is implemented, P(kill) close to the
-  burst at steep AoF (≳ 70°) is underestimated for standing targets, and
-  the "inner safe ring" visible in the sensitivity app at AoF = 90° is a
-  model artefact, not real protection.
+  Note this is a distinct issue from the `fragment_ground_impact`
+  acceptance test ($v_{gz} < 0$, i.e. $\sin(\mathrm{AoF}+\theta_z) > 0$),
+  which gates the spray-cone *dot renderer* only and feeds no hazard
+  field — that gate was never the source of the false ring.

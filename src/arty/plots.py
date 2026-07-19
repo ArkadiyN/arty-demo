@@ -23,7 +23,7 @@ from arty.fragmentation import (
     mott_N,
     retardation_coeff,
 )
-from arty.zones import ShellZones, fragment_ground_impact
+from arty.zones import ShellZones, fragment_ground_impact, fragment_velocity
 
 
 def apply_style() -> None:
@@ -317,6 +317,40 @@ def fig_lethal_density_field(
     return fig
 
 
+def fig_pkill_field(
+    X: np.ndarray, Y: np.ndarray, P_k: np.ndarray, title: str
+) -> plt.Figure:
+    """Ground kill-probability field P_k [-] ∈ [0,1] on an (x, y) ground patch.
+
+    Renders the already-computed vertical-column P_k field (target-height-intercept
+    derivation eq. 2/3/6): P_k = 1 − exp(−w_perp·∫₀ʰ ρ_L dz) for a target
+    occupying the column [0, h]. Linear filled contours over the full [0,1]
+    probability range so both the saturated near field and the graded fringe are
+    legible, and — the point of the fix — so a filled inner ring reads as *no*
+    false safe zone. No physics here.
+
+    X, Y  : ground meshgrids [m] (downrange x, cross-range y)
+    P_k   : kill-probability meshgrid [-] ∈ [0,1]
+    title : figure title (path + burst geometry + posture, supplied by caller)
+    """
+    fig, ax = plt.subplots(figsize=(7, 6))
+    levels = np.linspace(0.0, 1.0, 11)
+    cf = ax.contourf(X, Y, np.clip(P_k, 0.0, 1.0), levels=levels, cmap="inferno",
+                     vmin=0.0, vmax=1.0)
+    fig.colorbar(cf, ax=ax, label=r"$P_k$ [-]", ticks=np.linspace(0, 1, 6))
+    ax.set_aspect("equal")
+    ax.set_xlabel("Downrange x [m]")
+    ax.set_ylabel("Cross-range y [m]")
+    ax.set_title(title)
+    ax.annotate("→ direction of fire", xy=(0.96, 0.03), xytext=(0.65, 0.03),
+                xycoords="axes fraction",
+                arrowprops=dict(arrowstyle="->", color="0.25"), fontsize=9)
+    ax.plot(0, 0, "c+", ms=10, markeredgewidth=2, label="Burst")
+    ax.legend(loc="upper right", fontsize=8)
+    fig.tight_layout()
+    return fig
+
+
 def fig_pkill_volume(
     X: np.ndarray,
     Y: np.ndarray,
@@ -333,11 +367,65 @@ def fig_pkill_volume(
     marching-cubes faceting ("origami crane" artifact) from anisotropic,
     over-extended sampling on the raw ρ_L field; the fix was a tighter
     burst-centered spatial extent so the grid resolution covers the field's
-    interesting region densely, plus the tuned trace parameters below
-    (validated empirically). With those, ``go.Volume`` renders cleanly with
-    no visible faceting. Unlike ρ_L (an unbounded, multi-decade areal
-    density), P_k is a bounded probability — isomin/isomax are therefore
-    fixed to a [0,1]-relative range rather than computed from the field's max.
+    interesting region densely. With that extent fix the trace renders cleanly
+    with no visible faceting at any low ``isomin`` — verified empirically by
+    rendering AoF=90° h_b∈{2,5} m for both the single-zone and four-zone paths
+    down to isomin=0 (no faceting reappears; the extent, not isomin, was the
+    artifact driver). Unlike ρ_L (an unbounded, multi-decade areal density),
+    P_k is a bounded probability — isomin/isomax are fixed to a [0,1]-relative
+    range rather than computed from the field's max.
+
+    ``isomin=0.01`` (not the raw ρ_L rounds' 0.05): ``go.Volume`` omits every
+    voxel with ``value < isomin`` entirely — an invisible gap, not a dark
+    low-color region. The 0.01 threshold is chosen to clip as little as
+    possible; what it buys differs sharply between the two field paths.
+
+    **Single-zone** (``pkill_volume_3d``) is effectively **bimodal**: a
+    point-in-space voxel is either exactly 0 (the one equatorial spray belt
+    misses that height) or already ≳0.05 (once that belt is intercepted a lethal
+    hit is near-certain, since P_k = 1−exp(−ρ_L·A_ref) saturates fast). There is
+    essentially **no** low-but-nonzero near-burst penumbra — verified by
+    recomputing the single-zone field across AoF∈{30,60,90}° and h_b∈{2,5,10} m
+    at view radius 10–30 m (app default n_grid=40, n_z=30): **zero** voxels fall
+    in (0,0.05) at every combination. So on the single-zone path lowering isomin
+    from 0.05 to 0.01 reveals no additional near-burst voxels; the only low-P_k
+    fringe (voxels in [0.01,0.05)) is the **outer** edge of the lethal envelope —
+    the far energy-decay boundary at r≈55–85 m — which enters the frame only at
+    the maximum view radius (60 m), where 0.01 recovers a faint continuous outer
+    taper the 0.05 cutoff clipped.
+
+    **Four-zone** (``four_zone_pkill_volume``) is **not** bimodal: it superposes
+    four zone cones (ogive/cylinder/boattail/base), each with a distinct angular
+    half-width and launch velocity, so a height reached by only one narrow or
+    slow zone carries a small-but-nonzero ρ_L. This makes a real, grid-stable
+    continuous near-burst low-value fringe. Recomputing the four-zone field on
+    the same grid, a substantial fraction of voxels fall in (0,0.05) at most
+    combinations — e.g. AoF=30°/h_b=2 m/r=30 m: 21.5% of voxels, stable under
+    grid refinement (n_grid 40→60→80: 21.5→21.4→21.4%), so not an aliasing
+    artifact. Only the narrow near-vertical slice AoF=90°/h_b∈{2,5} m/r≤20 m
+    reads exactly zero (steep fall collapses the four cones onto one tight
+    equatorial band). On the four-zone path, therefore, isomin=0.01 genuinely
+    reveals near-burst structure the 0.05 cutoff hid — the graded low-P_k fringe
+    between the fully-lethal band and the dark cone — not merely the far outer
+    taper.
+
+    Near-burst geometry — the exactly-P_k=0 core is **not a vertical column**
+    (that holds only on the exact axis directly under the burst, r≈0, where the
+    whole 0→z_max column is dark). It is the lower nappe of a **bicone**: the
+    equatorial spray belt (half-angle δ) lights a band centred on burst height
+    z=h_b that pinches to a point at the burst and flares outward as
+    z = h_b ± r·tanδ, so the dark region is everything outside that band. A
+    direct consequence, visible in this point-in-space view, is that in an
+    annulus around the burst the **ground (z=0) reads exactly 0 while
+    torso/head height is fully lethal** (P_k up to 1) — e.g. h_b=5 m, δ=15°:
+    ground-dark / head-lit for r≈12.3–18.7 m; h_b=2 m: r≈1.1–7.5 m. That is the
+    false-safe-ring geometry rendered in 3D: a dark cone under the burst, not a
+    dark column, and standing up puts a head into the lethal band even where the
+    ground point is "safe". A translucent exactly-zero voxel is not legibly
+    renderable in ``go.Volume`` at any isomin (even isomin=0 leaves it
+    near-invisible), so for a legible dark "safe zone" the 2D ground heatmap and
+    the ``pkill_field`` column integral remain the right views; this 3D view
+    shows where the lethal band sits in height, not the safe volume itself.
     No physics here — purely rendering the supplied (X, Y, Z, P_k) grids.
 
     The signature takes the plain ``(X, Y, Z, P_k)`` 3D meshgrids returned by
@@ -582,11 +670,11 @@ def fig_zone_elevation(
         if z.mass_kg <= 1e-6:
             continue
         color = zone_colours[name]
-        th = np.radians(z.spray_deg)
-        cT, sT = float(np.cos(th)), float(np.sin(th))
+        # φ=±90° are the only azimuths with vgy=0 (cos φ=0); phi_sign is sin φ.
         for phi_sign, ls, first in [(1, "-", True), (-1, "--", False)]:
-            vgx = cA * cT + sA * sT * phi_sign
-            vgz = -sA * cT + cA * sT * phi_sign
+            vgx, _vgy, vgz = fragment_velocity(
+                z.spray_deg, phi_sign * np.pi / 2, aof_deg
+            )
             lbl = f"{name}  θ={z.spray_deg:.0f}°" if first else None
             _elevation_ray(ax, 0.0, h_b, float(vgx), float(vgz),
                            color=color, ls=ls, label=lbl)

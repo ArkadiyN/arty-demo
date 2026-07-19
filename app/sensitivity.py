@@ -13,6 +13,7 @@ from arty.fragmentation import (
     ShellParams,
     SteelParams,
     compute_frag_field_3d,
+    pkill_field_3d,
     pkill_volume_3d,
     retardation_coeff,
 )
@@ -20,6 +21,7 @@ from arty.zones import (
     _four_zone_field_split,
     compute_shell_zones,
     four_zone_line_split,
+    four_zone_pkill_field,
     four_zone_pkill_volume,
     fragment_velocity,
 )
@@ -266,6 +268,25 @@ def _compute_volume_zones(
         zones, float(angle_of_fall), h_b, drag, rho_steel,
         max_r=max_radius, z_max=z_max, n_grid=n_grid, n_z=n_z,
         delta_deg=float(spray_half_angle),
+    )
+
+
+@st.cache_data
+def _compute_pkill_field_legacy(shell, drag, burst, posture, max_radius, n_grid):
+    return pkill_field_3d(
+        shell=shell, drag=drag, burst=burst, posture=posture,
+        max_radius=max_radius, n_grid=n_grid,
+    )
+
+
+@st.cache_data
+def _compute_pkill_field_zones(
+    zones, angle_of_fall, h_b, drag, rho_steel, spray_half_angle, posture,
+    max_radius, n_grid,
+):
+    return four_zone_pkill_field(
+        zones, float(angle_of_fall), h_b, drag, rho_steel, posture=posture,
+        max_r=max_radius, n_grid=n_grid, delta_deg=float(spray_half_angle),
     )
 
 
@@ -968,6 +989,8 @@ with st.expander("3D Kill Probability  P(kill)(x, y, z)", expanded=False):
         "arrivals (no shielding/armour) and treats every fragment past the lethal-"
         "energy threshold as certainly lethal — more pessimistic than a graded "
         "per-hit kill model."
+        " Render limitation for the chart type: Safe Zone directly under steep angle"
+        " airburst is not displayed as dark red, the chart ignores it."
     )
     vol_col1, vol_col2, vol_col3 = st.columns(3)
     with vol_col1:
@@ -1006,3 +1029,68 @@ with st.expander("3D Kill Probability  P(kill)(x, y, z)", expanded=False):
         fig_pkill_volume(X_vol, Y_vol, Z_vol, pk_vol, vol_title),
         use_container_width=True,
     )
+
+# ---------------------------------------------------------------------------
+# Ground kill-probability field  P_k(x, y) — vertical-column integral
+# ---------------------------------------------------------------------------
+
+st.divider()
+with st.expander("Ground Kill Probability  P(kill)(x, y) — Vertical-Column Integral", expanded=False):
+    st.caption(
+        "Probability that a target occupying the vertical column [0, h] above this "
+        "ground point (posture from the sidebar) is struck by at least one lethal "
+        "fragment: P_k = 1 − exp(−w_perp·∫₀ʰ ρ_L dz) — the same target-independent "
+        "lethal-fragment density ρ_L used by the 3D volume above, now integrated over "
+        "the target's height instead of sampled only at z=0 (target-height-intercept "
+        "derivation). This closes the false safe zone: at steep angle of fall the "
+        "spray belt can cross chest/head height without ever reaching the ground "
+        "close to the burst, which the point-in-space volume's ground layer "
+        "(z=0, frozen A_ref) reads as P_k≈0."
+    )
+    gf_col1, gf_col2 = st.columns(2)
+    with gf_col1:
+        radius_gf = st.slider(
+            "View radius  [m]", 10.0, 60.0, 20.0, step=5.0, key="radius_gf",
+            help="Independent of the main analysis radius above — kept small so "
+                 "near-burst structure is resolved.",
+        )
+    with gf_col2:
+        n_grid_gf = st.select_slider(
+            "Grid resolution (x, y)", options=[60, 100, 150, 200, 300], value=150,
+            key="n_grid_gf",
+            help="Coarse grids can alias a hard belt-edge crossing into a spuriously "
+                 "low reading near the false-safe-ring boundary — use a finer grid if "
+                 "a ring boundary looks suspiciously sharp.",
+        )
+
+    if model_mode == "Single-zone (legacy)":
+        X_gf, Y_gf, pk_gf = _compute_pkill_field_legacy(
+            shell, drag, burst, posture, radius_gf, n_grid_gf,
+        )
+        gf_title = f"Single-zone (legacy)  ·  {posture_name}"
+    else:
+        assert result_zones is not None
+        zones_obj = result_zones["zones"]
+        X_gf, Y_gf, pk_gf = _compute_pkill_field_zones(
+            zones_obj, angle_of_fall, h_b, drag, rho_steel, spray_half_angle,
+            posture, radius_gf, n_grid_gf,
+        )
+        gf_title = f"Four-zone (new)  ·  {posture_name}"
+
+    fig_gf = go.Figure()
+    fig_gf.add_trace(go.Heatmap(
+        x=X_gf[0], y=Y_gf[:, 0], z=pk_gf,
+        colorscale="YlOrRd", zmin=0, zmax=1,
+        colorbar=dict(title="P(kill)"),
+    ))
+    fig_gf.add_trace(_r50_contour(X_gf[0], Y_gf[:, 0], pk_gf))
+    fig_gf.add_trace(go.Scatter(x=[0], y=[0], mode="markers",
+        marker=dict(symbol="cross", size=12, color="black"), showlegend=False))
+    fig_gf.update_layout(
+        title=f"P(kill)(x,y) — {gf_title}",
+        xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
+        yaxis_title="Cross-range  y  [m]",
+        height=600,
+        margin=dict(t=40, b=40, l=60, r=20),
+    )
+    st.plotly_chart(fig_gf, use_container_width=True)

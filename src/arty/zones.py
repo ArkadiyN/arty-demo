@@ -25,11 +25,14 @@ from arty.fragmentation import (
     A_REF_DEFAULT,
     DragParams,
     E_LETH_DEFAULT,
+    STANDING,
     PostureParams,
     ShellParams,
     SteelParams,
     _forward_shell_axis,
+    belt_column_breakpoints,
     build_mmin_table,
+    integrate_column_density,
     pk_given_hit,
     presented_area,
     slant_range_grid,
@@ -877,46 +880,185 @@ def four_zone_lethal_density_volume(
     return X, Y, Z, rho_L
 
 
+def _active_zone_cos_theta(zones: ShellZones) -> list[float]:
+    """cos θ^z [-] of every zone that can contribute lethal fragments.
+
+    A belt's membership can flip at cosΘ = cosθ^z ± sinδ, so these centres seed
+    the column-integral breakpoints (:func:`belt_column_breakpoints`). Zones with
+    no steel / no velocity / degenerate spray are skipped (they add nothing to
+    ρ_L, so their belt edges are irrelevant).
+    """
+    zone_list = [zones.ogive, zones.cylinder, zones.boattail, zones.base]
+    cos_list: list[float] = []
+    for zp in zone_list:
+        if zp.mass_kg <= 1e-6 or zp.V0_ms <= 0.0 or not np.isfinite(zp.mu):
+            continue
+        theta_z = np.radians(zp.spray_deg)
+        if np.sin(theta_z) < 1e-9:
+            continue
+        cos_list.append(float(np.cos(theta_z)))
+    return cos_list
+
+
 def four_zone_pkill_field(
     zones: ShellZones,
     aof_deg: float,
     h_b: float,
     drag: DragParams,
     rho_steel: float,
-    z: float = 0.0,
+    posture: PostureParams = STANDING,
     max_r: float = 80.0,
     n_grid: int = 60,
     delta_deg: float = 15.0,
     E_leth: float = E_LETH_DEFAULT,
     n_s: int = 400,
-    A_ref: float = A_REF_DEFAULT,
+    n_seg: int = 9,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Four-zone point kill probability P_k [-] ∈ [0,1] on an (x, y) patch at height z.
+    """Four-zone ground kill probability P_k [-] ∈ [0,1] for a target at (x, y).
 
-    P_k = 1 − exp(−ρ_L·A_ref), with ρ_L [m⁻²] the four-zone lethal-fragment areal
-    density (:func:`four_zone_lethal_density_field`) and A_ref [m²] the fixed
-    nominal personnel presented area (0.85 m², standing frontal — lower bound;
-    +10–25% with kit). A pure elementwise transform of ρ_L; no new field integral
-    (pkill-poisson-field derivation eq. 1, §6).
+    P_k = 1 − exp(−λ), with the mean lethal-hit count formed by integrating the
+    four-zone lethal-fragment areal density ρ_L [m⁻²] over the vertical column
+    the target actually occupies (target-height-intercept derivation eq. 2/3/6):
 
-    Caveats (derivation §2, A1/A2): (A1) Poisson independence / no shielding —
-    fragment arrivals on the A_ref patch are independent, with body armour and
-    partial cover ignored. (A2) sharp lethality threshold AND P_k|hit = 1 once
-    counted — "lethal" is the binary E_leth membership inside ρ_L, and every
-    counted fragment is treated as certainly lethal; P_k is therefore more
-    pessimistic than the ES-310 ``1 − (1 − 0.5)^λ`` aggregate for the same ρ_L,
-    and is not a tissue-level wound model.
+        λ(x,y) = w_perp · ∫₀ʰ ρ_L(x,y,z) dz,
+
+    reading (w_perp, h) live from ``posture``. This replaces the earlier
+    ρ_L(z=0)·A_ref point transform, which read the flux only on the ground plane
+    and reported a false safe ring wherever a near-horizontal spray belt crosses
+    chest/head height but never descends to z=0 close in (derivation §1, §6.3).
+    The old transform is the degenerate z-flat limit with A_ref = w_perp·h (§3),
+    and posture re-couples automatically through (w_perp, h) (§4).
+
+    The column integral is evaluated piecewise on the belt-membership segments
+    (each zone's belt edge from :func:`belt_column_breakpoints`, seeded by the
+    active zones' cosθ^z) with a composite-midpoint rule
+    (:func:`integrate_column_density`, n_seg per segment) — strictly-interior
+    nodes so no belt-edge 0/1 gate coin-flips (derivation §5). Per-zone m_min(s)
+    tables spanning the whole [0, h] column are built once and shared across all
+    z-samples (§5.3).
+
+    Caveats (derivation §2/§7, A1/A2): frontal projection (γ = 0 arrival),
+    Poisson independence / no shielding, and a sharp E_leth cut with
+    P_k|hit = 1 once counted — more pessimistic than the ES-310 aggregate, not a
+    tissue-level wound model.
 
     Returns ``(X, Y, P_k)`` meshgrids [m, m, -].
     """
-    X, Y, rho_L = four_zone_lethal_density_field(
-        zones, aof_deg, h_b, drag, rho_steel, z=z,
-        max_r=max_r, n_grid=n_grid, delta_deg=delta_deg,
-        E_leth=E_leth, n_s=n_s,
+    h = posture.h
+    w_perp = posture.w_perp
+    alpha_rad = np.radians(aof_deg)
+    delta_rad = np.radians(delta_deg)
+
+    # One (s_grid, per-zone m_min) covering the whole [0, h] column, shared
+    # across every (x, y) column and z-sample (§5.3).
+    s_grid = slant_range_grid(max_r, h_b, z_max=h, n_s=n_s, z_min=0.0)
+    s_grids, mmin_grids = build_zone_mmin_tables(
+        zones, s_grid, E_leth, drag, rho_steel
     )
-    P_k = 1.0 - np.exp(-rho_L * A_ref)
+    cos_theta_z = _active_zone_cos_theta(zones)
+
+    xy = np.linspace(-max_r, max_r, n_grid)
+    X, Y = np.meshgrid(xy, xy)
+    P_k = np.zeros_like(X)
+    for i in range(n_grid):
+        for j in range(n_grid):
+            xij, yij = X[i, j], Y[i, j]
+            bps = belt_column_breakpoints(
+                xij, yij, h_b, alpha_rad, delta_rad, cos_theta_z, 0.0, h,
+            )
+            col = integrate_column_density(
+                lambda z: lethal_density_four_zone_point(
+                    zones, xij, yij, z, aof_deg, h_b, delta_deg,
+                    s_grids, mmin_grids,
+                ),
+                bps, n_seg,
+            )
+            P_k[i, j] = 1.0 - np.exp(-w_perp * col)
     assert np.all((P_k >= 0.0) & (P_k <= 1.0)), "P_k outside [0,1]"
     return X, Y, P_k
+
+
+def four_zone_pkill_line(
+    zones: ShellZones,
+    aof_deg: float,
+    h_b: float,
+    drag: DragParams,
+    rho_steel: float,
+    posture: PostureParams,
+    *,
+    fixed_axis: str,
+    fixed_coord: float,
+    line_coords: np.ndarray,
+    delta_deg: float = 15.0,
+    E_leth: float = E_LETH_DEFAULT,
+    n_s: int = 400,
+    n_seg: int = 9,
+) -> np.ndarray:
+    """Four-zone ground kill probability P_k [-] along a single fixed-x/-y line.
+
+    Family-B line variant of :func:`four_zone_pkill_field`: the *same* vertical
+    column-integral physics (λ = w_perp·∫₀ʰ ρ_L dz, eq. 2/6), evaluated only at
+    the ground points of one 1D line so cost scales with ``len(line_coords)``
+    rather than ``n_grid²``. This lets a caller sample a cross-section at much
+    finer spatial resolution than the square grid — the false-safe-ring band can
+    be narrower than a coarse grid step, so a row read off the square grid can
+    miss it (derivation §5). For any ``line_coords``/``fixed_coord`` point that
+    coincides with a square-grid node, the returned P_k matches
+    :func:`four_zone_pkill_field` exactly (same integrand).
+
+    This is the ρ_L column-integral (Family-B) path; it is distinct from
+    :func:`four_zone_line_split`, the graded A_p(γ)/pk_given_hit (Family-A) line
+    used by the app's per-zone cross-section — do not conflate them (derivation
+    §5).
+
+    fixed_axis  : "x" (fix downrange, sweep cross-range y) or
+                  "y" (fix cross-range, sweep downrange x).
+    fixed_coord : value [m] of the held axis.
+    line_coords : 1D array [m] of the swept-axis coordinates to evaluate.
+
+    Returns ``pk_total`` [-], a 1D array over ``line_coords``.
+    """
+    if fixed_axis not in ("x", "y"):
+        raise ValueError("fixed_axis must be 'x' or 'y'")
+    line_coords = np.asarray(line_coords, dtype=float)
+    n_line = line_coords.shape[0]
+
+    h = posture.h
+    w_perp = posture.w_perp
+    alpha_rad = np.radians(aof_deg)
+    delta_rad = np.radians(delta_deg)
+
+    if fixed_axis == "x":
+        xg_arr = np.full(n_line, fixed_coord)
+        yg_arr = line_coords
+    else:
+        xg_arr = line_coords
+        yg_arr = np.full(n_line, fixed_coord)
+
+    # m_min table spans the whole [0, h] column; the (x, y) reach of the line
+    # sets the max slant range, so size s_grid from the line's own extent.
+    max_r = float(max(np.max(np.abs(xg_arr)), np.max(np.abs(yg_arr)), 1.0))
+    s_grid = slant_range_grid(max_r, h_b, z_max=h, n_s=n_s, z_min=0.0)
+    s_grids, mmin_grids = build_zone_mmin_tables(
+        zones, s_grid, E_leth, drag, rho_steel
+    )
+    cos_theta_z = _active_zone_cos_theta(zones)
+
+    pk = np.zeros(n_line)
+    for k in range(n_line):
+        xk, yk = float(xg_arr[k]), float(yg_arr[k])
+        bps = belt_column_breakpoints(
+            xk, yk, h_b, alpha_rad, delta_rad, cos_theta_z, 0.0, h,
+        )
+        col = integrate_column_density(
+            lambda z: lethal_density_four_zone_point(
+                zones, xk, yk, z, aof_deg, h_b, delta_deg,
+                s_grids, mmin_grids,
+            ),
+            bps, n_seg,
+        )
+        pk[k] = 1.0 - np.exp(-w_perp * col)
+    return pk
 
 
 def four_zone_pkill_volume(
@@ -940,10 +1082,11 @@ def four_zone_pkill_volume(
     :func:`four_zone_lethal_density_volume` and A_ref [m²] the fixed nominal
     personnel presented area (0.85 m², standing frontal — lower bound; +10–25%
     with kit). A pure elementwise transform of ρ_L; no new physics
-    (pkill-poisson-field derivation eq. 1, §6). The z=0 layer is numerically
-    identical to ``four_zone_pkill_field(z=0.0)`` for matching parameters,
-    inherited from the ρ_L kernel through the deterministic transform
-    (derivation §4.6).
+    (pkill-poisson-field derivation eq. 1, §6). This volume builder is the
+    point-in-space diagnostic — "one person standing at exactly this height z" —
+    and deliberately keeps the frozen A_ref (target-height-intercept derivation
+    §8); the ground field :func:`four_zone_pkill_field` instead integrates the
+    ρ_L flux over the target's whole [0, h] column.
 
     Caveats (derivation §2, A1/A2): Poisson independence / no shielding; sharp
     E_leth threshold with P_k|hit = 1 once counted — more pessimistic than the

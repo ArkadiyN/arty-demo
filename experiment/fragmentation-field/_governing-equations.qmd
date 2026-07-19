@@ -254,10 +254,12 @@ $$
 For realistic indirect fire the AoF is intermediate. WW2 105 mm howitzer
 fire at 4–6 km range falls at AoF $\approx 20°$–$35°$, so the spray cone is
 only modestly tilted: the forward sector of the footprint receives
-substantially more fragment density than the rear, and the symmetric-disk
-model of eq. (9) is a **conservative** (rear-biased, density-averaged)
-approximation of the true lobed field that the four-zone projection (§6.7)
-reproduces.
+substantially more fragment density than the rear. The **1-D symmetric disk**
+of eq. (9) deliberately averages over that azimuthal structure, giving a
+**conservative** (rear-biased, density-averaged) reading; the **four-zone 3-D
+field** (§6.7) resolves the fore/aft lobes instead. The two are kept side by
+side, not one superseding the other — see the three-variant division of labor
+in §6.
 
 | Symbol               | Description                                      | Unit |
 | -------------------- | ------------------------------------------------ | ---- |
