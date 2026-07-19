@@ -1,6 +1,6 @@
 ---
 name: agent-memory-discipline
-description: How to use your persistent project memory (the `memory: project` frontmatter field) — when to read it, when to write to it, and what never belongs there. Use every time you consult or update `.claude/agent-memory/<your-name>/`.
+description: How to use your persistent project memory — when to read it, when to write to it, and what never belongs there. Use every time you consult or update `.claude/agent-memory/<your-name>/`.
 allowed-tools: Read, Write, Edit
 ---
 

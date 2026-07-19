@@ -16,19 +16,14 @@
     "allow": [
      "WebFetch",
      "WebSearch",
-     "Write(.claude/worktrees/*)",
      "Edit(.claude/worktrees/*)",
      "Bash(uv run *)",
      "Bash(uv *)",
      "Bash(quarto *)",
      "Edit(src/arty/**)",
-     "Write(src/arty/**)",
      "Edit(experiment/**)",
-     "Write(experiment/**)",
      "Edit(doc-reference/**)",
-     "Write(doc-reference/**)",
-     "Edit(tests/**)",
-     "Write(tests/**)"
+     "Edit(tests/**)"
     ]
   },
   "worktree": {
