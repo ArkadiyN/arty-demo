@@ -15,8 +15,11 @@ polar angle) instead of `sinθ^z` (the zone's). The new
 reconcile or delete the legacy function carries this known defect — don't
 assume it's already fixed.
 
-**Latent footgun:** `lethal_density_point`/`lethal_density_four_zone_point`
-call `np.interp(s, s_grid, mmin_grid)` with no bounds check — queries past
-`s_grid[-1]` silently clip, understating m_min. Currently unexercised (the
-field builders construct covering grids), but flag the moment any change
-calls these point functions with an externally supplied table.
+**Latent footgun:** `np.interp(s, s_grid, mmin_grid)` silently clips past
+`s_grid[-1]`, understating m_min. `lethal_density_point` has no bounds check;
+`lethal_density_four_zone_point` gained an `assert sg[0]<=s<=sg[-1]` guard —
+check each point/vectorised function individually, don't assume parity.
+Vectorised replacements (`_four_zone_density_layer_vec`, `_pkill_columns_vec`)
+dropped the assert again (unreachable today, per
+`updates/field-builder-performance/review.md`). Lesson: vectorisation passes
+tend to drop scalar-function asserts — check for parity on every such pass.

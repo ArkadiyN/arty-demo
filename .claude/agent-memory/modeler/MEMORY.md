@@ -8,3 +8,5 @@
 - [Belt-gate quadrature endpoint](gotcha_belt_gate_quadrature_endpoint.md) — integrate belt-gated kernels with midpoint nodes, never endpoint trapezoid; verify on a dense sweep
 - [Hard-step fraction grid aliasing](gotcha_hard_step_fraction_grid_aliasing.md) — threshold-crossing stats over a hard step alias on coarse grids; use a dense grid or the onset radius
 - [P_k volume bimodal only single-zone](gotcha_pkill_volume_bimodal_no_penumbra.md) — single-zone volume P_k is bimodal; four-zone has a real graded fringe
+- [m_min table must stay per-layer](gotcha_mmin_table_perlayer.md) — don't share the m_min table across z-layers (breaks exact z0-matches-field tests); vectorize the bisection instead
+- [P(kill) columns padded-segment bounds](gotcha_pkill_columns_padded_segment_bounds.md) — _pkill_columns_vec pads collapsed segments to z=h_b; bounds-check only weighted samples or it false-fires

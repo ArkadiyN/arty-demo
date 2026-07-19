@@ -45,4 +45,10 @@ number = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["integration: tests that hit real files on disk"]
+# Perf regression tests are deselected by default so `uv run pytest` stays fast;
+# run them explicitly with `uv run pytest -m perf`.
+addopts = "-m 'not perf'"
+markers = [
+    "integration: tests that hit real files on disk",
+    "perf: wall-clock regression budgets for the field/volume builders (opt-in via -m perf)",
+]

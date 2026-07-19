@@ -431,10 +431,38 @@ def build_mmin_table(
     E_leth    : binary lethal kinetic-energy threshold [J]
     drag      : DragParams
     rho_steel : steel density [kg/m³]
+
+    Vectorised bisection over all grid nodes at once; bit-identical to the
+    per-node scalar :func:`min_lethal_mass` (same [m_lo, m_hi] bracket, same
+    80-iteration / tol early stop, replicated per element by freezing a node
+    once its bracket narrows below ``tol``).
     """
-    return np.array([
-        min_lethal_mass(float(s), V0, E_leth, drag, rho_steel) for s in s_grid
-    ])
+    s = np.asarray(s_grid, dtype=float)
+    m_lo, m_hi, tol = 1e-6, 2.0, 1e-9
+    # KE(m; s) = ½ m (V0 e^{−λ(m)s})², λ(m) = C m^{−1/3} — monotone in m.
+    C = drag.rho_air * drag.C_D * drag.C_shape / (2.0 * rho_steel ** (2.0 / 3.0))
+
+    def ke(m: float) -> np.ndarray:
+        lam = C * m ** (-1.0 / 3.0)
+        return 0.5 * m * (V0 * np.exp(-lam * s)) ** 2
+
+    hi_sub = ke(m_hi) < E_leth      # heaviest fragment sub-lethal → m_hi
+    lo_leth = ke(m_lo) >= E_leth    # lightest fragment lethal → m_lo
+    lo = np.full_like(s, m_lo)
+    hi = np.full_like(s, m_hi)
+    active = ~(hi_sub | lo_leth)
+    for _ in range(80):
+        if not active.any():
+            break
+        mid = 0.5 * (lo + hi)
+        ge = ke(mid) >= E_leth
+        hi = np.where(active & ge, mid, hi)
+        lo = np.where(active & ~ge, mid, lo)
+        active = active & ((hi - lo) >= tol)
+    out = 0.5 * (lo + hi)
+    out = np.where(hi_sub, m_hi, out)
+    out = np.where(lo_leth, m_lo, out)
+    return out
 
 
 def lethal_density_point(
@@ -607,6 +635,174 @@ def belt_column_breakpoints(
     return out
 
 
+def _vec_quadratic_roots(A: float, B: np.ndarray, C: np.ndarray) -> list[np.ndarray]:
+    """Vectorised real roots of ``A ζ² + B ζ + C = 0`` per element of B, C.
+
+    Scalar-``A`` array counterpart of :func:`_stable_quadratic_roots` (same
+    cancellation-free Numerical-Recipes form). Returns a list of up to two
+    root arrays; entries with no real root at that element are NaN. Matches the
+    scalar routine element-for-element (including the A→0 linear degeneracy and
+    the double-root-at-0 case) so the breakpoints reproduce those of
+    :func:`belt_column_breakpoints`.
+    """
+    eps = 1e-14
+    B = np.asarray(B, dtype=float)
+    C = np.asarray(C, dtype=float)
+    if abs(A) < eps:
+        # Degenerate linear B ζ + C = 0 (no root where B ≈ 0).
+        r = np.where(np.abs(B) < eps, np.nan, -C / np.where(np.abs(B) < eps, 1.0, B))
+        return [r]
+    disc = B * B - 4.0 * A * C
+    ok = disc >= 0.0
+    sq = np.sqrt(np.where(ok, disc, 0.0))
+    q = -0.5 * (B + np.copysign(sq, B))
+    qz = q == 0.0
+    q_safe = np.where(qz, 1.0, q)
+    r1 = np.where(ok, np.where(qz, 0.0, q / A), np.nan)
+    r2 = np.where(ok, np.where(qz, np.nan, C / q_safe), np.nan)
+    return [r1, r2]
+
+
+def _belt_breakpoints_vec(
+    x: np.ndarray,
+    y: np.ndarray,
+    h_b: float,
+    alpha_rad: float,
+    delta_rad: float,
+    cos_theta_z: list[float] | tuple[float, ...],
+    z_lo: float,
+    z_hi: float,
+) -> np.ndarray:
+    """Vectorised belt-membership breakpoints for many columns (x, y).
+
+    Array counterpart of :func:`belt_column_breakpoints`: returns a sorted
+    ``(P, M)`` array of per-column z-breakpoints [m] padded with ``+inf`` (so
+    NaN/out-of-range candidates sort to the end and yield zero-width segments).
+    Column ``p`` always begins with ``z_lo`` and ``z_hi``; interior belt-edge
+    roots (``cosΘ = c ± sinδ``) strictly inside ``(z_lo, z_hi)`` follow. Near-
+    coincident breakpoints are *not* merged — an extra O(1e-12)-wide segment is
+    numerically negligible under the midpoint rule (see derivation §3.2).
+    """
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    P = x.shape[0]
+    sin_delta = float(np.sin(delta_rad))
+    cA = float(np.cos(alpha_rad))
+    sA = float(np.sin(alpha_rad))
+    B = -2.0 * x * cA * sA
+    x2c2 = x * x * cA * cA
+    r2 = x * x + y * y
+
+    cols = [np.full(P, z_lo), np.full(P, z_hi)]
+    for c in cos_theta_z:
+        for K in (c - sin_delta, c + sin_delta):
+            A = sA * sA - K * K
+            C = x2c2 - K * K * r2
+            for root in _vec_quadratic_roots(A, B, C):
+                zc = h_b + root
+                # keep only interior real roots; else push to +inf (sorts last)
+                keep = np.isfinite(zc) & (zc > z_lo) & (zc < z_hi)
+                cols.append(np.where(keep, zc, np.inf))
+    bp = np.stack(cols, axis=1)
+    bp.sort(axis=1)
+    return bp
+
+
+def _pkill_columns_vec(
+    x: np.ndarray,
+    y: np.ndarray,
+    h_b: float,
+    alpha_rad: float,
+    delta_rad: float,
+    w_perp: float,
+    z_lo: float,
+    z_hi: float,
+    n_seg: int,
+    zone_specs: list[dict],
+    cos_theta_z: list[float],
+) -> np.ndarray:
+    """Vectorised column-integral P_k [-] for many ground columns (x, y).
+
+    Reproduces the per-cell breakpoint-segmented composite-midpoint integral of
+    :func:`pkill_field_3d` / four-zone equivalent: ``λ = w_perp·∫ρ_L dz`` with
+    strictly-interior midpoint nodes on each belt-membership segment, then
+    ``P_k = 1 − exp(−λ)``. ``zone_specs`` is a list of dicts with keys
+    ``cos_tz, sin_tz, N0, mu, s_grid, mmin`` (one per active belt). Columns are
+    processed in memory-bounded chunks. Matches the scalar path to ~1e-12
+    (float reassociation; near-coincident breakpoints unmerged, derivation §3).
+    """
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    P = x.shape[0]
+    out = np.zeros(P, dtype=float)
+    if delta_rad <= 0.0 or not zone_specs:
+        return out
+    sin_delta = float(np.sin(delta_rad))
+    cA = float(np.cos(alpha_rad))
+    sA = float(np.sin(alpha_rad))
+
+    # Cap the (chunk × n_z_samples) working set; n_z_samples = (M-1)*n_seg.
+    n_bp = 2 + 2 * 2 * len(cos_theta_z)  # z_lo, z_hi + 2 edges × 2 roots per belt
+    n_zs = max(1, (n_bp - 1)) * n_seg
+    chunk = max(1, 2_000_000 // max(1, n_zs))
+
+    for a in range(0, P, chunk):
+        xc = x[a:a + chunk]
+        yc = y[a:a + chunk]
+        bp = _belt_breakpoints_vec(
+            xc, yc, h_b, alpha_rad, delta_rad, cos_theta_z, z_lo, z_hi,
+        )
+        za = bp[:, :-1]                     # (p, M-1)
+        zb = bp[:, 1:]
+        good = np.isfinite(za) & np.isfinite(zb) & (zb > za)
+        za_s = np.where(good, za, h_b)      # collapse padded segments to zero width
+        width = np.where(good, zb - za_s, 0.0)
+        step = width / n_seg
+        # midpoint sample offsets (k + 0.5)/n_seg
+        frac = (np.arange(n_seg) + 0.5) / n_seg          # (n_seg,)
+        z = za_s[:, :, None] + width[:, :, None] * frac[None, None, :]  # (p, M-1, n_seg)
+        wt = step[:, :, None] * np.ones(n_seg)[None, None, :]           # (p, M-1, n_seg)
+        z = z.reshape(z.shape[0], -1)                    # (p, Q)
+        wt = wt.reshape(wt.shape[0], -1)
+
+        dz = z - h_b
+        s = np.sqrt(xc[:, None] ** 2 + yc[:, None] ** 2 + dz ** 2)
+        valid = s >= 1e-6
+        s_safe = np.where(valid, s, 1.0)
+        cos_Theta = (xc[:, None] * cA - dz * sA) / s_safe
+        # Vectorised parity with the scalar reference (lethal_density_*_point
+        # asserts s_grid[0] <= s <= s_grid[-1] before np.interp): guard the query
+        # range so a slant_range_grid coverage regression fails loudly here
+        # instead of silently clipping. Only the *weighted* samples matter —
+        # collapsed padded segments (width 0, wt 0) force z=h_b, giving a spurious
+        # s=horizontal-radius below the grid floor that carries zero weight and is
+        # never evaluated by the scalar path; excluding them keeps the check
+        # faithful (checking all samples would false-fire on those artifacts).
+        weighted = wt > 0.0
+        if np.any(weighted):
+            sw = s_safe[weighted]
+            q_lo, q_hi = float(sw.min()), float(sw.max())
+        else:
+            q_lo, q_hi = np.inf, -np.inf  # nothing queried; skip below
+
+        rho = np.zeros_like(s)
+        for spec in zone_specs:
+            sg = spec["s_grid"]
+            assert q_hi < q_lo or (q_lo >= sg[0] and q_hi <= sg[-1]), (
+                f"slant range [{q_lo:.4g}, {q_hi:.4g}] m outside m_min grid "
+                f"[{sg[0]:.4g}, {sg[-1]:.4g}] m; np.interp would clip"
+            )
+            mask = valid & (np.abs(cos_Theta - spec["cos_tz"]) <= sin_delta)
+            m_min = np.interp(s_safe, spec["s_grid"], spec["mmin"])
+            N_leth = spec["N0"] * np.exp(-np.sqrt(m_min / spec["mu"]))
+            g = 1.0 / (2.0 * np.pi * s_safe ** 2 * 2.0 * spec["sin_tz"] * delta_rad)
+            rho = rho + np.where(mask, g * N_leth, 0.0)
+
+        col = np.sum(rho * wt, axis=1)
+        out[a:a + chunk] = 1.0 - np.exp(-w_perp * col)
+    return out
+
+
 def integrate_column_density(rho_point, breakpoints: list[float], n_seg: int) -> float:
     """Composite-midpoint ∫ρ_L dz [m⁻¹] over the belt-segmented column (eq. 6).
 
@@ -681,6 +877,70 @@ def _expected_kills_3d_point(
     return float(np.trapezoid(integrand, m_grid))
 
 
+# Cap on the (n_cells × n_mass) working array for the vectorised Family-A mass
+# integral; in-belt cells are processed in chunks no larger than this so peak
+# memory stays bounded regardless of grid size / belt width. Canonical
+# definition — zones.py imports this so the single-zone and four-zone builders
+# share one tuning knob.
+_FAMILY_A_CHUNK = 2_000_000
+
+
+def _expected_kills_3d_vec(
+    x_g: np.ndarray,
+    y_g: np.ndarray,
+    h_b: float,
+    alpha_rad: float,
+    delta_rad: float,
+    N0: float,
+    mu: float,
+    V0: float,
+    drag: DragParams,
+    rho_steel: float,
+    posture: PostureParams,
+    m_grid: np.ndarray,
+    pdf: np.ndarray,
+    lam: np.ndarray,
+) -> np.ndarray:
+    """Vectorised single-zone Family-A expected lethal-hit count on (x_g, y_g).
+
+    ``x_g, y_g`` are 1-D ground-point arrays [m] (z = 0). Bit-identical to a
+    per-cell loop over :func:`_expected_kills_3d_point`: the mass integral is
+    evaluated exactly on in-belt cells only, then scaled by the direction-
+    dependent A_p/(2π s²·2 sinΘ·δ) factor (here sinΘ is the point's own polar
+    angle, not a fixed belt sinθ^z). Returns the expected-count array [-].
+    """
+    x_g = np.asarray(x_g, dtype=float)
+    y_g = np.asarray(y_g, dtype=float)
+    out = np.zeros_like(x_g)
+    if delta_rad <= 0.0:
+        return out
+
+    s = np.sqrt(x_g**2 + y_g**2 + h_b**2)
+    e_axis = _shell_axis(alpha_rad)
+    s_safe = np.where(s >= 1e-6, s, 1.0)
+    cos_Theta = (x_g * e_axis[0] + (-h_b) * e_axis[2]) / s_safe
+    sin_Theta = np.sqrt(np.maximum(0.0, 1.0 - cos_Theta**2))
+    mask = (s >= 1e-6) & (np.abs(cos_Theta) <= np.sin(delta_rad)) & (sin_Theta >= 1e-9)
+    idx = np.nonzero(mask)[0]
+    if idx.size == 0:
+        return out
+
+    s_b = s[idx]
+    gamma = np.arcsin(np.clip(h_b / s_b, -1.0, 1.0))
+    Ap = presented_area(gamma, posture)
+    geom = Ap / (2.0 * np.pi * s_b**2 * 2.0 * sin_Theta[idx] * delta_rad)
+
+    n = s_b.shape[0]
+    J = np.empty(n, dtype=float)
+    chunk = max(1, _FAMILY_A_CHUNK // m_grid.shape[0])
+    for a in range(0, n, chunk):
+        s_c = s_b[a:a + chunk]
+        E = 0.5 * m_grid[None, :] * (V0 * np.exp(-lam[None, :] * s_c[:, None])) ** 2
+        J[a:a + chunk] = np.trapezoid(pdf[None, :] * pk_given_hit(E), m_grid, axis=1)
+    out[idx] = J * geom
+    return out
+
+
 # ---------------------------------------------------------------------------
 # 3D top-level entry point
 # ---------------------------------------------------------------------------
@@ -741,6 +1001,38 @@ def slant_range_grid(
     return np.linspace(s_lo, s_max, n_s)
 
 
+def _lethal_density_layer_vec(
+    X: np.ndarray,
+    Y: np.ndarray,
+    z: float,
+    h_b: float,
+    alpha_rad: float,
+    delta_rad: float,
+    N0: float,
+    mu: float,
+    s_grid: np.ndarray,
+    mmin_grid: np.ndarray,
+) -> np.ndarray:
+    """Vectorised single-zone ρ_L [m⁻²] on an (x, y) layer at height ``z`` [m].
+
+    Bit-identical to a per-cell loop over :func:`lethal_density_point` (same
+    m_min table, same belt gate) but evaluated as array ops. ``X, Y`` are 2-D
+    meshgrids [m]; returns ρ_L on the same shape.
+    """
+    rho = np.zeros_like(X)
+    if delta_rad <= 0.0:
+        return rho
+    s = np.sqrt(X**2 + Y**2 + (z - h_b) ** 2)
+    valid = s >= 1e-6
+    s_safe = np.where(valid, s, 1.0)
+    cos_Theta = (X * np.cos(alpha_rad) - (z - h_b) * np.sin(alpha_rad)) / s_safe
+    mask = valid & (np.abs(cos_Theta) <= np.sin(delta_rad))
+    m_min = np.interp(s_safe, s_grid, mmin_grid)
+    N_leth = N0 * np.exp(-np.sqrt(m_min / mu))
+    g = 1.0 / (2.0 * np.pi * s_safe**2 * 2.0 * delta_rad)
+    return np.where(mask, g * N_leth, 0.0)
+
+
 def compute_lethal_density_field_3d(
     shell: ShellParams = ShellParams(),
     drag: DragParams = DragParams(),
@@ -777,13 +1069,9 @@ def compute_lethal_density_field_3d(
 
     xy = np.linspace(-max_radius, max_radius, n_grid)
     X, Y = np.meshgrid(xy, xy)
-    rho_L = np.zeros_like(X)
-    for i in range(n_grid):
-        for j in range(n_grid):
-            rho_L[i, j] = lethal_density_point(
-                X[i, j], Y[i, j], z, burst.h_b, alpha_rad, delta_rad,
-                N0, mu, s_grid, mmin_grid,
-            )
+    rho_L = _lethal_density_layer_vec(
+        X, Y, z, burst.h_b, alpha_rad, delta_rad, N0, mu, s_grid, mmin_grid,
+    )
     return X, Y, rho_L
 
 
@@ -860,11 +1148,15 @@ def pkill_field_3d(
     A_ref = w_perp·h (derivation §3).
 
     The column integral is evaluated piecewise on the belt-membership segments
-    (belt edges from :func:`belt_column_breakpoints`, single equatorial belt
-    cosθ^z = 0) with a composite-midpoint rule (:func:`integrate_column_density`,
-    n_seg per segment) — strictly-interior nodes so the belt-edge 0/1 gate never
-    coin-flips (derivation §5). One m_min(s) table spanning the whole [0, h]
-    column is built once and shared across all z-samples (§5.3).
+    (single equatorial belt cosθ^z = 0) with a composite-midpoint rule —
+    strictly-interior nodes so the belt-edge 0/1 gate never coin-flips
+    (derivation §5) — vectorised over all (x, y) columns at once by
+    :func:`_pkill_columns_vec` (breakpoints via ``_belt_breakpoints_vec``). The
+    scalar per-cell reference this reproduces (:func:`belt_column_breakpoints` +
+    ``integrate_column_density``) is retained unchanged as the equivalence
+    baseline for the regression harness and property tests. One m_min(s) table
+    spanning the whole [0, h] column is built once and shared across all
+    z-samples (§5.3).
 
     Caveats (derivation §2/§7, A1/A2): (A1) frontal projection — each strip
     contributes w_perp·dz (γ = 0 arrival), matching the shipped A_ref
@@ -890,21 +1182,15 @@ def pkill_field_3d(
 
     xy = np.linspace(-max_radius, max_radius, n_grid)
     X, Y = np.meshgrid(xy, xy)
-    P_k = np.zeros_like(X)
-    for i in range(n_grid):
-        for j in range(n_grid):
-            xij, yij = X[i, j], Y[i, j]
-            bps = belt_column_breakpoints(
-                xij, yij, h_b, alpha_rad, delta_rad, [0.0], 0.0, h,
-            )
-            col = integrate_column_density(
-                lambda z: lethal_density_point(
-                    xij, yij, z, h_b, alpha_rad, delta_rad,
-                    N0, mu, s_grid, mmin_grid,
-                ),
-                bps, n_seg,
-            )
-            P_k[i, j] = 1.0 - np.exp(-w_perp * col)
+    # Single equatorial belt (θ^z = 90°, cosθ^z = 0, sinθ^z = 1).
+    zone_specs = [{
+        "cos_tz": 0.0, "sin_tz": 1.0, "N0": N0, "mu": mu,
+        "s_grid": s_grid, "mmin": mmin_grid,
+    }]
+    P_k = _pkill_columns_vec(
+        X.ravel(), Y.ravel(), h_b, alpha_rad, delta_rad, w_perp, 0.0, h,
+        n_seg, zone_specs, [0.0],
+    ).reshape(X.shape)
     assert np.all((P_k >= 0.0) & (P_k <= 1.0)), "P_k outside [0,1]"
     return X, Y, P_k
 
@@ -969,25 +1255,17 @@ def compute_frag_field_3d(
 
     xy = np.linspace(-max_radius, max_radius, n_grid)
     X, Y = np.meshgrid(xy, xy)
-    field_pk = np.zeros_like(X)
+    N_eff = _expected_kills_3d_vec(
+        X.ravel(), Y.ravel(), burst.h_b, alpha_rad, delta_rad,
+        N0, mu, V0, drag, shell.steel.rho, posture, m_grid, pdf, lam,
+    )
+    field_pk = (1.0 - np.exp(-N_eff)).reshape(X.shape)
 
-    for i in range(n_grid):
-        for j in range(n_grid):
-            N_eff = _expected_kills_3d_point(
-                X[i, j], Y[i, j], burst.h_b, alpha_rad, delta_rad,
-                N0, mu, V0, drag, shell.steel.rho, posture,
-                m_grid, pdf, lam,
-            )
-            field_pk[i, j] = 1.0 - np.exp(-N_eff)
-
-    pk_cross = np.array([
-        1.0 - np.exp(-_expected_kills_3d_point(
-            0.0, float(y_g), burst.h_b, alpha_rad, delta_rad,
-            N0, mu, V0, drag, shell.steel.rho, posture,
-            m_grid, pdf, lam,
-        ))
-        for y_g in xy
-    ])
+    N_eff_cross = _expected_kills_3d_vec(
+        np.zeros_like(xy), xy, burst.h_b, alpha_rad, delta_rad,
+        N0, mu, V0, drag, shell.steel.rho, posture, m_grid, pdf, lam,
+    )
+    pk_cross = 1.0 - np.exp(-N_eff_cross)
     r_cross = np.abs(xy)
     idx50 = np.argmin(np.abs(pk_cross - 0.5))
     r50_cross = float(np.abs(xy[idx50]))

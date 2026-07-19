@@ -29,10 +29,10 @@ from arty.fragmentation import (
     PostureParams,
     ShellParams,
     SteelParams,
+    _FAMILY_A_CHUNK,
     _forward_shell_axis,
-    belt_column_breakpoints,
+    _pkill_columns_vec,
     build_mmin_table,
-    integrate_column_density,
     pk_given_hit,
     presented_area,
     slant_range_grid,
@@ -406,6 +406,113 @@ def fragment_ground_impact(
     return (vgx * t, vgy * t, np.arcsin(min(1.0, abs(vgz))))
 
 
+# ---------------------------------------------------------------------------
+# Vectorised Family-A four-zone evaluation (spray-belt kernel with graded
+# A_p(γ)/pk_given_hit). The per-cell integrand depends on the ground point only
+# through the slant range s (belt membership aside): γ = arcsin(h_b/s), the drag
+# attenuation V0·exp(−λ(m)·s) and the 1/(2π s² · 2 sinθ^z · δ) spreading factor
+# are all functions of s. So the O(n_mass) mass integral is evaluated *exactly*
+# (bit-for-bit as the per-cell trapezoid) on the in-belt cells in a single
+# vectorised (n_belt, n_mass) reduction, chunked only to bound memory — not via
+# an s-grid interpolation table (that variant was tried and reverted for a ~1e-3
+# residual error; see updates/field-builder-performance/derivation.md §1).
+# ---------------------------------------------------------------------------
+
+_ZONE_NAMES = ("ogive", "cylinder", "boattail", "base")
+
+# _FAMILY_A_CHUNK (cap on the (n_cells × n_mass) working array) is imported from
+# fragmentation.py so the single-zone and four-zone builders share one knob.
+
+
+def _familyA_zone_massintegral(
+    z: ZoneParams,
+    drag_lam_grid: np.ndarray,
+    m_grid: np.ndarray,
+    s: np.ndarray,
+) -> np.ndarray:
+    """J^z(s) = ∫ pdf^z(m)·pk_given_hit(½ m (V0^z e^{−λ(m)s})²) dm at each s [m].
+
+    Exact vectorised mass integral of the Family-A kernel [count] over a 1-D
+    array of slant ranges ``s``; the caller multiplies by the per-cell
+    geometric/presented-area factor. Processed in chunks so the (len(s), M)
+    working array never exceeds ``_FAMILY_A_CHUNK`` elements.
+    """
+    N0_z = z.mass_kg / (2.0 * z.mu)
+    pdf_z = N0_z / (2.0 * np.sqrt(z.mu * m_grid)) * np.exp(-np.sqrt(m_grid / z.mu))
+    n = s.shape[0]
+    out = np.empty(n, dtype=float)
+    chunk = max(1, _FAMILY_A_CHUNK // m_grid.shape[0])
+    for a in range(0, n, chunk):
+        s_c = s[a:a + chunk]
+        v = z.V0_ms * np.exp(-drag_lam_grid[None, :] * s_c[:, None])
+        E = 0.5 * m_grid[None, :] * v**2
+        out[a:a + chunk] = np.trapezoid(pdf_z[None, :] * pk_given_hit(E), m_grid, axis=1)
+    return out
+
+
+def _four_zone_familyA_eval(
+    zones: ShellZones,
+    aof_deg: float,
+    h_b: float,
+    posture: PostureParams,
+    drag_lam_grid: np.ndarray,
+    m_grid: np.ndarray,
+    delta_deg: float,
+    xg: np.ndarray,
+    yg: np.ndarray,
+) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+    """Vectorised Family-A expected-lethal-hit count on ground points (xg, yg).
+
+    ``xg, yg`` are 1-D arrays [m] of equal length (ground plane, z = 0).
+    Returns ``(field_N, field_N_by_zone)`` matching the per-cell loops of
+    ``_four_zone_field_split`` / ``four_zone_line_split`` (belt gate, graded
+    A_p·pk kernel); the mass integral is evaluated exactly on the in-belt cells
+    (bit-for-bit as the per-cell trapezoid), not interpolated in s.
+    """
+    xg = np.asarray(xg, dtype=float)
+    yg = np.asarray(yg, dtype=float)
+    field_N = np.zeros_like(xg)
+    by_zone = {name: np.zeros_like(xg) for name in _ZONE_NAMES}
+
+    aof = np.radians(aof_deg)
+    cA, sA = np.cos(aof), np.sin(aof)
+    delta = np.radians(delta_deg)
+    sin_delta = np.sin(delta)
+
+    s = np.sqrt(xg**2 + yg**2 + h_b**2)
+    valid = s >= 1e-3
+    if not np.any(valid):
+        return field_N, by_zone
+    # Belt polar cosine cosΘ = (x cosα + h_b sinα)/s (forward axis (cosα,0,−sinα),
+    # ground point (x, y, −h_b)); guard the divide on the invalid (s→0) cells.
+    s_safe = np.where(valid, s, 1.0)
+    cos_Theta = (xg * cA + h_b * sA) / s_safe
+    # Exact per-cell geometric + presented-area factor (shared across zones bar
+    # the 1/sinθ^z scaling): A_p(arcsin h_b/s) / (2π s² · 2 δ).
+    gamma = np.arcsin(np.clip(h_b / s_safe, -1.0, 1.0))
+    geom = presented_area(gamma, posture) / (2.0 * np.pi * s_safe**2 * 2.0 * delta)
+
+    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
+                 ("boattail", zones.boattail), ("base", zones.base)]
+    for name, z in zone_list:
+        if z.mass_kg <= 1e-6 or z.V0_ms <= 0.0 or not np.isfinite(z.mu):
+            continue
+        theta_z = np.radians(z.spray_deg)
+        if np.sin(aof + theta_z) <= 0.0:
+            continue
+        mask = valid & (np.abs(cos_Theta - np.cos(theta_z)) <= sin_delta)
+        idx = np.nonzero(mask)[0]
+        if idx.size == 0:
+            continue
+        # Exact mass integral only on in-belt cells; scatter back.
+        J = _familyA_zone_massintegral(z, drag_lam_grid, m_grid, s[idx])
+        val = np.zeros_like(xg)
+        val[idx] = J * geom[idx] / np.sin(theta_z)
+        field_N += val
+        by_zone[name] = val
+    return field_N, by_zone
+
+
 def _four_zone_field_split(
     zones: ShellZones,
     aof_deg: float,
@@ -428,52 +535,17 @@ def _four_zone_field_split(
     """
     xy = np.linspace(-max_r, max_r, n_grid)
     X, Y = np.meshgrid(xy, xy)
-    field_N = np.zeros_like(X)
-    _zone_names = ("ogive", "cylinder", "boattail", "base")
-    field_N_by_zone = {name: np.zeros_like(X) for name in _zone_names}
 
-    aof = np.radians(aof_deg)
-    cA, sA = np.cos(aof), np.sin(aof)
-    delta = np.radians(delta_deg)
-    e_axis = np.array([cA, 0.0, -sA])
-
-    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
-                 ("boattail", zones.boattail), ("base", zones.base)]
-    for name, z in zone_list:
-        if z.mass_kg <= 1e-6 or z.V0_ms <= 0.0 or not np.isfinite(z.mu):
-            continue
-        N0_z = z.mass_kg / (2.0 * z.mu)
-        theta_z = np.radians(z.spray_deg)
-        # min vgz over all azimuths = -sin(aof + theta_z); skip zone if it
-        # can't send any fragment to the ground (all spray upward at this AoF).
-        if np.sin(aof + theta_z) <= 0.0:
-            continue
-        sin_theta_z = np.sin(theta_z)
-        pdf_z = N0_z / (2.0 * np.sqrt(z.mu * m_grid)) * np.exp(-np.sqrt(m_grid / z.mu))
-
-        for i in range(n_grid):
-            for j in range(n_grid):
-                xg, yg = X[i, j], Y[i, j]
-                s = np.sqrt(xg**2 + yg**2 + h_b**2)
-                if s < 1e-3:
-                    continue
-                r_hat = np.array([xg, yg, -h_b]) / s
-                cos_Theta = float(np.dot(r_hat, e_axis))
-                if abs(cos_Theta - np.cos(theta_z)) > np.sin(delta):
-                    continue
-                gamma = np.arcsin(min(1.0, h_b / s))
-                Ap = presented_area(gamma, posture)
-                v = z.V0_ms * np.exp(-drag_lam_grid * s)
-                E = 0.5 * m_grid * v**2
-                integrand = pdf_z * pk_given_hit(E) * Ap / (
-                    2.0 * np.pi * s**2 * 2.0 * sin_theta_z * delta
-                )
-                val = float(np.trapezoid(integrand, m_grid))
-                field_N[i, j] += val
-                field_N_by_zone[name][i, j] = val
+    field_N_flat, by_zone_flat = _four_zone_familyA_eval(
+        zones, aof_deg, h_b, posture, drag_lam_grid, m_grid, delta_deg,
+        X.ravel(), Y.ravel(),
+    )
+    field_N = field_N_flat.reshape(X.shape)
+    field_N_by_zone = {name: by_zone_flat[name].reshape(X.shape)
+                       for name in _ZONE_NAMES}
 
     pk_total = 1.0 - np.exp(-field_N)
-    pk_by_zone = {name: 1.0 - np.exp(-field_N_by_zone[name]) for name in _zone_names}
+    pk_by_zone = {name: 1.0 - np.exp(-field_N_by_zone[name]) for name in _ZONE_NAMES}
     return X, Y, pk_total, pk_by_zone
 
 
@@ -522,15 +594,6 @@ def four_zone_line_split(
     line_coords = np.asarray(line_coords, dtype=float)
     n_line = line_coords.shape[0]
 
-    field_N = np.zeros(n_line)
-    _zone_names = ("ogive", "cylinder", "boattail", "base")
-    field_N_by_zone = {name: np.zeros(n_line) for name in _zone_names}
-
-    aof = np.radians(aof_deg)
-    cA, sA = np.cos(aof), np.sin(aof)
-    delta = np.radians(delta_deg)
-    e_axis = np.array([cA, 0.0, -sA])
-
     # Ground-point coordinates along the line. The square grid uses
     # X = xy (downrange, columns) and Y = xy (cross-range, rows); a fixed-x
     # slice holds X and sweeps Y, a fixed-y slice holds Y and sweeps X — so
@@ -542,40 +605,13 @@ def four_zone_line_split(
         xg_arr = line_coords
         yg_arr = np.full(n_line, fixed_coord)
 
-    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
-                 ("boattail", zones.boattail), ("base", zones.base)]
-    for name, z in zone_list:
-        if z.mass_kg <= 1e-6 or z.V0_ms <= 0.0 or not np.isfinite(z.mu):
-            continue
-        N0_z = z.mass_kg / (2.0 * z.mu)
-        theta_z = np.radians(z.spray_deg)
-        if np.sin(aof + theta_z) <= 0.0:
-            continue
-        sin_theta_z = np.sin(theta_z)
-        pdf_z = N0_z / (2.0 * np.sqrt(z.mu * m_grid)) * np.exp(-np.sqrt(m_grid / z.mu))
-
-        for k in range(n_line):
-            xg, yg = xg_arr[k], yg_arr[k]
-            s = np.sqrt(xg**2 + yg**2 + h_b**2)
-            if s < 1e-3:
-                continue
-            r_hat = np.array([xg, yg, -h_b]) / s
-            cos_Theta = float(np.dot(r_hat, e_axis))
-            if abs(cos_Theta - np.cos(theta_z)) > np.sin(delta):
-                continue
-            gamma = np.arcsin(min(1.0, h_b / s))
-            Ap = presented_area(gamma, posture)
-            v = z.V0_ms * np.exp(-drag_lam_grid * s)
-            E = 0.5 * m_grid * v**2
-            integrand = pdf_z * pk_given_hit(E) * Ap / (
-                2.0 * np.pi * s**2 * 2.0 * sin_theta_z * delta
-            )
-            val = float(np.trapezoid(integrand, m_grid))
-            field_N[k] += val
-            field_N_by_zone[name][k] = val
+    field_N, field_N_by_zone = _four_zone_familyA_eval(
+        zones, aof_deg, h_b, posture, drag_lam_grid, m_grid, delta_deg,
+        xg_arr, yg_arr,
+    )
 
     pk_total = 1.0 - np.exp(-field_N)
-    pk_by_zone = {name: 1.0 - np.exp(-field_N_by_zone[name]) for name in _zone_names}
+    pk_by_zone = {name: 1.0 - np.exp(-field_N_by_zone[name]) for name in _ZONE_NAMES}
     return pk_total, pk_by_zone
 
 
@@ -612,49 +648,12 @@ def four_zone_field(
     """
     xy = np.linspace(-max_r, max_r, n_grid)
     X, Y = np.meshgrid(xy, xy)
-    field_N = np.zeros_like(X)
 
-    aof = np.radians(aof_deg)
-    cA, sA = np.cos(aof), np.sin(aof)
-    delta = np.radians(delta_deg)
-    e_axis = np.array([cA, 0.0, -sA])  # forward shell axis in ground frame
-
-    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
-                 ("boattail", zones.boattail), ("base", zones.base)]
-    for name, z in zone_list:
-        if z.mass_kg <= 1e-6 or z.V0_ms <= 0.0 or not np.isfinite(z.mu):
-            continue
-        N0_z = z.mass_kg / (2.0 * z.mu)
-        theta_z = np.radians(z.spray_deg)
-        # min vgz over all azimuths = -sin(aof + theta_z); skip zone if it
-        # can't send any fragment to the ground (all spray upward at this AoF).
-        if np.sin(aof + theta_z) <= 0.0:
-            continue
-        sin_theta_z = np.sin(theta_z)
-        pdf_z = N0_z / (2.0 * np.sqrt(z.mu * m_grid)) * np.exp(-np.sqrt(m_grid / z.mu))
-
-        for i in range(n_grid):
-            for j in range(n_grid):
-                xg, yg = X[i, j], Y[i, j]
-                s = np.sqrt(xg**2 + yg**2 + h_b**2)
-                if s < 1e-3:
-                    continue
-                # Ray from burst to ground patch
-                r_hat = np.array([xg, yg, -h_b]) / s
-                cos_Theta = float(np.dot(r_hat, e_axis))
-                # Test whether this ground patch lies within the zone's
-                # spray belt at theta^z +/- delta
-                if abs(cos_Theta - np.cos(theta_z)) > np.sin(delta):
-                    continue
-                gamma = np.arcsin(min(1.0, h_b / s))
-                Ap = presented_area(gamma, posture)
-                v = z.V0_ms * np.exp(-drag_lam_grid * s)
-                E = 0.5 * m_grid * v**2
-                integrand = pdf_z * pk_given_hit(E) * Ap / (
-                    2.0 * np.pi * s**2 * 2.0 * sin_theta_z * delta
-                )
-                field_N[i, j] += float(np.trapezoid(integrand, m_grid))
-
+    field_N_flat, _ = _four_zone_familyA_eval(
+        zones, aof_deg, h_b, posture, drag_lam_grid, m_grid, delta_deg,
+        X.ravel(), Y.ravel(),
+    )
+    field_N = field_N_flat.reshape(X.shape)
     return X, Y, 1.0 - np.exp(-field_N)
 
 
@@ -767,6 +766,64 @@ def build_zone_mmin_tables(
     return s_grids, mmin_grids
 
 
+def _four_zone_density_layer_vec(
+    zones: ShellZones,
+    X: np.ndarray,
+    Y: np.ndarray,
+    z: float,
+    aof_deg: float,
+    h_b: float,
+    delta_deg: float,
+    s_grids: dict[str, np.ndarray],
+    mmin_grids: dict[str, np.ndarray],
+) -> np.ndarray:
+    """Vectorised four-zone ρ_L [m⁻²] on an (x, y) layer at height ``z`` [m].
+
+    Bit-identical to a per-cell loop over :func:`lethal_density_four_zone_point`
+    (same per-zone m_min tables, same belt gate) evaluated as array ops.
+    ``X, Y`` are 2-D meshgrids [m]; returns ρ_L on the same shape.
+    """
+    rho = np.zeros_like(X)
+    delta = np.radians(delta_deg)
+    if delta <= 0.0:
+        return rho
+    alpha_rad = np.radians(aof_deg)
+    e_axis = _forward_shell_axis(alpha_rad)
+    s = np.sqrt(X**2 + Y**2 + (z - h_b) ** 2)
+    valid = s >= 1e-6
+    s_safe = np.where(valid, s, 1.0)
+    cos_Theta = (X * e_axis[0] + (z - h_b) * e_axis[2]) / s_safe
+    sin_delta = np.sin(delta)
+    # Vectorised parity with the scalar reference (lethal_density_four_zone_point
+    # asserts s_grid[0] <= s <= s_grid[-1]): np.interp silently clips out-of-grid
+    # queries, so a coverage regression in slant_range_grid would go unnoticed
+    # here. One cheap min/max guard over the query set catches it loudly instead
+    # (s_safe sentinels invalid cells at 1.0, always inside the grid).
+    q_lo, q_hi = float(s_safe.min()), float(s_safe.max())
+
+    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
+                 ("boattail", zones.boattail), ("base", zones.base)]
+    for name, zp in zone_list:
+        if zp.mass_kg <= 1e-6 or zp.V0_ms <= 0.0 or not np.isfinite(zp.mu):
+            continue
+        theta_z = np.radians(zp.spray_deg)
+        sin_theta_z = np.sin(theta_z)
+        if sin_theta_z < 1e-9:
+            continue
+        sg = s_grids[name]
+        assert q_lo >= sg[0] and q_hi <= sg[-1], (
+            f"slant range [{q_lo:.4g}, {q_hi:.4g}] m outside m_min grid "
+            f"[{sg[0]:.4g}, {sg[-1]:.4g}] m for zone {name}; np.interp would clip"
+        )
+        mask = valid & (np.abs(cos_Theta - np.cos(theta_z)) <= sin_delta)
+        N0_z = zp.mass_kg / (2.0 * zp.mu)
+        m_min = np.interp(s_safe, s_grids[name], mmin_grids[name])
+        N_leth = N0_z * np.exp(-np.sqrt(m_min / zp.mu))
+        g = 1.0 / (2.0 * np.pi * s_safe**2 * 2.0 * sin_theta_z * delta)
+        rho = rho + np.where(mask, g * N_leth, 0.0)
+    return rho
+
+
 def four_zone_lethal_density_field(
     zones: ShellZones,
     aof_deg: float,
@@ -812,13 +869,9 @@ def four_zone_lethal_density_field(
 
     xy = np.linspace(-max_r, max_r, n_grid)
     X, Y = np.meshgrid(xy, xy)
-    rho_L = np.zeros_like(X)
-    for i in range(n_grid):
-        for j in range(n_grid):
-            rho_L[i, j] = lethal_density_four_zone_point(
-                zones, X[i, j], Y[i, j], z, aof_deg, h_b, delta_deg,
-                s_grids, mmin_grids,
-            )
+    rho_L = _four_zone_density_layer_vec(
+        zones, X, Y, z, aof_deg, h_b, delta_deg, s_grids, mmin_grids,
+    )
     return X, Y, rho_L
 
 
@@ -900,6 +953,39 @@ def _active_zone_cos_theta(zones: ShellZones) -> list[float]:
     return cos_list
 
 
+def _active_zone_specs(
+    zones: ShellZones,
+    s_grids: dict[str, np.ndarray],
+    mmin_grids: dict[str, np.ndarray],
+) -> tuple[list[dict], list[float]]:
+    """Belt specs + centre cosines for the active zones (for _pkill_columns_vec).
+
+    Selects exactly the zones :func:`lethal_density_four_zone_point` would sum
+    (steel/velocity/finite-μ and sinθ^z ≥ 1e-9), returning one spec dict per
+    active zone (``cos_tz, sin_tz, N0, mu, s_grid, mmin``) and the matching list
+    of belt-centre cosines for the breakpoint solver.
+    """
+    zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
+                 ("boattail", zones.boattail), ("base", zones.base)]
+    specs: list[dict] = []
+    cos_tz: list[float] = []
+    for name, zp in zone_list:
+        if zp.mass_kg <= 1e-6 or zp.V0_ms <= 0.0 or not np.isfinite(zp.mu):
+            continue
+        theta_z = np.radians(zp.spray_deg)
+        sin_tz = float(np.sin(theta_z))
+        if sin_tz < 1e-9:
+            continue
+        c = float(np.cos(theta_z))
+        specs.append({
+            "cos_tz": c, "sin_tz": sin_tz,
+            "N0": zp.mass_kg / (2.0 * zp.mu), "mu": zp.mu,
+            "s_grid": s_grids[name], "mmin": mmin_grids[name],
+        })
+        cos_tz.append(c)
+    return specs, cos_tz
+
+
 def four_zone_pkill_field(
     zones: ShellZones,
     aof_deg: float,
@@ -930,10 +1016,14 @@ def four_zone_pkill_field(
     and posture re-couples automatically through (w_perp, h) (§4).
 
     The column integral is evaluated piecewise on the belt-membership segments
-    (each zone's belt edge from :func:`belt_column_breakpoints`, seeded by the
-    active zones' cosθ^z) with a composite-midpoint rule
-    (:func:`integrate_column_density`, n_seg per segment) — strictly-interior
-    nodes so no belt-edge 0/1 gate coin-flips (derivation §5). Per-zone m_min(s)
+    (each zone's belt edge, seeded by the active zones' cosθ^z) with a
+    composite-midpoint rule — strictly-interior nodes so no belt-edge 0/1 gate
+    coin-flips (derivation §5) — vectorised over all (x, y) columns at once by
+    :func:`arty.fragmentation._pkill_columns_vec` (breakpoints via
+    ``_belt_breakpoints_vec``). The scalar per-cell reference this reproduces
+    (:func:`arty.fragmentation.belt_column_breakpoints` +
+    ``integrate_column_density``) is retained unchanged as the equivalence
+    baseline for the regression harness and property tests. Per-zone m_min(s)
     tables spanning the whole [0, h] column are built once and shared across all
     z-samples (§5.3).
 
@@ -955,25 +1045,14 @@ def four_zone_pkill_field(
     s_grids, mmin_grids = build_zone_mmin_tables(
         zones, s_grid, E_leth, drag, rho_steel
     )
-    cos_theta_z = _active_zone_cos_theta(zones)
+    specs, cos_theta_z = _active_zone_specs(zones, s_grids, mmin_grids)
 
     xy = np.linspace(-max_r, max_r, n_grid)
     X, Y = np.meshgrid(xy, xy)
-    P_k = np.zeros_like(X)
-    for i in range(n_grid):
-        for j in range(n_grid):
-            xij, yij = X[i, j], Y[i, j]
-            bps = belt_column_breakpoints(
-                xij, yij, h_b, alpha_rad, delta_rad, cos_theta_z, 0.0, h,
-            )
-            col = integrate_column_density(
-                lambda z: lethal_density_four_zone_point(
-                    zones, xij, yij, z, aof_deg, h_b, delta_deg,
-                    s_grids, mmin_grids,
-                ),
-                bps, n_seg,
-            )
-            P_k[i, j] = 1.0 - np.exp(-w_perp * col)
+    P_k = _pkill_columns_vec(
+        X.ravel(), Y.ravel(), h_b, alpha_rad, delta_rad, w_perp, 0.0, h,
+        n_seg, specs, cos_theta_z,
+    ).reshape(X.shape)
     assert np.all((P_k >= 0.0) & (P_k <= 1.0)), "P_k outside [0,1]"
     return X, Y, P_k
 
@@ -1042,22 +1121,12 @@ def four_zone_pkill_line(
     s_grids, mmin_grids = build_zone_mmin_tables(
         zones, s_grid, E_leth, drag, rho_steel
     )
-    cos_theta_z = _active_zone_cos_theta(zones)
+    specs, cos_theta_z = _active_zone_specs(zones, s_grids, mmin_grids)
 
-    pk = np.zeros(n_line)
-    for k in range(n_line):
-        xk, yk = float(xg_arr[k]), float(yg_arr[k])
-        bps = belt_column_breakpoints(
-            xk, yk, h_b, alpha_rad, delta_rad, cos_theta_z, 0.0, h,
-        )
-        col = integrate_column_density(
-            lambda z: lethal_density_four_zone_point(
-                zones, xk, yk, z, aof_deg, h_b, delta_deg,
-                s_grids, mmin_grids,
-            ),
-            bps, n_seg,
-        )
-        pk[k] = 1.0 - np.exp(-w_perp * col)
+    pk = _pkill_columns_vec(
+        xg_arr, yg_arr, h_b, alpha_rad, delta_rad, w_perp, 0.0, h,
+        n_seg, specs, cos_theta_z,
+    )
     return pk
 
 
