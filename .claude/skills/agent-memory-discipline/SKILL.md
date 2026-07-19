@@ -50,3 +50,29 @@ in `review.md` / the change's own artifacts, which already exist for this.
 An existing entry should be **edited** to stay current (or deleted once the
 gotcha no longer applies) — never grown by appending another dated paragraph
 on top.
+
+## Hard limits (hook-enforced)
+
+A PostToolUse hook (`.claude/hooks/check_agent_memory.py`) rejects writes
+that break these. They are part of the format, not advice:
+
+- **One fact per file, ≤ 30 lines total** including frontmatter (aim for
+  ~20). If an update would push an entry over the cap, delete at least as
+  much as you add — or split the file.
+- **`MEMORY.md` bullets are single lines** (≤ 250 chars, no continuation
+  lines): title link plus a one-phrase hook, nothing more.
+- **No status paragraphs.** A line starting `**Resolved` / `**Fixed` /
+  `**Confirmed` is the task-log pattern arriving one append at a time and
+  is rejected outright. When a gotcha closes, rewrite the entry down to the
+  ≤3-line durable pattern that remains — or delete the file and its index
+  line.
+- **Numbers live in artifacts.** Convergence tables, sweep results, and
+  verification narratives belong in `derivation.md` / `review.md`; memory
+  keeps one summary sentence plus the pointer.
+
+## GC on read
+
+Trimming is triggered by *reading*, not only writing: when a pass consults
+an entry and finds it stale, already-resolved, or over the limits above, fix
+it in that same pass — edit it down or delete it, and update `MEMORY.md`.
+Memory has no other maintenance schedule; this is it.
