@@ -70,6 +70,16 @@ project's main token cost. So:
   pass needs more, the aspect is too big — flag it for splitting.
 - Spend depth on physics judgement (which model, why, assumptions, unit/limit
   checks), not prose or restatement.
+- **A logged assumption is a valid closure, equal in standing to a fix.** When
+  a refinement would not visibly change what the demo shows — or only matters
+  in an out-of-scope regime — record it as an assumption in `derivation.md`
+  and/or a `_limitations.qmd` entry and move on; do not derive it. The same
+  applies to reviewer findings tagged *material but deferrable*: the correct
+  response is the limitation entry the reviewer asked for, not a re-derivation.
+- **State the fidelity target in scoping.** End every `scoping.md` with one
+  line: what demo outcome this aspect drives and what error is tolerable
+  (e.g. "drives the P(kill) heatmap; ±30% on lethal radius is acceptable").
+  This is the bar @model-reviewer will judge materiality against.
 
 ## Sources: cards navigate, papers are authoritative
 
