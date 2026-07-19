@@ -106,8 +106,17 @@ result into the main `.qmd`. **Each change covers exactly one model aspect**
    pass** → writes `derivation.md` (math, unit checks, self-consistency).
    Return.
 1. Delegate to @model-reviewer → writes `review.md` (or returns inline) with
-   PASS/FAIL and issues.
-1. If FAIL, loop @modeler ↔ @model-reviewer until PASS, or escalate to human.
+   PASS / PASS-with-limitations / FAIL and tagged findings (Blocking /
+   Deferrable / Note, each with an impact estimate).
+1. **PASS-with-limitations is a terminal verdict, not a FAIL** — the next
+   @modeler pass logs the listed limitation entries (derivation assumptions
+   and/or `_limitations.qmd`) as part of its normal work; no re-review of
+   those entries is needed.
+1. If FAIL: at most **two** fix cycles (@modeler fix → @model-reviewer
+   re-review, scoped to the flagged items only). Still FAIL after two cycles →
+   stop looping; the main agent triages each open item — convert to a logged
+   limitation, or escalate to the human with the reviewer's impact estimates.
+   Do not silently start a third cycle.
 1. **Implement (src/)** — delegate to @modeler. It writes the derived physics
    into `src/arty/` modules (functions, parameters, geometry) via targeted
    `Edit`s. All project physics is common and lives here — never in the `.qmd`.

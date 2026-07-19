@@ -23,12 +23,49 @@ description: >-
 - Constaints/Limitation check: does the document capture model limitations accurately?
 - Data-driven analysis: is there supporting data for the outcomes?
 
+## Materiality — judge against the project's fidelity bar, not perfection
+
+The project targets engineering-level fidelity: interpretable models that
+capture the dynamics driving outcomes in the demo (see `project_scope.md`),
+not publishable physics. Judge every finding against that bar — the aspect's
+`scoping.md` fidelity target if one is stated, otherwise "does this visibly
+change what the demo shows?".
+
+**Every finding must state what observable output changes and roughly by how
+much.** A finding without an impact estimate cannot block — downgrade it to a
+limitation or a note.
+
+Classify each finding:
+
+- **Blocking** — wrong units, unstable numerics, out-of-bounds probabilities,
+  or an in-scope outcome that changes *qualitatively* (a safe zone flips, a
+  lethal radius changes by multiples, a trend reverses).
+- **Material but deferrable** — a real approximation error that stays within
+  the fidelity bar, or one that only matters in an out-of-scope regime. The
+  resolution is a **logged limitation** (derivation assumptions and/or
+  `_limitations.qmd`), not a fix.
+- **Note** — style, presentation, or theoretical incompleteness with no
+  measurable effect on any rendered output. No action required.
+
+A documented assumption is a valid closure with equal standing to a fix — do
+not re-raise an issue the modeler has explicitly logged as a limitation unless
+new evidence moves it into the Blocking tier.
+
+**On re-review** (a pass verifying fixes to your earlier findings): scope is
+limited to the previously flagged items. Do not raise new-scope findings on a
+re-review — if you notice something genuinely Blocking that was missed, flag
+it as *out-of-scope observation* for the main agent to triage separately.
+
 ## Output Format
 
 Return:
 
-- PASS / FAIL with severity
-- Specific issues with line references
+- **PASS / PASS-with-limitations / FAIL**
+  - FAIL only if at least one Blocking finding exists.
+  - PASS-with-limitations: no Blocking findings, but material-deferrable items
+    to log — list exactly what the limitation entries should say.
+- Findings with line references, each tagged Blocking / Deferrable / Note,
+  each with its impact estimate.
 - Suggested corrections (do not apply them)
 
 ## Memory
