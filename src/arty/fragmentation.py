@@ -509,6 +509,134 @@ def lethal_density_point(
     return float(g * N_leth)
 
 
+# ---------------------------------------------------------------------------
+# Vertical-column lethal-hit count λ(x,y) = w_perp ∫₀ʰ ρ_L dz  (eq. 2)
+#   Target-height intercept fix — replaces the ρ_L(z=0)·A_ref point transform
+#   with the flux integrated over the column the target actually occupies.
+#   (derivation: updates/target-height-intercept/derivation.md §2, §5)
+# ---------------------------------------------------------------------------
+
+
+def _stable_quadratic_roots(A: float, B: float, C: float) -> list[float]:
+    """Real roots of ``A ζ² + B ζ + C = 0`` [ζ-units], cancellation-free.
+
+    Uses the numerically-stable form (Numerical Recipes §5.6):
+    ``q = −½(B + sgn(B)·√(B²−4AC))``, roots ``q/A`` and ``C/q``. This avoids
+    the catastrophic cancellation of the naive ``(−B ± √(B²−4AC))/(2A)`` when
+    ``B²≫4AC``, and the division-by-near-zero of that form as ``A → 0`` — the
+    physically reachable regime where the belt-edge leading coefficient
+    ``A = sin²α − K²`` vanishes (angle of fall near the belt half-cone),
+    handled here as a linear solve. Returns 0, 1, or 2 real roots.
+    """
+    eps = 1e-14
+    if abs(A) < eps:
+        # Degenerate to linear B ζ + C = 0.
+        if abs(B) < eps:
+            return []
+        return [-C / B]
+    disc = B * B - 4.0 * A * C
+    if disc < 0.0:
+        return []
+    sq = float(np.sqrt(disc))
+    # copysign(sq, B): +sq when B ≥ 0 (incl. B = +0). q is nonzero unless the
+    # discriminant is zero AND B is zero, i.e. a double root at ζ = 0.
+    q = -0.5 * (B + np.copysign(sq, B))
+    if q == 0.0:
+        return [0.0]
+    return [q / A, C / q]
+
+
+def belt_column_breakpoints(
+    x: float,
+    y: float,
+    h_b: float,
+    alpha_rad: float,
+    delta_rad: float,
+    cos_theta_z: list[float] | tuple[float, ...],
+    z_lo: float,
+    z_hi: float,
+) -> list[float]:
+    """Sorted z-breakpoints [m] of the spray-belt membership over ``[z_lo,z_hi]``.
+
+    The kernel's belt test ``|cosΘ − cosθ^z| ≤ sinδ`` is a hard 0/1 gate that
+    switches ρ_L on/off at definite crossing heights, so the column integrand
+    of eq. (2) is piecewise-smooth with steps at those heights (derivation
+    §5.1). Each belt (centre polar cosine ``c ∈ cos_theta_z``) crosses the gate
+    where ``cosΘ = c ± sinδ``; with ``ζ = z − h_b`` and
+    ``cosΘ = (x cosα − ζ sinα)/s``, ``s² = x²+y²+ζ²``, that boundary is the
+    quadratic ``A ζ² + B ζ + C = 0`` (derivation eq. 5, generalised per belt):
+
+        A = sin²α − K²,  B = −2 x cosα sinα,  C = x² cos²α − K² (x²+y²),
+        K = c ± sinδ.
+
+    Squaring ``cosΘ = K`` can admit the spurious ``cosΘ = −K`` root; that only
+    adds a redundant breakpoint (subdividing an already-smooth interval), which
+    the composite-midpoint integrator handles harmlessly. Every *true* membership
+    flip is captured, so between consecutive returned breakpoints the active-belt
+    set — and hence ρ_L — is smooth. Returns ``[z_lo, …interior roots…, z_hi]``.
+
+    x, y        : column ground coordinates [m]
+    h_b         : burst height above ground [m]
+    alpha_rad   : angle of fall [rad]
+    delta_rad   : spray-belt half-width δ [rad]
+    cos_theta_z : belt-centre polar cosines [-] (``[0.0]`` for the single-zone
+                  equatorial cylinder; ``cos θ^z`` per active zone for four-zone)
+    z_lo, z_hi  : column bounds [m] (typically 0 and the target height h)
+    """
+    sin_delta = float(np.sin(delta_rad))
+    cA = float(np.cos(alpha_rad))
+    sA = float(np.sin(alpha_rad))
+    B = -2.0 * x * cA * sA
+    x2c2 = x * x * cA * cA
+    r2 = x * x + y * y
+    bps = [z_lo, z_hi]
+    for c in cos_theta_z:
+        for K in (c - sin_delta, c + sin_delta):
+            A = sA * sA - K * K
+            C = x2c2 - K * K * r2
+            for zeta in _stable_quadratic_roots(A, B, C):
+                zc = h_b + zeta
+                if z_lo < zc < z_hi:
+                    bps.append(zc)
+    bps.sort()
+    # Dedupe near-coincident breakpoints (spurious/duplicate roots).
+    out = [bps[0]]
+    for zc in bps[1:]:
+        if zc - out[-1] > 1e-12:
+            out.append(zc)
+    return out
+
+
+def integrate_column_density(rho_point, breakpoints: list[float], n_seg: int) -> float:
+    """Composite-midpoint ∫ρ_L dz [m⁻¹] over the belt-segmented column (eq. 6).
+
+    Integrates ``rho_point(z)`` [m⁻²] piecewise over the sub-intervals defined
+    by ``breakpoints`` (from :func:`belt_column_breakpoints`), sampling ``n_seg``
+    **strictly-interior** midpoints per sub-interval. Midpoint (never an
+    endpoint) is required because the kernel independently re-derives the belt
+    gate from (x,y,z): evaluating ρ_L exactly at a breakpoint is a floating-point
+    coin flip that can return 0.0, so an endpoint-weighted rule (trapezoid) loses
+    ρ_L·Δz/2 intermittently — an O(1/n_seg) bias. Midpoint avoids the belt edge
+    entirely and keeps O(1/n_seg²) accuracy on the smooth interior
+    (derivation §5.2, §5.4). Returns the areal-density line integral [m⁻¹];
+    the caller multiplies by w_perp to get the mean lethal-hit count λ.
+
+    rho_point   : callable z [m] → ρ_L [m⁻²]
+    breakpoints : sorted column breakpoints [m]
+    n_seg       : midpoint nodes per sub-interval (default caller: 9)
+    """
+    total = 0.0
+    for za, zb in zip(breakpoints[:-1], breakpoints[1:]):
+        width = zb - za
+        if width <= 0.0:
+            continue
+        step = width / n_seg
+        for k in range(n_seg):
+            zc = za + (k + 0.5) * step
+            total += rho_point(zc) * step
+    return total
+
+
 def _expected_kills_3d_point(
     x_g: float,
     y_g: float,
@@ -595,7 +723,14 @@ def slant_range_grid(
     """
     if z_min is None:
         z_min = 0.0
-    s_max = margin * np.sqrt(2.0 * max_radius**2 + (z_max - h_b) ** 2)
+    # The farthest box corner from the burst at height h_b is at whichever of
+    # z_min, z_max is more distant from h_b — not always z_max. For a vertical
+    # column [0, h] with h_b above the column top, z_min=0 is the far extreme,
+    # so s_max must use max(|z_min−h_b|, |z_max−h_b|) or the m_min grid
+    # under-covers the near-ground corners and trips the range assertion. For a
+    # single layer (z_min=z_max) this is identical to the old (z_max−h_b)² form.
+    dz2 = max((z_max - h_b) ** 2, (z_min - h_b) ** 2)
+    s_max = margin * np.sqrt(2.0 * max_radius**2 + dz2)
     # Closest approach of the box to the burst: 0 in (x, y), and the gap in z
     # only if h_b is outside [z_min, z_max]. Inside that span the origin column
     # passes through the burst height, so the geometric minimum is 0.
@@ -702,36 +837,74 @@ def pkill_field_3d(
     shell: ShellParams = ShellParams(),
     drag: DragParams = DragParams(),
     burst: BurstParams = BurstParams(),
-    z: float = 0.0,
+    posture: PostureParams = STANDING,
     max_radius: float = 80.0,
     n_grid: int = 80,
     E_leth: float = E_LETH_DEFAULT,
     n_s: int = 400,
-    A_ref: float = A_REF_DEFAULT,
+    n_seg: int = 9,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Single-zone point kill probability P_k [-] ∈ [0,1] on an (x, y) patch at height z.
+    """Single-zone ground kill probability P_k [-] ∈ [0,1] for a target at (x, y).
 
-    P_k = 1 − exp(−ρ_L·A_ref), with ρ_L [m⁻²] the lethal-fragment areal density
-    (:func:`compute_lethal_density_field_3d`) and A_ref [m²] the fixed nominal
-    personnel presented area (0.85 m², standing frontal — lower bound; +10–25%
-    with kit). A pure elementwise transform of ρ_L; no new field integral
-    (pkill-poisson-field derivation eq. 1, §6).
+    P_k = 1 − exp(−λ), with the mean lethal-hit count formed by integrating the
+    lethal-fragment areal density ρ_L [m⁻²] over the vertical column the target
+    actually occupies (target-height-intercept derivation eq. 2/3/6):
 
-    Caveats (derivation §2, A1/A2): (A1) Poisson independence / no shielding —
-    fragment arrivals on the A_ref patch are independent, with body armour and
-    partial cover ignored. (A2) sharp lethality threshold AND P_k|hit = 1 once
-    counted — "lethal" is the binary E_leth membership inside ρ_L, and every
-    counted fragment is treated as certainly lethal; P_k is therefore more
-    pessimistic than the ES-310 ``1 − (1 − 0.5)^λ`` aggregate for the same ρ_L,
-    and is not a tissue-level wound model.
+        λ(x,y) = w_perp · ∫₀ʰ ρ_L(x,y,z) dz,
+
+    reading (w_perp, h) live from ``posture``. This replaces the earlier
+    ρ_L(z=0)·A_ref point transform, which read the flux only on the ground plane
+    and reported a false safe ring wherever a near-horizontal spray belt crosses
+    chest/head height but never descends to z=0 close in (derivation §1, §6.3).
+    The old transform is the degenerate z-flat limit of this integral with
+    A_ref = w_perp·h (derivation §3).
+
+    The column integral is evaluated piecewise on the belt-membership segments
+    (belt edges from :func:`belt_column_breakpoints`, single equatorial belt
+    cosθ^z = 0) with a composite-midpoint rule (:func:`integrate_column_density`,
+    n_seg per segment) — strictly-interior nodes so the belt-edge 0/1 gate never
+    coin-flips (derivation §5). One m_min(s) table spanning the whole [0, h]
+    column is built once and shared across all z-samples (§5.3).
+
+    Caveats (derivation §2/§7, A1/A2): (A1) frontal projection — each strip
+    contributes w_perp·dz (γ = 0 arrival), matching the shipped A_ref
+    convention; obliquity is deferred. (A2) Poisson independence / no shielding,
+    and a sharp E_leth cut with P_k|hit = 1 once counted; more pessimistic than
+    the ES-310 aggregate, not a tissue-level wound model.
 
     Returns ``(X, Y, P_k)`` meshgrids [m, m, -].
     """
-    X, Y, rho_L = compute_lethal_density_field_3d(
-        shell=shell, drag=drag, burst=burst, z=z,
-        max_radius=max_radius, n_grid=n_grid, E_leth=E_leth, n_s=n_s,
-    )
-    P_k = 1.0 - np.exp(-rho_L * A_ref)
+    V0 = gurney_velocity(shell)
+    mu, N0 = mott_params(shell, V0)
+
+    alpha_rad = np.radians(burst.angle_of_fall)
+    delta_rad = np.radians(burst.spray_half_angle)
+    h_b = burst.h_b
+    h = posture.h
+    w_perp = posture.w_perp
+
+    # One m_min(s) table spanning the whole [0, h] column, shared across every
+    # (x, y) column and every z-sample within it (§5.3).
+    s_grid = slant_range_grid(max_radius, h_b, z_max=h, n_s=n_s, z_min=0.0)
+    mmin_grid = build_mmin_table(s_grid, V0, E_leth, drag, shell.steel.rho)
+
+    xy = np.linspace(-max_radius, max_radius, n_grid)
+    X, Y = np.meshgrid(xy, xy)
+    P_k = np.zeros_like(X)
+    for i in range(n_grid):
+        for j in range(n_grid):
+            xij, yij = X[i, j], Y[i, j]
+            bps = belt_column_breakpoints(
+                xij, yij, h_b, alpha_rad, delta_rad, [0.0], 0.0, h,
+            )
+            col = integrate_column_density(
+                lambda z: lethal_density_point(
+                    xij, yij, z, h_b, alpha_rad, delta_rad,
+                    N0, mu, s_grid, mmin_grid,
+                ),
+                bps, n_seg,
+            )
+            P_k[i, j] = 1.0 - np.exp(-w_perp * col)
     assert np.all((P_k >= 0.0) & (P_k <= 1.0)), "P_k outside [0,1]"
     return X, Y, P_k
 
@@ -754,9 +927,11 @@ def pkill_volume_3d(
     :func:`compute_lethal_density_volume_3d` and A_ref [m²] the fixed nominal
     personnel presented area (0.85 m², standing frontal — lower bound; +10–25%
     with kit). A pure elementwise transform of ρ_L; no new physics
-    (pkill-poisson-field derivation eq. 1, §6). The z=0 layer is numerically
-    identical to ``pkill_field_3d(z=0.0)`` for matching parameters, inherited
-    from the ρ_L kernel through the deterministic transform (derivation §4.6).
+    (pkill-poisson-field derivation eq. 1, §6). This volume builder is the
+    point-in-space diagnostic — "one person standing at exactly this height z" —
+    and deliberately keeps the frozen A_ref (target-height-intercept derivation
+    §8); the ground field :func:`pkill_field_3d` instead integrates the ρ_L flux
+    over the target's whole [0, h] column.
 
     Caveats (derivation §2, A1/A2): Poisson independence / no shielding; sharp
     E_leth threshold with P_k|hit = 1 once counted — more pessimistic than the

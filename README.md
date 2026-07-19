@@ -43,3 +43,25 @@ will render broken/unstyled if `_files/` is missing).
 
 Requires the [Quarto CLI](https://quarto.org/docs/get-started/) to be
 installed separately (not managed by `uv`).
+
+## Running the sensitivity app
+
+The interactive Streamlit explorer (`app/sensitivity.py`) lets you sweep shell,
+Mott, drag, burst-geometry, and posture parameters live and see the
+fragmentation-field, 3D kill-probability, and ground kill-probability views
+update in real time.
+
+1. Install dependencies with `uv` (if not already done above):
+
+   ```bash
+   uv sync
+   ```
+
+1. Start the app:
+
+   ```bash
+   uv run streamlit run app/sensitivity.py
+   ```
+
+   Streamlit prints a local URL (default `http://localhost:8501`) — open it
+   in a browser. Stop the server with `Ctrl+C`.

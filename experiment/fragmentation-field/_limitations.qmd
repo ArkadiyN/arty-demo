@@ -200,24 +200,34 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   fix is to replace the hard acceptance test with a smooth angular weight
   (e.g., Gaussian in polar angle), which also correctly handles overlap
   between adjacent zones.
-- **Fragment acceptance test targets ground impact (z = 0), not body
-  intercept.** A fragment is accepted for a ground cell only if its
-  downward velocity component satisfies $v_{gz} < 0$, i.e.\
-  $\sin(\mathrm{AoF} + \theta_z) > 0$. Fragments with $v_{gz} \geq 0$
-  are discarded regardless of whether they could strike a person at
-  torso or head height.
+- **False safe zone at steep angle of fall — fixed in v 0.5.1.** The
+  ground $P_k$ field previously sampled the lethal-fragment density
+  $\rho_L$ on the $z = 0$ plane alone. A person is a *vertical* target, so
+  a near-horizontal spray belt that crosses chest and head height but never
+  descends to the ground close in was scored $P_k = 0$ — a spurious inner
+  "safe ring." The effect was most severe at steep AoF: at AoF = 90° the
+  cylinder belt sprays horizontally at burst height and never reaches
+  $z = 0$ within several metres, so the model showed a false safe zone
+  where a standing soldier would in reality be struck at chest height.
 
-  The effect is most severe at steep angles of fall. At AoF = 90° the
-  cylinder zone ($\theta_z = 90°$) sprays exactly horizontally
-  ($v_{gz} = 0$) and is excluded entirely; the model therefore shows a
-  false safe zone of several metres around the burst point. A standing
-  soldier at 2 m would in reality be struck at chest height by these
-  horizontal fragments. For prone targets the effect is smaller (centre
-  of mass ≈ 0.3 m) but non-zero at close range.
+  This is now fixed. The ground field forms the mean lethal-hit count by
+  integrating $\rho_L$ over the whole column the body occupies,
+  $\lambda = w_\perp\!\int_0^{h}\!\rho_L(x,y,z)\,dz$ (§*Point Kill
+  Probability*, eq. 23; derived at
+  `updates/target-height-intercept/derivation.md`), so $P_k$ fires
+  wherever the belt illuminates any height the target spans. At the
+  defect config (AoF = 90°, $h_b = 2$ m, standing) the false-safe ring
+  that was formerly $P_k = 0$ is now lethal (the innermost true dead zone,
+  $r\lesssim1.1$ m directly under the burst where the belt passes overhead,
+  correctly remains $P_k\approx0$), and reading $(w_\perp, h)$
+  live re-couples posture — a standing target is correctly more exposed
+  than a prone one near a low high-angle burst. The remaining
+  approximation is frontal projection only ($\gamma = 0$; no obliquity
+  $\cos\gamma$ and no top-down footprint), which leaves prone exposure
+  under steep arrival *conservative-low* — a documented refinement
+  (derivation §4, §7 A1), not the false-safe artefact.
 
-  The correct fix is to test whether the fragment ray intersects a target
-  volume spanning $[0,\, h_\text{person}]$ in height rather than the
-  $z = 0$ plane alone. Until that is implemented, P(kill) close to the
-  burst at steep AoF (≳ 70°) is underestimated for standing targets, and
-  the "inner safe ring" visible in the sensitivity app at AoF = 90° is a
-  model artefact, not real protection.
+  Note this is a distinct issue from the `fragment_ground_impact`
+  acceptance test ($v_{gz} < 0$, i.e. $\sin(\mathrm{AoF}+\theta_z) > 0$),
+  which gates the spray-cone *dot renderer* only and feeds no hazard
+  field — that gate was never the source of the false ring.

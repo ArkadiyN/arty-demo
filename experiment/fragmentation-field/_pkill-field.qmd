@@ -1,53 +1,199 @@
-## Point Kill Probability $P_k(x,y,z)$ — Poisson Conversion of $\rho_L$
+## Point Kill Probability $P_k(x,y)$ — Vertical-Column Integral of $\rho_L$
 
 The lethal-density field $\rho_L$ above is a *flux density* [m⁻²], not a
 probability: it spans orders of magnitude near vs. far from the burst and is
 hard to read as "how dangerous is this point." This section presents the
 **second kill-probability pathway** in the model — the transform that maps
-$\rho_L$ into a bounded, reader-legible **point kill probability**
-$P_k(x,y,z)\in[0,1]$. It is derived and reviewed in full at
-`updates/pkill-poisson-field/{scoping,derivation,review}.md`; only the result
-and its role are presented here.
+$\rho_L$ into a bounded, reader-legible **ground kill probability**
+$P_k(x,y)\in[0,1]$ for a person standing (or lying) at $(x,y)$.
+
+**What changed (v 0.5.1).** The field no longer samples $\rho_L$ on the ground
+plane alone. A person is a *vertical* target, so $P_k$ is now formed by
+integrating the flux over the whole column the body occupies, $z\in[0,h]$. This
+removes the **false safe zone** — the spurious inner "safe ring" the old
+$z=0$ point transform reported at steep angle of fall (limitation #12; fixed and
+derived at `updates/target-height-intercept/derivation.md`).
 
 ### The transform
 
-A silhouette of fixed area $A_\text{ref}$ standing at a field point intercepts,
-on average, $\lambda = \rho_L\,A_\text{ref}$ *lethal* fragments (each already
-past the binary $E_\text{leth}=1000$ J cut baked into $\rho_L$). Modelling those
-arrivals as Poisson and asking for **at least one** hit gives
+A target of horizontal width $w_\perp$ occupying the column $z\in[0,h]$
+intercepts, on average,
 
 $$
-P_k(x,y,z) = 1 - \exp\!\bigl(-\,\rho_L(x,y,z)\,\cdot\,A_\text{ref}\bigr) \quad (23)
+\lambda(x,y) = w_\perp\!\int_0^{h}\!\rho_L(x,y,z)\,dz , \qquad
+P_k(x,y) = 1-\exp\!\bigl(-\lambda(x,y)\bigr) \quad (23)
 $$
 
-| Symbol            | Meaning                                                  | Unit       |
+lethal fragments (each already past the binary $E_\text{leth}=1000$ J cut baked
+into $\rho_L$), modelled as Poisson and read as "at least one lethal hit."
+
+| Symbol            | Meaning                                                   | Unit       |
 | ----------------- | -------------------------------------------------------- | ---------- |
 | $\rho_L(x,y,z)$   | lethal-fragment areal density (eq. 3, target-independent) | m⁻²        |
-| $A_\text{ref}$    | fixed nominal personnel presented area                   | m²         |
-| $\lambda=\rho_L A_\text{ref}$ | mean lethal fragments striking the silhouette | –          |
-| $P_k(x,y,z)$      | point kill probability, eq. (23)                         | – ($\in[0,1]$) |
+| $w_\perp,\,h$     | target width $\perp$ azimuth, and vertical extent (posture) | m       |
+| $\lambda(x,y)$    | mean lethal fragments crossing the column $[0,h]$        | –          |
+| $P_k(x,y)$        | ground kill probability, eq. (23)                        | – ($\in[0,1]$) |
 
-$A_\text{ref} = 0.85$ m² is the standing frontal silhouette
-$w_\perp h = 0.5\times1.7$ — frozen as a **fixed scalar**, *not* the live
-$A_p(\gamma,\text{posture})$ used by the graded pathway above. It is an
-engineering convention and a lower bound (real silhouettes run 10–25 % larger
-with helmet/armour/kit; derivation §1). The transform is a **pure elementwise
-map** of the already-computed $\rho_L$ grid — no new field integral (derivation
-§6).
+Reading $(w_\perp,h)$ live from `PostureParams`, the transform **re-couples
+posture** automatically. Its constant-density limit ($\rho_L$ flat over a human
+height) is $\lambda = \rho_L\,(w_\perp h) = \rho_L\,A_\text{ref}$ with
+$A_\text{ref}=0.85$ m² — i.e. the earlier point transform is the degenerate
+$z$-flat case of eq. (23) (derivation §3). The frozen $A_\text{ref}=0.85$ m²
+survives only as the fixed scalar for the point-in-space **3-D volume**
+diagnostic (`pkill_volume_3d`, "one person at exactly this height $z$"); the
+**ground** field integrates the column.
+
+### The false safe zone it removes
+
+At a steep angle of fall the equatorial cylinder belt sprays (near-)horizontally
+at burst height and never descends to $z=0$ close in. Sampling $\rho_L$ only on
+the ground plane therefore reported $P_k=0$ across an inner ring — a **false
+safe zone** — even though the same rays pass straight through chest and head
+height. The column integral of eq. (23) fires wherever the belt illuminates
+**any** height the body spans, filling the ring exactly where a standing soldier
+would in fact be struck (derivation §6.3).
+
+We show this at the defect configuration: AoF $=90°$ (horizontal belt),
+$h_b=2$ m, $\delta=15°$.
+
+```{python}
+import matplotlib.pyplot as plt
+from arty import plots
+from arty.fragmentation import pkill_field_3d, BurstParams, STANDING, PRONE
+from arty.zones import four_zone_pkill_field
+
+
+def ring_fill(X, Y, P_k, r_lo=1.5, r_hi=7.0):
+    """Illumination stats over the [r_lo, r_hi] m annulus (the old dead ring).
+
+    Returns (frac, onset, pmin): the fraction of annulus cells with P_k > 0,
+    the smallest radius [m] at which the ring is illuminated (nan if none), and
+    the minimum P_k over the annulus. frac/onset characterise how much of the
+    old dead ring the column integral now reaches, and from where inward.
+    """
+    r = np.sqrt(X**2 + Y**2)
+    ann = (r >= r_lo) & (r <= r_hi)
+    lit = ann & (P_k > 0.0)
+    frac = float(np.mean(P_k[ann] > 0.0))
+    onset = float(r[lit].min()) if lit.any() else float("nan")
+    return frac, onset, float(P_k[ann].min())
+
+
+# Steep angle of fall — where the old z=0 transform showed the false safe ring.
+burst_steep = BurstParams(h_b=2.0, angle_of_fall=90.0, spray_half_angle=15.0)
+
+Xk, Yk, pk_stand = pkill_field_3d(
+    shell, drag, burst_steep, posture=STANDING, max_radius=60.0, n_grid=60,
+)
+frac, _, pmin = ring_fill(Xk, Yk, pk_stand)
+print(f"Single-zone, STANDING (h = {STANDING.h} m), AoF = 90°:")
+print(f"  P_k ∈ [{pk_stand.min():.3f}, {pk_stand.max():.3f}]")
+print(f"  inner ring 1.5–7 m: cells with P_k > 0 = {frac:.0%} "
+      f"(old z=0 transform: 0%), min P_k there = {pmin:.3f}")
+
+fig = plots.fig_pkill_field(
+    Xk, Yk, pk_stand,
+    "Ground P_k — Single-Zone, STANDING\n"
+    "105 mm M1 HE, AoF = 90°, h_b = 2 m, column [0, 1.7 m]",
+)
+fig.savefig("pkill_standing_aof90.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+The inner ring is now fully lethal: every annulus cell that the old ground-plane
+transform scored $P_k=0$ is struck at chest/head height by the horizontal belt.
+Directly under the burst ($r\lesssim (h_b-h)/\tan\delta\approx1.1$ m) even the top
+of the head sits below the belt's lowest ray, so $P_k\to0$ there — correct, a horizontal
+belt genuinely passes over someone standing right beneath it (derivation §6.3
+honesty check). The fill is the *reachable* ring, not a spurious blanket.
+
+### Posture re-couples
+
+Because eq. (23) integrates the actual column $[0,h]$, posture now changes
+*which* fragments count, not merely how lethal an arriving one is. A **standing**
+column reaches up into the horizontal belt at $h_b=2$ m; a **prone** body,
+capped at $h=0.3$ m, sits entirely beneath it and is barely exposed at the same
+close-in ring.
+
+```{python}
+Xp, Yp, pk_prone = pkill_field_3d(
+    shell, drag, burst_steep, posture=PRONE, max_radius=60.0, n_grid=60,
+)
+# The ring statistic reads a hard belt-crossing step — P_k jumps from 0 to lit
+# at the illumination-onset radius where the descending belt first reaches a
+# prone body's 0.3 m column. The coarse 60 m plot grid (~2 m node spacing)
+# cannot resolve the thin lit band, so whether a node lands in it is a grid
+# coincidence (n_grid = 60 happens to catch none → a spurious "0%"). Read the
+# ring stat on a dense near-field grid (0.1 m spacing) so frac/onset are
+# grid-stable; the 60 m field above is retained for the plot only.
+Xpf, Ypf, pk_prone_fine = pkill_field_3d(
+    shell, drag, burst_steep, posture=PRONE, max_radius=10.0, n_grid=201,
+)
+frac_p, onset_p, _ = ring_fill(Xpf, Ypf, pk_prone_fine)
+print(f"Single-zone, PRONE (h = {PRONE.h} m), AoF = 90°:")
+print(f"  P_k ∈ [{pk_prone_fine.min():.3f}, {pk_prone_fine.max():.3f}] (near field)")
+print(f"  inner ring 1.5–7 m: cells with P_k > 0 = {frac_p:.0%} "
+      f"(vs standing 100%), reached only beyond onset r ≈ {onset_p:.1f} m")
+
+fig = plots.fig_pkill_field(
+    Xp, Yp, pk_prone,
+    "Ground P_k — Single-Zone, PRONE\n"
+    "105 mm M1 HE, AoF = 90°, h_b = 2 m, column [0, 0.3 m]",
+)
+fig.savefig("pkill_prone_aof90.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
+
+The model now correctly predicts a **standing** soldier is *more* exposed than a
+prone one near a high–angle-of-fall low burst — the opposite of the frozen-area
+behaviour, and the physical point of the fix (derivation §4). A prone body sits
+*beneath* the horizontal belt close in, so the belt reaches its 0.3 m column
+only past an illumination-onset radius (here $r\approx6.4$ m): the inner ring
+exposes it over only its outer edge (≈one-fifth of the ring) versus the whole
+ring for a standing target. Much less exposed near the burst — but **not** a
+safe zone, and not the spurious exact "$0\%$" a coarse plot grid can alias to at
+this hard step. This posture
+sensitivity is a free consequence of the column integral, orthogonal to the
+presented-area $A_p(\gamma,\text{posture})$ toggle used by the graded pathway
+(which weights an *arriving* fragment's lethality, not *which* fragments arrive).
+
+### Four-zone
+
+The four-zone path integrates the same column over each zone's belt, so the
+fore/aft lobe structure the single belt cannot produce reappears — now carrying
+the filled inner ring in every active zone.
+
+```{python}
+Xz, Yz, pk_four = four_zone_pkill_field(
+    zones_m1, aof_deg=90.0, h_b=2.0, drag=drag, rho_steel=rho_steel,
+    posture=STANDING, max_r=60.0, n_grid=50,
+)
+frac_z, _, _ = ring_fill(Xz, Yz, pk_four)
+print(f"Four-zone, STANDING, AoF = 90°:")
+print(f"  P_k ∈ [{pk_four.min():.3f}, {pk_four.max():.3f}]")
+print(f"  inner ring 1.5–7 m: cells with P_k > 0 = {frac_z:.0%}")
+
+fig = plots.fig_pkill_field(
+    Xz, Yz, pk_four,
+    "Ground P_k — Four-Zone, STANDING\n"
+    "105 mm M1 HE, AoF = 90°, h_b = 2 m, column [0, 1.7 m]",
+)
+fig.savefig("pkill_four_zone_aof90.png", dpi=120, bbox_inches="tight")
+plt.show()
+```
 
 ### Two kill-probability pathways, one Poisson skeleton
 
 The model carries **two distinct routes** from the fragment field to a kill
-probability, and this section is the second of them. They share the Poisson
-$1-e^{-\lambda}$ form but differ in *what the mean count $\lambda$ contains* and
-*what they feed*:
+probability. They share the Poisson $1-e^{-\lambda}$ form but differ in *what the
+mean count $\lambda$ contains* and *what they feed*:
 
 | | **Graded per-hit pathway** (eqs 9–10) | **Poisson binary-cut pathway** (eq. 23) |
 |---|---|---|
 | Per-hit lethality | graded ES-310 $P_{k\|\text{hit}}(E)$ curve | binary $E_\text{leth}$ membership inside $\rho_L$, then $P_{k\|\text{hit}}=1$ once counted |
-| Target coupling | live $A_p(\gamma,\text{posture})$, angle- and posture-dependent | fixed $A_\text{ref}=0.85$ m² |
-| Mean count $\lambda$ | $N_\text{eff}=\int n(m)\,P_{k\|\text{hit}}\,\tfrac{A_p}{2\pi s^2\cdots}\,dm$ | $\rho_L\,A_\text{ref}$ (pure expected lethal-hit count) |
-| Feeds | the 2-D $P_\text{kill}$ heatmaps and $R_{50}$ | the interactive **3-D $P_k(x,y,z)$ volume view** |
+| Target coupling | live $A_p(\gamma,\text{posture})$, angle- and posture-dependent | vertical column $w_\perp\!\int_0^h\!\rho_L\,dz$ over $[0,h]$ (posture-resolved) |
+| Mean count $\lambda$ | $N_\text{eff}=\int n(m)\,P_{k\|\text{hit}}\,\tfrac{A_p}{2\pi s^2\cdots}\,dm$ | $w_\perp\!\int_0^h\!\rho_L\,dz$ (pure expected lethal-hit count over the column) |
+| Feeds | the 2-D $P_\text{kill}$ heatmaps and $R_{50}$ | the ground $P_k(x,y)$ field above; the 3-D volume view keeps frozen $A_\text{ref}$ as a point diagnostic |
 
 They are **not** interchangeable and must not be composed: folding the graded
 $P_{k\|\text{hit}}(E)$ into $\rho_L$ and then exponentiating would double-count
@@ -57,46 +203,5 @@ The one deliberate consequence: eq. (23) promotes each counted fragment to
 certainly-lethal ($P_{k\|\text{hit}}=1$), so $P_k$ is **more pessimistic** than
 the ES-310 $1-(1-0.5)^\lambda$ aggregate for the same $\rho_L$, and saturates
 quickly — expected, not a defect (derivation §4.7).
-
-```{python}
-from arty.fragmentation import pkill_field_3d, A_REF_DEFAULT
-from arty.zones import four_zone_pkill_field
-
-print(f"A_ref = {A_REF_DEFAULT:.2f} m² (standing frontal silhouette, fixed; "
-      f"lower bound — +10–25% with kit)")
-
-# Same burst geometry as the ρ_L section (AoF = 30°, h_b = 2 m, z = 0).
-Xk, Yk, pk_single = pkill_field_3d(
-    shell, drag, burst, z=0.0, max_radius=60.0, n_grid=60, A_ref=A_REF_DEFAULT,
-)
-Xz, Yz, pk_four = four_zone_pkill_field(
-    zones_m1, aof_deg=30.0, h_b=2.0, drag=drag, rho_steel=rho_steel,
-    z=0.0, max_r=60.0, n_grid=50, A_ref=A_REF_DEFAULT,
-)
-
-# P_k is bounded in [0,1] by construction; measure what fraction of the lethal
-# field actually saturates (P_k > 0.95) vs. sits in the graded λ≲1 fringe (§4.7).
-for name, pk in [("single-zone", pk_single), ("four-zone", pk_four)]:
-    lethal = pk[pk > 0.0]
-    frac_sat = float(np.mean(lethal > 0.95)) if lethal.size else 0.0
-    assert pk.min() >= 0.0 and pk.max() <= 1.0, "P_k outside [0,1]"
-    print(f"  {name:<11}: P_k ∈ [{pk.min():.3f}, {pk.max():.3f}], "
-          f"lethal-field cells with P_k > 0.95 = {frac_sat:.0%}")
-```
-
-The bounded $[0,1]$ range and the shape of that distribution are exactly what
-eq. (23) is expected to produce: it compresses $\rho_L$'s multi-decade dynamic
-range into a probability. At the geometry rendered here (AoF = 30°, $h_b = 2$ m,
-$z=0$), the lethal field is **fringe-dominated**, not saturated — only the few
-percent of lethal cells reported above ($\approx 3\%$ single-zone, $1\%$
-four-zone) clear $P_k>0.95$. Saturation ($\lambda\gg1$) is confined to a small
-near-burst core; the bulk of the footprint lies in the graded fringe where
-$\lambda\lesssim1$ and $P_k$ varies smoothly with $\rho_L$ (derivation §4.7).
-The saturated fraction grows toward the burst and with lower $h_b$ / steeper
-AoF, which pack more $\rho_L$ into the near field. This 2-D $z=0$ slice is the
-ground layer of the same field the app renders as an interactive 3-D volume via
-`arty.fragmentation.pkill_volume_3d` / `arty.zones.four_zone_pkill_volume` and
-`arty.plots.fig_pkill_volume`; the $z=0$ layer of the volume is numerically
-identical to this slice (derivation §4.6).
 
 ______________________________________________________________________
