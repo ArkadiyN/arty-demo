@@ -216,3 +216,144 @@ already-reviewed derivation.
 - `.qmd`/app wiring and the OpenSpec `pkill-3d-surface-view` spec text — not
   yet written; re-check layering and the §4.7 colour-scale handling once they
   land.
+
+______________________________________________________________________
+
+## Delta review — 2026-07-19 (commit `a98aa5b`, presentation-layer pass)
+
+**Scope:** commit `a98aa5b` ("docs(fragmentation-field): separate Family A/B
+presentation, add pkill-field notebook section") diffed against its parent,
+plus the current state of `derivation.md` and every notebook partial the
+commit touched: `_four-zone-3d.qmd`, `_governing-equations.qmd`,
+`_limitations.qmd`, `_pkill-field.qmd` (new file), `_change-log.qmd`,
+`fragmentation-field.qmd`. This pass post-dates a *further*, separately
+reviewed rewrite of `_pkill-field.qmd` by the `target-height-intercept`
+aspect (v0.5.1, `updates/target-height-intercept/review.md`,
+PASS-with-limitations) — where that later rewrite fully superseded content
+`a98aa5b` added, this review says so explicitly rather than re-reviewing
+already-reviewed material.
+
+### Verdict: **PASS-with-limitations**
+
+No Blocking findings. One Deferrable finding (stale citation, numerically
+reconfirmed correct in this pass — see below).
+
+### Findings
+
+**Note — belt-axis-convention disclosure (`_four-zone-3d.qmd` intro table +
+§6.8, `_limitations.qmd` §12 bullet).** This commit adds exactly the framing
+memory (`belt_axis_convention_pitfall`) says survives review: the
+single-zone/four-zone `P(kill)` diff in the app is described as a
+"directional indicator," explicitly **not** a "clean physical isolation," and
+the root cause is named (legacy backward axis `(−cosα,0,−sinα)` vs. the
+four-zone forward axis `(+cosα,0,−sinα)`). Independently re-verified against
+`src/arty/fragmentation.py`: `_expected_kills_3d_point`/`_expected_kills_3d_vec`
+(feeding `result.field_pk`, the single-zone side of `app/sensitivity.py`'s
+`diff_pk`) call `_shell_axis` (backward); `zones.py`'s `four_zone_field`
+(feeding `result_zones["pk_total"]`) calls `_forward_shell_axis` at both its
+call sites (`:709`, `:791`) — the claimed divergence is real and correctly
+attributed to the Family-A graded pathway, not the eq. (1)/(23) Poisson path
+this aspect owns. `app/sensitivity.py:812` confirms both sides of `diff_pk`
+share one grid (`X[0]`/`Y[:,0]` from the same `linspace`), so the "grid-exact
+diff, non-exact attribution" framing is accurate. This also closes the
+specific second-instance recurrence the memory entry flagged at
+`_four-zone-3d.qmd` §6.8 ("attached to a plot that performs no diff at
+all") — re-read `plots.fig_zone_footprint` and confirmed it plots each zone's
+own rays from a single call with no subtraction, matching the new prose
+exactly. No output impact either way (documentation-only); recorded because
+it resolves a previously-open memory item, not because it changes a number.
+
+**Deferrable — `derivation.md` §4.7 cites a notebook computation that no
+longer exists in the file it names; the underlying number is independently
+reconfirmed correct here.** §4.7 (as revised by this commit) states the
+`P_k` field is fringe-dominated, quoting "~3% (single-zone) / ~1% (four-zone)
+of lethal-field cells clear `P_k > 0.95`" and cites `_pkill-field.qmd` plus
+"@model-reviewer's independent re-check of the same geometry" as the
+evidence. Two problems with the citation trail, neither changing the
+underlying claim:
+
+- `_pkill-field.qmd` was completely rewritten by the later
+  `target-height-intercept` pass (v0.5.1): it no longer samples the `z=0`
+  plane at AoF=30°/h_b=2m with the frozen-`A_ref` transform, and prints no
+  `P_k>0.95` fraction anywhere. A reader following the derivation's
+  citation into the current notebook will not find the number it names.
+- No committed `review.md` entry (before this one) documents a
+  model-reviewer re-check of this specific figure — the claim in
+  `derivation.md` predates any artifact backing it, the same
+  inline-review-without-artifact pattern already seen and accepted in
+  `updates/target-height-intercept/review.md`.
+- **Independent reconfirmation performed in this pass:** the frozen-`A_ref`
+  point transform derivation eq. (1) describes is still live, unchanged, in
+  `pkill_volume_3d`/`four_zone_pkill_volume`'s `z=0` slice (confirmed by
+  reading `fragmentation.py:1228-1234`: `P_k = 1 - exp(-rho_L * A_ref)`,
+  bit-for-bit eq. (1)). Recomputed the fraction at the stated geometry
+  (AoF=30°, `h_b=2` m, `z=0`, 105 mm M1 HE, same `shell`/`drag` params as
+  the notebook's `_parameters.qmd`/`_lethal-density.qmd` cells) at the
+  notebook's own grid resolutions (`n_grid=60` single-zone, `n_grid=50`
+  four-zone): **3.18% single-zone, 1.05% four-zone** — matches the "~3%/~1%"
+  claim closely. Swept `n_grid` from 30–200 for both paths to rule out the
+  grid-threshold-fraction-aliasing failure mode this reviewer has
+  previously caught elsewhere (`ground_grid_threshold_fraction_aliasing`
+  memory): single-zone stays in 2.4–3.2%, four-zone in 1.0–1.2% across the
+  whole sweep — grid-stable, not an aliasing artifact.
+- **Impact: none on any rendered output.** `pkill_volume_3d` is still wired
+  into the interactive app's 3-D `P_k` volume view
+  (`app/sensitivity.py:261,1034`, `fig_pkill_volume`), so the fringe-dominated
+  behaviour this figure describes is exactly what that live view renders.
+  This is a documentation cross-reference gap, not a wrong number.
+- **Suggested correction (doc-fix, not a code change):** repoint
+  `derivation.md` §4.7's citation from `_pkill-field.qmd` to
+  `pkill_volume_3d`'s `z=0` slice / the app's 3-D volume view (or, if a
+  notebook demonstration is wanted again, add the fraction print-out back
+  into wherever the point-transform is next shown); cite this review's
+  independent recheck (3.18%/1.05%, grid-stable 30–200) as the artifact
+  that was previously missing.
+
+**Note — `_change-log.qmd` 0.5.0/0.5.1 entries remain mutually consistent.**
+The 0.5.0 entry this commit adds ("feeds the interactive 3-D `P_k` volume
+view") stays true after the later 0.5.1 rewrite, since `pkill_volume_3d`
+specifically retained that role while `pkill_field_3d` was repurposed for the
+ground column integral — verified by reading both changelog rows together
+against current `fragmentation.py` docstrings. No correction needed.
+
+**Layering — PASS.** Every `.qmd` edit in this commit is prose only, except
+the one code cell the (now-superseded) `_pkill-field.qmd` version added,
+which computed `np.mean(lethal > 0.95)` — a display-layer threshold-fraction
+diagnostic over already-computed `arty` output arrays, the same accepted
+pattern used elsewhere in this notebook (e.g. the still-live `ring_fill`
+helper in the current `_pkill-field.qmd`, already reviewed and passed in
+`updates/target-height-intercept/review.md`). No physical constant, formula,
+or quantity is computed inline anywhere in the diff; every formula/axis
+convention named in the new prose (`A_ref=0.85`, eq. (23)/(1), `(±cosα,…)`)
+was cross-checked directly against the corresponding `src/arty/` source and
+matches.
+
+**Note — Family A/B terminology.** The commit message's "Family A/B" labels
+do not appear verbatim in any `.qmd`; the notebook instead uses "graded
+per-hit pathway" / "Poisson binary-cut pathway" (`_pkill-field.qmd`'s
+comparison table). Checked against `src/arty/zones.py`'s own internal
+`_familyA_zone_massintegral`/`_four_zone_familyA_eval` naming: "Family A" in
+code denotes exactly the graded ES-310 `P_k|hit` + `A_p` mass-integral
+pathway the notebook calls "graded per-hit pathway" — consistent, just a
+different label in reader-facing prose vs. internal code. No discrepancy; not
+actionable.
+
+### Checklist coverage (this delta only)
+
+- Dimensional analysis / boundary cases / numerical stability: unchanged by
+  this commit (prose + one diagnostic statistic only); re-verified nothing
+  new was computed that needed these checks.
+- Physical plausibility: fringe-dominated saturation claim independently
+  reconfirmed with real numbers (3.18%/1.05%, grid-stable) — see Deferrable
+  finding.
+- Source attribution: one stale internal citation (Deferrable finding above);
+  no external-source claims changed.
+- Layering: PASS, no physics/computation/parameters leaked into any `.qmd`.
+- Limitations: the axis-convention divergence is now correctly logged in both
+  `_four-zone-3d.qmd` and `_limitations.qmd` §12 — no further limitation
+  needed for that item. Log the §4.7 citation fix (see Suggested correction
+  above) the next time `derivation.md` is touched; not urgent enough to
+  warrant its own pass.
+- Data-driven analysis: this review's own grid sweep (n_grid 30–200, both
+  paths) supports the reconfirmed fraction; no other new quantitative claim
+  in the diff required data support beyond what was already checked.

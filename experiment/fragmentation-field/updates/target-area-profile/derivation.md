@@ -428,4 +428,15 @@ to change in `fragmentation-field.qmd` §6:
    stay finite — the qualitative behaviour the model currently cannot
    produce.
 
+**Status (open, logged 2026-07-19):** item 7 above — the γ-sweep plot and
+the ground-vs-airburst posture ratio — was never added to the notebook.
+Only the two endpoint assertions (γ=0, γ=π/2) exist, as unit tests and as
+point values in `_four-zone-3d.qmd`. This is a documentation/data-support
+gap, not a numerics defect: `updates/target-area-profile/review.md`
+independently reproduced the intended crossover via a scratch script
+against `compute_frag_field_3d` ($R\_{50}$(standing)=28 m vs
+$R\_{50}$(prone)=14 m at $h_b$=0.5 m, crossing to 12 m vs 18 m at
+$h_b$=20 m) and confirmed the physics is correct even though the notebook
+does not show it. Remains open for a future presentation pass.
+
 No changes to drag, Mott, Gurney, or $P\_{k|\\text{hit}}$ are required.

@@ -171,6 +171,20 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   lobed structure are valid.
 - **Base equivalent-column $C^b_\text{eff}$** convention (derivation
   §3.3) is a geometric approximation, not literature-sourced.
+- **Single-zone legacy path retains a `sinΘ` term for notational parity,
+  with an error bound that grows with the spray half-angle δ.** The
+  Family-A geometry factor in the single-zone legacy path
+  (`_expected_kills_3d_point`/`_expected_kills_3d_vec`) keeps the field
+  point's own polar-angle `sinΘ` term to match the pre-3D width-based
+  formula (target-area-profile derivation §4.1.2), rather than the pure
+  inverse-square form. Its deviation is `1/sin(90°−δ)−1`: 3.5 % at the
+  app's default δ = 15°, rising to ≈15.5 % at the app's maximum
+  δ = 30° (`spray_half_angle` slider). This is a proportional scaling of
+  off-belt-centre cells only — no qualitative reversal of field shape or
+  $R_{50}$ — and applies **only** to the single-zone ("legacy") path; the
+  four-zone Family-A path (`_four_zone_familyA_eval`) divides by the
+  fixed per-zone spray angle `sin(theta_z)` instead and does not carry
+  this error at all.
 - **AoF-resolved validation data** is not present in any of BRL 126,
   NWC TP 7124, or SAND92-0243. The four-zone lobed structure is a
   qualitative prediction (forward density > rearward at AoF < 90°) that

@@ -35,7 +35,8 @@ experiment/
       <change-slug>/
         scoping.md            ← problem, options, literature audit, recommendation
         derivation.md         ← math + unit checks + self-consistency
-        review.md             ← optional, written by @model-reviewer
+        review.md             ← REQUIRED after every review pass, written by
+                                @model-reviewer (appended on re-review)
 ```
 
 - `challenges/` are permanent — they publish a verdict that informs readers.
@@ -105,9 +106,14 @@ result into the main `.qmd`. **Each change covers exactly one model aspect**
 1. Main agent reviews scoping. If approved, delegate @modeler **derivation
    pass** → writes `derivation.md` (math, unit checks, self-consistency).
    Return.
-1. Delegate to @model-reviewer → writes `review.md` (or returns inline) with
+1. Delegate to @model-reviewer → writes `review.md` with
    PASS / PASS-with-limitations / FAIL and tagged findings (Blocking /
-   Deferrable / Note, each with an impact estimate).
+   Deferrable / Note, each with an impact estimate), and returns a summary.
+   An inline-only verdict is not a completed review pass. **On return, the
+   main agent verifies `review.md` exists on disk** — a background dispatch
+   can silently drop the write (see subagent-harness gotchas); if it is
+   missing, the main agent persists the returned review verbatim to
+   `review.md` before acting on the verdict.
 1. **PASS-with-limitations is a terminal verdict, not a FAIL** — the next
    @modeler pass logs the listed limitation entries (derivation assumptions
    and/or `_limitations.qmd`) as part of its normal work; no re-review of
