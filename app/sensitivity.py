@@ -54,65 +54,70 @@ with st.sidebar:
         )
         st.caption(tier_label)
 
-    with st.expander("Shell & Explosive", expanded=True):
-        filler_name = st.selectbox(
-            "Filler type",
-            list(FILLERS.keys()),
-            index=list(FILLERS.keys()).index(preset.filler.name),
-        )
-        filler = FILLERS[filler_name]
-        mass_total = st.slider(
-            "Total projectile mass  [kg]", 5.0, 50.0, float(preset.mass_total), step=0.1
-        )
-        mass_filler = st.slider(
-            "Filler mass  [kg]", 0.5, 12.0, float(preset.mass_filler), step=0.05
-        )
-        caliber_mm = st.slider(
-            "Caliber  [mm]", 75.0, 155.0, float(preset.caliber * 1e3), step=1.0
-        )
-        wall_t_mm = st.slider(
-            "Wall thickness  [mm]", 5.0, 25.0, float(preset.wall_t * 1e3), step=0.5
+    # Parameter widgets live in a form so dragging/ticking a slider does NOT
+    # rerun the app — everything recomputes once, on Apply.
+    with st.form("params_form", border=False):
+        with st.expander("Shell & Explosive", expanded=True):
+            filler_name = st.selectbox(
+                "Filler type",
+                list(FILLERS.keys()),
+                index=list(FILLERS.keys()).index(preset.filler.name),
+            )
+            filler = FILLERS[filler_name]
+            mass_total = st.slider(
+                "Total projectile mass  [kg]", 5.0, 50.0, float(preset.mass_total), step=0.1
+            )
+            mass_filler = st.slider(
+                "Filler mass  [kg]", 0.5, 12.0, float(preset.mass_filler), step=0.05
+            )
+            caliber_mm = st.slider(
+                "Caliber  [mm]", 75.0, 155.0, float(preset.caliber * 1e3), step=1.0
+            )
+            wall_t_mm = st.slider(
+                "Wall thickness  [mm]", 5.0, 25.0, float(preset.wall_t * 1e3), step=0.5
+            )
+
+        with st.expander("Mott Fragmentation"):
+            gamma = st.slider(
+                "γ (Mott parameter)", 53.0, 80.0, float(preset.steel.gamma), step=1.0
+            )
+            sigma_f = st.slider(
+                "σ_F dynamic flow stress  [MPa]",
+                600.0,
+                1200.0,
+                float(preset.steel.sigma_f / 1e6),
+                step=10.0,
+            )
+            rho_steel = st.slider(
+                "Steel density  [kg/m³]", 7600.0, 8000.0, float(preset.steel.rho), step=10.0
+            )
+
+        with st.expander("Drag"):
+            C_D = st.slider(
+                "C_D (drag coefficient)", 0.40, 0.90, float(DragParams().C_D), step=0.01
+            )
+            rho_air = st.slider(
+                "Air density  [kg/m³]", 0.90, 1.40, float(DragParams().rho_air), step=0.01
+            )
+
+        with st.expander("Burst Geometry"):
+            h_b = st.slider("Burst height  h_b  [m]", 0.0, 20.0, float(BurstParams().h_b), step=0.5)
+            angle_of_fall = st.slider(
+                "Angle of fall  [°]", 0, 90, int(BurstParams().angle_of_fall), step=5
+            )
+            spray_half_angle = st.slider(
+                "Belt half-angle  δ  [°]", 0, 30, int(BurstParams().spray_half_angle), step=1
+            )
+
+        with st.expander("Target"):
+            posture_name = st.radio("Posture", ["Standing", "Prone"], index=0)
+
+        max_radius = st.slider(
+            "Analysis radius  [m]", 40.0, 200.0, 80.0, step=10.0,
+            help="Changing this reruns all field computations.",
         )
 
-    with st.expander("Mott Fragmentation"):
-        gamma = st.slider(
-            "γ (Mott parameter)", 53.0, 80.0, float(preset.steel.gamma), step=1.0
-        )
-        sigma_f = st.slider(
-            "σ_F dynamic flow stress  [MPa]",
-            600.0,
-            1200.0,
-            float(preset.steel.sigma_f / 1e6),
-            step=10.0,
-        )
-        rho_steel = st.slider(
-            "Steel density  [kg/m³]", 7600.0, 8000.0, float(preset.steel.rho), step=10.0
-        )
-
-    with st.expander("Drag"):
-        C_D = st.slider(
-            "C_D (drag coefficient)", 0.40, 0.90, float(DragParams().C_D), step=0.01
-        )
-        rho_air = st.slider(
-            "Air density  [kg/m³]", 0.90, 1.40, float(DragParams().rho_air), step=0.01
-        )
-
-    with st.expander("Burst Geometry"):
-        h_b = st.slider("Burst height  h_b  [m]", 0.0, 20.0, float(BurstParams().h_b), step=0.5)
-        angle_of_fall = st.slider(
-            "Angle of fall  [°]", 0, 90, int(BurstParams().angle_of_fall), step=5
-        )
-        spray_half_angle = st.slider(
-            "Belt half-angle  δ  [°]", 0, 30, int(BurstParams().spray_half_angle), step=1
-        )
-
-    with st.expander("Target"):
-        posture_name = st.radio("Posture", ["Standing", "Prone"], index=0)
-
-    max_radius = st.slider(
-        "Analysis radius  [m]", 40.0, 200.0, 80.0, step=10.0,
-        help="Changing this reruns all field computations.",
-    )
+        st.form_submit_button("Apply", type="primary", use_container_width=True)
 
 # ---------------------------------------------------------------------------
 # Build param structs
