@@ -1,7 +1,7 @@
 ---
 name: model-reviewer
 model: sonnet
-tools: Read, Bash
+tools: Read, Bash, Write
 skills: agent-memory-discipline
 memory: project
 description: >-
@@ -58,7 +58,14 @@ it as *out-of-scope observation* for the main agent to triage separately.
 
 ## Output Format
 
-Return:
+**Write the review to disk, then summarize.** The review artifact is
+required, not optional: write it to the aspect's folder —
+`experiment/<model>/updates/<change-slug>/review.md` for Workflow B (append a
+dated section on re-review), or next to the challenge notebook for
+Workflow A. This is the **only** project file you may write; everything else
+remains read-only. An inline-only verdict does not complete a review pass.
+
+The review (both the file and your returned summary) contains:
 
 - **PASS / PASS-with-limitations / FAIL**
   - FAIL only if at least one Blocking finding exists.
@@ -73,5 +80,6 @@ Return:
 You have a persistent project memory (survives across sessions) — follow the
 **agent-memory-discipline** skill for when to read/write it and what never
 belongs there. Memory enablement auto-grants Write/Edit — use them **only**
-for your own memory directory. Your code-review mandate is unchanged: never
-modify project code or artifacts; return a structured review only.
+for your own memory directory and the single `review.md` artifact described
+in Output Format. Your code-review mandate is unchanged: never modify project
+code, derivations, notebooks, or any other artifact.
