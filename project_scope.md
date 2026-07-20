@@ -2,78 +2,77 @@
 
 ## Goal
 
-Demonstrate how field artillery guns operated in WW2 and what
-impact they had on a battlefield. Scope is limited to a single
-battery conducting HE fire missions.
+Demonstrate how field artillery guns operated in WW2 and what impact they had
+on a battlefield. Scope: a single battery conducting HE fire missions.
 
 ## In Scope
 
 ### Equipment
 
-- **Artillery pieces** — caliber, charge system, elevation limits,
-  rate of fire, low-angle vs. high-angle capability
-- **HE Shells** — single shell type; properties (mass,
-  fragmentation characteristics)
-- **Fuses** — PD, Delay (incl richochet), Time (airburst)
+- **Artillery pieces** — caliber, charge system, elevation limits, rate of
+  fire, low- vs. high-angle capability
+- **HE shells** — single shell type; mass, fragmentation characteristics
+- **Fuses** — PD, Delay (incl. ricochet), Time (airburst)
 
 ### Errors
 
-- **Systematic error** — met conditions, propellant temp, barrel
-  wear, survey error → shifts Mean Point of Impact (MPI)
-- **Random dispersion** — Probable Error (range + deflection),
-  beaten zone geometry
-- **Registration** — correcting systematic error against a known
-  point
+- **Systematic error** — met, propellant temp, barrel wear, survey → shifts
+  Mean Point of Impact (MPI)
+- **Random dispersion** — Probable Error (range + deflection), beaten zone
+- **Registration** — correcting systematic error against a known point
 
-### Firing Technique
+### Firing technique
 
-- **Fire mission chain** — Observer (FO) → FDC → Gun line
-- **Planned fires** — pre-surveyed targets, firing data computed
-  in advance
-- **Observed fires** — FO adjusts rounds onto target in real time
-- **Destruction mission** — precision adjustments to ensure target is hit
-- **Bracketing** — over/short, left/right corrections to walk
-  rounds onto target
-- **Rate of fire** — mission time
+- **Fire mission chain** — Observer (FO) → FDC → gun line
+- **Planned fires** — pre-surveyed targets, firing data computed in advance
+- **Observed fires** — FO adjusts rounds onto target in real time;
+  **bracketing** (over/short, left/right) to walk rounds on
+- **Destruction mission** — precision adjustment until a point target is hit
+- **Rate of fire** → mission time
 
 ### Trajectory
 
-- Modified point-mass ballistics (drag, gravity, charge →
-  range/elevation)
-- High-angle vs. low-angle solutions for same range
-- Time of flight
+- Modified point-mass ballistics (drag, gravity, charge → range/elevation)
+- High- vs. low-angle solutions for the same range; time of flight
 
 ### Impact
 
-- **Blast wave** — overpressure vs. distance, ground vs. airburst
-  profile
-- **Fragmentation field** — fuse-dependent pattern (ground burst
-  vs. airburst), lethal area
-- **Target types** — standing/prone/foxhole infantry, gun crew,
-  soft vehicle (dimensions + hardness)
+- **Blast wave** — overpressure vs. distance; ground vs. airburst profile
+- **Fragmentation field** — fuse-dependent pattern, lethal area
+- **Fortification destruction** — penetration/damage of earth, timber, and
+  concrete works (empirical formulas, discrete damage states)
+- **Target types** — standing/prone/foxhole infantry, gun crew, soft vehicle
+  (dimensions + hardness threshold)
 - **Cover** — foxhole, trench, bunker, reverse slope
 
 ## Deferred / Out of Scope
 
+- **Armor — permanently out.** No steel plate, no kinetic AP penetrators, no
+  vehicles as hard targets (anti-armor firewall: `expansion-scope.md`,
+  Track C)
+- **Direct laying** — deferred; no new machinery once ballistics + LOS +
+  point-target damage exist, but needs empirical hit-probability data
 - Smoke, incendiary, illumination, shrapnel, canister (may add later)
-- Direct fire (may add later)
-- AP / HEAT (No anti-armor action)
-- Time on Target (TOT)
-- Battalion-level or multi-battery coordination
+- Time on Target; battalion/multi-battery coordination
 
 ## Tool Flow
 
-- **Scenario inputs** - who, what, where, how
-- **instrumentation** - logs for what exactly happens, including simulation of adjustments, orders and observations
-- **mission visualization** - impact areas with effects on a map
-- **learning tools visualization** - frag field/mine action, trajectories
+- **Scenario inputs** — who, what, where, how
+- **Instrumentation** — event log of orders, shots, observations, adjustments
+- **Mission visualization** — impact areas with effects on a map
+- **Learning tools** — frag field, blast, trajectories
 
-## Phase 1 MVP (in progress)
+## Roadmap
 
-### Fragmentation Field
+Phase 1 (fragmentation field: physics models for fragment count, field
+shape, fragment energy, target hit/casualties + demo app) is in progress.
+The expansion — HLD, options, risks — lives in **`expansion-scope.md`**:
 
-- establish physics model needed for calculating number of fragments;
-- establish physics model needed for calculating shape of frag field;
-- establish physics model needed for calculating energy of fragments at different points of trajectory;
-- establish physics model needed for calculating target hit/casulties;
-- demo app to diplay the outcome given the parameters;
+- **Track A** — fire missions: ballistics, fuses, dispersion/error budget,
+  multi-shell effects aggregation, FO/FDC choreography (Phases 2a, 2d, 2e)
+- **Track B** — terrain: analytic surfaces → DEM relief, fragment masking,
+  map visualization (Phases 2b, 2c)
+- **Track C** — fortification destruction & blast, extended target
+  catalogue (Phase 2f)
+- **Track D** — scenario capstone integrating all tracks (Phase 3),
+  grown as a walking skeleton from Phase 2a
