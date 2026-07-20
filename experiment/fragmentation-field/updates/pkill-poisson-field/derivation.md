@@ -290,9 +290,17 @@ under the eq. 22′ inverse-square geometry) so that **most lethal cells sit at
 The notebook pass measured this directly at the representative burst geometry
 (AoF = 30°, `h_b = 2 m`, `z = 0`): only **~3 % (single-zone) / ~1 % (four-zone)
 of lethal-field cells clear `P_k > 0.95`** — the map is fringe-dominated, with
-full saturation (`λ ≫ 1`) confined to a small near-burst core
-(`_pkill-field.qmd`; @model-reviewer's independent re-check of the same
-geometry confirms the ~1–3 % figure).
+full saturation (`λ ≫ 1`) confined to a small near-burst core. The frozen-`A_ref`
+point transform this figure describes (`P_k = 1 − exp(−ρ_L·A_ref)`) is
+implemented in `pkill_volume_3d`/`four_zone_pkill_volume`'s `z = 0` slice and
+is what the app's interactive 3-D `P_k` volume view (`fig_pkill_volume`)
+renders; `_pkill-field.qmd` was subsequently rewritten by the
+`target-height-intercept` aspect (v0.5.1) for a different ground-column
+computation and no longer carries this figure. The `~3 %/~1 %` numbers were
+independently reconfirmed at this geometry, grid-stable over `n_grid = 30–200`,
+as **3.18 % (single-zone) / 1.05 % (four-zone)** in
+`updates/pkill-poisson-field/review.md`'s 2026-07-19 delta review — that
+review is the citable artifact for this figure.
 
 **Correction to an earlier paper estimate.** An initial estimate here
 anticipated a *mostly-saturated* map — `P_k ≈ 1` over "most of the spatial

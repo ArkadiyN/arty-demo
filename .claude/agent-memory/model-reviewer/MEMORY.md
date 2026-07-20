@@ -17,3 +17,5 @@
 - [Grid threshold-fraction aliasing](ground_grid_threshold_fraction_aliasing.md) — sweep n_grid before trusting a printed % near a hard cutoff
 - [Onset formula typo pattern](pkill_field_qmd_onset_formula_typo.md) — evaluate inline .qmd prose formulas numerically against printed stats
 - [Volume penumbra per path](pkill_volume_penumbra_is_outer_not_near_burst.md) — single-zone near-binary, four-zone genuinely graded; recompute per path
+- [Family-A sinΘ bound](family_a_sinTheta_notation_relic.md) — quantifies the known legacy sinΘ quirk: 1/sin(90°−δ)−1, ~15.5% at δ=30°; single-zone path only
+- [Cross-aspect notebook citation staleness](cross_aspect_notebook_citation_staleness.md) — a later aspect's .qmd rewrite can strand another derivation's citation even when the claim stays true

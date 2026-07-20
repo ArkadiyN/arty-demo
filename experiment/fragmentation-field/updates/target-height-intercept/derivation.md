@@ -245,12 +245,23 @@ steep-integrand corner (§5.3) but is no longer load-bearing.
 
 The one place `n_seg=9` could under-resolve is a column passing **very close to
 the burst** (`r→0` with `h_b∈[0,h]`), where the belt segment shrinks toward
-`z=h_b` and the `1/s^2 ~ 1/(r^2+ζ^2)` spreading peaks inside it. The peak is
-integrable over the finite segment and the exact `s→0` singularity is bounded by
-the kernel's `s_floor` guard; the segment also narrows as `r→0`, so `λ→0`
-continuously (no spurious spike). Still, for the near-ground-zero column the
-`n_seg`-doubling check should be honoured and `n_seg` raised if it does not
-settle. This is the correct residual caveat — see A4 in §7.
+`z=h_b` and the `1/s^2 ~ 1/(r^2+ζ^2)` spreading peaks inside it. In this
+sub-case `λ` does **not** decay to zero — the segment width narrows as
+`r·tanδ` but `s≈r` throughout it, so the integrated density scales as
+`~1/r` and `λ` **diverges** as `r→0` (confirmed numerically in review:
+`λ(r=0.05)≈4880`, `λ(r=0.10)≈2438`, `λ(r=1.0)≈240`, an almost-exact `1/r`
+scaling — see `updates/target-height-intercept/review.md`). The `s_floor`
+guard bounds the exact `s→0` singularity, and the divergence is harmless in
+practice: `P_k=1−e^{−λ}` saturates to `1.0` for any `λ` beyond a few units,
+and the review's independent `n_seg=9`-vs-`n_seg=999` sweep over
+`r=0.05,…,2.0` m in this exact configuration found the relative quadrature
+error flat at `~0.026–0.027%` with no growth toward `r=0` — the segment's
+near-constant `s≈r` (varying only by `1/cosδ≈1.035`) keeps the integrand
+effectively flat regardless of its absolute size, so midpoint handles it
+fine at `n_seg=9` with no doubling needed. (The `λ→0` behaviour originally
+described here belongs to the *other* case worked in §6.3 — `h_b∉[0,h]`,
+where the column never reaches the belt near `r=0`.) This is the correct
+residual caveat — see A4 in §7.
 
 - **m_min table.** `m_\min(s)` depends only on slant range `s`, not on which `z`
   produced it, so one `s_grid`/`m_\min` table covering the whole `[0,h]` column
@@ -406,9 +417,14 @@ an *explicit* ray-vs-segment intercept (eq. 5), replacing the implicit
   `O(1/n_seg)` (`-5.4%` at `n_seg=9`; §5.2, §5.4). Midpoint is `<0.005%` accurate
   at `n_seg=9` across a dense `r`-sweep (§5.4, table). The **residual** risk is the
   near-ground-zero column (`r→0`, `h_b∈[0,h]`): the `1/s²` spreading peaks inside
-  a shrinking belt segment; the `s_floor` guard bounds the `s→0` singularity and
-  `λ→0` continuously, but `n_seg` should be raised there if a doubling check does
-  not settle (§5.3). A secondary risk is that the belt-edge sharpness itself is a
+  a shrinking belt segment, and `λ` actually **diverges** as `~1/r` there (not
+  `→0` as an earlier draft of this note stated — that decay belongs to the
+  `h_b∉[0,h]` case in §6.3); the `s_floor` guard bounds the `s→0` singularity.
+  The divergence is moot in practice: `P_k` saturates to `1.0` well before it
+  matters, and review measured `n_seg=9` midpoint accuracy staying flat at
+  `<0.03%` across `r=0.05,…,2.0` m in this exact regime — no `n_seg`-doubling
+  is needed (§5.3, confirmed in `updates/target-height-intercept/review.md`).
+  A secondary risk is that the belt-edge sharpness itself is a
   *modelling* artifact of the hard `0/1` cutoff — a physical belt has a soft
   angular falloff — so `P_k` right at the inner ring edge is only as crisp as that
   cutoff; this is inherited from the `ρ_L` kernel, not introduced here.

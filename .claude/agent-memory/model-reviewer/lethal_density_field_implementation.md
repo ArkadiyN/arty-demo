@@ -13,7 +13,8 @@ Full numeric re-verification of the ρ_L(x,y,z) implementation lives in
 polar angle) instead of `sinθ^z` (the zone's). The new
 `lethal_density_point` and four-zone paths are correct. Any proposal to
 reconcile or delete the legacy function carries this known defect — don't
-assume it's already fixed.
+assume it's already fixed. Exact error bound (`1/sin(90°−δ)−1`, ~15.5% at
+δ=30°): [[family-a-sintheta-notation-relic]].
 
 **Latent footgun:** `np.interp(s, s_grid, mmin_grid)` silently clips past
 `s_grid[-1]`, understating m_min. `lethal_density_point` has no bounds check;
