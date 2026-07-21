@@ -19,7 +19,12 @@ repos:
         language: system
         entry: uv run mdformat --extensions gfm --extensions frontmatter
         types: [markdown]
-        exclude: '\.claude/agent-memory/'
+        # These paths embed LaTeX math (subscripts, \cdot, etc.) that mdformat
+        # corrupts (escapes underscores, doubles backslashes) — same class of
+        # bug already worked around for .qmd via .mdformat-ignore, but that
+        # file only applies to mdformat's own directory-mode discovery, not
+        # to files pre-commit passes explicitly, hence the exclude here too.
+        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$'
 
       - id: detect-secrets
         name: detect-secrets

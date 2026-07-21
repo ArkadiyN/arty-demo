@@ -21,14 +21,23 @@ ______________________________________________________________________
 
 The per-zone geometry factor is:
 $$
-g^z = \\frac{A_p(\\gamma, \\text{posture})}{2\\pi s^2 \\cdot 2\\sin\\theta^z \\cdot \\delta}
+g^z = \\frac{A_p(\\gamma(z_{rep}), \\text{posture})}{2\\pi s(z_{rep})^2 \\cdot 2\\sin\\theta^z \\cdot \\delta}
 $$
-where $\\delta$ is the spray-belt half-width (default 15°), $s$ is slant range,
-and $A_p(\\gamma, \\text{posture})$ uses the arrival elevation angle $\\gamma = \\arcsin(h_b/s)$.
+where $\\delta$ is the spray-belt half-width (default 15°), $s(z_{rep})$ is the slant
+range from the burst to height $z_{rep}$ on the target column at ground point
+$(x_g, y_g)$, and $A_p(\\gamma(z_{rep}), \\text{posture})$ uses the arrival elevation
+angle $\\gamma(z_{rep}) = \\arcsin\\big((h_b - z_{rep})/s(z_{rep})\\big)$.
 
-A ground point at `(x_g, y_g)` receives a contribution from zone $z$ only when the
-polar angle $\\Theta\_\\text{burst}$ from the shell axis to that ground point lies within
-$\\delta$ of $\\theta^z$ (spray-belt acceptance test).
+$z_{rep}$ is a **representative illuminated height on the target column**
+`[0, h]` (`h` = posture height) at $(x_g, y_g)$ — the lower edge of the lowest
+belt-active sub-interval of `[0, h]`, found via `belt_column_breakpoints`
+(`arty.fragmentation`) — **not** the fixed ground ray `z = 0`. A ground point
+receives a contribution from zone $z$ only when the spray belt intersects the
+column, `belt ∩ [0, h] ≠ ∅` (spray-belt acceptance test evaluated against the
+whole column, not a single ray at the feet). When the belt already reaches the
+feet (`z = 0` is itself belt-active — e.g. far enough downrange, or a high
+burst), `z_{rep} = 0` and the formula reduces exactly (to floating-point
+round-off) to evaluating on the feet ray, preserving the pre-fix result there.
 
 #### Scenario: Forward sector dominated by ogive
 

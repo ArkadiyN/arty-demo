@@ -23,3 +23,16 @@ Post-fix split: the ground field is posture-coupled via the column integral;
 `pkill_volume_3d` stays a point diagnostic at fixed `A_REF_DEFAULT`,
 posture-independent by design. Derivation:
 `updates/target-height-intercept/derivation.md`.
+
+**Family-A false-safe fix is NOT a column integral (trap).** Family-A's
+`presented_area(γ)=w_perp(h·cosγ + d·sinγ)` ALREADY encodes the target's
+vertical extent (h·cosγ frontal + d·sinγ top-down) as a lumped scalar.
+Family-B was missing height *in the silhouette* (hence its ∫₀ʰ ρ_L dz fix);
+Family-A is missing height *only in the field geometry* — it reads s,γ,cosΘ
+and the belt gate along the ray to z=0 (the feet). So the Family-A fix
+relocates the evaluation to the illuminated column height (reuse
+`belt_column_breakpoints`), keeping the graded A_p·pk_given_hit kernel; a
+naive ∫₀ʰ A_p(γ)…dz would DOUBLE-COUNT h. The two families are dual
+tradeoffs: Family-A resolves graded energy/obliquity but lumps vertical flux;
+Family-B resolves vertical flux but uses a binary lethal-mass cut. Scoping:
+`updates/familyA-false-safe-zone/scoping.md`.

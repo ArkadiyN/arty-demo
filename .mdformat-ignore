@@ -1,3 +1,8 @@
 # Quarto notebooks contain LaTeX math blocks that mdformat corrupts
 # (doubles backslashes, strips \, thin-space, escapes subscript underscores)
 *.qmd
+
+# Model derivation/review docs and openspec specs also embed LaTeX math
+# and hit the same corruption (e.g. z_{rep} -> z\_{rep}); same fix as above.
+experiment/**/updates/**/*.md
+openspec/specs/**/*.md

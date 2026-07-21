@@ -9,7 +9,7 @@
 - [P_k Poisson vs ES-310](pkill_poisson_eslevel_mismatch.md) — eq(1) is the Pk|hit→1 limit; must be disclosed as a second, separate simplification
 - [Qualitative claims need numbers](derivation_qualitative_claims_need_numeric_check.md) — compute the actual fraction; one spot-check point proves nothing
 - [z-quadrature belt discontinuity](z_quadrature_belt_discontinuity.md) — column integrals of ρ_L cross a hard 0/1 cutoff; require a real convergence table or analytic piecewise
-- [Piecewise quadrature boundary sampling](piecewise_quadrature_boundary_evaluation.md) — sampling AT analytic roots is fp-fragile; require midpoint/interior nodes
+- [Piecewise quadrature boundary sampling](piecewise_quadrature_boundary_evaluation.md) — sampling AT analytic roots is fp-fragile; require midpoint/interior nodes; also recurs for single representative-point selection, not just quadrature
 - [Quadratic root cancellation near A=0](quadratic_root_cancellation_near_A_zero.md) — belt-edge quadratic needs the stable form; probe angle_of_fall near spray_half_angle
 - [numpy trapz removed](numpy_trapz_removed.md) — use np.trapezoid in verification scripts
 - [Belt-edge K generalization](belt_edge_K_generalization_confirmed.md) — K=cosθ^z±sinδ confirmed sound; AoF=90° symmetry masks axis bugs, retest asymmetric
@@ -19,3 +19,4 @@
 - [Volume penumbra per path](pkill_volume_penumbra_is_outer_not_near_burst.md) — single-zone near-binary, four-zone genuinely graded; recompute per path
 - [Family-A sinΘ bound](family_a_sinTheta_notation_relic.md) — quantifies the known legacy sinΘ quirk: 1/sin(90°−δ)−1, ~15.5% at δ=30°; single-zone path only
 - [Cross-aspect notebook citation staleness](cross_aspect_notebook_citation_staleness.md) — a later aspect's .qmd rewrite can strand another derivation's citation even when the claim stays true
+- [Family-A false-safe-zone derivation+impl](familyA_false_safe_zone_derivation_fail.md) — pass1 derivation FAILED (fp coin-flip), pass2 derivation PASSED, pass3 src/ impl PASSED (four-zone reduction test gap + undocumented 1e-3→1e-6 guard, both non-blocking)

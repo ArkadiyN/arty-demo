@@ -214,32 +214,57 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   fix is to replace the hard acceptance test with a smooth angular weight
   (e.g., Gaussian in polar angle), which also correctly handles overlap
   between adjacent zones.
-- **False safe zone at steep angle of fall — fixed in v 0.5.1.** The
-  ground $P_k$ field previously sampled the lethal-fragment density
-  $\rho_L$ on the $z = 0$ plane alone. A person is a *vertical* target, so
-  a near-horizontal spray belt that crosses chest and head height but never
-  descends to the ground close in was scored $P_k = 0$ — a spurious inner
-  "safe ring." The effect was most severe at steep AoF: at AoF = 90° the
-  cylinder belt sprays horizontally at burst height and never reaches
-  $z = 0$ within several metres, so the model showed a false safe zone
-  where a standing soldier would in reality be struck at chest height.
+- **False safe zone at steep angle of fall — fixed (Family B v 0.5.1,
+  Family A v 0.6.0).** Both ground-field pathways previously read the
+  fragment field on the $z = 0$ ground plane alone. A person is a
+  *vertical* target, so a near-horizontal spray belt that crosses chest and
+  head height but never descends to the ground close in was scored
+  $P_k = 0$ — a spurious inner "safe ring." The effect was most severe at
+  steep AoF: at AoF = 90° the cylinder belt sprays horizontally at burst
+  height and never reaches $z = 0$ within several metres, so both fields
+  showed a false safe zone where a standing soldier would in reality be
+  struck at chest height. Both are now fixed, but the two families had
+  *different* defects and took different fixes.
 
-  This is now fixed. The ground field forms the mean lethal-hit count by
-  integrating $\rho_L$ over the whole column the body occupies,
-  $\lambda = w_\perp\!\int_0^{h}\!\rho_L(x,y,z)\,dz$ (§*Point Kill
-  Probability*, eq. 23; derived at
-  `updates/target-height-intercept/derivation.md`), so $P_k$ fires
-  wherever the belt illuminates any height the target spans. At the
-  defect config (AoF = 90°, $h_b = 2$ m, standing) the false-safe ring
-  that was formerly $P_k = 0$ is now lethal (the innermost true dead zone,
-  $r\lesssim1.1$ m directly under the burst where the belt passes overhead,
-  correctly remains $P_k\approx0$), and reading $(w_\perp, h)$
-  live re-couples posture — a standing target is correctly more exposed
-  than a prone one near a low high-angle burst. The remaining
+  *Family B — the $\rho_L\!\to\!$ Poisson ground field (v 0.5.1).* It
+  sampled the lethal-fragment density $\rho_L$ on the $z=0$ plane. The fix
+  forms the mean lethal-hit count by integrating $\rho_L$ over the whole
+  column the body occupies, $\lambda = w_\perp\!\int_0^{h}\!\rho_L(x,y,z)\,dz$
+  (§*Point Kill Probability*, eq. 23; derived at
+  `updates/target-height-intercept/derivation.md`), so $P_k$ fires wherever
+  the belt illuminates any height the target spans. Its remaining
   approximation is frontal projection only ($\gamma = 0$; no obliquity
-  $\cos\gamma$ and no top-down footprint), which leaves prone exposure
-  under steep arrival *conservative-low* — a documented refinement
-  (derivation §4, §7 A1), not the false-safe artefact.
+  $\cos\gamma$ and no top-down footprint), which leaves prone exposure under
+  steep arrival *conservative-low* (derivation §4, §7 A1).
+
+  *Family A — the graded $A_p(\gamma)\cdot P_{k\|\text{hit}}(E)$ heatmaps
+  (the headline single-zone and four-zone $P_\text{kill}$ maps, their
+  difference map, and the cross-section slices; v 0.6.0).* Here the lumped
+  presented area $A_p(\gamma) = w_\perp(h\cos\gamma + d\sin\gamma)$
+  *already* carried the target's vertical extent, so the defect was
+  narrower: only the **belt gate and arrival geometry** $(s,\gamma,\cos\Theta)$
+  were sampled along the feet ray to $z = 0$, zeroing the whole cell when
+  the near-horizontal belt failed the $z=0$ gate close in — even though the
+  belt crossed the ray to chest/head. The fix relocates *where* the graded
+  kernel is read: a cell now fires when the belt illuminates any part of the
+  column $[0,h]$ (reusing the same belt-edge quadratic, eq. 5), and
+  $(s,\gamma,\cos\Theta,A_p,E)$ are evaluated at that illuminated height,
+  leaving the graded $A_p(\gamma)\cdot P_{k\|\text{hit}}(E)$ weighting —
+  and the diff map and per-zone attribution — exactly intact (derived at
+  `updates/familyA-false-safe-zone/derivation.md`). It reduces to the shipped
+  value on every cell where the belt already reaches the feet. Its remaining
+  approximation is the *dual* of Family B's: the full lumped $A_p$ is scored
+  whenever *any* part of the column is lit, so a thin grazing-band
+  (head-only) strike is counted at the full standing silhouette — a bounded,
+  *conservative-high* over-count confined to the thin inner ring
+  (derivation §7 A1), the safe error direction.
+
+  In both families the innermost true dead zone —
+  $r\lesssim (h_b-h)/\tan\delta$ directly under the burst, where even the
+  top of the head sits below the belt's lowest ray — correctly remains
+  $P_k\approx0$, and reading $(w_\perp, h)$ live re-couples posture: a
+  standing target is correctly more exposed than a prone one near a low
+  high-angle burst.
 
   Note this is a distinct issue from the `fragment_ground_impact`
   acceptance test ($v_{gz} < 0$, i.e. $\sin(\mathrm{AoF}+\theta_z) > 0$),
