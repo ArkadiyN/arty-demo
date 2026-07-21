@@ -119,7 +119,10 @@ result into the main `.qmd`. **Each change covers exactly one model aspect**
    and/or `_limitations.qmd`) as part of its normal work; no re-review of
    those entries is needed.
 1. If FAIL: at most **two** fix cycles (@modeler fix → @model-reviewer
-   re-review, scoped to the flagged items only). Still FAIL after two cycles →
+   re-review, scoped to the flagged items only). **Each fix and each re-review
+   is a new dispatch** — the fix @modeler and the re-review @model-reviewer are
+   fresh instances briefed from `review.md`, never the same instances continued
+   via `SendMessage` (agents-routing.md Gate 4). Still FAIL after two cycles →
    stop looping; the main agent triages each open item — convert to a logged
    limitation, or escalate to the human with the reviewer's impact estimates.
    Do not silently start a third cycle.
@@ -183,7 +186,13 @@ in every pass:
 1. Notebook presentation → @modeler edits the `.qmd`/partial to import from
    `arty`, render, add the change-log entry, and re-render → return.
 
-Parent agent reviews each return before sending the next task.
+Parent agent reviews each return before sending the next task. Each numbered
+step above is a **fresh `Agent` dispatch** — "→ return" means that instance is
+finished. **Never continue a modelling agent with `SendMessage` to move it to
+the next step or hand it review findings** (agents-routing.md Gate 4): that
+defeats the per-invocation context reset and grows one unbounded window. The
+next pass reads the artifacts (`scoping.md` / `derivation.md` / `review.md`),
+not the prior instance's live thread.
 Include file paths in each prompt, not conversation summaries.
 
 ## Briefing subagents — problems, not solutions

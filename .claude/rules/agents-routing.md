@@ -67,6 +67,41 @@ The "let me read the implementation" reflex *is* the trigger, not an exception.
 On a defect, @modeler fixes via the normal passes; @model-reviewer then
 independently verifies — the modeler never signs off on its own correction.
 
+## Gate 4 — One dispatch per pass (never thread an instance)
+
+**Invariant:** every @modeler / @model-reviewer pass is a **fresh `Agent`
+dispatch**. Once an agent returns, that instance is **done** — never continue
+it with `SendMessage` to move it to the next step, feed it review findings, or
+ask for a revision. The next pass (including every fix / re-review cycle in
+Workflow B) starts a **new** instance, briefed from the durable artifacts
+(`scoping.md`, `derivation.md`, `review.md`), never from the prior instance's
+live context.
+
+**Trigger (litmus):** you are about to `SendMessage` a modelling agent, or
+reply to one that is still open, to advance the workflow. That is the
+violation — stop, let it return, and dispatch the next pass fresh with a brief
+that points at the artifacts.
+
+**Why it matters (the top token-waste failure mode — and it's input-side, not
+output):** the cost of a threaded instance is not the cheap per-turn cache
+reads — it is **window size**. A threaded window grows every pass and is (a)
+re-read each turn and (b) **fully re-written at the 1.25× cache-write tier on
+every resume once the ~5-min cache TTL has lapsed**. On the Pro plan those
+resumes are *structural* — the usage cap parks the session for hours between
+turns, unavoidably — so the only lever left is the **size** of the window each
+resume re-caches. Fresh-per-pass caps that at one pass (~40k, reloaded from the
+compact `derivation.md`) instead of the whole accreted workflow. One incident
+threaded a single modeler across five passes to a **~268k window**; ~84% of its
+cache-write cost was full-window idle re-caches (74k → 125k → 175k → 268k as it
+grew) — re-dispatching fresh roughly halves the run. Output is intrinsic work
+(derivation + review cycles) and is unaffected either way. Threading also
+resets `maxTurns` on every message, removing the last turn-count guard.
+Mechanism detail: `.claude/rules/subagent-harness.md`.
+
+**The only `SendMessage` to a modelling agent that is ever allowed** is none
+for workflow progression. A pass that returns with an open question is
+answered by folding the answer into the *next* fresh dispatch's brief.
+
 ## Model tier per pass
 
 @modeler defaults to Opus; an oversized or wasted Opus pass is the most
@@ -86,6 +121,8 @@ expensive failure mode in this project. When dispatching, override the model
   invocation.
 - **@model-reviewer** — after every modeler pass; also checks that no physics,
   computation, or parameter values leaked into a `.qmd`.
+- **Every pass is a fresh dispatch** — never continue a modelling agent via
+  `SendMessage` to advance the workflow (Gate 4).
 
 Steps, sequencing, artifact paths, and briefing litmus tests: load the
 **model-workflow** skill.

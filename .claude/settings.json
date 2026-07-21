@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check_agent_memory.py"
+            "command": "bash -c 'for r in \"$(git rev-parse --show-toplevel 2>/dev/null)\" \"$CLAUDE_PROJECT_DIR\"; do s=\"$r/.claude/hooks/check_agent_memory.py\"; if [ -f \"$s\" ]; then exec python3 \"$s\"; fi; done'"
           }
         ]
       }
