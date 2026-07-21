@@ -30,6 +30,7 @@ from arty.fragmentation import (
     ShellParams,
     SteelParams,
     _FAMILY_A_CHUNK,
+    _belt_column_zrep_vec,
     _forward_shell_axis,
     _pkill_columns_vec,
     build_mmin_table,
@@ -463,11 +464,19 @@ def _four_zone_familyA_eval(
 ) -> tuple[np.ndarray, dict[str, np.ndarray]]:
     """Vectorised Family-A expected-lethal-hit count on ground points (xg, yg).
 
-    ``xg, yg`` are 1-D arrays [m] of equal length (ground plane, z = 0).
-    Returns ``(field_N, field_N_by_zone)`` matching the per-cell loops of
-    ``_four_zone_field_split`` / ``four_zone_line_split`` (belt gate, graded
-    A_p·pk kernel); the mass integral is evaluated exactly on the in-belt cells
-    (bit-for-bit as the per-cell trapezoid), not interpolated in s.
+    ``xg, yg`` are 1-D arrays [m] of equal length (ground column feet at z = 0).
+    Returns ``(field_N, field_N_by_zone)`` for the graded ``A_p(γ)·pk_given_hit``
+    belt kernel; the mass integral is evaluated exactly on the lit cells (not
+    interpolated in s).
+
+    Each zone's belt is evaluated at the lowest column height it lights,
+    ``z_rep`` (derivation §2/§3.1), rather than the false-safe ground plane
+    ``z = 0``: a standing/prone target is struck wherever a zone's belt crosses
+    any height it spans. cosΘ enters only the belt gate, which is replaced here by
+    :func:`_belt_column_zrep_vec` membership, so the four-zone magnitude needs no
+    cosΘ and is coin-flip-free by construction (§3.1). At feet-lit cells
+    ``z_rep = 0`` and each zone reduces to the shipped z=0 kernel to floating-point
+    round-off (§4).
     """
     xg = np.asarray(xg, dtype=float)
     yg = np.asarray(yg, dtype=float)
@@ -475,22 +484,8 @@ def _four_zone_familyA_eval(
     by_zone = {name: np.zeros_like(xg) for name in _ZONE_NAMES}
 
     aof = np.radians(aof_deg)
-    cA, sA = np.cos(aof), np.sin(aof)
     delta = np.radians(delta_deg)
-    sin_delta = np.sin(delta)
-
-    s = np.sqrt(xg**2 + yg**2 + h_b**2)
-    valid = s >= 1e-3
-    if not np.any(valid):
-        return field_N, by_zone
-    # Belt polar cosine cosΘ = (x cosα + h_b sinα)/s (forward axis (cosα,0,−sinα),
-    # ground point (x, y, −h_b)); guard the divide on the invalid (s→0) cells.
-    s_safe = np.where(valid, s, 1.0)
-    cos_Theta = (xg * cA + h_b * sA) / s_safe
-    # Exact per-cell geometric + presented-area factor (shared across zones bar
-    # the 1/sinθ^z scaling): A_p(arcsin h_b/s) / (2π s² · 2 δ).
-    gamma = np.arcsin(np.clip(h_b / s_safe, -1.0, 1.0))
-    geom = presented_area(gamma, posture) / (2.0 * np.pi * s_safe**2 * 2.0 * delta)
+    h = posture.h
 
     zone_list = [("ogive", zones.ogive), ("cylinder", zones.cylinder),
                  ("boattail", zones.boattail), ("base", zones.base)]
@@ -500,14 +495,31 @@ def _four_zone_familyA_eval(
         theta_z = np.radians(z.spray_deg)
         if np.sin(aof + theta_z) <= 0.0:
             continue
-        mask = valid & (np.abs(cos_Theta - np.cos(theta_z)) <= sin_delta)
-        idx = np.nonzero(mask)[0]
+        # Lowest column height this zone's belt lights (forward axis → x_axis=xg).
+        z_rep, lit = _belt_column_zrep_vec(
+            xg, yg, h_b, aof, delta, [float(np.cos(theta_z))], 0.0, h, x_axis=xg,
+        )
+        idx = np.nonzero(lit)[0]
         if idx.size == 0:
             continue
-        # Exact mass integral only on in-belt cells; scatter back.
-        J = _familyA_zone_massintegral(z, drag_lam_grid, m_grid, s[idx])
+        dz = z_rep[idx] - h_b
+        s_z = np.sqrt(xg[idx]**2 + yg[idx]**2 + dz**2)
+        # 1/s² singularity guard, harmonised to the single-zone 1e-6 convention
+        # now that both paths share _belt_column_zrep_vec (was 1e-3 pre-relocation,
+        # when this path sampled only z=0). Harmless: the app consumes the
+        # saturating P_k = 1 − exp(−N), never raw N, so the sub-mm near-burst
+        # column never surfaces a difference.
+        ok = s_z >= 1e-6
+        if not np.any(ok):
+            continue
+        idx = idx[ok]
+        s_z = s_z[ok]
+        # A_p(γ(z_rep)) / (2π s² · 2 δ) · J^z(s) / sinθ^z, evaluated at z_rep.
+        gamma = np.arcsin(np.clip((h_b - z_rep[idx]) / s_z, -1.0, 1.0))
+        geom = presented_area(gamma, posture) / (2.0 * np.pi * s_z**2 * 2.0 * delta)
+        J = _familyA_zone_massintegral(z, drag_lam_grid, m_grid, s_z)
         val = np.zeros_like(xg)
-        val[idx] = J * geom[idx] / np.sin(theta_z)
+        val[idx] = J * geom / np.sin(theta_z)
         field_N += val
         by_zone[name] = val
     return field_N, by_zone

@@ -316,8 +316,15 @@ impact point; rays with $v_{gz} \ge 0$ are drawn as dashed arrows
 annotated "↑ excl." — they never enter the ground-impact model.
 
 At $\text{AoF} = 90°$ the cylinder zone (spray angle $\theta_z = 90°$)
-produces $v_{gz} = 0$ for both $\phi = \pm 90°$, which is why a near-burst
-"safe zone" appears in the four-zone field at steep angles of fall.
+produces $v_{gz} = 0$ for both $\phi = \pm 90°$, so these horizontal rays are
+excluded from this ground-impact *ray/dot* view (it requires $v_{gz} < 0$).
+This is a limit of the ray renderer only: the graded four-zone $P_\text{kill}$
+field itself (§6.7) no longer shows a near-burst "safe zone" at steep angles of
+fall — as of v 0.6.0 its belt gate is evaluated at the height where the belt
+illuminates the standing/prone target column, not on the $z = 0$ feet ray, so a
+horizontal belt at burst height is scored lethal at chest/head height (see the
+Change Log and the false-safe-zone note in §Limitations;
+`updates/familyA-false-safe-zone/derivation.md`).
 
 ```{python}
 fig = plots.fig_zone_elevation(zones_m1, aof_deg=30, h_b=2.0, r_person=30)

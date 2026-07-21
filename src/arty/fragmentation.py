@@ -708,6 +708,82 @@ def _belt_breakpoints_vec(
     return bp
 
 
+def _belt_column_zrep_vec(
+    x: np.ndarray,
+    y: np.ndarray,
+    h_b: float,
+    alpha_rad: float,
+    delta_rad: float,
+    cos_theta_z: list[float] | tuple[float, ...],
+    z_lo: float,
+    z_hi: float,
+    x_axis: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Family-A relocation height ``z_rep`` [m] per ground column (derivation §3.1).
+
+    Returns ``(z_rep, lit)``: for each column, ``z_rep`` is the **lower edge of
+    the lowest belt-active sub-interval** of ``[z_lo, z_hi]`` — the height nearest
+    the feet at which the spray belt illuminates the target column — and ``lit``
+    is True where the belt reaches the column at all. Unlit columns get
+    ``z_rep = 0.0`` (the caller ignores them).
+
+    The graded Family-A kernel is evaluated at ``z_rep`` instead of the ground
+    plane ``z = 0``. The shipped ``z = 0`` sampling was the false-safe defect: a
+    near-horizontal belt that crosses chest/head height but never the feet close
+    in was scored ``P_k = 0``. Taking ``z_rep`` at the *lowest* lit edge makes the
+    relocated field reduce to the shipped kernel (to floating-point round-off, the
+    relocated expression order differing) when the belt reaches the feet
+    (``z_rep = 0``, derivation §4) and join continuously across that
+    boundary.
+
+    Sub-interval membership is tested at the **midpoint** (never an endpoint) —
+    the same interior-sampling guard the column quadrature uses — so no belt-edge
+    0/1 coin-flip enters the *selection*. The caller must still evaluate the
+    kernel at ``z_rep`` coin-flip-free (bypass the kernel's own gate; single-zone
+    uses the analytic belt-edge ``sinΘ`` — derivation §3.1/§8): ``z_rep`` is a
+    genuine belt-edge root wherever ``z_rep > z_lo``, and the interior column
+    bound (feet-lit reduction) wherever ``z_rep == z_lo``.
+
+    x_axis : x fed to the belt geometry (breakpoints + membership). Pass ``x`` for
+             the forward-axis four-zone belts, ``-x`` for the single-zone legacy
+             backward axis (derivation §7 A3). The true ``x`` enters the slant
+             range only through ``x**2``, so ``x_axis = ±x`` leaves ``s``
+             unchanged. Defaults to ``x``.
+    """
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    xb = x if x_axis is None else np.asarray(x_axis, dtype=float)
+    P = x.shape[0]
+    z_rep = np.zeros(P, dtype=float)
+    lit = np.zeros(P, dtype=bool)
+    if delta_rad <= 0.0:
+        return z_rep, lit
+    sin_delta = float(np.sin(delta_rad))
+    cA = float(np.cos(alpha_rad))
+    sA = float(np.sin(alpha_rad))
+
+    bp = _belt_breakpoints_vec(
+        xb, y, h_b, alpha_rad, delta_rad, cos_theta_z, z_lo, z_hi,
+    )
+    za = bp[:, :-1]
+    zb = bp[:, 1:]
+    good = np.isfinite(za) & np.isfinite(zb) & (zb > za)
+    zc = np.where(good, 0.5 * (za + zb), h_b)      # midpoint; padded → h_b (harmless)
+    dz = zc - h_b
+    s = np.sqrt(xb[:, None] ** 2 + y[:, None] ** 2 + dz ** 2)
+    s_safe = np.where(s >= 1e-6, s, 1.0)
+    cos_Theta = (xb[:, None] * cA - dz * sA) / s_safe
+    member = np.zeros_like(good)
+    for c in cos_theta_z:
+        member |= np.abs(cos_Theta - c) <= sin_delta
+    active = good & (s >= 1e-6) & member
+    lit = active.any(axis=1)
+    first = np.argmax(active, axis=1)              # first True per row (0 if none)
+    rows = np.arange(P)
+    z_rep = np.where(lit, za[rows, first], 0.0)
+    return z_rep, lit
+
+
 def _pkill_columns_vec(
     x: np.ndarray,
     y: np.ndarray,
@@ -855,21 +931,38 @@ def _expected_kills_3d_point(
     if delta_rad <= 0.0:
         return 0.0
 
-    s = np.sqrt(x_g**2 + y_g**2 + h_b**2)
+    # Relocate the evaluation to the lowest column height the belt lights, in
+    # place of the false-safe z = 0 sampling (derivation §2/§3.1). Single-zone
+    # legacy kernel is on the backward shell axis, so feed -x to the belt
+    # geometry (§7 A3).
+    z_rep_a, lit_a = _belt_column_zrep_vec(
+        np.array([x_g]), np.array([y_g]), h_b, alpha_rad, delta_rad,
+        [0.0], 0.0, posture.h, x_axis=np.array([-x_g]),
+    )
+    if not bool(lit_a[0]):
+        return 0.0
+    z_rep = float(z_rep_a[0])
+
+    dz = z_rep - h_b
+    s = np.sqrt(x_g**2 + y_g**2 + dz**2)
     if s < 1e-6:
         return 0.0
 
-    e_axis = _shell_axis(alpha_rad)
-    r_vec = np.array([x_g, y_g, -h_b]) / s
-    cos_Theta = np.dot(r_vec, e_axis)
-    if abs(cos_Theta) > np.sin(delta_rad):
-        return 0.0
-
-    sin_Theta = np.sqrt(max(0.0, 1.0 - cos_Theta**2))
+    # sinΘ coin-flip-free: analytic belt-edge value cosδ where z_rep is a genuine
+    # belt-edge root (z_rep > 0); exact interior value at the feet-lit reduction
+    # case z_rep == 0, which reproduces the shipped z=0 kernel to floating-point
+    # round-off (derivation §3.1/§4). The internal belt gate is bypassed — membership is
+    # already decided by _belt_column_zrep_vec.
+    if z_rep > 1e-12:
+        sin_Theta = float(np.cos(delta_rad))
+    else:
+        e_axis = _shell_axis(alpha_rad)
+        cos_Theta = float(np.dot(np.array([x_g, y_g, dz]) / s, e_axis))
+        sin_Theta = np.sqrt(max(0.0, 1.0 - cos_Theta**2))
     if sin_Theta < 1e-9:
         return 0.0
 
-    gamma = np.arcsin(np.clip(h_b / s, -1.0, 1.0))
+    gamma = np.arcsin(np.clip((h_b - z_rep) / s, -1.0, 1.0))
     Ap = presented_area(gamma, posture)
 
     E = 0.5 * m_grid * (V0 * np.exp(-lam * s)) ** 2
@@ -903,11 +996,21 @@ def _expected_kills_3d_vec(
 ) -> np.ndarray:
     """Vectorised single-zone Family-A expected lethal-hit count on (x_g, y_g).
 
-    ``x_g, y_g`` are 1-D ground-point arrays [m] (z = 0). Bit-identical to a
-    per-cell loop over :func:`_expected_kills_3d_point`: the mass integral is
-    evaluated exactly on in-belt cells only, then scaled by the direction-
-    dependent A_p/(2π s²·2 sinΘ·δ) factor (here sinΘ is the point's own polar
-    angle, not a fixed belt sinθ^z). Returns the expected-count array [-].
+    ``x_g, y_g`` are 1-D ground-point arrays [m]. Bit-identical to a per-cell loop
+    over :func:`_expected_kills_3d_point`: the graded belt kernel
+    ``A_p(γ)·pk_given_hit(E)`` is evaluated on the target's vertical column, with
+    the mass integral computed only on lit columns, then scaled by the
+    direction-dependent ``A_p/(2π s²·2 sinΘ·δ)`` factor (here sinΘ is the point's
+    own polar angle, not a fixed belt sinθ^z).
+
+    The evaluation is relocated from the false-safe ground plane ``z = 0`` to the
+    lowest column height the belt lights, ``z_rep`` (derivation §2/§3.1): a
+    standing/prone target is struck wherever the belt crosses any height it spans,
+    not only its feet. sinΘ at ``z_rep`` is the analytic belt-edge value ``cosδ``
+    for a genuine belt-edge root and the exact interior value at the feet-lit
+    reduction case ``z_rep = 0`` (which reproduces the shipped kernel to
+    floating-point round-off, §4) — so no gate coin-flip enters (§3.1). Returns the
+    expected-count array [-].
     """
     x_g = np.asarray(x_g, dtype=float)
     y_g = np.asarray(y_g, dtype=float)
@@ -915,20 +1018,40 @@ def _expected_kills_3d_vec(
     if delta_rad <= 0.0:
         return out
 
-    s = np.sqrt(x_g**2 + y_g**2 + h_b**2)
-    e_axis = _shell_axis(alpha_rad)
-    s_safe = np.where(s >= 1e-6, s, 1.0)
-    cos_Theta = (x_g * e_axis[0] + (-h_b) * e_axis[2]) / s_safe
-    sin_Theta = np.sqrt(np.maximum(0.0, 1.0 - cos_Theta**2))
-    mask = (s >= 1e-6) & (np.abs(cos_Theta) <= np.sin(delta_rad)) & (sin_Theta >= 1e-9)
-    idx = np.nonzero(mask)[0]
+    # Single-zone legacy kernel is on the backward shell axis, so feed -x to the
+    # belt geometry (derivation §7 A3).
+    z_rep, lit = _belt_column_zrep_vec(
+        x_g, y_g, h_b, alpha_rad, delta_rad, [0.0], 0.0, posture.h, x_axis=-x_g,
+    )
+    idx = np.nonzero(lit)[0]
     if idx.size == 0:
         return out
 
-    s_b = s[idx]
-    gamma = np.arcsin(np.clip(h_b / s_b, -1.0, 1.0))
+    zr = z_rep[idx]
+    dz = zr - h_b
+    s_b = np.sqrt(x_g[idx] ** 2 + y_g[idx] ** 2 + dz ** 2)
+    s_safe = np.where(s_b >= 1e-6, s_b, 1.0)
+    cA = float(np.cos(alpha_rad))
+    sA = float(np.sin(alpha_rad))
+    cos_Theta = (-x_g[idx] * cA - dz * sA) / s_safe            # backward axis
+    at_edge = zr > 1e-12
+    sin_Theta = np.where(
+        at_edge,
+        float(np.cos(delta_rad)),
+        np.sqrt(np.maximum(0.0, 1.0 - cos_Theta ** 2)),
+    )
+    keep = (s_b >= 1e-6) & (sin_Theta >= 1e-9)
+    if not np.any(keep):
+        return out
+    idx = idx[keep]
+    zr = zr[keep]
+    s_b = s_b[keep]
+    s_safe = s_safe[keep]
+    sin_Theta = sin_Theta[keep]
+
+    gamma = np.arcsin(np.clip((h_b - zr) / s_safe, -1.0, 1.0))
     Ap = presented_area(gamma, posture)
-    geom = Ap / (2.0 * np.pi * s_b**2 * 2.0 * sin_Theta[idx] * delta_rad)
+    geom = Ap / (2.0 * np.pi * s_safe**2 * 2.0 * sin_Theta * delta_rad)
 
     n = s_b.shape[0]
     J = np.empty(n, dtype=float)
