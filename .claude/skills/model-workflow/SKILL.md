@@ -245,3 +245,16 @@ main agent already suspected and crowds out everything else. If you enumerated
 specific things to check (a formula, an internal variable, a line range),
 that's the same over-read symptom as above — delete the list and point at the
 diff instead.
+
+**Locate without anchoring.** Pointing at the diff is also what keeps a review
+*cheap*: a diff already *is* the file-and-line manifest, so the reviewer
+navigates from it instead of cold-`grep`ping to find what changed. (One
+uncapped review burned ~20 of its 46 turns re-hunting where the kernel lived
+because the brief gave prose pointers, not a diff.) When there is no diff yet —
+a *derivation* review — that navigation must come from the **artifact**:
+`derivation.md` should cite the concrete source it reasons about
+(`fragmentation.py:_expected_kills_3d_vec`), and the reviewer trusts those
+citations rather than rediscovering them. Naming a location the diff or the
+artifact already carries is navigation, not anchoring; injecting a line range
+*you* read to build the brief is the over-read symptom above. The `maxTurns`
+cap on @model-reviewer is the backstop when a review flails regardless.

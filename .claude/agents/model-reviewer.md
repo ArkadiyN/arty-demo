@@ -1,6 +1,7 @@
 ---
 name: model-reviewer
 model: sonnet
+maxTurns: 25
 tools: Read, Bash, Write
 skills: agent-memory-discipline
 memory: project
