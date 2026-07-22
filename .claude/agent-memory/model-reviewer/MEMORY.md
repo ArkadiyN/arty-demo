@@ -19,4 +19,3 @@
 - [Volume penumbra per path](pkill_volume_penumbra_is_outer_not_near_burst.md) — single-zone near-binary, four-zone genuinely graded; recompute per path
 - [Family-A sinΘ bound](family_a_sinTheta_notation_relic.md) — quantifies the known legacy sinΘ quirk: 1/sin(90°−δ)−1, ~15.5% at δ=30°; single-zone path only
 - [Cross-aspect notebook citation staleness](cross_aspect_notebook_citation_staleness.md) — a later aspect's .qmd rewrite can strand another derivation's citation even when the claim stays true
-- [Family-A false-safe-zone derivation+impl](familyA_false_safe_zone_derivation_fail.md) — pass1 FAILED (fp coin-flip); pass2/3 PASSED; fix pattern for gate-root evaluation bugs
