@@ -26,6 +26,19 @@ repos:
         # to files pre-commit passes explicitly, hence the exclude here too.
         exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$'
 
+      # Blocking backstop for agent-memory discipline. The PostToolUse hook of
+      # the same script only *nudges* the writing agent after the write lands;
+      # a background subagent that ends its turn never acts on it, so this
+      # git-time gate is what actually keeps a status-log memory out of
+      # history. Orthogonal to mdformat above: mdformat *excludes* agent-memory
+      # (LaTeX safety), this hook *includes* only it.
+      - id: agent-memory-discipline
+        name: agent-memory-discipline
+        language: system
+        entry: python3 .claude/hooks/check_agent_memory.py
+        files: '^\.claude/agent-memory/.*\.md$'
+        pass_filenames: true
+
       - id: detect-secrets
         name: detect-secrets
         language: system

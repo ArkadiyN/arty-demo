@@ -51,21 +51,33 @@ An existing entry should be **edited** to stay current (or deleted once the
 gotcha no longer applies) — never grown by appending another dated paragraph
 on top.
 
-## Hard limits (hook-enforced)
+## Hard limits (enforced twice)
 
-A PostToolUse hook (`.claude/hooks/check_agent_memory.py`) rejects writes
-that break these. They are part of the format, not advice:
+`.claude/hooks/check_agent_memory.py` enforces the limits below at two points,
+because a background subagent that ends its turn never acts on an after-the-fact
+nudge. They are part of the format, not advice:
+
+1. **PostToolUse hook** — fires right after a Write/Edit and feeds the
+   violation back to the writing agent to fix in-session. Advisory: the write
+   has already landed.
+1. **Pre-commit gate** — the same script runs on staged `agent-memory/*.md`
+   files and **blocks the commit** on any violation. This is the real
+   backstop: a bad entry cannot enter git history even if the in-session nudge
+   was ignored.
 
 - **One fact per file, ≤ 30 lines total** including frontmatter (aim for
   ~20). If an update would push an entry over the cap, delete at least as
   much as you add — or split the file.
 - **`MEMORY.md` bullets are single lines** (≤ 250 chars, no continuation
   lines): title link plus a one-phrase hook, nothing more.
-- **No status paragraphs.** A line starting `**Resolved` / `**Fixed` /
-  `**Confirmed` is the task-log pattern arriving one append at a time and
-  is rejected outright. When a gotcha closes, rewrite the entry down to the
-  ≤3-line durable pattern that remains — or delete the file and its index
-  line.
+- **No status / pass-fail paragraphs.** A line starting `**Resolved` /
+  `**Fixed` / `**Confirmed`, or a per-pass log line like `**Pass 1 … FAIL`,
+  is the task-log pattern and is rejected outright. When a gotcha closes,
+  rewrite the entry down to the ≤3-line durable pattern that remains — or
+  delete the file and its index line.
+- **No status filenames.** A file named `*_fail` / `*_pass` / `*_review` /
+  `*_status` announces a validation outcome — that belongs in `review.md`.
+  Name the entry after the durable gotcha instead.
 - **Numbers live in artifacts.** Convergence tables, sweep results, and
   verification narratives belong in `derivation.md` / `review.md`; memory
   keeps one summary sentence plus the pointer.
