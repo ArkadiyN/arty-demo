@@ -3,7 +3,7 @@
 - [zones.py meshgrid convention](zones_meshgrid_convention.md) — X varies along columns (downrange), Y along rows (cross-range); diff loop bodies before re-deriving
 - [Physics duplicated into app/plots](sensitivity_physics_leakage.md) — flag inlined ray trig not calling fragment_velocity; numeric-equivalence tests can't catch bit-identical duplication
 - [Revert probes: stash, not checkout](revert_probe_use_stash.md) — git checkout -- <file> silently discards the whole uncommitted diff
-- [Belt axis convention pitfall](belt_axis_convention_pitfall.md) — single/four-zone axis signs agree only on x=0; re-derive "equivalence" claims algebraically, grep for sibling phrasing
+- [Belt axis convention pitfall](belt_axis_convention_pitfall.md) — x-only axis flip mirrors the lobe, not a benign convention; re-derive off-axis, grep whole repo before deleting "dead" fns
 - [min_lethal_mass saturation check](min_lethal_mass_saturation_check.md) — m_lo-saturation unreachable at defaults; flag "flat near burst" m_min claims
 - [lethal-density field gotchas](lethal_density_field_implementation.md) — legacy sinΘ bug in _expected_kills_3d_point; np.interp silently clips external s_grids
 - [P_k Poisson vs ES-310](pkill_poisson_eslevel_mismatch.md) — eq(1) is the Pk|hit→1 limit; must be disclosed as a second, separate simplification

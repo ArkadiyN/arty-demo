@@ -22,17 +22,25 @@ azimuthally-symmetric baseline; the four-zone adds the fore/aft lobes from the
 end zones. The sensitivity app computes **both on the same grid**, so their
 cell-by-cell difference is **grid-exact** — no interpolation or resampling error
 enters it. That difference is a useful *indicator* of where the end zones add or
-remove lethality, but it is **not a clean physical isolation** of the
-ogive/base/boattail contribution. The single-zone baseline is the *legacy* belt
-path (`_expected_kills_3d_point`), which uses a backward shell-axis convention
-($\hat{e} = (-\cos\alpha, 0, -\sin\alpha)$) and a different off-boresight
-normalization than the four-zone path's forward axis
-($(+\cos\alpha, 0, -\sin\alpha)$). The two coincide *by construction* only on the
-equatorial belt / boresight plane; off it, the diff conflates the genuine
-end-zone signal with a residual axis-convention and normalization mismatch that
-has not been reconciled (§12; belt-axis note in
-`updates/lethal-fragment-density-field/derivation.md` §5.4). Read the diff as
-directional structure, not as an exact per-zone attribution. That diff only
+remove lethality, and as of v 0.6.1 it is a **co-located per-zone
+attribution** — up to a small, bounded off-belt normalization residual. The
+single-zone baseline is the *legacy* belt path (`_expected_kills_3d_vec`), which
+now shares the **same forward shell-axis convention**
+($\hat{e} = (+\cos\alpha, 0, -\sin\alpha)$) as the four-zone path
+(`_four_zone_familyA_eval`); the previous backward axis
+($(-\cos\alpha, 0, -\sin\alpha)$) was a genuine $x$-mirror sign error that put
+the single-zone down-range lobe on the *opposite* side of the burst from the
+four-zone lobes, making their difference a disjoint mirror-opposite sum rather
+than a co-located residual (shell-axis-fix,
+`updates/legacy-field-shell-axis-fix/derivation.md`). With both axes aligned,
+the two lobes sit on the same side and the diff isolates each zone's contribution
+cell-by-cell. The only mismatch that survives is the off-belt-centre
+normalization difference — the single-zone path keeps the field point's own
+$\sin\Theta$ term while the four-zone path divides by the fixed per-zone
+$\sin\theta^z$ — bounded by $1/\sin(90°-\delta)-1$ ($\le 15.5\%$ at the app's
+maximum $\delta = 30°$) and identically zero on the equatorial belt centre
+(§12). Read the diff as a valid directional and per-zone attribution, exact on
+the belt centre and off it accurate to that few-percent residual. That diff only
 exists because both are retained. They also differ in inputs and
 validation status: the single-zone belt needs only bulk shell parameters and
 carries the calibrated absolute magnitude, whereas the four-zone needs the
@@ -301,10 +309,10 @@ structure the single-zone equatorial-belt field is deliberately silent on —
 the four-zone field's distinct contribution. This figure shows that structure
 **directly**: it plots each zone's own ground-impact rays and performs **no
 subtraction** against the belt baseline. It is not the belt-vs-four-zone cell
-difference — that diff is a separate and only *approximate* indicator of where
-the end zones add or remove lethality, and is **not** a clean per-zone
-isolation (it conflates the genuine end-zone signal with an unreconciled
-axis-convention/normalization mismatch; see "Why both 3-D variants are live"
+difference — that diff is the *co-located per-zone attribution* of where the
+end zones add or remove lethality (exact on the equatorial belt centre, accurate
+off it to the bounded $\sin\Theta$-normalization residual since both paths now
+share the forward shell-axis convention; see "Why both 3-D variants are live"
 above and §12).
 
 ### 6.9 · Burst geometry cross-section (x–z plane)

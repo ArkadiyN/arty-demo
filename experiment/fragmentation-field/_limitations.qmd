@@ -190,20 +190,24 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   qualitative prediction (forward density > rearward at AoF < 90°) that
   cannot yet be checked against empirical fragment-density-vs-azimuth
   data.
-- **The single-zone − four-zone difference map is not a clean zone
-  attribution.** The sensitivity app's "Four-zone − Single-zone" diff
-  (§6) is *grid-exact* (both fields share the same grid, so no
-  interpolation error enters), but the single-zone baseline is the legacy
-  belt path (`_expected_kills_3d_point`), which uses a **backward**
-  shell-axis convention ($\hat{e}=(-\cos\alpha,0,-\sin\alpha)$) and a
-  different off-boresight normalization than the four-zone forward-axis
-  path. The two agree by construction only on the equatorial belt /
-  boresight plane; off it the diff conflates the genuine end-zone
-  contribution with a residual, unreconciled axis-convention and
-  normalization mismatch (belt-axis note,
-  `updates/lethal-fragment-density-field/derivation.md` §5.4). It should
-  be read as an indicator of directional (fore/aft-lobe) structure, not as
-  an exact per-zone lethality attribution.
+- **The single-zone − four-zone difference map is a co-located zone
+  attribution, up to a bounded off-belt normalization residual.** The
+  sensitivity app's "Four-zone − Single-zone" diff (§6) is *grid-exact*
+  (both fields share the same grid, so no interpolation error enters). The
+  single-zone belt path (`_expected_kills_3d_vec` /
+  `_expected_kills_3d_point`) and the four-zone Family-A path
+  (`_four_zone_familyA_eval`) now share the **same forward shell-axis
+  convention** $\hat{e}=(+\cos\alpha,0,-\sin\alpha)$ (shell-axis-fix,
+  `updates/legacy-field-shell-axis-fix/derivation.md`), so both
+  down-range lobes sit on the same side of the burst and the diff is a
+  co-located per-zone residual rather than the mirror-opposite sum of two
+  lobes it used to be. The only remaining mismatch is the off-belt-centre
+  `sinΘ` normalization difference noted above (single-zone keeps the point's
+  own `sinΘ`; four-zone divides by the fixed per-zone `sin(theta_z)`),
+  bounded by `1/sin(90°−δ)−1` (≤ 15.5 % at δ = 30°) and identically zero on
+  the equatorial belt centre. The map is therefore a valid directional and
+  per-zone attribution; only the few-percent off-belt magnitude residual is
+  not an exact lethality difference.
 - **Hard-cutoff spray belts create unphysical dead zones between zone
   boundaries.** Each zone's contribution to a ground point is gated by a
   ±15° (``delta_deg``) rect-function band around the zone's nominal spray

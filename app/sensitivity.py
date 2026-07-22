@@ -106,7 +106,11 @@ with st.sidebar:
                 "Angle of fall  [°]", 0, 90, int(BurstParams().angle_of_fall), step=5
             )
             spray_half_angle = st.slider(
-                "Belt half-angle  δ  [°]", 0, 30, int(BurstParams().spray_half_angle), step=1
+                "Belt half-angle  δ  [°]", 1, 30, int(BurstParams().spray_half_angle), step=1,
+                help="δ=0 is excluded: the belt collapses to a zero-width ring "
+                     "(Dirac-ring limit), which is a genuine mathematical "
+                     "degeneracy — every P(kill) chart reads exactly 0 there, "
+                     "not a modelling defect.",
             )
 
         with st.expander("Target"):
@@ -558,7 +562,7 @@ def _plotly_elevation(
     cA, sA = float(np.cos(aof)), float(np.sin(aof))
 
     x_max = max(abs(x_person) * 1.5, 50.0)
-    x_min = -x_max * 0.4
+    x_min = -x_max
     z_max = max(h_b + 10, 15.0)
 
     traces: list = []
@@ -737,6 +741,16 @@ def _r50_contour(x, y, z):
         showscale=False, showlegend=True, hoverinfo="skip",
         name="R₅₀  (P=0.5)",
     )
+
+st.caption(
+    "The white R₅₀ contour (P(kill) = 0.5) is traced on this same coarse "
+    "heatmap grid: when the safe-zone extent near the burst is narrower than "
+    "the grid spacing, the contour can shrink to an unresolved point or "
+    "vanish entirely even though the field genuinely dips below 0.5 there. "
+    "A missing white ring under the impact marker means 'unresolved', not "
+    "necessarily 'no safe zone' — cross-check against the finer-resolution "
+    "P(kill) slice charts below."
+)
 
 if model_mode == "Single-zone (legacy)":
     fig3 = go.Figure()
