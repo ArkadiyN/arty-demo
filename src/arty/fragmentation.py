@@ -378,10 +378,6 @@ def compute_frag_field(
 # ---------------------------------------------------------------------------
 
 
-def _shell_axis(alpha_rad: float) -> np.ndarray:
-    return np.array([-np.cos(alpha_rad), 0.0, -np.sin(alpha_rad)])
-
-
 def _forward_shell_axis(alpha_rad: float) -> np.ndarray:
     """Forward shell axis in the ground frame [-]: ``(+cosα, 0, −sinα)``.
 
@@ -933,11 +929,11 @@ def _expected_kills_3d_point(
 
     # Relocate the evaluation to the lowest column height the belt lights, in
     # place of the false-safe z = 0 sampling (derivation §2/§3.1). Single-zone
-    # legacy kernel is on the backward shell axis, so feed -x to the belt
-    # geometry (§7 A3).
+    # legacy kernel is on the shared forward shell axis, so feed +x to the belt
+    # geometry (shell-axis-fix derivation §1 A3).
     z_rep_a, lit_a = _belt_column_zrep_vec(
         np.array([x_g]), np.array([y_g]), h_b, alpha_rad, delta_rad,
-        [0.0], 0.0, posture.h, x_axis=np.array([-x_g]),
+        [0.0], 0.0, posture.h, x_axis=np.array([x_g]),
     )
     if not bool(lit_a[0]):
         return 0.0
@@ -956,7 +952,7 @@ def _expected_kills_3d_point(
     if z_rep > 1e-12:
         sin_Theta = float(np.cos(delta_rad))
     else:
-        e_axis = _shell_axis(alpha_rad)
+        e_axis = _forward_shell_axis(alpha_rad)
         cos_Theta = float(np.dot(np.array([x_g, y_g, dz]) / s, e_axis))
         sin_Theta = np.sqrt(max(0.0, 1.0 - cos_Theta**2))
     if sin_Theta < 1e-9:
@@ -1018,10 +1014,10 @@ def _expected_kills_3d_vec(
     if delta_rad <= 0.0:
         return out
 
-    # Single-zone legacy kernel is on the backward shell axis, so feed -x to the
-    # belt geometry (derivation §7 A3).
+    # Single-zone legacy kernel is on the shared forward shell axis, so feed +x
+    # to the belt geometry (shell-axis-fix derivation §1 A1).
     z_rep, lit = _belt_column_zrep_vec(
-        x_g, y_g, h_b, alpha_rad, delta_rad, [0.0], 0.0, posture.h, x_axis=-x_g,
+        x_g, y_g, h_b, alpha_rad, delta_rad, [0.0], 0.0, posture.h, x_axis=x_g,
     )
     idx = np.nonzero(lit)[0]
     if idx.size == 0:
@@ -1033,7 +1029,7 @@ def _expected_kills_3d_vec(
     s_safe = np.where(s_b >= 1e-6, s_b, 1.0)
     cA = float(np.cos(alpha_rad))
     sA = float(np.sin(alpha_rad))
-    cos_Theta = (-x_g[idx] * cA - dz * sA) / s_safe            # backward axis
+    cos_Theta = (x_g[idx] * cA - dz * sA) / s_safe             # forward axis
     at_edge = zr > 1e-12
     sin_Theta = np.where(
         at_edge,

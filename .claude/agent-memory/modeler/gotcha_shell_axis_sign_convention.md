@@ -1,30 +1,27 @@
 ---
 name: shell-axis-sign-convention
-description: Single-zone vs four-zone e_axis sign conventions differ and were never proven equivalent — standardised by construction only
+description: Legacy single-zone shell axis is a backward x-mirror sign error (not a benign convention) — forward axis is correct
 metadata:
   type: project
 ---
 
-Legacy single-zone `_shell_axis = (−cosα,0,−sinα)` (backward); four-zone and
-the new single-zone `lethal_density_point` (via `_forward_shell_axis`) use
-`(+cosα,0,−sinα)` (forward). A partial x-only sign flip is NOT negating the
-whole vector: the two belt tests are provably equal only on the x=0 plane,
-and a hand-checked off-axis point falsifies pointwise equivalence.
+Correct shell axis is FORWARD `_forward_shell_axis=(+cosα,0,−sinα)` — used by
+`fragment_velocity`, four-zone, and `lethal_density_point`. Legacy single-zone
+`_shell_axis=(−cosα,0,−sinα)` is NOT a valid alternative and NOT an axis
+reversal (reversal flips z too); it flips only x, an x-mirror across x=0 → a
+shell "travelling backward". It puts the whole single-zone down-range hazard
+lobe on the WRONG side of the burst (confirmed defect; the older "deliberate
+standardisation, don't reconcile" framing was WRONG).
 
-Do not re-derive or re-assert an analytic equivalence claim. The resolved
-framing is "deliberate standardisation by construction, verified
-empirically." The legacy `_shell_axis` / `_expected_kills_3d_point` pair is
-intentionally not reconciled. Counterexample and full reasoning:
-`lethal-fragment-density-field/derivation.md` §5.4 and `review.md`.
+**Why the mirror hides:** backward and forward agree exactly on x=0 (flip is a
+no-op) and at AoF=90° (cosα=0, B=0, sign-blind). Every on-axis and every 90°
+test passes with the wrong sign — an axis change needs an off-axis, AoF≠90°
+regression. Cross-range r50 (read at x=0) is mirror-invariant; only the
+down-range heatmap side and the four-zone−single-zone diff map change.
 
-**Concrete trap when reusing the forward-axis belt machinery for the
-single-zone path.** `belt_column_breakpoints` / `_belt_column_zrep_vec` are
-written in the FORWARD-axis convention (`B=−2x cosα sinα`). To use them for the
-backward-axis single-zone kernel you must pass `-x` (flips B's sign → the
-backward-axis roots); the four-zone Family-A path uses `+x` directly.
-**Why it bites:** at AoF=90° `cosα=0` so `B=0` and both signs coincide — every
-AoF=90° test passes with the wrong sign. Off-axis (`AoF≠90°, x≠0`) the wrong
-sign FABRICATES spurious interior breakpoints (not just a mirror), gating cells
-on/off wrongly. Any change here needs an explicit off-axis regression test.
-Instance: `familyA-false-safe-zone/derivation.md` §7 A3/§5.5,
+**Trap reusing forward-native belt machinery** (`belt_column_breakpoints` /
+`_belt_column_zrep_vec`, `B=−2x cosα sinα`): passing `x_axis=−x` faithfully
+reproduces the BACKWARD membership — correct code for a wrong axis. The fix is
+to pass `+x` and flip the inline cosΘ, not to compensate. Scoping + fix plan:
+`updates/legacy-field-shell-axis-fix/scoping.md`; wrong-sign-catching test
 `tests/test_familyA_false_safe_zone.py::test_offaxis_single_zone_axis_sign`.

@@ -13,8 +13,11 @@ Coverage (derivation.md §7 A5 / §8 required checks):
   2. Feet-lit bit-exact reduction — where the belt already reaches z = 0 the
      relocated kernel reproduces the shipped z = 0 kernel to the bit.
   3. Prone-below-standing / h-monotonicity at the defect config.
-  4. Off-axis single-zone axis-sign pin (AoF≠90°, x≠0) — the backward-axis (-x)
-     handling, invisible at AoF=90° where B=0.
+  4. Off-axis single-zone axis-sign pin (AoF≠90°, x≠0) — the shared forward-axis
+     (+x) handling, invisible at AoF=90° where B=0.
+  5. point-vs-vec equivalence off-axis — _expected_kills_3d_point (unreachable
+     from compute_frag_field_3d) must agree with _expected_kills_3d_vec so a
+     partial axis flip in one path but not the other is caught.
 
 Config throughout: AoF=90° (horizontal equatorial belt), h_b=2.0 m, δ=15°, the
 derivation's headline defect scenario.
@@ -30,8 +33,9 @@ from arty.fragmentation import (
     DragParams,
     PostureParams,
     ShellParams,
+    _expected_kills_3d_point,
     _expected_kills_3d_vec,
-    _shell_axis,
+    _forward_shell_axis,
     compute_frag_field_3d,
     gurney_velocity,
     mott_params,
@@ -88,7 +92,7 @@ def _ref_z0_single(x, y, h_b, alpha_rad, delta_rad, V0, posture, m_grid, pdf, la
     s = np.sqrt(x * x + y * y + h_b * h_b)
     if s < 1e-6:
         return 0.0
-    e_axis = _shell_axis(alpha_rad)
+    e_axis = _forward_shell_axis(alpha_rad)
     s_safe = s if s >= 1e-6 else 1.0
     cos_Theta = float((x * e_axis[0] + (-h_b) * e_axis[2]) / s_safe)
     if abs(cos_Theta) > np.sin(delta_rad):
@@ -308,15 +312,16 @@ def _ref_relocated_single_offaxis(x, y, h_b, alpha_rad, delta_rad, V0, posture,
                                    m_grid, pdf, lam, nz=20001):
     """Independent relocated single-zone kernel — no belt_column_breakpoints.
 
-    Brute-force scan the column [0, h] for the lowest height whose backward-axis
-    belt gate holds, then evaluate the kernel there. A wrong-sign (+x) breakpoint
-    implementation would relocate z_rep elsewhere and disagree materially
-    (derivation §5.5 / §7 A3). Backward axis: cosΘ = −(x cosα + (z−h_b) sinα)/s.
+    Brute-force scan the column [0, h] for the lowest height whose forward-axis
+    belt gate holds, then evaluate the kernel there. A wrong-sign (backward, or
+    unflipped −x) breakpoint implementation would relocate z_rep elsewhere and
+    disagree materially (shell-axis-fix derivation §4). Forward axis, eq. (1):
+    cosΘ = (x cosα − (z−h_b) sinα)/s.
     """
     zs = np.linspace(0.0, posture.h, nz)
     dz = zs - h_b
     s = np.sqrt(x * x + y * y + dz * dz)
-    cosT = -(x * np.cos(alpha_rad) + dz * np.sin(alpha_rad)) / s
+    cosT = (x * np.cos(alpha_rad) - dz * np.sin(alpha_rad)) / s
     active = np.abs(cosT) <= np.sin(delta_rad)
     if not np.any(active):
         return 0.0
@@ -336,11 +341,13 @@ def _ref_relocated_single_offaxis(x, y, h_b, alpha_rad, delta_rad, V0, posture,
 
 
 def test_offaxis_single_zone_axis_sign(shell, drag):
-    """Off-axis (AoF=60°, x<0) single-zone matches a backward-axis brute reference.
+    """Off-axis (AoF=60°, x<0) single-zone matches a forward-axis brute reference.
 
-    Pins the -x fed to the belt geometry. At AoF=90° B=0 and the sign is
-    consequence-free, so this MUST be checked off-axis (§7 A3); with +x the
-    breakpoints (and thus z_rep / lit) are materially wrong (§5.5).
+    Pins the +x fed to the belt geometry (shared forward shell axis). At AoF=90°
+    B=0 and the sign is consequence-free, so this MUST be checked off-axis
+    (shell-axis-fix derivation §4); a backward/mirror (−x) implementation would
+    put z_rep / lit on the wrong side and disagree materially. The probe points
+    sit on the backward-ground (x<0) lit lobe where the forward belt lands.
     """
     V0, mu, N0, m_grid, pdf, lam = _single_zone_inputs(shell, drag)
     alpha = np.radians(60.0)
@@ -359,7 +366,7 @@ def test_offaxis_single_zone_axis_sign(shell, drag):
     ])
     # lit/unlit agreement (a wrong sign flips membership at these points)
     assert np.all((N_impl > 0.0) == (N_ref > 0.0)), (
-        f"lit/unlit mismatch vs backward-axis reference: impl={N_impl}, ref={N_ref}"
+        f"lit/unlit mismatch vs forward-axis reference: impl={N_impl}, ref={N_ref}"
     )
     # magnitude agreement on lit cells (brute z_rep → true edge as grid→fine;
     # a wrong-sign impl would be off by a large factor)
@@ -368,3 +375,37 @@ def test_offaxis_single_zone_axis_sign(shell, drag):
         assert np.allclose(N_impl[lit], N_ref[lit], rtol=0.02), (
             f"impl={N_impl[lit]} vs ref={N_ref[lit]}"
         )
+
+
+def test_point_vec_equivalence_offaxis(shell, drag):
+    """_expected_kills_3d_point ≡ _expected_kills_3d_vec off-axis (AoF≠90°, x≠0).
+
+    The scalar point kernel is unreachable from compute_frag_field_3d (only the
+    vec path is wired to the app), so nothing else pins it. This locks the
+    shell-axis-fix derivation §2 vec≡point claim: both paths must flip to the
+    forward axis together — a partial flip (A1/A2 vec but not A3/A4 point, or
+    vice versa) would split the two here off the x=0 / AoF=90° planes where the
+    axis sign is otherwise invisible.
+    """
+    V0, mu, N0, m_grid, pdf, lam = _single_zone_inputs(shell, drag)
+    alpha = np.radians(60.0)
+    delta = np.radians(15.0)
+    pts = [(-3.0, 1.0), (-5.0, 0.5), (-2.0, 2.0), (-6.0, 0.0), (-4.0, -1.5)]
+    xs = np.array([p[0] for p in pts])
+    ys = np.array([p[1] for p in pts])
+    N_vec = _expected_kills_3d_vec(
+        xs, ys, H_B, alpha, delta,
+        N0, mu, V0, drag, shell.steel.rho, STANDING, m_grid, pdf, lam,
+    )
+    N_point = np.array([
+        _expected_kills_3d_point(
+            x, y, H_B, alpha, delta,
+            N0, mu, V0, drag, shell.steel.rho, STANDING, m_grid, pdf, lam,
+        )
+        for x, y in pts
+    ])
+    assert np.any(N_vec > 0.0), "probe points must be lit (else equivalence is vacuous)"
+    assert np.allclose(N_point, N_vec, rtol=1e-9, atol=1e-12), (
+        f"point vs vec split off-axis (partial axis flip?): "
+        f"point={N_point}, vec={N_vec}, max|Δ|={np.max(np.abs(N_point - N_vec)):.3e}"
+    )
