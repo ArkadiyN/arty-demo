@@ -11,9 +11,11 @@ demonstration. Three sub-models are integrated:
 **Scope constraints and known limitations:**
 
 - Single HE shell; fuse type deferred; default is a ground burst with no airburst height.
-- Fragment trajectories assumed flat (horizontal). Gravity drop at 100 m for a 1 g fragment
-  is ≈ 0.5 m — small relative to a 1.7 m standing target — so the error is acceptable
-  for ranges up to ~200 m.
+- Fragment trajectories assumed flat (horizontal); gravity is not in the equations of
+  motion. Checked and found negligible inside the model's ~200 m operating envelope —
+  see the [gravity-omission assessment](challenges/gravity.html) for the governing
+  equations and numbers; beyond ~250 m gravity would dominate, but the field is already
+  sub-lethal there.
 - Uniform azimuthal spray: fragments are spread uniformly in 360° around the burst point.
   This is accurate only if the shell detonates with its **axis vertical** (90° angle of fall,
   i.e. pure plunging fire). At shallower angles of fall — typical of field artillery at

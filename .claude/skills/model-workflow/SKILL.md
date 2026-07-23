@@ -82,6 +82,11 @@ is a published verdict; **the main model is not modified**.
    `experiment/<model>/challenges/<question>.md` (markdown): problem
    statement, governing equations, the numerical study to run, and the verdict
    criterion. Return.
+   - The `.md` + `.qmd` split is for heavier challenges where the write-up
+     benefits from a separate planning artifact. For a short, bounded
+     "does X matter → no" assessment, a single self-contained `.qmd` (skip
+     the `.md`) is fine — do not flag a single-file challenge as
+     non-conforming in review.
 1. If the assessment needs physics not yet in `src/arty/`, delegate to
    @modeler to add it there first (src/ implementation pass). Return.
 1. Delegate to @modeler (notebook pass) → writes the thin
