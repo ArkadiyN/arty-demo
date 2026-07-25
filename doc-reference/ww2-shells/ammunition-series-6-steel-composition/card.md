@@ -67,4 +67,4 @@ ______________________________________________________________________
 ______________________________________________________________________
 
 **Validity:** WW2 early years (≤1942); applies to 75–155mm HE shell forging standards\
-**Cross-reference:** Index.md §"Open Question" for successor-grade disambiguation
+**Cross-reference:** ammunition-series-6-steel-composition.md §"Open Question" for successor-grade disambiguation

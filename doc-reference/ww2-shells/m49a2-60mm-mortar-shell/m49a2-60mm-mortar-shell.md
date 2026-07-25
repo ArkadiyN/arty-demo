@@ -17,7 +17,7 @@ ______________________________________________________________________
 ## Contents of This Entry
 
 - **card.md** — Extract card (this is your first read: ~300 words, equations/constants/anchors, no prose)
-- **index.md** — This file; overview and file listing
+- **m49a2-60mm-mortar-shell.md** — This file; full transcription, overview and file listing
 
 ______________________________________________________________________
 
@@ -25,8 +25,8 @@ ______________________________________________________________________
 
 ```
 m49a2-60mm-mortar-shell/
-├── card.md              ← 60mm shell specification extract (read this first)
-└── index.md             ← This overview
+├── card.md                        ← 60mm shell specification extract (read this first)
+└── m49a2-60mm-mortar-shell.md     ← This overview / full text
 ```
 
 **Note:** The original PDF is stored externally; the drawing contents are captured in the card. Full multipage drawing text awaits OCR or transcription of page 57 for complete steel grade confirmation.
