@@ -55,9 +55,9 @@ Define the **lethal-fragment areal density** at a field point `P = (x, y, z)`
 with the ground at `z = 0` and the burst at `(0, 0, h_b)`:
 
 $$
-\\rho_L(P) ;=; \\underbrace{\\frac{1}{2\\pi,s^2,\\cdot,2\\sin\\theta^z,\\delta}}_{\\text{spreading [m}^{-2}\\text{]}}
-;\\cdot; \\underbrace{N!\\bigl(m_{\\min}(s)\\bigr)}\_{\\text{lethal count [-]}}
-\\qquad\\bigl[\\text{lethal fragments} / \\text{m}^2\\bigr]
+\rho_L(P) ;=; \underbrace{\frac{1}{2\pi,s^2,\cdot,2\sin\theta^z,\delta}}_{\text{spreading [m}^{-2}\text{]}}
+;\cdot; \underbrace{N!\bigl(m_{\min}(s)\bigr)}_{\text{lethal count [-]}}
+\qquad\bigl[\text{lethal fragments} / \text{m}^2\bigr]
 $$
 
 where

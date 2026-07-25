@@ -9,7 +9,7 @@ Define the ground `P(kill)(x,y)` field computation for both the single-zone (`ar
 `arty.fragmentation.pkill_field_3d` and `arty.zones.four_zone_pkill_field` SHALL compute
 the ground P(kill) transform as
 $$
-P_k(x,y) = 1 - \\exp!\\big(-w\_\\text{perp} \\cdot \\textstyle\\int_0^h \\rho_L(x,y,z),dz\\big)
+P_k(x,y) = 1 - \exp!\big(-w_\text{perp} \cdot \textstyle\int_0^h \rho_L(x,y,z),dz\big)
 $$
 using the posture's height `h` and presented width `w_perp` (`STANDING` or `PRONE` from
 `arty.fragmentation`), instead of the single-plane sample
