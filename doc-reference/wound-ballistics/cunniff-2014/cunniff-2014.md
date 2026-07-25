@@ -349,37 +349,37 @@ ______________________________________________________________________
 ### Direct Relevance
 
 1. **Presented Area Distribution (Independent of Mass)** ✓\
-   Figure 3 provides munition-specific PDFs for Ap/m ratio. This is the primary data gap; can be directly imported into Monte Carlo lethality model as:
+    Figure 3 provides munition-specific PDFs for Ap/m ratio. This is the primary data gap; can be directly imported into Monte Carlo lethality model as:
 
-   ```
-   for each fragment:
-       sample Ap from munition's PDF (Figure 3)
-       mp = fragment mass (from mass distribution, Figure 2)
-       → proceed with ballistic impact
-   ```
+    ```
+    for each fragment:
+        sample Ap from munition's PDF (Figure 3)
+        mp = fragment mass (from mass distribution, Figure 2)
+        → proceed with ballistic impact
+    ```
 
 1. **Areal Density as Unifying Parameter** ✓\
-   Ballistic limit, tissue penetration, and armor penetration all collapse onto Ad·Ap/mp. No separate "posture-dependent silhouette model" needed; instead, posture defines Ad (body armor + clothing areal density), and lethality follows from single dimensionless parameter space.
+    Ballistic limit, tissue penetration, and armor penetration all collapse onto Ad·Ap/mp. No separate "posture-dependent silhouette model" needed; instead, posture defines Ad (body armor + clothing areal density), and lethality follows from single dimensionless parameter space.
 
 1. **Velocity Reduction in Flight** ✓\
-   Driels equation + Figure 4 drag coefficient data enable fragment velocity at target range. Variability in Cd and Ap modulates velocity loss; uncertainty quantification via Figure 3 PDF is essential.
+    Driels equation + Figure 4 drag coefficient data enable fragment velocity at target range. Variability in Cd and Ap modulates velocity loss; uncertainty quantification via Figure 3 PDF is essential.
 
 1. **Tissue Penetration Model** ✓\
-   Sturdivan's force-balance model (pp. 49–51) + gelatin data (Figure 5) provides depth-of-penetration and wound extent. Integration into lethality assessment pipeline is direct: if fragment penetrates armor, continue into Sturdivan model for wound severity.
+    Sturdivan's force-balance model (pp. 49–51) + gelatin data (Figure 5) provides depth-of-penetration and wound extent. Integration into lethality assessment pipeline is direct: if fragment penetrates armor, continue into Sturdivan model for wound severity.
 
 ### Gaps / Limitations
 
 1. **No explicit posture-dependent silhouette areas given**\
-   The paper does not provide tabulated projected areas for standing/crouching/prone soldiers as a function of fragment arrival angle γ. Figure 7 (p. 62) describes the *computational* approach (human phantom with normal vectors), but not the resulting area values.
+    The paper does not provide tabulated projected areas for standing/crouching/prone soldiers as a function of fragment arrival angle γ. Figure 7 (p. 62) describes the *computational* approach (human phantom with normal vectors), but not the resulting area values.
 
 1. **No Pk|hit vs. fragment parameters**\
-   The paper focuses on penetration probability; does not directly link wound depth → incapacitation risk. Sturdivan notes that "depth of penetration and tissue type" must then be mapped to injury (p. 63), but that mapping is not provided.
+    The paper focuses on penetration probability; does not directly link wound depth → incapacitation risk. Sturdivan notes that "depth of penetration and tissue type" must then be mapped to injury (p. 63), but that mapping is not provided.
 
 1. **Munition-specific parameters not comprehensive**\
-   Only three munitions shown (155 mm M107, 76 mm MK165, MK84 bomb); extrapolation to other threats (mortars, hand grenades, etc.) not explicitly discussed. Reference [29] (Gold et al., PAFRAG) may provide broader spectrum.
+    Only three munitions shown (155 mm M107, 76 mm MK165, MK84 bomb); extrapolation to other threats (mortars, hand grenades, etc.) not explicitly discussed. Reference [29] (Gold et al., PAFRAG) may provide broader spectrum.
 
 1. **Drag model validity at 0.66 ≤ Cd ≤ 1.5 (Figure 4)**\
-   Drake data show poor correlation with Ap; McCleskey wind-tunnel fits are empirical. Transition to Bayesian prior (p. 60) acknowledges this limitation; uncertainty quantification recommended.
+    Drake data show poor correlation with Ap; McCleskey wind-tunnel fits are empirical. Transition to Bayesian prior (p. 60) acknowledges this limitation; uncertainty quantification recommended.
 
 ______________________________________________________________________
 

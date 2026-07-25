@@ -17,17 +17,38 @@ repos:
       - id: mdformat
         name: mdformat
         language: system
-        entry: uv run mdformat --extensions gfm --extensions frontmatter
+        entry: uv run mdformat --extensions gfm --extensions frontmatter --extensions mkdocs
         types: [markdown]
-        # These paths embed LaTeX math (subscripts, \cdot, etc.) that mdformat
-        # corrupts (escapes underscores, doubles backslashes) — same class of
-        # bug already worked around for .qmd via .mdformat-ignore, but that
-        # file only applies to mdformat's own directory-mode discovery, not
-        # to files pre-commit passes explicitly, hence the exclude here too.
-        # doc-reference/ hit the same corruption on rspa.1947.0042.md (\frac,
-        # \eqno, \% all mangled) — sources there are transcribed verbatim and
-        # must not be reformatted anyway.
-        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$|doc-reference/.*\.md$'
+        # These paths embed LaTeX math (subscripts, \cdot, etc.) that plain
+        # mdformat corrupts (escapes underscores, doubles backslashes) — same
+        # class of bug already worked around for .qmd via .mdformat-ignore,
+        # but that file only applies to mdformat's own directory-mode
+        # discovery, not to files pre-commit passes explicitly, hence the
+        # exclude here too.
+        #
+        # doc-reference/ used to hit the same corruption (rspa.1947.0042.md:
+        # \frac, \eqno, \% all mangled) but is no longer excluded: the
+        # mdformat-mkdocs extension (--extensions mkdocs above) preserves
+        # $...$/$$...$$ math verbatim, tested clean against doc-reference's
+        # real content (plain prose/tables, no lists). .qmd/experiment/
+        # openspec stay excluded — mdformat-mkdocs has a known edge case
+        # there: a bullet-list item whose body contains a $$...$$ block
+        # followed by more list text gets de-indented out of the list. That
+        # pattern needs to be scanned for and fixed before those paths can be
+        # safely un-excluded.
+        #
+        # shell-he-105mm-m1.md is excluded individually: it's a raw OCR
+        # transcription of a drawing spec sheet (no LaTeX, dense with
+        # leader-line/dimension noise), and one line pair reproduces a real
+        # mdformat-mkdocs round-trip bug (confirmed minimal repro: an ATX
+        # heading immediately followed, with no blank line, by an ordered
+        # list item whose number isn't 1 — e.g. "# |i" / "2. HARDEN" — fails
+        # even in bare mdformat with no plugins, so it's upstream, not
+        # project config). mdformat refuses to write on this failure (verified
+        # no partial write), so the file itself isn't at risk — it just can't
+        # be auto-formatted until the upstream bug is fixed or the OCR noise
+        # is cleaned up.
+        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$|doc-reference/ww2-shells/ordnance-105mm-m1-1940/shell-he-105mm-m1\.md$'
 
       # Blocking backstop for agent-memory discipline. The PostToolUse hook of
       # the same script only *nudges* the writing agent after the write lands;

@@ -217,7 +217,7 @@ The threat level used for such overmatch assessment will normally be one level a
 Prior to the tests, the scope of the mandatory testing phases and the test strategy (Ex- ample see Annex C8 and / or D8) is to be established and detailed in a test plan by the NA. This is achieved by:
 
 1. Identification and confirmation of the desired Level of protection and (optional) the overmatch Level in accordance with Annex A-S. Testing at lower protection levels as
-   5 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+    5 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia AEP-55 (C), VOL 3 (PART I)
 desired will be necessary whenever there is any reason that the protection system may be vulnerable to such threats.
@@ -290,7 +290,7 @@ The Vehicle Acceptance Phase is based on a simplified vulnerability analysis cal
 
 1. For Fragmentation and Projectile Forming IEDs the vehicle must ensure that 90% of impacts (attacks), no projectile could enter or be generated inside the occu- pant compartment of a vehicle, even if the projectile’s path would not intersect with the normal position of an occupant. For these types of threats, the calcula- tion of the VA and Expected Protection Capability (EPC) will be done using the procedures specified in AEP-55 Volume 1 Section 3.6.1. by analogy.
 1. For blast IEDs this will be based upon:
-   a. Occupant measurement analysis shall be performed using injury criteria and injury tolerance limits defined at Annex E. To pass the test, the measurements shall meet all the mandatory performance requirements. b. No fragment shall penetrate into the occupant compartment. The occupant compartment boundaries shall be defined by the NA. c. All damage to the vehicle as a result of the test shall be documented. The di- rect and indirect mechanisms contributing to the injuries shall, if possible, be as- sessed and documented. Vehicle damage assessment shall be done by the NA using post detonation inspection and internal high speed imagery.
+    a. Occupant measurement analysis shall be performed using injury criteria and injury tolerance limits defined at Annex E. To pass the test, the measurements shall meet all the mandatory performance requirements. b. No fragment shall penetrate into the occupant compartment. The occupant compartment boundaries shall be defined by the NA. c. All damage to the vehicle as a result of the test shall be documented. The di- rect and indirect mechanisms contributing to the injuries shall, if possible, be as- sessed and documented. Vehicle damage assessment shall be done by the NA using post detonation inspection and internal high speed imagery.
 
 ### 6.5 Evaluation / Qualification
 
@@ -308,13 +308,13 @@ Test Phase 2 pass criteria that must be met are:
 (d) The seat and restraint systems shall meet the following criteria to reduce the risk of injury during subsequent related events (e.g. roll over):
 
 - Ensure the occupant is securely restrained in the seat; - Ensure the seat remains adequately attached to the vehicle
-  Test Phase 3 assessment criteria are:
-  (a) Results must be documented and judged by NA with help of the injury risk curves for overmatch assessment in Annex E6.5
-  (b) Occupant injury levels should be assessed in order to allow mitigation strat- egies to be applied
-  (c) There should be no catastrophic hull rupture, which allows penetration of in- jurious blast and/or ejecta inside the vehicle compartment
-  (d) There should be no indication of potentially injurious secondary fragments including those caused by loose equipment
-  Overmatch tests and assessment are not part of the acceptance process.
-  10 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+    Test Phase 3 assessment criteria are:
+    (a) Results must be documented and judged by NA with help of the injury risk curves for overmatch assessment in Annex E6.5
+    (b) Occupant injury levels should be assessed in order to allow mitigation strat- egies to be applied
+    (c) There should be no catastrophic hull rupture, which allows penetration of in- jurious blast and/or ejecta inside the vehicle compartment
+    (d) There should be no indication of potentially injurious secondary fragments including those caused by loose equipment
+    Overmatch tests and assessment are not part of the acceptance process.
+    10 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX A TO AEP-55 (C), VOL 3 (PART I)
 
@@ -895,6 +895,7 @@ NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (
 $$
 The test configuration shall represent a realistic operational configuration of the vehicle using 50th percentile male ATDs to represent the vehicles occupant(s). The vehicle shall be prepared to prevent unwanted contamination of the vehicle or health risk for the personnel performing the test. Interior components and stowage, which induce potential risk, shall not be removed. For positioning the ATD inside the vehicle, the following aspects are important:  Location in the vehicle (see E4.3)  Seating posture (see E4.4) The precise location of the ATD(s), the setting of seating system and footrests, and the posture of the ATD shall be recorded and documented in the test report in order to allow reproduction of the test. Seating systems including restraint systems shall be set according to the manufacturer’s instructions and to reflect reality. The ATD shall wear clothing, shoes as specified in Section E2.3.
 $$
+
 E-7 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
@@ -1048,6 +1049,7 @@ $$
 $$
 E6.2.1 Data Acquisition The following parameters are important for the acquisition of the data:  Sensor Range  Sample Rate  Trigger  Anti-aliasing Filtering  Resolution  Signal Duration
 $$
+
 E6.2.2 Sensor Range Sensors shall be selected such that the operational amplitude range is not exceeded during the test. Accelerometers in standard ATD testing have significantly lower ampli- tudes than the peak accelerations encountered in mine and IED testing. Non-damped sensors are particularly at risk as high frequent components of the acceleration can have high peak amplitudes. Monitoring or detecting these high peak amplitudes also requires higher sampling rates compared to automotive ATD application as specified in SAE J211. E6.2.3 Trigger It is recommended to use the explosive charge initiation or detonation as the trigger time (T0) for the data-acquisition systems. In the case of more than one data-acquisition sys- tem and/or video-system, it is recommended to use the same trigger pulse. E6.2.4 Sample Rate For ATD measurements only a minimum sampling rate of 10 kHz is specified in the do- cumentation (SAE J211/1, [SAE, 2007]). However, to increase the accuracy of the out- put for the IED loading situations, a sampling rate of 100 kHz or higher (at least 10 times the cut-off frequency of the anti-aliasing filter) is advised for ATD measurements. A sampling rate of 100 kHz to 1 MHz is advised for structural and pressure measure- ments.
 E-17 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
@@ -1162,6 +1164,7 @@ NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (
 $$
 dt dD Defkonst D tor scalingfac VC CFC CFC 180 180   
 $$
+
 With: D thoracic deformation [m] dDCFC180/dt deformation velocity scaling factor see table Defkonst ATD constant, that is depth or width of half the rib cage [mm] (see table) The following table contains the scaling factor and the deformation constant (ATD con- stants) for each ATD, in accordance with SAE J1727, 8/96 Table E6: Scaling factor and deformation constant for VC calculation ATD Type Scaling factor Deformation constant [m] HIII: male 50% 1.3 0.229 ES-2\* 1,0 0.140 * Also to be used for ES-2re until more information is available. Calculate VC continuously with time and determine its largest value. E6.3.5 Thoracic Compression Criterion Frontal Thoracic Compression Criterion (TCCfrontal) is the criterion of the compression of the thorax between the sternum and the spine and is determined using the absolute value of the thorax compression, expressed in millimeters [mm]. The measurement values of the compression of the thorax shall be filtered in accor- dance with CFC600
 E-22 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
@@ -1199,9 +1202,11 @@ P(t): overpressure
 $$
 
 $$
+
 $$
 
 $$
+
 o o 2
 2 P x A V V P )t( p A x K dt dx C dt x d M
 $$
@@ -1532,10 +1537,10 @@ NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX G TO AEP-55 (C), VOL 3 (
 1. ASTM D6938-10, “Standard test methods for in-place density and water content of soil and soil-aggregate by nuclear methods (shallow depth)”.
 1. ASTM D1557-09 “Standard Methods for Laboratory Compaction Characteristics of Soil Using Modified Effort (56,000 ft-lbf/ft3 (2,700 kN-m/m3))”
 1. Criteria and Test Methodologies for Injury Assessment of Vehicle Occupants Threatened by Landmines and/or Improvised Explosive Devices (IED), HFM- 148/RTG, 2009 10) SAE J1727 (1996), Surface Vehicle Recommended Practice, Injury Calculations Guidelines, Issued August.
-   $$
+    $$
 1. SAE J211/1 (1997) Surface Vehicle Recommended Practice, ® Instrumentation for Impact Test – Part 1 – Electronic Instrumentation, Rev. July. 12) SAE J1727 (1996), Surface Vehicle Recommended Practice, Injury Calculations Guidelines, Issued August. 13) 50th percentile male Hybrid III ATD  ECE Regulation No. 94.  US Department of transportation, Code of Federal Regulations Part 572 Sub- part E 14) 50th percentile male ES-2re ATD  U.S. Department of transportation, Code of Federal Regulations Part 572, Docket No. NHTSA–2004–25441, RIN 2127–AI89, Anthropomorphic Test De- vices; ES–2re Side Impact Crash Test Dummy 50th Percentile Adult Male.
-   $$
-   G-1 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+    $$
+    G-1 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX G TO AEP-55 (C), VOL 3 (PART I)
 $$

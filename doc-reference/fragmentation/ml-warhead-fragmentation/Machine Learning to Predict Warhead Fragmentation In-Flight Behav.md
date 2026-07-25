@@ -109,26 +109,26 @@ LIST OF TABLES vii
 NOMENCLATURE vii
 
 1. Introduction 1
-   1.1 Problem Statement 2
-   1.2 Research Goals 3
-   1.3 Importance of Research 3
+    1.1 Problem Statement 2
+    1.2 Research Goals 3
+    1.3 Importance of Research 3
 1. Preliminaries and Review of Relevant Literature 4
-   2.1 Background 4
-   2.1.1 Mott’s Formula 4
-   2.1.2 Gurney’s Equation 5
-   2.1.3 Static Arena Testing 6
-   2.2 Stereoscopic Imaging 8
-   2.3 Simulation Methods 9
-   2.4 Previous Machine Learning Methods 10
-   2.5 Overview of Utilized Techniques 10
-   2.5.1 Gaussian Mixture Models 11
-   2.5.2 Expectation Maximization 13
-   2.5.3 Random Forest Regression 14
-   2.5.4 K-Nearest Neighbors Regression 15
-   2.5.5 Neural Networks 16
-   2.5.6 Boundaries of Interest 17
+    2.1 Background 4
+    2.1.1 Mott’s Formula 4
+    2.1.2 Gurney’s Equation 5
+    2.1.3 Static Arena Testing 6
+    2.2 Stereoscopic Imaging 8
+    2.3 Simulation Methods 9
+    2.4 Previous Machine Learning Methods 10
+    2.5 Overview of Utilized Techniques 10
+    2.5.1 Gaussian Mixture Models 11
+    2.5.2 Expectation Maximization 13
+    2.5.3 Random Forest Regression 14
+    2.5.4 K-Nearest Neighbors Regression 15
+    2.5.5 Neural Networks 16
+    2.5.6 Boundaries of Interest 17
 1. Methodology 19
-   iii
+    iii
 
 3.1 Software 19
 3.2 Sources of Data 19

@@ -88,6 +88,7 @@ $$p = 1 - \exp \left[ -\frac{C}{\gamma} e^{\gamma s} \right],$$
 The average strain for fracture $s_0$ is given by
 
 $$s_0 = \int_0^\infty s \frac{\mathrm{d}p}{\mathrm{d}s} \mathrm{d}s$$
+
 $$= -\frac{1}{\gamma} \left[ \log \left( \frac{\gamma}{C} \right) + \epsilon \right],$$
 
 where
@@ -301,12 +302,12 @@ $$\gamma \sim 160 P_y / P_f(1+s_f).$$
 
 Some values of $P_y, P_f, s_f$ have been deduced below from curves given by Körber & Rohland (1924):
 
-| material | reduction in area | true U.T.S. $P_f$ ($\text{kg./mm.}^2$) | $P_y$ | $\gamma$ |
-| :--- | :---: | :---: | :---: | :---: |
-| iron | 0.83 | 54 | 34 | 20 |
-| steel 0.1C | 0.70 | 70 | 42 | 42 |
-| 0.25C | 0.63 | 80 | 45 | 53 |
-| 0.45C | 0.57 | 82 | 38 | 67 |
+| material   | reduction in area | true U.T.S. $P_f$ ($\text{kg./mm.}^2$) | $P_y$ | $\gamma$ |
+| :--------- | :---------------: | :------------------------------------: | :---: | :------: |
+| iron       |       0.83        |                   54                   |  34   |    20    |
+| steel 0.1C |       0.70        |                   70                   |  42   |    42    |
+| 0.25C      |       0.63        |                   80                   |  45   |    53    |
+| 0.45C      |       0.57        |                   82                   |  38   |    67    |
 
 For mild steel, then, according to the formulae of $\S 2$, a bomb of the design suggested there would give fragments of average length 0.6 in.
 

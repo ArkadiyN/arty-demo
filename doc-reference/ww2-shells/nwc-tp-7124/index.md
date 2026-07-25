@@ -104,9 +104,9 @@ Combined tensile-shear (-110°F) shows **brittle outer ring + ductile inner core
 
 - **Expansion continues** into Phase 3, but velocity slows as case material expands
 - **Cross-linkage of fractures** occurs on expanding scale:
-  - Major hairline fractures now **propagate completely through wall**
-  - Lateral fractures **interconnect axially-oriented primary fractures**
-  - Result: **lattice of narrow, discrete fragments** in radial direction
+    - Major hairline fractures now **propagate completely through wall**
+    - Lateral fractures **interconnect axially-oriented primary fractures**
+    - Result: **lattice of narrow, discrete fragments** in radial direction
 - **Relative motion reduces:** As fragments separate, detonation products cloud expands faster than fragments, creating visual obscuration
 - **End effects:** Smaller fragments produced at cylinder ends due to rarefaction
 
@@ -181,9 +181,9 @@ And from page 9:
 **Implication for model:**
 
 - Base plate **fragments** via Mott mechanism, but with **different parameters** than cylinder:
-  - **Lower fragment count** (fewer cross-links due to rarefaction)
-  - **Larger average fragment mass**
-  - **Lower fragment velocity** (~0.7–0.8 × cylinder Vm)
+    - **Lower fragment count** (fewer cross-links due to rarefaction)
+    - **Larger average fragment mass**
+    - **Lower fragment velocity** (~0.7–0.8 × cylinder Vm)
 - Should be modeled as **distinct Mott zone with reduced γ and reduced initial velocity**
 
 **NOT:** Single "dead" plate\

@@ -19,8 +19,8 @@ This historical British Army doctrinal summary consolidates WWII operational res
 - **Optimal anti-personnel fragment mass:** Under 1/25 oz (~0.04 oz or ~1.1 grams; exact conversion uncertain in historical sources)
 - **50% Lethality Criterion:** A fragment of 1/8 oz (~28 grams) or more had 50% probability of lethality at 200 feet when striking vital organs
 - **Energy threshold for incapacitation:** Approximately 5 ft-lbs of kinetic energy (British research), **versus** earlier criterion of 58 ft-lbs
-  - 5 ft-lbs ≈ 6.78 J
-  - 58 ft-lbs ≈ 78.6 J (note: close to the widely-cited 79 J threshold in modern literature)
+    - 5 ft-lbs ≈ 6.78 J
+    - 58 ft-lbs ≈ 78.6 J (note: close to the widely-cited 79 J threshold in modern literature)
 
 ### Fragment Distribution from 25-pdr Shells
 
@@ -110,11 +110,11 @@ Higher HE content, larger bursting radius, and more efficient fragmentation desi
 ### Fragment Spatial Distribution
 
 - **Ground burst pattern:** "Wing-shaped" distribution with forward bias (~25° ahead of static omnidirectional direction)
-  - More fragments directed toward friendly forces or advancing assaulting troops
-  - Fewer fragments propagate backward toward artillery
+    - More fragments directed toward friendly forces or advancing assaulting troops
+    - Fewer fragments propagate backward toward artillery
 - **Air-burst optimal heights:**
-  - 5–10 feet: Maximum effectiveness against troops in open
-  - 30 feet: Optimal against dug-in troops in trenches (increased coverage area, reduced earth-burst deflection)
+    - 5–10 feet: Maximum effectiveness against troops in open
+    - 30 feet: Optimal against dug-in troops in trenches (increased coverage area, reduced earth-burst deflection)
 
 ### Example Fragmentation Pattern (25-pdr)
 
@@ -164,8 +164,8 @@ Weight of fire models must account for numerous sources of uncertainty and error
 ### Model Output
 
 - **Expected casualties** given as percentage with confidence bounds (e.g., "9% ± 3–4 percentage points")
-  - Stated range in original: "as low as 5% or as high as 15%"
-  - But not: "as low as 2–3% or as high as 30–40%"
+    - Stated range in original: "as low as 5% or as high as 15%"
+    - But not: "as low as 2–3% or as high as 30–40%"
 
 ## Post-WWII Development & Modernization
 
@@ -173,18 +173,18 @@ Weight of fire models must account for numerous sources of uncertainty and error
 
 1. **Higher-strength steels** enabling greater HE content:
 
-   - 105-mm Field Howitzer: ~16% HE
-   - 155-mm FH70: 26% HE
-   - Contrast to WWII 25-pdr at 7%
+    - 105-mm Field Howitzer: ~16% HE
+    - 155-mm FH70: 26% HE
+    - Contrast to WWII 25-pdr at 7%
 
 1. **Explosive charge evolution:**
 
-   - Replacement of TNT with RDX-based explosives (higher detonation velocity, better fragmentation)
+    - Replacement of TNT with RDX-based explosives (higher detonation velocity, better fragmentation)
 
 1. **Fuze technology:**
 
-   - Modern proximity fuzes with variable height-of-burst options
-   - Enables optimization for different target types (open → low burst; trenched → high burst)
+    - Modern proximity fuzes with variable height-of-burst options
+    - Enables optimization for different target types (open → low burst; trenched → high burst)
 
 ### Impact on Casualty Density
 
