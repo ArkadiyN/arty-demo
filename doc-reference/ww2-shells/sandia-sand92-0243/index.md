@@ -29,7 +29,7 @@ where:
 
 - Vm = actual fragment velocity (cm/µs, ft/sec)
 - Vg = Gurney characteristic velocity (cm/µs, ft/sec)
-  - Vg = (2E)^0.5, E = Gurney energy (kJ/kg)
+    - Vg = (2E)^0.5, E = Gurney energy (kJ/kg)
 - C = explosive weight (g)
 - M = casing/fragment weight (g)
 - *For very thin casing: Vm approaches (1.41) × Vg*

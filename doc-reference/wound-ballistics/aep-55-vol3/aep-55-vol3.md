@@ -244,10 +244,10 @@ For each category, **7 protection levels** are defined separately for **roadside
 - **Phase 2**: Full vehicle tests with instrumented ATDs
 - **Phase 3**: Optional overmatch assessment (one level above qualification threat)
 - **Pass criteria** (Para. 6.5):
-  1. All occupant injury criteria (Table E.3 or E.4) within pass levels
-  1. No hull rupture allowing penetration of injurious blast/ejecta
-  1. No injurious secondary fragments from vehicle components/stowage
-  1. Seat and restraint systems remain intact
+    1. All occupant injury criteria (Table E.3 or E.4) within pass levels
+    1. No hull rupture allowing penetration of injurious blast/ejecta
+    1. No injurious secondary fragments from vehicle components/stowage
+    1. Seat and restraint systems remain intact
 
 ______________________________________________________________________
 

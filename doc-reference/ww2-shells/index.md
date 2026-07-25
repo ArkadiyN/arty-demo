@@ -225,6 +225,141 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
+### 2.3 Historical Steel Development: X-1340 to Heat-Treated Grades
+
+**Reference Document:** Ammunition Series 6 — Manufacture of Metallic Components of Artillery Ammunition, §6-11: "Steel Used Early in World War II"
+
+**Context:** Primary source analysis of WW2 artillery shell steel evolution from manganese-hardened (air-cooled) to heat-treated grades, addressing manufacturing and performance constraints as shell sizes increased.
+
+#### X-1340 Composition (Original Specification)
+
+| Element | Range       |
+| ------- | ----------- |
+| **C**   | 0.35–0.45%  |
+| **Mn**  | 1.35–1.65%  |
+| **P**   | ≤0.45% max  |
+| **S**   | 0.075–0.15% |
+
+**Design Strategy:** High manganese acts as substitutional hardener to achieve target yield strength (~50,000 psi / 345 MPa) via rapid air-cooling from forging temperature, eliminating need for post-forge heat treatment.
+
+**Manganese Hardening Relation:** Tensile strength increase = 100–500 psi per 0.01% Mn (carbon-dependent); yield strength increase typically greater.
+
+#### Thermal Engineering Limitation (Caliber Dependency)
+
+**Performance Gap at Large Calibers:**
+
+- **≤105mm shells:** Surface-area-to-volume ratio supports rapid uniform cooling; air-blast cooling produces acceptable hardness throughout
+- **≥155mm shells:** Core cooling rate insufficient; interior remains soft (austenite/pearlite); outer shell hardens; property stratification causes mechanical mismatch and delamination risk
+
+**Quoted:** "While the physical requirements were met in the smaller shells, difficulty was experienced with the 155-mm on account of the higher ratio of volume to heat-robbing surface."
+
+#### Strategic Transition to Lower-Mn + Heat Treatment
+
+**Successor Grade** (unnamed in source; possibly WD-X1335 per baseline 105mm M1 BOM):
+
+- **Manganese Content:** Reduced from 1.35–1.65%
+- **Cooling Method:** Controlled heat-treatment (furnace; type unspecified) instead of air-blast
+- **Applicability:** Intended for all caliber ranges, eliminating cooling-geometry constraint
+
+**Driving Factors:**
+
+1. Enables uniform hardness in large-caliber shells (≥155mm)
+1. Conserves manganese (in short supply)
+1. Simplifies forge operations (eliminates air-blast cooling rig)
+
+**Manufacturing Trade-Off:** Machinability reduced (harder material); machine-shop tool wear and production time increased.
+
+**Quoted:** "This action also saved considerable quantities of manganese, which was in short supply, and simplified the work of the forge by eliminating air-blast cooling; however, the work in the machine shop was increased."
+
+#### Open Question: X-1340 ↔ WD-X1335 Identity
+
+**Source document does not name the heat-treated successor grade.** Possible interpretations:
+
+1. **Direct succession:** WD-X1335 (from 105mm M1 BOM, spec 57-107) is the low-Mn heat-treated successor
+1. **Parallel grades:** X-1340 continued for small shells; separate low-Mn grade for large shells
+1. **Unrelated:** X-1340 experimental; WD-X1335 always the production standard
+1. **Variants:** Multiple X-1340 or WD designations for different caliber/performance tiers
+
+**Data Gap:** WD-X1335 composition and mechanical properties (spec 57-107) not digitized in public sources.
+
+**See:** `doc-reference/ww2-shells/ammunition-series-6-steel-composition/` for detailed composition, confidence assessment, and recommendations for further investigation.
+
+______________________________________________________________________
+
+### 2.4 Post-War Shell Steel Specifications: WDSS Family (1953)
+
+**Reference Document:** Ammunition Series 6 — Manufacture of Metallic Components of Artillery Ammunition, §6-14: "Prevailing Shell Steel Specifications," Table 6-1 (as of 17 February 1953)
+
+**Context:** Standardized chemical specifications for late-WW2 and post-war mortar and recoilless gun shell steels. Six grades span a spectrum of carbon and manganese content, with WDSS 1 and 2 explicitly designated for 60mm, 81mm mortar shells and 57mm recoilless gun bodies. No mechanical properties are stated.
+
+#### WDSS 1 and 2: Specified Applications
+
+| Grade      | Carbon     | Manganese  | Sulfur     | Silicon    | Phosphorus | Application                                                         |
+| ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ------------------------------------------------------------------- |
+| **WDSS 1** | 0.14–0.20% | 1.00–1.30% | 0.08–0.13% | ≤0.10%     | ≤0.040%    | 60mm, 81mm mortar shell; ductility-emphasized                       |
+| **WDSS 2** | 0.28–0.34% | 0.60–0.90% | ≤0.050%    | 0.15–0.30% | ≤0.040%    | 60mm, 81mm mortar; 57mm recoilless gun; balanced strength/ductility |
+
+**Design Strategy:**
+
+- **WDSS 1:** Low carbon (0.14–0.20%) with high manganese (1.00–1.30%) for ductile, thin-walled shell bodies; unusually elevated sulfur (0.08–0.13%, vs. typical ≤0.05%) suggests either MnS inclusion control or wartime scrap acceptance
+- **WDSS 2:** Medium-low carbon (0.28–0.34%) with reduced manganese (0.60–0.90%) and elevated silicon (0.15–0.30%); balanced hardness/toughness for general-purpose forgings
+
+#### WDSS 3, 5, 6, 7: Unspecified Applications
+
+| Grade      | Carbon Max | Manganese Max | Silicon    | Phosphorus | Sulfur  |
+| ---------- | ---------- | ------------- | ---------- | ---------- | ------- |
+| **WDSS 3** | 0.60%      | 1.00%         | 0.15–0.30% | ≤0.040%    | ≤0.050% |
+| **WDSS 5** | 0.65%      | 1.00%         | 0.15–0.30% | ≤0.040%    | ≤0.050% |
+| **WDSS 6** | 0.55%      | 1.00%         | 0.15–0.30% | ≤0.040%    | ≤0.050% |
+| **WDSS 7** | 0.65%      | 1.30%         | 0.15–0.30% | ≤0.040%    | ≤0.050% |
+
+**Note:** No WDSS 4 appears in the source specification; this gap is in the original, not an ingestion error. Applications for WDSS 3, 5, 6, 7 are not stated; composition trends (higher carbon, controlled impurities) suggest hardened-body designs for structural strength or specialized ammunition types.
+
+#### Metallurgical Evolution: X-1340 to WDSS
+
+| Parameter                | X-1340 (§6-11, ~1940–42)        | WDSS (§6-14, 1953)                                       |
+| ------------------------ | ------------------------------- | -------------------------------------------------------- |
+| **Mn Content (primary)** | 1.35–1.65% (high)               | 0.60–1.30% (moderate–low)                                |
+| **Si Addition**          | Not specified                   | Consistent 0.15–0.30% (WDSS 2–7)                         |
+| **C Range**              | 0.35–0.45% (narrow)             | 0.14–0.65% (broad spectrum)                              |
+| **P Limit**              | ≤0.45% (unusually high)         | ≤0.040% (strict; post-war standard)                      |
+| **Cooling**              | Air-blast (rapid, uncontrolled) | Not specified (assumed heat-treatment)                   |
+| **Target Calibers**      | 75–155mm; problematic ≥155mm    | 60mm, 81mm mortar; 57mm recoilless (small-caliber focus) |
+
+**Key Observations:**
+
+- Manganese content drops significantly (conservation strategy; Mn was in short supply)
+- Silicon elevation (0.15–0.30%) replaces part of Mn hardening function
+- Phosphorus tightened >10× (≤0.45% → ≤0.040%), reflecting post-war metallurgical control
+- Shift from single high-Mn grade (X-1340) to a family of six grades enabling application-specific selection
+
+#### Data Gaps: Mechanical Properties Not Specified
+
+The WDSS table provides **chemistry only**. Missing critical data:
+
+- Yield strength, tensile strength, hardness (HB/HRC)
+- Elongation, impact toughness
+- Heat treatment specification (normalize, quench/temper, anneal)
+- Explicit caliber/application for WDSS 3, 5, 6, 7
+
+**Confidence:** Chemical composition is high-confidence (direct transcription); intended uses (WDSS 1, 2) are clear; mechanical properties are unknown, and WDSS 3–7 design intent is inferred from composition alone.
+
+**See:** `doc-reference/ww2-shells/ammunition-series-6-wdss-specs/` for detailed chemical analysis, metallurgical interpretation, confidence assessment, and recommendations for verifying WDSS 1 sulfur spec and locating mechanical property data.
+
+### 2.5 M49A2 60mm Mortar Shell — Ordnance Drawing (Partial)
+
+**Reference Document:** US Army Ordnance drawing, SHELL, HE, 60MM., M49A2 AND PRACTICE, 60MM M50A2
+
+**Status:** Partial capture — page 1 OCR only. The drawing cross-references a
+full material specification on page 57 ("SEE NOTE DD/CC-PAGE 57") that was
+not captured; the visible page-1 text does **not** state a WDSS grade
+designation or composition. Body shell is called out as "STEEL, STAMPED,"
+Type 'S'. Not yet sufficient to independently confirm the WDSS grade used for
+this shell.
+
+**See:** `doc-reference/ww2-shells/m49a2-60mm-mortar-shell/` for the full
+extract and the specific data gap (page 57 not yet obtained).
+
 ## 3. Data Gaps and Confidence Assessment
 
 | Parameter          | US 75mm M48 | US 155mm M101 | German 105cm Gr.38 | Soviet 76mm OF-350M | British 25-pdr Mk ID |
@@ -251,25 +386,30 @@ ______________________________________________________________________
 ### Primary Sources (Web-Accessible)
 
 1. **US Army TM 43-0001-28** — *Army Ammunition Data Sheets*\
-   Available: [Archive.org](https://archive.org/details/tm-43-0001-28.-army-ammunition-data-sheets-artillery-ammunition-guns.....and-artillery-fuzes-1994), [EverySpec](http://everyspec.com/ARMY/TM-Tech-Manual/TM_43-0001-28-3_CHG-11_53626/)\
-   Contains shell mass, filler type, fuze data for 75mm, 155mm, and other US shells
+    Available: [Archive.org](https://archive.org/details/tm-43-0001-28.-army-ammunition-data-sheets-artillery-ammunition-guns.....and-artillery-fuzes-1994), [EverySpec](http://everyspec.com/ARMY/TM-Tech-Manual/TM_43-0001-28-3_CHG-11_53626/)\
+    Contains shell mass, filler type, fuze data for 75mm, 155mm, and other US shells
 
 1. **FM 6-40** — *Field Artillery Gunnery Manual* (various editions)\
-   Available: [Archive.org](https://archive.org/details/Fm6-40), [Scribd](https://www.scribd.com/document/260432328/FM-6-40-1945-Field-Artillery-Gunnery), [Global Security](https://www.globalsecurity.org/military/library/policy/army/fm/6-40/index.html)\
-   Ballistic data, shell properties, fuze specifications
+    Available: [Archive.org](https://archive.org/details/Fm6-40), [Scribd](https://www.scribd.com/document/260432328/FM-6-40-1945-Field-Artillery-Gunnery), [Global Security](https://www.globalsecurity.org/military/library/policy/army/fm/6-40/index.html)\
+    Ballistic data, shell properties, fuze specifications
 
 1. **DTIC AD0702233** — *Fragmentation Effects of the 75MM H.E. Shell T3 (M48)*\
-   Authors: N.A. Tolch et al., Army Ballistic Research Lab, Aberdeen Proving Ground\
-   Available: [Archive.org](https://archive.org/details/DTIC_AD0702233), [DTIC PDF](https://apps.dtic.mil/sti/tr/pdf/AD0702233.pdf)\
-   Experimental fragmentation panel/pit testing; fragment density maps
+    Authors: N.A. Tolch et al., Army Ballistic Research Lab, Aberdeen Proving Ground\
+    Available: [Archive.org](https://archive.org/details/DTIC_AD0702233), [DTIC PDF](https://apps.dtic.mil/sti/tr/pdf/AD0702233.pdf)\
+    Experimental fragmentation panel/pit testing; fragment density maps
 
 1. **Captured German Ordnance Intelligence** — DTIC ADA376695\
-   Available: [DTIC PDF](https://apps.dtic.mil/sti/tr/pdf/ADA376695.pdf)\
-   German projectile identification, filler types, performance specs
+    Available: [DTIC PDF](https://apps.dtic.mil/sti/tr/pdf/ADA376695.pdf)\
+    German projectile identification, filler types, performance specs
 
 1. **Mott, N.F. (1947).** "Fragmentation of shell cases." *Proc. Roy. Soc.* **A190**, 300–308\
-   Available: [Royal Society](https://royalsocietypublishing.org/doi/10.1098/rspa.1947.0042)\
-   Foundational fragmentation theory
+    Available: [Royal Society](https://royalsocietypublishing.org/doi/10.1098/rspa.1947.0042)\
+    Foundational fragmentation theory
+
+1. **Ammunition Series 6** — *Manufacture of Metallic Components of Artillery Ammunition*\
+    Section 6-11: "Steel Used Early in World War II"\
+    Status: Primary military technical reference; composition and thermal design rationale for X-1340 and successor heat-treated grades\
+    Archive: See `doc-reference/ww2-shells/ammunition-series-6-steel-composition/`
 
 ### Secondary/Tertiary Sources (Web-Based)
 
@@ -287,20 +427,20 @@ ______________________________________________________________________
 
 1. **Use Mott (1947) theory** as primary fragmentation model:
 
-   - Requires only: shell mass, explosive mass, shell caliber, steel yield strength
-   - Produces log-normal fragment size distribution
-   - Parameter γ estimated from material grain size or fitted to test data if available
+    - Requires only: shell mass, explosive mass, shell caliber, steel yield strength
+    - Produces log-normal fragment size distribution
+    - Parameter γ estimated from material grain size or fitted to test data if available
 
 1. **When available, use Grady–Kipp** for strain-rate effects:
 
-   - More physically accurate but requires full material card (σ_y, K_IC, ρ, strain-rate hardening)
-   - Overkill for WW2 ordnance without detailed metallurgical data
+    - More physically accurate but requires full material card (σ_y, K_IC, ρ, strain-rate hardening)
+    - Overkill for WW2 ordnance without detailed metallurgical data
 
 1. **Proxy Fragmentation Parameters** (pending primary data):
 
-   - Assume ~350 MPa yield stress for normalized 19-ton shell steel
-   - Assume ~8–12% explosive fill ratio for typical WW2 HE shells (varies by caliber)
-   - Estimate Mott γ ≈ 2.5–3.5 based on typical medium-carbon steel (grain size D ≈ 50–100 μm)
+    - Assume ~350 MPa yield stress for normalized 19-ton shell steel
+    - Assume ~8–12% explosive fill ratio for typical WW2 HE shells (varies by caliber)
+    - Estimate Mott γ ≈ 2.5–3.5 based on typical medium-carbon steel (grain size D ≈ 50–100 μm)
 
 ### For Cross-Validation
 

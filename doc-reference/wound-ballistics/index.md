@@ -171,28 +171,28 @@ ______________________________________________________________________
 
 1. **Start with British Artillery WoF (1944) for empirical baseline:**
 
-   - Extract posture-dependent casualty multipliers (prone = 1/3, trenched = 1/15–1/50)
-   - Note fire intensity requirement: 0.1 lb/sq yd/hr for lethal effect
-   - Validate modern model predictions against historical WWII casualty data
+    - Extract posture-dependent casualty multipliers (prone = 1/3, trenched = 1/15–1/50)
+    - Note fire intensity requirement: 0.1 lb/sq yd/hr for lethal effect
+    - Validate modern model predictions against historical WWII casualty data
 
 1. **Apply Cunniff (2014) for fragment-level physics:**
 
-   - Import Figure 3 munition-specific presented area distributions
-   - Use Driels equation (p. 35) for velocity-reduction-in-flight calculations
-   - Apply Sturdivan model (pp. 49–51) for tissue penetration depth
-   - Compute individual fragment lethality (Pk|hit) as function of fragment energy + target area
+    - Import Figure 3 munition-specific presented area distributions
+    - Use Driels equation (p. 35) for velocity-reduction-in-flight calculations
+    - Apply Sturdivan model (pp. 49–51) for tissue penetration depth
+    - Compute individual fragment lethality (Pk|hit) as function of fragment energy + target area
 
 1. **Validate Against FAS ES-310:**
 
-   - Compare computed Pk vs. tabulated energy thresholds (100 J light, 1 kJ moderate, 4 kJ heavy)
-   - Verify Pk|hit assignment per fragment kinetic energy
-   - Ensure probabilistic framework (not binary kill threshold) matches ES-310 guidance
+    - Compare computed Pk vs. tabulated energy thresholds (100 J light, 1 kJ moderate, 4 kJ heavy)
+    - Verify Pk|hit assignment per fragment kinetic energy
+    - Ensure probabilistic framework (not binary kill threshold) matches ES-310 guidance
 
 1. **Extend to Posture & Presented Area:**
 
-   - Cunniff's human phantom method (Figure 7) computes area as f(burst location, posture)
-   - Cross-check against British WoF posture multipliers to ensure model predicts correct casualty scaling
-   - Consider NATO "man-as-box" silhouette model for standing/crouching/prone dimensions
+    - Cunniff's human phantom method (Figure 7) computes area as f(burst location, posture)
+    - Cross-check against British WoF posture multipliers to ensure model predicts correct casualty scaling
+    - Consider NATO "man-as-box" silhouette model for standing/crouching/prone dimensions
 
 ### Model Validation Checklist
 
