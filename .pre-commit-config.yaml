@@ -24,7 +24,10 @@ repos:
         # bug already worked around for .qmd via .mdformat-ignore, but that
         # file only applies to mdformat's own directory-mode discovery, not
         # to files pre-commit passes explicitly, hence the exclude here too.
-        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$'
+        # doc-reference/ hit the same corruption on rspa.1947.0042.md (\frac,
+        # \eqno, \% all mangled) — sources there are transcribed verbatim and
+        # must not be reformatted anyway.
+        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$|doc-reference/.*\.md$'
 
       # Blocking backstop for agent-memory discipline. The PostToolUse hook of
       # the same script only *nudges* the writing agent after the write lands;
