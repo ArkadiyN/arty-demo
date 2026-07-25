@@ -31,6 +31,10 @@ _parse_page_vision_response
 _extract_doc_via_vision_google (Google client mocked)
   • Calls client.models.generate_content exactly once (1 API call for N pages).
   • Returns per-page (markdown, has_figure) matching page count.
+  • Retries on transient google.genai.errors.ServerError (e.g. 504) up to 3
+    attempts, backing off between them, and recovers if a later call succeeds.
+  • Re-raises the ServerError once all 3 attempts are exhausted.
+  • Non-ServerError exceptions propagate immediately without retrying.
 
 Vision pipeline — Google path (Google client mocked, real fitz pages)
   • generate_markdown with analyze_formulas=True uses Google when available.
@@ -505,6 +509,75 @@ class TestExtractDocViaVisionGoogle:
         results = _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
         _, has_fig = results[0]
         assert has_fig is True
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# _extract_doc_via_vision_google  — retry on transient ServerError (504)
+# ══════════════════════════════════════════════════════════════════════════════
+
+@pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
+class TestExtractDocViaVisionGoogleRetry:
+    def _server_error(self, code=504):
+        from google.genai import errors
+        return errors.ServerError(code, {"error": {"message": "Gateway Timeout"}})
+
+    def test_retries_and_succeeds_after_transient_error(self, monkeypatch):
+        monkeypatch.setattr(_mod.time, "sleep", lambda *_: None)
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[0]]
+        reply = "=== PAGE 1 ===\nRecovered\n"
+        client = MagicMock()
+        client.models.generate_content.side_effect = [
+            self._server_error(),
+            MagicMock(text=reply),
+        ]
+        results = _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        assert client.models.generate_content.call_count == 2
+        assert results[0][0] == "Recovered"
+
+    def test_reraises_after_exhausting_retries(self, monkeypatch):
+        from google.genai import errors
+        monkeypatch.setattr(_mod.time, "sleep", lambda *_: None)
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[0]]
+        client = MagicMock()
+        client.models.generate_content.side_effect = self._server_error()
+        with pytest.raises(errors.ServerError):
+            _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        assert client.models.generate_content.call_count == 3
+
+    def test_non_server_error_fails_fast_without_retry(self):
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[0]]
+        client = MagicMock()
+        client.models.generate_content.side_effect = ValueError("bad request")
+        with pytest.raises(ValueError):
+            _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        assert client.models.generate_content.call_count == 1
+
+    def test_retries_and_succeeds_after_empty_response(self, monkeypatch):
+        monkeypatch.setattr(_mod.time, "sleep", lambda *_: None)
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[0]]
+        reply = "=== PAGE 1 ===\nRecovered\n"
+        client = MagicMock()
+        client.models.generate_content.side_effect = [
+            MagicMock(text=None),
+            MagicMock(text=reply),
+        ]
+        results = _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        assert client.models.generate_content.call_count == 2
+        assert results[0][0] == "Recovered"
+
+    def test_reraises_after_exhausting_empty_response_retries(self, monkeypatch):
+        monkeypatch.setattr(_mod.time, "sleep", lambda *_: None)
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[0]]
+        client = MagicMock()
+        client.models.generate_content.return_value = MagicMock(text=None)
+        with pytest.raises(_mod._EmptyVisionResponse):
+            _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        assert client.models.generate_content.call_count == 3
 
 
 # ══════════════════════════════════════════════════════════════════════════════

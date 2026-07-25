@@ -2,6 +2,7 @@ import os
 import sys
 import io
 import re
+import time
 import base64
 import argparse
 import fitz  # PyMuPDF
@@ -279,27 +280,47 @@ def _parse_page_vision_response(text, n_pages):
     return results
 
 
+class _EmptyVisionResponse(Exception):
+    """Raised when Google returns no text part (retryable, like a ServerError)."""
+
+
 def _extract_doc_via_vision_google(pages, client, model):
     """Send all pages as one combined image to Google; return per-page (md, has_figure).
 
     pages: ordered list of fitz.Page objects (the image-based pages only).
     The combined image is labeled PAGE 1..N so the response maps back positionally.
     """
-    from google.genai import types
+    from google.genai import types, errors
 
     n = len(pages)
     combined_bytes = _render_pages_combined(pages)
     prompt = _DOC_VISION_PROMPT.format(n=n)
 
     print(f"  Sending {n} pages as combined image to Google ({model})...")
-    response = client.models.generate_content(
-        model=model,
-        contents=[
-            types.Part.from_bytes(data=combined_bytes, mime_type="image/jpeg"),
-            prompt,
-        ],
-    )
-    return _parse_page_vision_response(response.text, n)
+    max_attempts = 3
+    for attempt in range(1, max_attempts + 1):
+        try:
+            response = client.models.generate_content(
+                model=model,
+                contents=[
+                    types.Part.from_bytes(data=combined_bytes, mime_type="image/jpeg"),
+                    prompt,
+                ],
+            )
+            if response.text is None:
+                # The model can burn its whole output budget on internal
+                # "thinking" and never emit the actual transcription part;
+                # response.text then comes back None with no exception raised.
+                # Retrying is usually enough to get a real answer.
+                raise _EmptyVisionResponse("no text part returned")
+            return _parse_page_vision_response(response.text, n)
+        except (errors.ServerError, _EmptyVisionResponse) as e:
+            if attempt == max_attempts:
+                raise
+            wait_s = 2 ** attempt
+            print(f"  Google vision call failed ({e}); retrying in {wait_s}s "
+                  f"(attempt {attempt}/{max_attempts})...")
+            time.sleep(wait_s)
 
 
 # ---------------------------------------------------------------------------
