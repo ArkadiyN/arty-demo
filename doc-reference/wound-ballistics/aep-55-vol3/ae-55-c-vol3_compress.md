@@ -143,33 +143,25 @@ NATO UNCLASSIFIED Releasable to PFP and Australia AEP-55 (C), VOL 3 (PART I)
 ### 3.1 Threat Direction
 
 Two general directions of attack relative to the vehicle are defined:
-$$
- Underbelly
-$$
-$$
- Roadside
-$$
-Underbelly threats are defined as IEDs underneath the vehicle (wheel, track or belly). They also include IEDs placed within 1m of the periphery (D1) of the vehicle, and which therefore are placed primarily to attack the underside of the vehicle.
-All other IED threats not defined as underbelly attacks are defined as side attacks.
-Throughout this Volume, a distinction is made between these two different definitions of threat location in relation to the vehicle and occupants.
-It is acknowledged that specific top attack IEDs are not considered in this Volume, but may be addressed in the future.
+
+- Underbelly
+- Roadside
+    Underbelly threats are defined as IEDs underneath the vehicle (wheel, track or belly). They also include IEDs placed within 1m of the periphery (D1) of the vehicle, and which therefore are placed primarily to attack the underside of the vehicle.
+    All other IED threats not defined as underbelly attacks are defined as side attacks.
+    Throughout this Volume, a distinction is made between these two different definitions of threat location in relation to the vehicle and occupants.
+    It is acknowledged that specific top attack IEDs are not considered in this Volume, but may be addressed in the future.
 
 ### 3.2 IED Classification
 
 Within this document the IED threats are divided into the following 3 basic categories (Annex A):
-$$
- Blast Charges,
-$$
-$$
- Fragmentation Charges,
-$$
-$$
- Projectile Forming Charges.
-$$
-This classification is based upon the dominant physical effects resulting from using IEDs to attack armoured vehicles with the occupants inside.
-The method of initiation (command wire, remote control, victim actuated, suicide, etc.) is of no relevance from a physical protection perspective. This AEP solely assesses the performance of occupant safety in armoured vehicles assuming the device was initiated successfully.
-Chemical / Biological / Radioactive / Nuclear (CBRN) IEDs are not considered in this paper.
-3 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+
+- Blast Charges,
+- Fragmentation Charges,
+- Projectile Forming Charges.
+    This classification is based upon the dominant physical effects resulting from using IEDs to attack armoured vehicles with the occupants inside.
+    The method of initiation (command wire, remote control, victim actuated, suicide, etc.) is of no relevance from a physical protection perspective. This AEP solely assesses the performance of occupant safety in armoured vehicles assuming the device was initiated successfully.
+    Chemical / Biological / Radioactive / Nuclear (CBRN) IEDs are not considered in this paper.
+    3 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia AEP-55 (C), VOL 3 (PART I)
 Other conceivable IED types are not specifically addressed in this paper. The thermo- baric threat is considered herein as blast threat.
@@ -256,13 +248,10 @@ NATO UNCLASSIFIED Releasable to PFP and Australia AEP-55 (C), VOL 3 (PART I)
 Phase 2 measurements are to be conducted and recorded in order to assess injuries caused by dynamic loading of the vehicle structure. Assessment is to be conducted in accordance with Para. 6 and Annex E5.
 It is mandatory to use the specific test dummies instrumented with the MIL – Lx lower legs (Annex E2), and the corresponding pass values as laid down in Table E.3 and E.4. On decision of the NA, alternatively the Denton leg with the corresponding pass values as described in AEP-55 Volume 2 can be used.
 The following measurement tools shall be used in the qualification tests to get more in- formation on injury mechanism:
-$$
- Sensors (acceleration, displacement, force) on vehicle structure, seats, foot rest systems etc.
-$$
-$$
- High speed video cameras inside the vehicle
-$$
-Post-detonation examination of the vehicle is to be conducted in order to identify struc- tural damages and fragment and/or Projectile Forming Penetration. Penetrations and characteristics of the structural damages are to be fully documented.
+
+- Sensors (acceleration, displacement, force) on vehicle structure, seats, foot rest systems etc.
+- High speed video cameras inside the vehicle
+    Post-detonation examination of the vehicle is to be conducted in order to identify struc- tural damages and fragment and/or Projectile Forming Penetration. Penetrations and characteristics of the structural damages are to be fully documented.
 
 ### 6 ASSESSMENT AND EVALUATION
 
@@ -831,9 +820,17 @@ E3 INSTRUMENTATION
 
 ### E3.1 General
 
-$$
-The required instrumentation for the injury risk assessment:  Injury risks induced by forces, moments and inertial loads applied to the human body shall be monitored by accelerometers and force-moment transducers inte- grated in the ATD;  The injury risk due to the blast induced overpressure shall be monitored by the reflected pressure as input for the Chest Wall Velocity model. The recommended additional instrumentation:  Additional channels in the ATD (see Appendix E6.4);  Acceleration measurements of seat system and/or vehicle structure, which are relevant for the ATD loading conditions;  Force measurements in the restraint system;  Normal and/or high-speed video to record ATD body motion.
-$$
+The required instrumentation for the injury risk assessment:
+
+- Injury risks induced by forces, moments and inertial loads applied to the human body shall be monitored by accelerometers and force-moment transducers integrated in the ATD;
+- The injury risk due to the blast induced overpressure shall be monitored by the reflected pressure as input for the Chest Wall Velocity model.
+
+The recommended additional instrumentation:
+
+- Additional channels in the ATD (see Appendix E6.4);
+- Acceleration measurements of seat system and/or vehicle structure, which are relevant for the ATD loading conditions;
+- Force measurements in the restraint system;
+- Normal and/or high-speed video to record ATD body motion.
 
 ### E3.2 Instrumentation Calibration, Mounting And Sign Convention
 
@@ -892,9 +889,12 @@ NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (
 
 ### E4.1 Basic Test Configuration
 
-$$
-The test configuration shall represent a realistic operational configuration of the vehicle using 50th percentile male ATDs to represent the vehicles occupant(s). The vehicle shall be prepared to prevent unwanted contamination of the vehicle or health risk for the personnel performing the test. Interior components and stowage, which induce potential risk, shall not be removed. For positioning the ATD inside the vehicle, the following aspects are important:  Location in the vehicle (see E4.3)  Seating posture (see E4.4) The precise location of the ATD(s), the setting of seating system and footrests, and the posture of the ATD shall be recorded and documented in the test report in order to allow reproduction of the test. Seating systems including restraint systems shall be set according to the manufacturer’s instructions and to reflect reality. The ATD shall wear clothing, shoes as specified in Section E2.3.
-$$
+The test configuration shall represent a realistic operational configuration of the vehicle using 50th percentile male ATDs to represent the vehicles occupant(s). The vehicle shall be prepared to prevent unwanted contamination of the vehicle or health risk for the personnel performing the test. Interior components and stowage, which induce potential risk, shall not be removed. For positioning the ATD inside the vehicle, the following aspects are important:
+
+- Location in the vehicle (see E4.3)
+- Seating posture (see E4.4)
+
+The precise location of the ATD(s), the setting of seating system and footrests, and the posture of the ATD shall be recorded and documented in the test report in order to allow reproduction of the test. Seating systems including restraint systems shall be set according to the manufacturer’s instructions and to reflect reality. The ATD shall wear clothing, shoes as specified in Section E2.3.
 
 E-7 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
@@ -903,22 +903,15 @@ NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (
 ### E4.2 Selection of ATD
 
 • The exact type of ATD to be used for testing depends on the loading scenario identified by the location of the IED with respect to the ATD. Figure E.1 shows the possible scenarios (UB= Under Belly, RS = Road Side):
-$$
- UB1: The location of the explosion underneath the ATD with the primary load direction in the vertical plane;
-$$
-$$
- UB2 and UB3: The location of the explosion under the vehicle with additional secondary loadings (blue arrows Fig. E1) horizontally for the ATD;
-$$
-$$
- RS1 and RS2: Roadside explosion with the location of the explosion respectively in front of or behind of the ATD. The primary load direction is horizontally with a secondary load direction in the vertical plane;
-$$
-$$
- RS3: Roadside explosion with the location of the explosion to the side of the ATD. The primary load direction is laterally with additional secondary loadings (blue arrows Fig. E1) vertically.
-$$
-Each loading direction could result in a vertical load to the occupant as the blast will en- ter open spaces under the vehicle. The Hybrid III 50th percentile male shall be used for the loading scenarios where the IED is located underneath, underbelly, in front or rear of the ATD: UB1,UB2, UB3, RS1, and RS2. The ES-2re 50th percentile male shall be used if the IED is located lateral of the ATD: RS3.
-UB1 UB2 UB3
-ATD Hybrid HIII ATD
-E-8 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+
+- UB1: The location of the explosion underneath the ATD with the primary load direction in the vertical plane;
+- UB2 and UB3: The location of the explosion under the vehicle with additional secondary loadings (blue arrows Fig. E1) horizontally for the ATD;
+- RS1 and RS2: Roadside explosion with the location of the explosion respectively in front of or behind of the ATD. The primary load direction is horizontally with a secondary load direction in the vertical plane;
+- RS3: Roadside explosion with the location of the explosion to the side of the ATD. The primary load direction is laterally with additional secondary loadings (blue arrows Fig. E1) vertically.
+    Each loading direction could result in a vertical load to the occupant as the blast will en- ter open spaces under the vehicle. The Hybrid III 50th percentile male shall be used for the loading scenarios where the IED is located underneath, underbelly, in front or rear of the ATD: UB1,UB2, UB3, RS1, and RS2. The ES-2re 50th percentile male shall be used if the IED is located lateral of the ATD: RS3.
+    UB1 UB2 UB3
+    ATD Hybrid HIII ATD
+    E-8 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
 RS1 RS2
@@ -951,19 +944,35 @@ E4.4.4 Restraint systems All available protective measures, like seat belts and 
 
 ### E5.1 Critical Body Parts
 
-$$
-With an IED detonation close to a vehicle, the occupants are loaded by the local struc- tural motions and deformations and by the global vehicle motion. For the purposes of injury assessment, the following body regions will be assessed:  Head (including skull and brain)  Neck (cervical spine )  Shoulder  Thorax  Abdomen  Spine (thoraxo-lumbar region)  Pelvis  Upper legs left and right (femur/hip/knee)  Lower legs left and right (including foot/ankle)  Non auditory internal organs/systems (vulnerable to overpressure) The qualification of a vehicle depends on whether the responses for these body parts are within the defined pass levels. The relevant criteria are linked to the type of ATD used for testing. As noted above, the ATD to be used shall be related to the orientation of the occupant towards the IED (see E4.2).
-$$
+With an IED detonation close to a vehicle, the occupants are loaded by the local structural motions and deformations and by the global vehicle motion. For the purposes of injury assessment, the following body regions will be assessed:
+
+- Head (including skull and brain)
+- Neck (cervical spine)
+- Shoulder
+- Thorax
+- Abdomen
+- Spine (thoraxo-lumbar region)
+- Pelvis
+- Upper legs left and right (femur/hip/knee)
+- Lower legs left and right (including foot/ankle)
+- Non auditory internal organs/systems (vulnerable to overpressure)
+
+The qualification of a vehicle depends on whether the responses for these body parts are within the defined pass levels. The relevant criteria are linked to the type of ATD used for testing. As noted above, the ATD to be used shall be related to the orientation of the occupant towards the IED (see E4.2).
 
 ### E5.2 ATD Injury Assessment Reference Values
 
 E-11 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
-$$
-The mandatory IARVs are related to the type of ATD (section E5.2.1) and the pressure (section E5.2.2). The pass levels are based on 10% risk of AIS2+ (AIS2 or more severe) injuries. E5.2.1 ATD related IARV The following IARVs are mandatory and used as pass criteria for the tested vehicle:  Table E3 for the Hybrid III ATD Table E4 for the ES-2re
-$$
-E-12 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+The mandatory IARVs are related to the type of ATD (section E5.2.1) and the pressure (section E5.2.2). The pass levels are based on 10% risk of AIS2+ (AIS2 or more severe) injuries.
+
+#### E5.2.1 ATD related IARV
+
+The following IARVs are mandatory and used as pass criteria for the tested vehicle:
+
+- Table E3 for the Hybrid III ATD
+- Table E4 for the ES-2re
+    E-12 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
 
@@ -1040,23 +1049,53 @@ E6.1.3 Pressure Transducer Specifications For fixing to a plate, a flat transduc
 E-16 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
-$$
- Full scale range > 300 kPa  Resonance frequency at least 50 kHz  Time constant (transducer and amplifier) at least 200 ms. This should be at least 100 times the duration of the longest event to be recorded.
-$$
+
+- Full scale range > 300 kPa
+- Resonance frequency at least 50 kHz
+- Time constant (transducer and amplifier) at least 200 ms. This should be at least 100 times the duration of the longest event to be recorded.
 
 ### E6.2 Data Acquisition and Processing
 
-$$
-E6.2.1 Data Acquisition The following parameters are important for the acquisition of the data:  Sensor Range  Sample Rate  Trigger  Anti-aliasing Filtering  Resolution  Signal Duration
-$$
+#### E6.2.1 Data Acquisition
+
+The following parameters are important for the acquisition of the data:
+
+- Sensor Range
+- Sample Rate
+- Trigger
+- Anti-aliasing Filtering
+- Resolution
+- Signal Duration
 
 E6.2.2 Sensor Range Sensors shall be selected such that the operational amplitude range is not exceeded during the test. Accelerometers in standard ATD testing have significantly lower ampli- tudes than the peak accelerations encountered in mine and IED testing. Non-damped sensors are particularly at risk as high frequent components of the acceleration can have high peak amplitudes. Monitoring or detecting these high peak amplitudes also requires higher sampling rates compared to automotive ATD application as specified in SAE J211. E6.2.3 Trigger It is recommended to use the explosive charge initiation or detonation as the trigger time (T0) for the data-acquisition systems. In the case of more than one data-acquisition sys- tem and/or video-system, it is recommended to use the same trigger pulse. E6.2.4 Sample Rate For ATD measurements only a minimum sampling rate of 10 kHz is specified in the do- cumentation (SAE J211/1, [SAE, 2007]). However, to increase the accuracy of the out- put for the IED loading situations, a sampling rate of 100 kHz or higher (at least 10 times the cut-off frequency of the anti-aliasing filter) is advised for ATD measurements. A sampling rate of 100 kHz to 1 MHz is advised for structural and pressure measure- ments.
 E-17 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
-$$
-E6.2.5 Anti-Aliasing Filtering The ATD-signals shall be filtered by (analog) filters in the data-acquisition system to avoid aliasing. The definition of the best filtering method and parameters will be decided by the measurement team. It is recommended to use a cut-off frequency of at least 10 kHz. E6.2.6 Resolution Digital word lengths of at least 12 bits (including sign) shall be used according to the documentation (SAE J211/1, [SAE, 2007]) for the ATD measurements. However, based on experience in mine tests, higher digital word lengths are recommended for reasona- ble accuracy in case of low signal amplitude in relation to the maximum range of the sensors. Maximum sensor range is related to the peak amplitudes for high frequencies. E6.2.7 Signal Duration The duration of signal measuring depends on the process and shall include the initial loading phase and the global vehicle response including the drop-down phase. For lightweight vehicles (< 10 tons), this process can take 2 seconds as a maximum. A pre- signal (approximately 100 ms if the trigger origin is known) must be stored for signal ze- roing. E6.2.8 Data Processing After the tests, the measured data shall be pre-processed before being used for the in- jury assessment:  Signal Zeroing  Signal Filtering Both the measured signals (raw data) and the processed signals shall be stored. Alter- natively, the measured signals (raw data) and the analysis software shall be stored. The pressure data and structural acceleration is preferably not filtered, except for the required anti-aliasing hardware filter. Signal Zeroing The measured signals shall be corrected for zero offset errors before trigger time. For determining the offset, the average zero offset in a minimum of 100 ms pre-trigger data shall be taken.
-$$
+
+#### E6.2.5 Anti-Aliasing Filtering
+
+The ATD-signals shall be filtered by (analog) filters in the data-acquisition system to avoid aliasing. The definition of the best filtering method and parameters will be decided by the measurement team. It is recommended to use a cut-off frequency of at least 10 kHz.
+
+#### E6.2.6 Resolution
+
+Digital word lengths of at least 12 bits (including sign) shall be used according to the documentation (SAE J211/1, [SAE, 2007]) for the ATD measurements. However, based on experience in mine tests, higher digital word lengths are recommended for reasonable accuracy in case of low signal amplitude in relation to the maximum range of the sensors. Maximum sensor range is related to the peak amplitudes for high frequencies.
+
+#### E6.2.7 Signal Duration
+
+The duration of signal measuring depends on the process and shall include the initial loading phase and the global vehicle response including the drop-down phase. For lightweight vehicles (< 10 tons), this process can take 2 seconds as a maximum. A pre-signal (approximately 100 ms if the trigger origin is known) must be stored for signal zeroing.
+
+#### E6.2.8 Data Processing
+
+After the tests, the measured data shall be pre-processed before being used for the injury assessment:
+
+- Signal Zeroing
+- Signal Filtering
+
+Both the measured signals (raw data) and the processed signals shall be stored. Alternatively, the measured signals (raw data) and the analysis software shall be stored. The pressure data and structural acceleration is preferably not filtered, except for the required anti-aliasing hardware filter.
+
+Signal Zeroing
+
+The measured signals shall be corrected for zero offset errors before trigger time. For determining the offset, the average zero offset in a minimum of 100 ms pre-trigger data shall be taken.
 E-18 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
@@ -1066,94 +1105,76 @@ Signal Filtering The signals of the ATD measurements shall be filtered by a low-
 
 ### E6.3.1 Head Injury Criterion (HIC) The HIC is an IARV for injury risk to the skull and brain. The HIC value is the standardized maximum integral value of the head acceleration. The length, ∆t max, of the corresponding time interval is maximum 15 ms (HIC15). The calculation of the HIC is based on the following equation:
 
-5.2
-t
-2
 $$
-
+HIC_{\Delta t_{max}} = \max_{t_1, t_2} \left\{ \left[ \frac{1}{t_2 - t_1} \int_{t_1}^{t_2} a \, dt \right]^{2.5} (t_2 - t_1) \right\}
 $$
+
 $$
-
+t_2 - t_1 \le \Delta t_{max}
 $$
+
 $$
- 
+a = \sqrt{a_x^2 + a_y^2 + a_z^2}
 $$
-2 1 t t adt t t HIC
-$$
-    ) ( 1 max 1 2
-$$
-1 2 , max \_
-t t t t
-1
-$$
-     
-$$
-$$
-  
-$$
-$$
-
-$$
-$$
-
-$$
-t2 – t1 ≤ ∆t_max
-$$
-2 2 2 z y x a a a a   
-$$
+
 a is the resultant acceleration of the center of gravity of the head in g (= 9.81 m/s2). t1 and t2 are the moments in time during the event, where HIC is at a maximum. The time is specified in seconds [s]. Head accelerations shall be filtered in accordance with CFC1000, SAE J211. E6.3.2 Neck Criteria Neck forces and moments shall be both filtered in accordance with CFC1000 and CFC600 respectively, given in SAE J211. When the force is used for the moment calcu- lation, the raw data has to be filtered in accordance with CFC600. Upper neck axial and shear forces Hybrid III The peak values of the forces and the duration of the force levels have to be deter- mined. The method to determine the duration is given in the standard SAE J1727. The tolerance values for the different durations are presented in the figures in Appendix E6.5
 E-19 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
+Upper bending moment Hybrid III
+
+Moc is the abbreviation for the moment about the Occipital Condyle. The moment is calculated in accordance with SAE J1727 and SAE J1733:
+
 $$
-Upper bending moment Hybrid III Moc is the abbreviation for the moment about the Occipital Condyle. The moment is calculated in accordance with SAE J1727 and SAE J1733: ) ( x y OCy F d M M   
+M_{OCy} = M_y - (d \cdot F_x)
 $$
-With: MOCy Moment in y-direction [Nm] at head-neck joint Fx Upper neck force [N], shear force, anterior-posterior My Neck moment in y-direction [Nm] at the upper neck load cell d Distance between the origin of the load cell coordinate system and a point equivalent to the occipital condyles [m] Table E5: The distance D as specified in the formulas for calculating the total Moc
-ATD Type Load cell type (Denton. FTSS, MSC) Number of channels D [m]
-Hybrid III, 50th % male 1716; IF-2546, IF-205, IF- 207, IF-242, 55B/6UN 6 0.01778
-2062 3 0.008763 Upper neck ES-2re The peak value of the tension force has to be determined for the pass/fail assessment. E6.3.3 DRIz Model Description The Dynamic Response Index (DRIz) is a criterion for axial compression injuries in the thoraco-lumbar spine. The DRIz is a dimensionless value related to the spine deflection (compression). This deflection is the output of a 2nd order mass-spring-damper system (see Figure E6) with the vertical pelvis acceleration as the input.
+
+With:
+
+- $M_{OCy}$ Moment in y-direction [Nm] at head-neck joint
+- $F_x$ Upper neck force [N], shear force, anterior-posterior
+- $M_y$ Neck moment in y-direction [Nm] at the upper neck load cell
+- $d$ Distance between the origin of the load cell coordinate system and a point equivalent to the occipital condyles [m]
+
+Table E5: The distance D as specified in the formulas for calculating the total Moc
+
+| ATD Type                | Load cell type (Denton, FTSS, MSC)             | Number of channels | D [m]    |
+| ----------------------- | ---------------------------------------------- | ------------------ | -------- |
+| Hybrid III, 50th % male | 1716; IF-2546, IF-205, IF-207, IF-242, 55B/6UN | 6                  | 0.01778  |
+|                         | 2062                                           | 3                  | 0.008763 |
+
+Upper neck ES-2re
+
+The peak value of the tension force has to be determined for the pass/fail assessment.
+
+### E6.3.3 DRIz Model Description
+
+The Dynamic Response Index (DRIz) is a criterion for axial compression injuries in the thoraco-lumbar spine. The DRIz is a dimensionless value related to the spine deflection (compression). This deflection is the output of a 2nd order mass-spring-damper system (see Figure E6) with the vertical pelvis acceleration as the input.
 E-20 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
 
-### m
-
-$$
-2
-$$
-
-### c k
-
-$$
-1
-$$
-
-## z
-
 Figure E6: Mathematical spine model.
+
 The equation of motion for this model is:
+
 $$
-             2 2 ) ( n n t z    Where:
+\ddot{z}(t) = \ddot{\delta} + 2 \zeta \omega_n \dot{\delta} + \omega_n^2 \delta
 $$
-• ) (t z is the acceleration in the vertical direction [m/s2],
+
+Where:
+
+- $\ddot{z}(t)$ is the acceleration in the vertical direction [m/s2],
+- $\delta = \xi_1 - \xi_2$ (when delta > 0) is the deflection (compression) of the system,
+- $\zeta = c / (2 m \omega_n)$ is the damping coefficient (0.224) and
+- $\omega_n = \sqrt{k / m}$ is the circular frequency (52.9 rad/s).
+
+The DRIz is calculated with the maximum compression $\delta_{max}$, $\omega_n$ and the gravity acceleration g (9.81 m/s2):
+
 $$
-• 2 1      (when delta > 0) is the deflection (compression) of the system,
+DRIz = \omega_n^2 \, \delta_{max} / g
 $$
-•
-$$
-n m c     2 is the damping coefficient (0.224) and
-$$
-$$
-n   is the circular frequency (52.9 rad/s).
-$$
-• m k
-$$
-The DRIz is calculated with the maximum compression max  , n  and the gravity
-$$
-acceleration g (9.81 m/s2):
-$$
-g DRIz n max 2   
-$$
+
 Note: While the DRIz-model is developed for compression injuries to the spine, the input acceleration signal should be positive for the loading direction causing this compression. As this model does not follow the SAE convention concerning the standard coordinate system of the ATD, the measured pelvis acceleration needs to be multiplied by minus 1, before it can be used in the above described DRIz model. Pelvis accelerations shall be filtered in accordance with CFC1000, SAE J211
 E-21 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
@@ -1162,62 +1183,92 @@ NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (
 ### E6.3.4 Viscous Criterion (VC) Frontal / Lateral VC is the abbreviation for Viscous Criterion (velocity of compression). VC is an injury criterion for the chest area. The VC value [m/s] is the maximum crush of the momentary product of the thorax deformation speed and the thorax deformation. Both quantities are determined by measuring the chest deflection (frontal impact) or the rib deflection (later- al impact). In accordance with ECE-R94, ECE-R95 and EuroNCAP (front and lateral impact)
 
 $$
-dt dD Defkonst D tor scalingfac VC CFC CFC 180 180   
+VC = scalingfactor \cdot \frac{D_{CFC180}}{Defkonst} \cdot \frac{dD_{CFC180}}{dt}
 $$
 
-With: D thoracic deformation [m] dDCFC180/dt deformation velocity scaling factor see table Defkonst ATD constant, that is depth or width of half the rib cage [mm] (see table) The following table contains the scaling factor and the deformation constant (ATD con- stants) for each ATD, in accordance with SAE J1727, 8/96 Table E6: Scaling factor and deformation constant for VC calculation ATD Type Scaling factor Deformation constant [m] HIII: male 50% 1.3 0.229 ES-2\* 1,0 0.140 * Also to be used for ES-2re until more information is available. Calculate VC continuously with time and determine its largest value. E6.3.5 Thoracic Compression Criterion Frontal Thoracic Compression Criterion (TCCfrontal) is the criterion of the compression of the thorax between the sternum and the spine and is determined using the absolute value of the thorax compression, expressed in millimeters [mm]. The measurement values of the compression of the thorax shall be filtered in accor- dance with CFC600
+With:
+
+- $D$ thoracic deformation [m]
+- $dD_{CFC180}/dt$ deformation velocity
+- scaling factor: see table
+- $Defkonst$ ATD constant, that is depth or width of half the rib cage [mm] (see table)
+
+The following table contains the scaling factor and the deformation constant (ATD constants) for each ATD, in accordance with SAE J1727, 8/96
+
+Table E6: Scaling factor and deformation constant for VC calculation
+
+| ATD Type       | Scaling factor | Deformation constant [m] |
+| -------------- | -------------- | ------------------------ |
+| HIII: male 50% | 1.3            | 0.229                    |
+| ES-2\*         | 1.0            | 0.140                    |
+
+\* Also to be used for ES-2re until more information is available.
+
+Calculate VC continuously with time and determine its largest value.
+
+### E6.3.5 Thoracic Compression Criterion Frontal
+
+Thoracic Compression Criterion (TCCfrontal) is the criterion of the compression of the thorax between the sternum and the spine and is determined using the absolute value of the thorax compression, expressed in millimeters [mm]. The measurement values of the compression of the thorax shall be filtered in accordance with CFC600
 E-22 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
-E6.3.6 Rib Deflection Criterion Lateral Rib Deflection Criterion (RDClateral) is the criterion for the deflection of the ribs, ex- pressed in millimeters [mm], in a lateral impact. Determine the largest value of the rib deflection for all three ribs (upper/middle/lower). The measurement values of the compression of the ribs shall be filtered in accordance with CFC600 E6.3.7 Ftotal Abdomen Find the sum of the three abdomen force transducers (front/middle/rear) as a function of time after the individual components have been filtered. Determine the maximum value of the total abdominal force. Abdominal forces shall be filtered in accordance with CFC600, SAE J211. E6.3.8 Pelvis force Determine the peak value of the lateral force measured on the pubic symphysis (pelvis). Pelvis forces shall be filtered in accordance with CFC600, SAE J211. E6.3.9 Upper leg axial compression force For each of the upper legs (femurs), determine the peak value in compression (Fz neg- ative). Upper leg forces shall be filtered in accordance with CFC600, SAE J211. E6.3.10 Lower leg axial compression force For each of the lower legs determine the peak value in compression (Fz negative). Lower leg forces shall be filtered in accordance with CFC600, SAE J211. E6.3.11 CWV Model Description The measured reflected overpressure (p(t)) is used as the input for the Chest Wall Velocity model as described below (see Figure E7).
+
+### E6.3.6 Rib Deflection Criterion Lateral
+
+Rib Deflection Criterion (RDClateral) is the criterion for the deflection of the ribs, expressed in millimeters [mm], in a lateral impact.
+
+Determine the largest value of the rib deflection for all three ribs (upper/middle/lower).
+
+The measurement values of the compression of the ribs shall be filtered in accordance with CFC600
+
+### E6.3.7 Ftotal Abdomen
+
+Find the sum of the three abdomen force transducers (front/middle/rear) as a function of time after the individual components have been filtered.
+
+Determine the maximum value of the total abdominal force.
+
+Abdominal forces shall be filtered in accordance with CFC600, SAE J211.
+
+### E6.3.8 Pelvis force
+
+Determine the peak value of the lateral force measured on the pubic symphysis (pelvis).
+
+Pelvis forces shall be filtered in accordance with CFC600, SAE J211.
+
+### E6.3.9 Upper leg axial compression force
+
+For each of the upper legs (femurs), determine the peak value in compression (Fz negative).
+
+Upper leg forces shall be filtered in accordance with CFC600, SAE J211.
+
+### E6.3.10 Lower leg axial compression force
+
+For each of the lower legs determine the peak value in compression (Fz negative).
+
+Lower leg forces shall be filtered in accordance with CFC600, SAE J211.
+
+### E6.3.11 CWV Model Description
+
+The measured reflected overpressure (p(t)) is used as the input for the Chest Wall Velocity model as described below (see Figure E7).
 E-23 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX E TO AEP-55 (C), VOL 3 (PART I)
-x
-A: effective area
-M: effective mass
-A
-K
-V: initial gaseous volume of the lungs
-p ( t ) M
-X: displacement
-C
+**Figure E7: Thorax model.** Single-degree-of-freedom mass-spring-damper representation of the thorax: the measured overpressure p(t) acts on effective area A against mass M, spring K, and damper C, compressing the initial lung gas volume V by displacement x from ambient pressure P0.
 
-# .
-
-C: damping factor
-K: elasticity constant
-V , P P o
-P0: ambient pressure
-P(t): overpressure
-
-# .
-
-γ: polytrophic exponent for gas in lungs
-
-### Figure E7: Thorax model.
-
-### 
+- A: effective area
+- M: effective mass
+- V: initial gaseous volume of the lungs
+- X: displacement
+- C: damping factor
+- K: elasticity constant
+- P0: ambient pressure
+- P(t): overpressure
+- $\gamma$: polytrophic exponent for gas in lungs
 
 $$
-
+M \frac{d^2x}{dt^2} + C \frac{dx}{dt} + K x = A \left[ p(t) + P_o - \left( \frac{V}{V - A x} \right)^{\gamma} P_o \right]
 $$
 
-$$
-
-$$
-
-o o 2
-2 P x A V V P )t( p A x K dt dx C dt x d M
-$$
-                
-$$
-$$
-  
-$$
-$$
-  
-$$
 The model is a second order (nonlinear) differential equation and the following values for the model constants have to be used (based on a 70 kg male):
 • A = 0.082 m2
 • M = 2.03 kg
@@ -1451,78 +1502,51 @@ A test report must contain all the information needed to repeat the test under c
 ### F1 Objective
 
 Should include:
-$$
- Date and Test Place, Name of the responsible organization
-$$
-$$
- Name and position of the test leader
-$$
-$$
- Test plan with mandatory testing phases
-$$
-$$
- Desired protection level and threat distance as laid down in Annex A-S
-$$
-$$
- Threat type as laid down in Annex B-S
-$$
-$$
- Other pertinent information on specific test requirements
-$$
-F2 Test Set-Up and Data Acquisition
+
+- Date and Test Place, Name of the responsible organization
+- Name and position of the test leader
+- Test plan with mandatory testing phases
+- Desired protection level and threat distance as laid down in Annex A-S
+- Threat type as laid down in Annex B-S
+- Other pertinent information on specific test requirements
+
+### F2 Test Set-Up and Data Acquisition
+
 Should include:
-$$
- Schematic of the test set up
-$$
-$$
- Location of instrumentation, including the charge location with respect to the ve- hicle and ATDs
-$$
-$$
- List of instrumentation, including model, calibration data, acquisition system, de- tails on the acquisition process (sampling frequency, gain, anti-aliasing filtration)
-$$
-F3 Vehicle / Target Data
+
+- Schematic of the test set up
+- Location of instrumentation, including the charge location with respect to the vehicle and ATDs
+- List of instrumentation, including model, calibration data, acquisition system, details on the acquisition process (sampling frequency, gain, anti-aliasing filtration)
+
+### F3 Vehicle / Target Data
+
 Should include:
-$$
- Technical description of the target
-$$
-$$
- Vehicle type, model
-$$
-$$
- Vehicle mass
-$$
-$$
- List and documentation of stowed equipment (stowage plan)
-$$
-F-1 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+
+- Technical description of the target
+- Vehicle type, model
+- Vehicle mass
+- List and documentation of stowed equipment (stowage plan)
+    F-1 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX F TO AEP-55 (C), VOL 3 (PART I)
-F4 Data Analysis
+
+### F4 Data Analysis
+
 Should include:
-$$
- General description of post-test vehicle damages and of occupant’s location and reaction
-$$
-$$
- Documentation and pictures of vehicle structural damages
-$$
-$$
- Documentation and pictures of indications of the projection of fragments or equipment inside the occupant’s compartment
-$$
-$$
- Measurement of occupants injury criteria
-$$
-$$
- Graph of all instrumentation signals (original and filtered)
-$$
-F5 Test Results
+
+- General description of post-test vehicle damages and of occupant’s location and reaction
+- Documentation and pictures of vehicle structural damages
+- Documentation and pictures of indications of the projection of fragments or equipment inside the occupant’s compartment
+- Measurement of occupants injury criteria
+- Graph of all instrumentation signals (original and filtered)
+
+### F5 Test Results
+
 Should include:
-$$
- A statement indicating that the vehicle either passed or failed to meet the manda- tory specified acceptance criteria
-$$
-$$
- Ownership and availability of the complete original trial data, including photos, videos and unfiltered instrumentation data
-$$
-F-2 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+
+- A statement indicating that the vehicle either passed or failed to meet the mandatory specified acceptance criteria
+- Ownership and availability of the complete original trial data, including photos, videos and unfiltered instrumentation data
+    F-2 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX G TO AEP-55 (C), VOL 3 (PART I)
 
@@ -1536,21 +1560,51 @@ NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX G TO AEP-55 (C), VOL 3 (
 1. ASTM D422-63 (2007), “Standard Test Method for Particle-Size Analysis of Soils”.
 1. ASTM D6938-10, “Standard test methods for in-place density and water content of soil and soil-aggregate by nuclear methods (shallow depth)”.
 1. ASTM D1557-09 “Standard Methods for Laboratory Compaction Characteristics of Soil Using Modified Effort (56,000 ft-lbf/ft3 (2,700 kN-m/m3))”
-1. Criteria and Test Methodologies for Injury Assessment of Vehicle Occupants Threatened by Landmines and/or Improvised Explosive Devices (IED), HFM- 148/RTG, 2009 10) SAE J1727 (1996), Surface Vehicle Recommended Practice, Injury Calculations Guidelines, Issued August.
-    $$
-1. SAE J211/1 (1997) Surface Vehicle Recommended Practice, ® Instrumentation for Impact Test – Part 1 – Electronic Instrumentation, Rev. July. 12) SAE J1727 (1996), Surface Vehicle Recommended Practice, Injury Calculations Guidelines, Issued August. 13) 50th percentile male Hybrid III ATD  ECE Regulation No. 94.  US Department of transportation, Code of Federal Regulations Part 572 Sub- part E 14) 50th percentile male ES-2re ATD  U.S. Department of transportation, Code of Federal Regulations Part 572, Docket No. NHTSA–2004–25441, RIN 2127–AI89, Anthropomorphic Test De- vices; ES–2re Side Impact Crash Test Dummy 50th Percentile Adult Male.
-    $$
-    G-1 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+1. Criteria and Test Methodologies for Injury Assessment of Vehicle Occupants Threatened by Landmines and/or Improvised Explosive Devices (IED), HFM-148/RTG, 2009
+1. SAE J1727 (1996), Surface Vehicle Recommended Practice, Injury Calculations Guidelines, Issued August.
+1. SAE J211/1 (1997) Surface Vehicle Recommended Practice, Instrumentation for Impact Test – Part 1 – Electronic Instrumentation, Rev. July.
+1. 50th percentile male Hybrid III ATD
+    - ECE Regulation No. 94.
+    - US Department of transportation, Code of Federal Regulations Part 572 Subpart E
+1. 50th percentile male ES-2re ATD
+    - U.S. Department of transportation, Code of Federal Regulations Part 572, Docket No. NHTSA–2004–25441, RIN 2127–AI89, Anthropomorphic Test Devices; ES–2re Side Impact Crash Test Dummy 50th Percentile Adult Male.
+        G-1 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX G TO AEP-55 (C), VOL 3 (PART I)
-$$
-15\) MIL-Lx  Product Specification Sheet, Denton Model 585-0000  MIL-Lx certification procedure from December 23rd, 2009 (version 1.0), Den- ton ATD. 16) Brinkley, J.W.; Shaffer, J.T. (1970), Dynamic Simulation Techniques for the De- sign of Escape Systems: Current Applications and Future Air Force Require- ments, Symposium on Biodynamic Models and their Applications, Report No. AMRL-TR-71-29, Aerospace Medical Research Laboratory, Wright-Patterson Air Force Base, Ohio, USA. 17) Kuppa, S., et al. (2001). Lower Extremity Injuries and Associated Injury Criteria. In: Proceedings of the 17th International Technical Conference on the Enhanced Safety of Vehicles, held in Amsterdam, The Netherlands, 2001. 18) Kuppa. S. 2004. Injury criteria for side impact dummies, National Transportation Biomechanics Research Center (NTBRC), NHTSA. 19) Lau, I.V. and Viano, D.C. 1986. The viscous criterion - Bases and applications of an injury severity index for soft tissues, 30th Stapp Car Crash Conference, SAE Paper No. 86182123. 20) Lowne R, and Janssen E. 1990. Thorax injury probability estimation using pro- duction prototype EUROSID, ISO/TC22/SC12/WG6 document N302. 21) Mertz, H.J.; Hodgson, V.R.; Murray Thomas, L., Nyquist, G.W. (1978), An as- sessment of Compressive Neck Loads Under Injury-Producing Conditions, The Physician and Sport Medicine, November 1978. 22) Mertz, H. J. (1984). Injury Assessment Values Used to Evaluate Hybrid III Re- sponse Measurements. NHTSA Docket 74-14, Notice 32, Enclosure 2 of Attach- ment I of Part III of General Motors Submission USG 2284, March 22, 1984. 23) Mertz, H.J., Horsch, J.D., Horn G. and Lowne, R. (1991) Hybrid III Sternal Defelc- tion Association with Thoracic Injury Severities of Occupants Restrainted with Force Limiting Belts. SAE PT-92 24) Mertz, H.J. (2002) Anthropomorphic Test Devices, in Accidental Injury, Biome- chanics and Prevention, edited by Nahum, A.M., Melvin, J.W., 2nd edition, ISBN 0-387-98820-3, Spinger Science + Business Media Inc.
-$$
-G-2 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+
+1. MIL-Lx
+
+    - Product Specification Sheet, Denton Model 585-0000
+    - MIL-Lx certification procedure from December 23rd, 2009 (version 1.0), Denton ATD.
+
+1. Brinkley, J.W.; Shaffer, J.T. (1970), Dynamic Simulation Techniques for the Design of Escape Systems: Current Applications and Future Air Force Requirements, Symposium on Biodynamic Models and their Applications, Report No. AMRL-TR-71-29, Aerospace Medical Research Laboratory, Wright-Patterson Air Force Base, Ohio, USA.
+
+1. Kuppa, S., et al. (2001). Lower Extremity Injuries and Associated Injury Criteria. In: Proceedings of the 17th International Technical Conference on the Enhanced Safety of Vehicles, held in Amsterdam, The Netherlands, 2001.
+
+1. Kuppa. S. 2004. Injury criteria for side impact dummies, National Transportation Biomechanics Research Center (NTBRC), NHTSA.
+
+1. Lau, I.V. and Viano, D.C. 1986. The viscous criterion - Bases and applications of an injury severity index for soft tissues, 30th Stapp Car Crash Conference, SAE Paper No. 86182123.
+
+1. Lowne R, and Janssen E. 1990. Thorax injury probability estimation using production prototype EUROSID, ISO/TC22/SC12/WG6 document N302.
+
+1. Mertz, H.J.; Hodgson, V.R.; Murray Thomas, L., Nyquist, G.W. (1978), An assessment of Compressive Neck Loads Under Injury-Producing Conditions, The Physician and Sport Medicine, November 1978.
+
+1. Mertz, H. J. (1984). Injury Assessment Values Used to Evaluate Hybrid III Response Measurements. NHTSA Docket 74-14, Notice 32, Enclosure 2 of Attachment I of Part III of General Motors Submission USG 2284, March 22, 1984.
+
+1. Mertz, H.J., Horsch, J.D., Horn G. and Lowne, R. (1991) Hybrid III Sternal Defelction Association with Thoracic Injury Severities of Occupants Restrainted with Force Limiting Belts. SAE PT-92
+
+1. Mertz, H.J. (2002) Anthropomorphic Test Devices, in Accidental Injury, Biomechanics and Prevention, edited by Nahum, A.M., Melvin, J.W., 2nd edition, ISBN 0-387-98820-3, Spinger Science + Business Media Inc.
+    G-2 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX G TO AEP-55 (C), VOL 3 (PART I)
-25\) Mertz, H.J., Irwin A.L., Prasad, P. (2003) Biomechanical and Scaling Bases for Frontal and Side Impact Injury Assessment reference Values. Stapp Car Crash Journal, Vol. 47 (October 2003), pp. 155-188, © 2003 The Stapp Association 26) McKay, B.J., Bir, C.A. Lower Extremity Injury Criteria for Evaluating Military Ve- hicle Occupant Injury in Underbelly Blast Events STAPP 2009 Stapp Car Crash Journal, Vol.53 (November 2009) Paper no 2009-22-0009. 27) NATO report (2010) Criteria and Test Methodologies for Injury Assessment of Vehicle Occupants Threatened by Landmines and/or Improvised Explosive De- vices (IED), HFM-148/RTG technical report, publication expected in 2011 28) NHTSA (1995), “Injury Risk Curves and Protection Reference Values”, www.nhtsa.dot.gov/cars/rules/rulings/80g/80gii.html 29) Philippens, M. Wismans, J., Forbes, P.A., Yoganandan, N., Pinter, F., Soltis, S.J. ES2 Neck Injury Assessment Reference values for Lateral Loading in Side Fac- ing Seats. Stapp Car Crash Journal, Vol.53 (November 2009) Paper no 2009-22- 0015. 30) ECE-R94, ECE-R95 and EuroNCAP0
-G-3 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
+
+1. Mertz, H.J., Irwin A.L., Prasad, P. (2003) Biomechanical and Scaling Bases for Frontal and Side Impact Injury Assessment reference Values. Stapp Car Crash Journal, Vol. 47 (October 2003), pp. 155-188, © 2003 The Stapp Association
+1. McKay, B.J., Bir, C.A. Lower Extremity Injury Criteria for Evaluating Military Vehicle Occupant Injury in Underbelly Blast Events STAPP 2009 Stapp Car Crash Journal, Vol.53 (November 2009) Paper no 2009-22-0009.
+1. NATO report (2010) Criteria and Test Methodologies for Injury Assessment of Vehicle Occupants Threatened by Landmines and/or Improvised Explosive Devices (IED), HFM-148/RTG technical report, publication expected in 2011
+1. NHTSA (1995), “Injury Risk Curves and Protection Reference Values”, www.nhtsa.dot.gov/cars/rules/rulings/80g/80gii.html
+1. Philippens, M. Wismans, J., Forbes, P.A., Yoganandan, N., Pinter, F., Soltis, S.J. ES2 Neck Injury Assessment Reference values for Lateral Loading in Side Facing Seats. Stapp Car Crash Journal, Vol.53 (November 2009) Paper no 2009-22-0015.
+1. ECE-R94, ECE-R95 and EuroNCAP
+    G-3 Edition C, Vol 3 (Part I), Version 1 NATO UNCLASSIFIED Releasable to PFP and Australia Ratification Draft 1
 
 NATO UNCLASSIFIED Releasable to PFP and Australia ANNEX G TO AEP-55 (C), VOL 3 (PART I)
 INTENTIONALLY BLANK
