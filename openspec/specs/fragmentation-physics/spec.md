@@ -21,12 +21,12 @@ ______________________________________________________________________
 
 The per-zone geometry factor is:
 $$
-g^z = \\frac{A_p(\\gamma(z_{rep}), \\text{posture})}{2\\pi s(z_{rep})^2 \\cdot 2\\sin\\theta^z \\cdot \\delta}
+g^z = \frac{A_p(\gamma(z_{rep}), \text{posture})}{2\pi s(z_{rep})^2 \cdot 2\sin\theta^z \cdot \delta}
 $$
-where $\\delta$ is the spray-belt half-width (default 15°), $s(z_{rep})$ is the slant
+where $\delta$ is the spray-belt half-width (default 15°), $s(z_{rep})$ is the slant
 range from the burst to height $z_{rep}$ on the target column at ground point
-$(x_g, y_g)$, and $A_p(\\gamma(z_{rep}), \\text{posture})$ uses the arrival elevation
-angle $\\gamma(z_{rep}) = \\arcsin\\big((h_b - z_{rep})/s(z_{rep})\\big)$.
+$(x_g, y_g)$, and $A_p(\gamma(z_{rep}), \text{posture})$ uses the arrival elevation
+angle $\gamma(z_{rep}) = \arcsin\big((h_b - z_{rep})/s(z_{rep})\big)$.
 
 $z_{rep}$ is a **representative illuminated height on the target column**
 `[0, h]` (`h` = posture height) at $(x_g, y_g)$ — the lower edge of the lowest

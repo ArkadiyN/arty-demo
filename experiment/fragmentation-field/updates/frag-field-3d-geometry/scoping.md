@@ -15,7 +15,7 @@ The current notebook (§3–§6) treats the entire HE shell as one cylindrical
 Gurney–Mott source:
 
 - A single $V_0$ from one $M/C$ ratio.
-- A single $\\mu$ from one wall thickness $t_w$ and one break-up radius $r\_{bu}$.
+- A single $\mu$ from one wall thickness $t_w$ and one break-up radius $r_{bu}$.
 - All steel mass mapped into one equatorial spray belt at $90°$ from the
   forward shell axis.
 - Result: a perfectly **circular** hazard field, symmetric in azimuth, that
@@ -37,7 +37,7 @@ Three concrete consequences are visible in the existing notebook
    ~30–50 % more density forward than rearward at AoF ≈ 25°.
 1. **`w_target` is a fixed scalar.** Already addressed in the
    `target-area-profile` scoping pass; bundling it here means the
-   $A_p(\\gamma, \\text{posture})$ generalisation enters the 3-D field along
+   $A_p(\gamma, \text{posture})$ generalisation enters the 3-D field along
    with the zone-spray geometry, so the airburst / posture story works
    end-to-end after one integration pass.
 
@@ -57,8 +57,8 @@ ______________________________________________________________________
 | Option                                                    | Description                                                                                          | Literature support                                                                                                                                                          | Cost                                                     |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | **A. Cylinder formula, zone-local $C/M$**                 | Use eq. (1) of the main notebook with $M$ = ogive steel mass, $C$ = explosive within ogive envelope. | SAND92-0243 Table I is a steel-cylinder table; the cylinder formula is the only one with a tabulated reference. NWC TP 7124 acknowledges "fundamental physics" of cylinder. | Trivial — reuse existing `gurney_velocity()`.            |
-| **B. Gurney cone / reduced-coefficient formula**          | Apply a geometric reduction factor (≈ 0.8 × $V_0^\\text{cyl}$, per NWC TP 7124 §Q1).                 | NWC TP 7124 recommends a stress-projection argument: oblique detonation incidence reduces radial impulse on the ogive wall.                                                 | One scalar factor; no new equation.                      |
-| **C. Combine ogive + cylinder into a single Gurney zone** | Compute one $V_0$ from total (ogive+cylinder) $C/M$; only split mass between zones for Mott $\\mu$.  | Simplest interpretation of BRL 126 which reports two velocities (nose 2740 ft/s, side ?). But BRL 126's *nose* spray is *higher*, not lower, than side spray.               | Loses the velocity contrast BRL 126 explicitly measures. |
+| **B. Gurney cone / reduced-coefficient formula**          | Apply a geometric reduction factor (≈ 0.8 × $V_0^\text{cyl}$, per NWC TP 7124 §Q1).                 | NWC TP 7124 recommends a stress-projection argument: oblique detonation incidence reduces radial impulse on the ogive wall.                                                 | One scalar factor; no new equation.                      |
+| **C. Combine ogive + cylinder into a single Gurney zone** | Compute one $V_0$ from total (ogive+cylinder) $C/M$; only split mass between zones for Mott $\mu$.  | Simplest interpretation of BRL 126 which reports two velocities (nose 2740 ft/s, side ?). But BRL 126's *nose* spray is *higher*, not lower, than side spray.               | Loses the velocity contrast BRL 126 explicitly measures. |
 
 **Evidence weighing the velocity difference:**
 
@@ -80,7 +80,7 @@ ______________________________________________________________________
 - For CRH 6–11 ogives (M1 has CRH ≈ 7, M107 has CRH ≈ 9): the *mean
   surface normal angle* across the ogive is ~80°–85° from the axis (per
   design Decision 3). The wall-normal component of detonation pressure
-  is $\\sin(\\text{normal angle})$ ≈ 0.98–1.00, so the geometric reduction
+  is $\sin(\text{normal angle})$ ≈ 0.98–1.00, so the geometric reduction
   in radial impulse is only **2–6 %**. This makes Option B's "0.8 ×"
   factor look excessive for these CRHs.
 
@@ -97,7 +97,7 @@ Rationale:
    produces a *higher* $V_0$ in the ogive — consistent with BRL 126's
    nose-spray velocity being above side-spray.
 1. Option B's reduction factor can be added later as a single multiplier
-   on $V_0^\\text{ogive}$ if dedicated cone data appears; the interface
+   on $V_0^\text{ogive}$ if dedicated cone data appears; the interface
    from Decision 2 (`compute_shell_zones` returns per-zone $V_0$) makes
    this trivial. **No structural change required.**
 1. Option C is rejected: it discards the zone-specific velocity that
@@ -116,7 +116,7 @@ ______________________________________________________________________
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`"dead"`**                      | Base plate is excluded from hazard (treated as non-fragmenting mass).                                          | None of the three sources support this. Default in current Decision 4 only because it matches existing behaviour.                                                                                               |
 | **`"plate"`**                     | Single near-intact fragment; mass = base plate mass; $V_0$ from Gurney plate formula or tangential estimate.   | Weak — BRL 126 sees no single dominant base fragment in pit recovery.                                                                                                                                           |
-| **`"mott"` (reduced parameters)** | Treated as a normal Mott zone with reduced $V_0$ (× ~0.7–0.8) and increased $\\mu$ (fewer, heavier fragments). | **Direct match:** NWC TP 7124 (rarefaction limits cross-linkage → larger, fewer fragments at the closed end). BRL 126 base ≈ 15 % of weight in fewer, heavier pieces (Screen 1 is "mostly fuze" but also base). |
+| **`"mott"` (reduced parameters)** | Treated as a normal Mott zone with reduced $V_0$ (× ~0.7–0.8) and increased $\mu$ (fewer, heavier fragments). | **Direct match:** NWC TP 7124 (rarefaction limits cross-linkage → larger, fewer fragments at the closed end). BRL 126 base ≈ 15 % of weight in fewer, heavier pieces (Screen 1 is "mostly fuze" but also base). |
 
 **Evidence summary:**
 
@@ -130,9 +130,9 @@ ______________________________________________________________________
 - **BRL 126:** Base region contributes ~15 % of mass in fewer, heavier
   pieces (Screen 1: 6 fragments at 15.4 % of weight) — explicitly *not*
   intact, *not* dust. The shape of the distribution matches a Mott zone
-  with reduced $N_0$ and increased $\\mu$.
-- **SAND92-0243:** Treats fragments as plate-like with $S_f \\in [0, 0.5]$
-  and $R_e \\in [0, 1.0]$. The base contributes plate-like fragments
+  with reduced $N_0$ and increased $\mu$.
+- **SAND92-0243:** Treats fragments as plate-like with $S_f \in [0, 0.5]$
+  and $R_e \in [0, 1.0]$. The base contributes plate-like fragments
   consistent with Mott but with no special "dead-mass" treatment.
 
 **M1 vs. M107 base thickness:**
@@ -144,7 +144,7 @@ Both bases are massively thicker than the cylinder wall — so the
 expansion-and-fracture geometry is genuinely different from the cylinder,
 not just a "thicker version of the same thing." Treating these as Mott
 zones with **lower $V_0$** (NWC TP 7124's 0.7–0.8 reduction) and **larger
-$\\mu$** (which $\\mu \\propto (r\_{bu}/V_0)^3$ already gives automatically
+$\mu$** (which $\mu \propto (r_{bu}/V_0)^3$ already gives automatically
 once a thicker wall produces a smaller break-up expansion ratio and a
 lower $V_0$) is physically coherent.
 
@@ -152,7 +152,7 @@ lower $V_0$) is physically coherent.
 
 | Shell              | `base_treatment` | Justification                                                                                                                                                                                                                                                                                                    |
 | ------------------ | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **M1 (105 mm)**    | `"mott"`         | Base ~1.6 × cylinder wall; thick but not massive. NWC TP 7124 + BRL 126 directly support a Mott zone with reduced $V_0$ (factor ≈ 0.75) and the $\\mu$ correction follows from $r\_{bu}^3 / V_0^3$.                                                                                                              |
+| **M1 (105 mm)**    | `"mott"`         | Base ~1.6 × cylinder wall; thick but not massive. NWC TP 7124 + BRL 126 directly support a Mott zone with reduced $V_0$ (factor ≈ 0.75) and the $\mu$ correction follows from $r_{bu}^3 / V_0^3$.                                                                                                              |
 | **M107 (155 mm)**  | `"mott"`         | Base ~3.4 × cylinder wall; very thick. Same reasoning — but the velocity reduction is more aggressive (use 0.70) to reflect deeper rarefaction effects. The contribution to far-field hazard will be small (heavier and slower fragments lose KE per mass slower than cylinder spray but start with less $V_0$). |
 | **Tier-2 default** | `"mott"`         | Same physics applies generically.                                                                                                                                                                                                                                                                                |
 
@@ -185,7 +185,7 @@ ______________________________________________________________________
 - **BRL 126:** No separate boattail data. Three zones identified (nose,
   side, base) — the boattail is implicitly bundled with "side."
 - **NWC TP 7124:** No boattail analysis. Index entry suggests
-  $V_m(\\text{boattail}) \\approx 0.92 \\times V_m(\\text{cylinder})$ as an
+  $V_m(\text{boattail}) \approx 0.92 \times V_m(\text{cylinder})$ as an
   inference from intermediate geometry, but admits this is unvalidated.
 - **SAND92-0243:** No boattail case among its seven casing geometries.
 
@@ -212,7 +212,7 @@ but `wall_t` and zone-local $C/M$ taken from boattail geometry.
 Rationale:
 
 1. The mass fraction (12–18 %) is too large to ignore — merging
-   contaminates the cylinder $\\mu$ calculation.
+   contaminates the cylinder $\mu$ calculation.
 1. The 4° spray-angle offset matters when AoF tilts the field, because the
    boattail spray ends up *just behind* the cylinder belt on the ground,
    contributing to the rear-sector hazard that the proposal aims to
@@ -290,9 +290,9 @@ ______________________________________________________________________
 | **BRL Report 126** (Tolch 1938, 75 mm M48)                             | Experimental three-zone spray identification (nose/side/base); fragment-velocity range 1070–2740 ft/s; mass-screening bins; pit-test mass distribution showing base ≈ 15 % of weight in fewer, heavier pieces. **Anchors the empirical four-zone case.** | Q1 nose-velocity reality check; Q2 base-mass evidence.                                                                                     |
 | **NWC TP 7124** (Pearson 1990, cylindrical warhead expansion)          | Four-phase expansion mechanism; end-effect physics (rarefaction → larger fewer base fragments, ~0.7–0.8 × $V_m$); SAE 1015 / Rb 78–85 steel baseline; temperature-dependent fracture mode. **Physical explanation for the four-zone partition.**         | Q2 base treatment ("mott" with reduced $V_0$); $V_0$ reduction factor for base; potentially future "ogive reduction" if we adopt Option B. |
 | **SAND92-0243** (Vigil 1992, hazard zones)                             | Closed-form Gurney velocity vs. $C/M$ (Table I, steel/HMX); fragment shape factors $R_e$, $S_f$; trajectory and max-range $X_r$ formulas; lists seven casing geometries (cylinder is primary; no ogive/boattail).                                        | Q1 cylinder-Gurney baseline; trajectory framework reference for the derivation.                                                            |
-| **Mott (1947)** (in `doc-reference/fragmentation/`)                    | $\\gamma$ table for low-carbon steels (γ ≈ 53 for 0.2 %C; γ ≈ 67 for 0.3 %C). Used unchanged.                                                                                                                                                            | Per-zone $\\mu$ calculation.                                                                                                               |
-| **Gold (2017 PAFRAG)**                                                 | Mott $\\mu$ formula (eq. 16); 3× expansion criterion. Used unchanged.                                                                                                                                                                                    | Per-zone $\\mu$ calculation; $r\_{bu}$ for each zone using zone-local pre-detonation inner radius.                                         |
-| **Existing presented-area scoping** (`target-area-profile/scoping.md`) | Closed-form $A_p(\\gamma) = w\_\\perp \\cdot (h\\cos\\gamma + d\\sin\\gamma)$ projection; posture parameters; eq. (22) re-derivation flagged as the highest-risk step.                                                                                   | Bundled into this change; replaces `w_target` scalar.                                                                                      |
+| **Mott (1947)** (in `doc-reference/fragmentation/`)                    | $\gamma$ table for low-carbon steels (γ ≈ 53 for 0.2 %C; γ ≈ 67 for 0.3 %C). Used unchanged.                                                                                                                                                            | Per-zone $\mu$ calculation.                                                                                                               |
+| **Gold (2017 PAFRAG)**                                                 | Mott $\mu$ formula (eq. 16); 3× expansion criterion. Used unchanged.                                                                                                                                                                                    | Per-zone $\mu$ calculation; $r_{bu}$ for each zone using zone-local pre-detonation inner radius.                                         |
+| **Existing presented-area scoping** (`target-area-profile/scoping.md`) | Closed-form $A_p(\gamma) = w_\perp \cdot (h\cos\gamma + d\sin\gamma)$ projection; posture parameters; eq. (22) re-derivation flagged as the highest-risk step.                                                                                   | Bundled into this change; replaces `w_target` scalar.                                                                                      |
 
 **Gaps and acknowledged unsourced numbers:**
 
@@ -321,27 +321,27 @@ ______________________________________________________________________
 | #      | Decision                                                                                                                                                                                                                                                                                                       | Confidence  |
 | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | **Q1** | **Cylinder Gurney per zone with zone-local $M/C$.** Keep a `gurney_reduction_factor` field on `ZoneParams` (default 1.0) so a future cone correction (NWC TP 7124 Option B) is one-line.                                                                                                                       | High        |
-| **Q2** | **M1: `base_treatment = "mott"`** with $V_0$ reduction factor 0.75 and $r\_{bu}$ scaled from base-plate thickness. **M107: `base_treatment = "mott"`** with reduction factor 0.70. Tier-2 default also `"mott"` (factor 0.75). `"dead"` and `"plate"` remain in the type system as overrides but are not used. | High        |
+| **Q2** | **M1: `base_treatment = "mott"`** with $V_0$ reduction factor 0.75 and $r_{bu}$ scaled from base-plate thickness. **M107: `base_treatment = "mott"`** with reduction factor 0.70. Tier-2 default also `"mott"` (factor 0.75). `"dead"` and `"plate"` remain in the type system as overrides but are not used. | High        |
 | **Q3** | **Boattail is its own Gurney zone.** Uses cylinder Gurney with zone-local $M/C$ and zone-local wall thickness. Spray angle from midpoint surface normal (per Decision 3). Shells without a boattail (`boattail_len = 0`) contribute zero — already in the spec.                                                | Medium-high |
 | **Q4** | **Tier-2 ogive CRH default = 6.0 cal**, documented as WW2 engineering convention. Implemented as a module-level constant `CRH_DEFAULT_TIER2 = 6.0` so it is overridable per shell.                                                                                                                             | Medium      |
 
 **Derivation pass should produce:**
 
-1. Per-zone $V_0$ formula: $V_0^z = V_g \\cdot k^z / \\sqrt{M^z/C^z + 1/2}$
+1. Per-zone $V_0$ formula: $V_0^z = V_g \cdot k^z / \sqrt{M^z/C^z + 1/2}$
    where $k^z$ is the (default-1.0) reduction factor and $M^z, C^z$ are
    zone-local mass and explosive contribution.
-1. Per-zone $\\mu^z$ via Gold (2017) eq. 16 with zone-local $r\_{bu}^z$
+1. Per-zone $\mu^z$ via Gold (2017) eq. 16 with zone-local $r_{bu}^z$
    (from zone-local initial inner radius) and zone-local $V_0^z$.
-1. Per-zone spray-angle $\\theta^z$ from outer-arc midpoint surface normal
+1. Per-zone spray-angle $\theta^z$ from outer-arc midpoint surface normal
    (Decision 3) — ogive analytic, cylinder = 90° exact, boattail =
    90° + taper/2, base ≈ 160°–170° from forward axis.
 1. AoF projection: rotate each zone's spray cone about the line-of-fire
-   axis by tilt angle $\\alpha = 90° - \\text{AoF}$ to map shell-frame
+   axis by tilt angle $\alpha = 90° - \text{AoF}$ to map shell-frame
    spray onto the ground. Express ground-frame fragment-arrival direction
    in $(x_g, y_g)$ coordinates so the existing 3-D field integrator can
    accumulate the four zones.
 1. Replace the scalar `w` factor in eq. (22) with
-   $A_p(\\gamma, \\text{posture})$ from `target-area-profile/scoping.md`,
+   $A_p(\gamma, \text{posture})$ from `target-area-profile/scoping.md`,
    propagating the unit-check (this is the highest-risk step — flagged
    there as a non-trivial dimensional re-derivation).
 1. Unit checks and limit checks: at AoF = 90° (axis vertical) the field
@@ -354,7 +354,7 @@ ______________________________________________________________________
 - Per-zone elevation spread within a zone (Gold 2007 Fig. 9
   velocity-vs-angle variation).
 - Per-zone fragment shape-factor variation ($R_e$, $S_f$ from
-  SAND92-0243) — the existing $C_D = 0.65$, $C\_\\text{shape} = 0.9$
+  SAND92-0243) — the existing $C_D = 0.65$, $C_\text{shape} = 0.9$
   applies uniformly to all zones.
 - Cone-Gurney for ogive (Option B above).
 - Ground ricochet, body armour, partial cover.
@@ -368,7 +368,7 @@ ______________________________________________________________________
 (`experiment/fragmentation-field/updates/target-area-profile/scoping.md`)
 is **bundled into this change**, per the parent proposal:
 
-> Target presented area $A(\\gamma)$ — replaces fixed `w_target` scalar
+> Target presented area $A(\gamma)$ — replaces fixed `w_target` scalar
 > with `presented_area(γ, posture)` so fragment elevation angle correctly
 > modulates lethality (bundles the already-scoped `target-area-profile`
 > work).
@@ -376,11 +376,11 @@ is **bundled into this change**, per the parent proposal:
 Concretely, the derivation pass will:
 
 - Adopt Option A (cosine + sine projection,
-  $A_p(\\gamma) = w\_\\perp (h\\cos\\gamma + d\\sin\\gamma)$) directly from the
+  $A_p(\gamma) = w_\perp (h\cos\gamma + d\sin\gamma)$) directly from the
   target-area scoping recommendation.
 - Re-derive the geometry factor in eq. (22) from width-based
-  $w/(2\\pi s \\cdot 2\\sin\\Theta\\delta)$ to area-based
-  $A_p(\\gamma)/(s^2 \\cdot 2\\pi \\cdot 2\\sin\\Theta\\delta)$ — the
+  $w/(2\pi s \cdot 2\sin\Theta\delta)$ to area-based
+  $A_p(\gamma)/(s^2 \cdot 2\pi \cdot 2\sin\Theta\delta)$ — the
   dimensional change identified as the highest-risk step in
   target-area-profile §4.4.
 - Use the three NATO-convention postures (standing / crouching / prone)
@@ -388,8 +388,8 @@ Concretely, the derivation pass will:
   engineering convention because Cunniff 2014 and AEP-55 Vol. 3 were
   not collected.
 - Validate via the limit checks in target-area-profile §4.3: γ = 0
-  prone → $A_p \\approx 0.15$ m², γ = 0 standing → $A_p \\approx 0.85$ m²;
-  ground-burst $R\_{50}$ for standing recovers the current model value
+  prone → $A_p \approx 0.15$ m², γ = 0 standing → $A_p \approx 0.85$ m²;
+  ground-burst $R_{50}$ for standing recovers the current model value
   within tolerance.
 
 No separate change-folder is needed for the area work — its scoping doc
@@ -405,13 +405,13 @@ All four open questions have a recommended answer with literature
 support. The derivation pass should produce `derivation.md` in this
 folder, carrying:
 
-- Per-zone Gurney $V_0^z$ and Mott $\\mu^z$ derivations
+- Per-zone Gurney $V_0^z$ and Mott $\mu^z$ derivations
 - Zone-spray-angle formulas (ogive analytic from CRH; cylinder = 90°
   exact; boattail from taper angle; base from base-plate geometry)
 - AoF-projection geometry
-- Eq. (22) re-derivation with $A_p(\\gamma, \\text{posture})$
+- Eq. (22) re-derivation with $A_p(\gamma, \text{posture})$
 - Unit checks and limit recoveries (AoF = 90° → existing symmetric
-  field; $A_p$ at γ = 0 recovers existing $w\_\\text{target}$ within a
+  field; $A_p$ at γ = 0 recovers existing $w_\text{target}$ within a
   documented normalisation factor)
 - Numerical-integration scheme for the Tier-1 ogive mass (200-slice
   midpoint Riemann sum per the spec)

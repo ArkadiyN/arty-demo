@@ -39,16 +39,16 @@ where:
 Two critical parameters affecting trajectory:
 
 **Fragment Shape Factor (Re):**
-$$Re = \\text{min-to-max frontal projects area ratio}$$
+$$Re = \text{min-to-max frontal projects area ratio}$$
 or
-$$Re = \\text{fragment edge area / face area}$$
+$$Re = \text{fragment edge area / face area}$$
 
 Typical ranges: 0 to 1.0 (assumed tumbling plate-like fragments)
 
 **Fragment Effective Thickness Factor (Sf):**
-$$Sf = \\text{Actual Volume / Maximum Frontal Projected Area}$$
+$$Sf = \text{Actual Volume / Maximum Frontal Projected Area}$$
 or
-$$Sf = \\text{Actual Volume / Face Area}$$
+$$Sf = \text{Actual Volume / Face Area}$$
 
 Typical ranges: 0 to 0.5
 
@@ -60,7 +60,7 @@ where:
 $$W = K Q$$
 $$K = 0.262(Rhop) Sf / [Cd(Rhoa)(Re + 1)]$$
 $$Q = COS(B)$$
-$$Z_t = 3.474 [LOG\_{10}(F+1)]^{0.879}$$
+$$Z_t = 3.474 [LOG_{10}(F+1)]^{0.879}$$
 $$F = 2(R) SIN(B)$$
 $$R = Vb^2/(K)(g)$$
 

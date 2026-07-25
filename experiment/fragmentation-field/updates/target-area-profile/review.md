@@ -1,4 +1,4 @@
-# Review — angle-dependent presented-area profile $A_p(\\gamma)$
+# Review — angle-dependent presented-area profile $A_p(\gamma)$
 
 **Reviewer:** model-reviewer agent
 **Date:** 2026-07-19
@@ -44,9 +44,9 @@ ______________________________________________________________________
   `A_f`/`A_t` endpoints (verified both analytically and via
   `test_presented_area_standing_horizontal` / `_prone_vertical`).
 - **Independent numeric check** (scratch script, `compute_frag_field_3d`,
-  M1 105 mm, AoF = 0°, δ = 15°): $R\_{50}$(standing) = 28 m vs
-  $R\_{50}$(prone) = 14 m at $h_b$ = 0.5 m, crossing over to
-  $R\_{50}$(standing) = 12 m vs $R\_{50}$(prone) = 18 m at $h_b$ = 20 m. This
+  M1 105 mm, AoF = 0°, δ = 15°): $R_{50}$(standing) = 28 m vs
+  $R_{50}$(prone) = 14 m at $h_b$ = 0.5 m, crossing over to
+  $R_{50}$(standing) = 12 m vs $R_{50}$(prone) = 18 m at $h_b$ = 20 m. This
   is exactly the qualitative signature the aspect was scoped to produce
   (standing more exposed near a low/ground burst, prone more exposed under a
   steep high airburst) — the physics genuinely works when exercised.
@@ -62,7 +62,7 @@ ______________________________________________________________________
   estimates, ±25%. This disclosure is carried through faithfully into
   `_limitations.qmd:157-162` (§12, "Posture box-body dimensions") and into
   `A_REF_DEFAULT`'s inline comment (`fragmentation.py:405-412`). No gap here.
-  The $R\_{50}$-recalibration consequence of the $s^{-1}\\to s^{-2}$ geometry
+  The $R_{50}$-recalibration consequence of the $s^{-1}\to s^{-2}$ geometry
   change (derivation §4.3) is likewise disclosed at
   `_limitations.qmd:163-171`.
 - **Downstream consistency**: a later aspect (`target-height-intercept`) adds
@@ -75,7 +75,7 @@ ______________________________________________________________________
   projection only... a documented refinement, not the false-safe artefact").
   The three now-coexisting presented-area treatments (Family-A live $A_p(γ)$,
   target-height-intercept frontal-only column integral, pkill-poisson-field's
-  frozen $A\_{ref}=0.85$) are each independently caveated where they are used
+  frozen $A_{ref}=0.85$) are each independently caveated where they are used
   (`app/sensitivity.py:34, 989, 1044-1053`), so a user is told which panel
   is posture/obliquity-sensitive and which is not.
 
@@ -156,18 +156,18 @@ correct.
 
 **Suggested correction (do not apply):** add a validation cell to
 `_four-zone-3d.qmd` §6.6/6.7 — a γ-sweep line chart of $A_p$(STANDING) vs
-$A_p$(PRONE), plus a small $R\_{50}$-or-$P_k$-at-fixed-range table comparing
+$A_p$(PRONE), plus a small $R_{50}$-or-$P_k$-at-fixed-range table comparing
 low-$h_b$ vs high-$h_b$ bursts for both postures (the numbers reproduced in
-this review — $R\_{50}$ 28m/14m at $h_b$=0.5m crossing to 12m/18m at
+this review — $R_{50}$ 28m/14m at $h_b$=0.5m crossing to 12m/18m at
 $h_b$=20m — are a ready starting point).
 
 ### 3. [Note] Three coexisting presented-area treatments, correctly caveated per panel
 
 Not a target-area-profile defect — recorded for completeness. The Family-A
-path (headline 2D field + diff map) uses live $A_p(\\gamma,\\text{posture})$;
-the target-height-intercept ground field uses frontal-only $w\_\\perp h$
+path (headline 2D field + diff map) uses live $A_p(\gamma,\text{posture})$;
+the target-height-intercept ground field uses frontal-only $w_\perp h$
 (γ=0 fixed); the point-in-space volume uses a frozen, posture-independent
-$A\_{ref}=0.85$. Each is disclosed where used. No action needed.
+$A_{ref}=0.85$. Each is disclosed where used. No action needed.
 
 ______________________________________________________________________
 
@@ -182,7 +182,7 @@ ______________________________________________________________________
    field shape."
 1. If the validation cell (finding 2) is not added before the next pass, log
    in `_limitations.qmd` §12: "The ground-burst-vs-airburst posture crossover
-   that motivates $A_p(\\gamma)$ is implemented and unit-tested at its γ=0/π/2
+   that motivates $A_p(\gamma)$ is implemented and unit-tested at its γ=0/π/2
    endpoints but is not demonstrated end-to-end (γ-sweep, R₅₀ ratio) in any
    notebook cell; verified ad hoc during the 2026-07-19 review
    (`experiment/fragmentation-field/updates/target-area-profile/review.md`)."

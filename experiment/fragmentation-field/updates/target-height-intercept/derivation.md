@@ -27,10 +27,10 @@ ______________________________________________________________________
 The shipped point-kill transform (`pkill-poisson-field` eq. 1) is
 
 $$
-P_k(x,y) = 1 - \\exp!\\big(-,\\lambda\\big), \\qquad
-\\lambda\_\\text{old} = \\rho_L(x,y,,z{=}0)\\cdot A\_\\text{ref},
-\\quad A\_\\text{ref}=w\_\\perp h = 0.85\\ \\text{m}^2 .
-\\qquad (1)
+P_k(x,y) = 1 - \exp!\big(-,\lambda\big), \qquad
+\lambda_\text{old} = \rho_L(x,y,,z{=}0)\cdot A_\text{ref},
+\quad A_\text{ref}=w_\perp h = 0.85\\ \text{m}^2 .
+\qquad (1)
 $$
 
 It reads the lethal-fragment areal density **only on the ground plane** and
@@ -54,15 +54,15 @@ element `w_perp\,dz` at height `z`, sitting in flux `ρ_L(x,y,z)`, is
 over the column gives the mean lethal-hit count
 
 $$
-\\boxed{;\\lambda(x,y) ;=; w\_\\perp \\int_0^{h} \\rho_L(x,y,z),dz;}
-\\qquad (2)
+\boxed{;\lambda(x,y) ;=; w_\perp \int_0^{h} \rho_L(x,y,z),dz;}
+\qquad (2)
 $$
 
 fed into the **unchanged** Poisson wrapper
 
 $$
-P_k(x,y) ;=; 1 - \\exp!\\big(-\\lambda(x,y)\\big) .
-\\qquad (3)
+P_k(x,y) ;=; 1 - \exp!\big(-\lambda(x,y)\big) .
+\qquad (3)
 $$
 
 Equation (2) is precisely the straight-line "does a lethal ray cross the target
@@ -86,9 +86,9 @@ Scoping §4 flagged the fork: keep `A_ref` frozen, or use `w_perp∫dz`. Take th
 constant-density limit of eq. (2): if `ρ_L(x,y,z) ≡ ρ_L^0` over `[0,h]`,
 
 $$
-\\lambda = w\_\\perp \\int_0^h \\rho_L^0,dz = \\rho_L^0,(w\_\\perp h) = \\rho_L^0,A_f ,
-\\qquad A_f = w\_\\perp h .
-\\qquad (4)
+\lambda = w_\perp \int_0^h \rho_L^0,dz = \rho_L^0,(w_\perp h) = \rho_L^0,A_f ,
+\qquad A_f = w_\perp h .
+\qquad (4)
 $$
 
 This is **identical** to eq. (1) with `A_ref = A_f = 0.5·1.7 = 0.85 m²` — the
@@ -171,13 +171,13 @@ The belt boundary in `z` is available in closed form. With `ζ ≡ z − h_b`,
 clearing `s^2`, a **quadratic in `ζ`**:
 
 $$
-A,ζ^2 + B,ζ + C \\le 0,\\quad
-\\begin{cases}
-A = \\sin^2α - \\sin^2δ\\
-B = -2,x\\cosα\\sinα\\
-C = x^2\\cos^2α - (x^2+y^2)\\sin^2δ
-\\end{cases}
-\\qquad (5)
+A,ζ^2 + B,ζ + C \le 0,\quad
+\begin{cases}
+A = \sin^2α - \sin^2δ\\
+B = -2,x\cosα\sinα\\
+C = x^2\cos^2α - (x^2+y^2)\sin^2δ
+\end{cases}
+\qquad (5)
 $$
 
 Its real roots `ζ_\pm = (-B \pm \sqrt{B^2-4AC})/(2A)` map to crossing heights
@@ -224,10 +224,10 @@ doubling, so the doubling check does not flag it. The fix is the **composite
 midpoint rule**, whose nodes are all strictly interior:
 
 $$
-\\lambda(x,y) ;=; w\_\\perp \\sum\_{m}\\int\_{a_m}^{b_m}!\\rho_L(x,y,z),dz
-;\\approx; w\_\\perp \\sum\_{m}\\ \\frac{b_m-a_m}{n\_\\text{seg}}
-\\sum\_{k=0}^{n\_\\text{seg}-1}\\rho_L!\\Big(x,y,;a_m+\\big(k+\\tfrac12\\big)\\tfrac{b_m-a_m}{n\_\\text{seg}}\\Big).
-\\qquad (6)
+\lambda(x,y) ;=; w_\perp \sum_{m}\int_{a_m}^{b_m}!\rho_L(x,y,z),dz
+;\approx; w_\perp \sum_{m}\\ \frac{b_m-a_m}{n_\text{seg}}
+\sum_{k=0}^{n_\text{seg}-1}\rho_L!\Big(x,y,;a_m+\big(k+\tfrac12\big)\tfrac{b_m-a_m}{n_\text{seg}}\Big).
+\qquad (6)
 $$
 
 Midpoint never evaluates `ρ_L` at a belt edge, so the gate always passes and the

@@ -11,10 +11,10 @@ Section 6 of `fragmentation-field.qmd` computes lethal hits per ground patch
 $(x_g, y_g)$ as
 
 $$
-N\_{\\text{eff}}(x_g, y_g)
-= \\int_0^\\infty n(m),P\_{k|\\text{hit}}!\\bigl(E_k(s,m)\\bigr),
-\\frac{w}{2\\pi,s\\cdot 2\\sin\\Theta,\\delta};dm
-\\quad (\\text{eq. 22})
+N_{\text{eff}}(x_g, y_g)
+= \int_0^\infty n(m),P_{k|\text{hit}}!\bigl(E_k(s,m)\bigr),
+\frac{w}{2\pi,s\cdot 2\sin\Theta,\delta};dm
+\quad (\text{eq. 22})
 $$
 
 The presented width is a fixed scalar `w_target = 0.5 m` (line 238) —
@@ -40,11 +40,11 @@ Let γ be the **elevation angle of fragment arrival at the ground point**,
 measured from horizontal:
 
 $$
-\\sin\\gamma ;=; \\frac{h_b}{s}, \\qquad
-\\cos\\gamma ;=; \\frac{\\sqrt{x_g^2+y_g^2}}{s}
+\sin\gamma ;=; \frac{h_b}{s}, \qquad
+\cos\gamma ;=; \frac{\sqrt{x_g^2+y_g^2}}{s}
 $$
 
-with $\\gamma \\in [0°, 90°]$. (γ = 0 → grazing horizontal, γ = 90° → fragment
+with $\gamma \in [0°, 90°]$. (γ = 0 → grazing horizontal, γ = 90° → fragment
 straight down from overhead.) Note γ is already implicitly available in
 the §6 ray-mapping: it is the complement of the existing slant-range
 elevation already computed.
@@ -55,29 +55,29 @@ Model the target body as two orthogonal rectangles ("box of two faces"):
 
 | Face                                              | Area (m²)            | Normal direction |
 | ------------------------------------------------- | -------------------- | ---------------- |
-| **Front** $A_f$ — vertical torso silhouette       | $w\_\\perp \\cdot h$ | horizontal       |
-| **Top** $A_t$ — head + shoulder + thigh footprint | $w\_\\perp \\cdot d$ | vertical         |
+| **Front** $A_f$ — vertical torso silhouette       | $w_\perp \cdot h$ | horizontal       |
+| **Top** $A_t$ — head + shoulder + thigh footprint | $w_\perp \cdot d$ | vertical         |
 
-with $w\_\\perp$ = body width, $h$ = standing height, $d$ = body depth
+with $w_\perp$ = body width, $h$ = standing height, $d$ = body depth
 (belly-to-back).
 
 Projected area to a fragment arriving at elevation γ is:
 
 $$
-A_p(\\gamma) ;=; A_f,\\cos\\gamma ;+; A_t,\\sin\\gamma
-\\quad (\\text{Lambert / flat-plate projection})
+A_p(\gamma) ;=; A_f,\cos\gamma ;+; A_t,\sin\gamma
+\quad (\text{Lambert / flat-plate projection})
 $$
 
 Since the §6 geometry factor uses **width $w$** (not area), and the
-azimuthal subtension at the patch is $w/(s \\sin\\Theta)$, the appropriate
+azimuthal subtension at the patch is $w/(s \sin\Theta)$, the appropriate
 generalisation is to keep $w$ as the *horizontal* angular extent
-(unchanged) and add a **separate vertical-extent factor** $h\_\\text{eff}(\\gamma)$:
+(unchanged) and add a **separate vertical-extent factor** $h_\text{eff}(\gamma)$:
 
 $$
-\\boxed{
-;A_p(\\gamma) ;=; w\_\\perp \\cdot h\_\\text{eff}(\\gamma)
-;\\text{with};
-h\_\\text{eff}(\\gamma) ;=; h\\cos\\gamma + d\\sin\\gamma;
+\boxed{
+;A_p(\gamma) ;=; w_\perp \cdot h_\text{eff}(\gamma)
+;\text{with};
+h_\text{eff}(\gamma) ;=; h\cos\gamma + d\sin\gamma;
 }
 $$
 
@@ -86,7 +86,7 @@ per posture ($d$) and one trig term. No new integration variable.
 
 ### 2.3 Standard postures (NATO AEP-55 / ITOP 4-2-822 conventions, from general background knowledge — not in `doc-reference/`)
 
-| Posture   | $w\_\\perp$ | $h$    | $d$    | $A_f$ (γ=0) | $A_t$ (γ=90°) |
+| Posture   | $w_\perp$ | $h$    | $d$    | $A_f$ (γ=0) | $A_t$ (γ=90°) |
 | --------- | ----------- | ------ | ------ | ----------- | ------------- |
 | Standing  | 0.50 m      | 1.70 m | 0.30 m | 0.85 m²     | 0.15 m²       |
 | Crouching | 0.50 m      | 1.10 m | 0.45 m | 0.55 m²     | 0.23 m²       |
@@ -100,10 +100,10 @@ adopting them in the .qmd they should be sourced (see §3 below).
 
 | Option                             | Form                            | Pros                                                                            | Cons                                                               |
 | ---------------------------------- | ------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| **A. Cosine + sine** (recommended) | $h\\cos\\gamma + d\\sin\\gamma$ | closed-form; recovers current model at γ=0; smooth in γ; only one new parameter | rectangular-box approximation; ignores limbs                       |
+| **A. Cosine + sine** (recommended) | $h\cos\gamma + d\sin\gamma$ | closed-form; recovers current model at γ=0; smooth in γ; only one new parameter | rectangular-box approximation; ignores limbs                       |
 | **B. Step function**               | $h$ if γ\<γ\*, else $d$         | trivially simple                                                                | discontinuous; no airburst signal in transition zone               |
 | **C. ES-310 tabular**              | lookup table                    | matches doctrine                                                                | data not in `doc-reference/` and not in ES-310 source as collected |
-| **D. Ellipsoidal body**            | full-body ellipsoid projection  | one curve covers all postures via axis lengths                                  | adds $\\sqrt{}$ per ray; little accuracy gain over A               |
+| **D. Ellipsoidal body**            | full-body ellipsoid projection  | one curve covers all postures via axis lengths                                  | adds $\sqrt{}$ per ray; little accuracy gain over A               |
 
 **Recommendation: Option A.**
 
@@ -112,9 +112,9 @@ adopting them in the .qmd they should be sourced (see §3 below).
 I checked all docs in `doc-reference/`. Relevant findings:
 
 - **`doc-reference/wound-ballistics/fas-es310-damage-criteria.md`**
-  ES-310 defines $N\_\\text{hits} = A \\cdot N_0/(4\\pi R^2)$ where $A$ is the
+  ES-310 defines $N_\text{hits} = A \cdot N_0/(4\pi R^2)$ where $A$ is the
   target's **frontal area**, treated as a single scalar. No angle
-  dependence. The doc does not give postural areas or any $A(\\gamma)$
+  dependence. The doc does not give postural areas or any $A(\gamma)$
   table. ES-310 also gives only the three-point Pk(KE) anchors (100 J /
   1 kJ / 4 kJ) — there is no posture-resolved Pk in this source.
 - **`doc-reference/wound-ballistics/lethality-threshold-critique.md`**
@@ -124,7 +124,7 @@ I checked all docs in `doc-reference/`. Relevant findings:
   secondary-fragment bone effects; no body-area model.
 - **`doc-reference/fragmentation/`** — Gold (2007 ADA462991, 2017
   PAFRAG), Felix 2020, Mott 1947, Gurney 1947, ML-warhead: all about
-  warhead-side physics (V₀, Mott $\\mu$, spray angles). **None gives a
+  warhead-side physics (V₀, Mott $\mu$, spray angles). **None gives a
   target vulnerability or posture model.**
 
 There is one critical reference cited *inside* the explosion-fragment-model
@@ -159,7 +159,7 @@ literature-validated curve.
 
 | Symbol      | Meaning                 | Unit | Standing   | Prone   | Source needed?   |
 | ----------- | ----------------------- | ---- | ---------- | ------- | ---------------- |
-| $w\_\\perp$ | body width              | m    | 0.5        | 0.5     | already in model |
+| $w_\perp$ | body width              | m    | 0.5        | 0.5     | already in model |
 | $h$         | vertical extent         | m    | 1.7        | 0.3     | NATO / Cunniff   |
 | $d$         | top-down extent (depth) | m    | 0.3        | 1.8     | NATO / Cunniff   |
 | `posture`   | enum                    | —    | "standing" | "prone" | n/a              |
@@ -172,30 +172,30 @@ dimension — γ is derived from existing $h_b$ and $s$.
 - Replace `w_target` scalar with `presented_area(gamma, posture)`
   returning $A_p$ in m² (one helper function, ~10 lines).
 - Rewrite eq. (22) factor from
-  $w/(2\\pi s \\cdot 2\\sin\\Theta,\\delta)$ to
-  $A_p(\\gamma)/(s^2 \\cdot 2\\pi \\cdot 2\\sin\\Theta,\\delta)$ — this is a
+  $w/(2\pi s \cdot 2\sin\Theta,\delta)$ to
+  $A_p(\gamma)/(s^2 \cdot 2\pi \cdot 2\sin\Theta,\delta)$ — this is a
   **dimensional change**: we move from "width / arc" to
   "area / spherical-cap-area" = solid-angle fraction. This is actually
   more rigorous (the current width-based formula implicitly assumes the
-  target spans the full vertical thickness of the belt $2s\\sin\\Theta,\\delta$,
+  target spans the full vertical thickness of the belt $2s\sin\Theta,\delta$,
   which is only true at γ ≈ 0).
 - Re-derive eq. (20) so units stay consistent. Sanity check: recover the
-  current eq. (22) in the limit $h \\gg d$, γ → 0.
+  current eq. (22) in the limit $h \gg d$, γ → 0.
 
 ### 4.3 Validation cost
 
-- Limit check: γ = 0, prone posture → $A_p \\to 0.15$ m² (recovers
+- Limit check: γ = 0, prone posture → $A_p \to 0.15$ m² (recovers
   current "0.5 m × 0.3 m torso depth" cross-section that the qmd
   Caveat #8 already notes).
-- Limit check: γ = 0, standing → $A_p \\to 0.85$ m², larger than current
-  $w \\cdot h\_\\text{torso}$ ≈ 0.5 × 0.5 = 0.25 m². The eq. (22) factor
+- Limit check: γ = 0, standing → $A_p \to 0.85$ m², larger than current
+  $w \cdot h_\text{torso}$ ≈ 0.5 × 0.5 = 0.25 m². The eq. (22) factor
   must be re-normalised so total ground-integrated hits is unchanged in
   the γ → 0 / $h_b → 0$ limit — i.e. the conversion from width-based to
-  area-based must conserve the existing $R\_{50}$ at $h_b = 0$. This is
+  area-based must conserve the existing $R_{50}$ at $h_b = 0$. This is
   the most error-prone step.
 - Spot check: ground burst (γ ≈ 0) vs airburst at $h_b$ = 10 m,
   cross-range 30 m (γ ≈ 18°). Against prone target the airburst should
-  give roughly a $\\sin 18° / \\sin 0° \\to \\infty$ improvement in $A_p$
+  give roughly a $\sin 18° / \sin 0° \to \infty$ improvement in $A_p$
   — i.e. ground burst is *essentially zero* against prone, airburst is
   finite. This is the qualitative behaviour the model is missing.
 - Reproduce a published lethal-area number from a 155 mm M107 against
@@ -241,7 +241,7 @@ already has this disclosure pattern (cf. Limitation #5 for TM 9-1901).
 **Sequencing within MVP2:**
 
 1. (librarian) collect Cunniff 2014 + AEP-55 Vol. 3 if available.
-1. (modeler / Derive) re-derive eq. (22) with $A_p(\\gamma)$
+1. (modeler / Derive) re-derive eq. (22) with $A_p(\gamma)$
    replacing $w$; unit check; recover §6.5 in γ → 0 limit.
 1. (modeler / Implement) add `presented_area(gamma, posture)`;
    parameterise sims by posture.

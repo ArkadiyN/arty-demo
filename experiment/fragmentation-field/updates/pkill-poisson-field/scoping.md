@@ -33,8 +33,8 @@ reader-legible transform of `ρ_L` that *replaces* the ρ_L volume in the app.
 The transform is the standard Poisson "≥1 lethal hit" expression:
 
 $$
-P_k(x,y,z) ;=; 1 - \\exp!\\bigl(-,\\rho_L(x,y,z),\\cdot, A\_\\text{ref}\\bigr)
-\\qquad (1)
+P_k(x,y,z) ;=; 1 - \exp!\bigl(-,\rho_L(x,y,z),\cdot, A_\text{ref}\bigr)
+\qquad (1)
 $$
 
 with `A_ref` [m²] a **fixed** reference presented area standing in for "a
