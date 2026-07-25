@@ -80,7 +80,7 @@ ______________________________________________________________________
 candidates above are correct.** Primary WD sources since located identify the
 grade as **WDSS-1**:
 
-- `doc-reference/ww2-shells/ammunition-series-6-wdss-specs/index.md`
+- `doc-reference/ww2-shells/ammunition-series-6-wdss-specs/ammunition-series-6-wdss-specs.md`
     (Ammunition Series 6, Table 6-1, 17 Feb 1953) — WDSS-1: 0.14–0.20% C,
     1.00–1.30% Mn, applied "for the most part" to 60mm/81mm mortar shell
     forgings.

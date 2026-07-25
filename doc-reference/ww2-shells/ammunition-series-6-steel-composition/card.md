@@ -54,7 +54,7 @@ ______________________________________________________________________
 
 **Baseline catalog (105mm M1 BOM, 1940):** Specifies steel **WD-X1335** (spec 57-107).
 
-**Unconfirmed:** Is WD-X1335 the heat-treated successor to X-1340? Source text does not name successor grade. See **Confidence Assessment** table in index.md for interpretation options.
+**Unconfirmed:** Is WD-X1335 the heat-treated successor to X-1340? Source text does not name successor grade. See **Confidence Assessment** table in ammunition-series-6-steel-composition.md for interpretation options.
 
 ______________________________________________________________________
 
