@@ -22,7 +22,7 @@ ______________________________________________________________________
 The dimensionless areal density ratio (Equation 1) is proposed as the sole independent variable (together with impact obliquity) for predicting ballistic limit of armor systems:
 
 $$
-\\frac{A_d \\cdot A_p}{m_p}
+\frac{A_d \cdot A_p}{m_p}
 $$
 
 where:
@@ -34,11 +34,11 @@ where:
 **Design equations for ballistic limit and residual velocity:**
 
 $$
-V_c = V_s \\cdot f\\left(\\sec\\theta, \\frac{A_d \\cdot A_p}{m_p}, X_1 \\ldots X_8\\right)
+V_c = V_s \cdot f\left(\sec\theta, \frac{A_d \cdot A_p}{m_p}, X_1 \ldots X_8\right)
 $$
 
 $$
-V_r = V_s \\sqrt{1 - \\frac{V_c^2}{V_s^2}} \\cdot f\\left(\\sec\\theta, \\frac{A_d \\cdot A_p}{m_p}, X_5 \\ldots X_8\\right)
+V_r = V_s \sqrt{1 - \frac{V_c^2}{V_s^2}} \cdot f\left(\sec\theta, \frac{A_d \cdot A_p}{m_p}, X_5 \ldots X_8\right)
 $$
 
 Regression constants provided for Kevlar KM2:
@@ -54,7 +54,7 @@ Regression constants provided for Kevlar KM2:
 Fragment mass follows well-documented power-law and exponential distributions. Figure 2 (p. 18) fits experimental data from Gold et al. (2006) to:
 
 $$
-N = N\_{\\exp} \\cdot \\exp\\left(-\\frac{m}{c}\\right) \\quad \\text{(simplified form)}
+N = N_{\exp} \cdot \exp\left(-\frac{m}{c}\right) \quad \text{(simplified form)}
 $$
 
 with fitted parameters:
@@ -108,7 +108,7 @@ Three examples provided:
 Fragments are assumed to tumble uniformly in transit, exposing all aspects of the shape distribution with equal frequency. Initial fragment velocity post-burst is calculated via Driels' formula (p. 35):
 
 $$
-V_0 = V_p \\cdot \\exp\\left(\\frac{ar \\cdot m^{1/3}}{1 - ar \\cdot m^{1/3}}\\right)
+V_0 = V_p \cdot \exp\left(\frac{ar \cdot m^{1/3}}{1 - ar \cdot m^{1/3}}\right)
 $$
 
 where:
@@ -132,7 +132,7 @@ with K = (m · Ap) / (ρ · Ap^{3/2}), Kd ≈ 0.66 (drag coefficient), ρ = air 
 Sturdivan's tissue penetration model (pp. 48-51) treats retarding force as sum of inertial and viscous components:
 
 $$
-F = m_p \\frac{dV}{dt} = -C_V \\rho A_p V^b - C_I A_p V^2
+F = m_p \frac{dV}{dt} = -C_V \rho A_p V^b - C_I A_p V^2
 $$
 
 where:
@@ -146,17 +146,17 @@ where:
 **Solutions for penetration depth and residual velocity:**
 
 $$
-x = \\frac{m_p}{C_I A_p} \\ln\\left(1 + \\frac{C_I V_0}{C_V + C_I b}\\right) - \\frac{C_V A_p t}{b m_p}
+x = \frac{m_p}{C_I A_p} \ln\left(1 + \frac{C_I V_0}{C_V + C_I b}\right) - \frac{C_V A_p t}{b m_p}
 $$
 
 $$
-V = V_0 e^{-\\frac{C_I A_p}{m_p} \\cdot x} - \\frac{C_V A_p}{C_I + C_V/b}
+V = V_0 e^{-\frac{C_I A_p}{m_p} \cdot x} - \frac{C_V A_p}{C_I + C_V/b}
 $$
 
 with inferred initial velocity:
 
 $$
-V_0 = V_s \\left(1 + 0.0378 e^{-V_s/82000}\\right) \\quad \\text{(steel projectiles)}
+V_0 = V_s \left(1 + 0.0378 e^{-V_s/82000}\right) \quad \text{(steel projectiles)}
 $$
 
 Coefficient values (fitted experimentally):
@@ -174,7 +174,7 @@ Coefficient values (fitted experimentally):
 **A quadratic fit to the combined data:**
 
 $$
-V_s = P_1 \\cdot (A_d A_p / m_p)^2 + P_2 \\cdot (A_d A_p / m_p) + P_3
+V_s = P_1 \cdot (A_d A_p / m_p)^2 + P_2 \cdot (A_d A_p / m_p) + P_3
 $$
 
 with no systematic error across projectile mass ranges. Sturdivan's "inferred velocity" term accommodates back-splash and shock-wave energy loss without explicit physics modeling.
@@ -193,7 +193,7 @@ Jordan (2009) penetration data into Celotex® wallboard (ρ = 0.285 g/cc; AFRL-R
 **Quadratic fit:**
 
 $$
-V_s = 59.46 \\cdot (A_d A_p / m_p)^2 + 116.5 \\cdot (A_d A_p / m_p) + 191.1
+V_s = 59.46 \cdot (A_d A_p / m_p)^2 + 116.5 \cdot (A_d A_p / m_p) + 191.1
 $$
 
 **Error bars added for MK84 Low Drag Bomb** (1σ, 2σ, 3σ variations from Figure 3 PDF):
@@ -209,7 +209,7 @@ Probability density curves overlaid for impact velocities 1000 m/s and 1500 m/s 
 The model reformats armor assessment from "coarse stochastic approximation to discrete Bayesian statistical analysis" (p. 10). A munition's threat is defined by a joint probability density function:
 
 $$
-f(V, m, \\text{shape}, n | \\text{spray zone, munition type})
+f(V, m, \text{shape}, n | \text{spray zone, munition type})
 $$
 
 where:
@@ -250,16 +250,16 @@ ______________________________________________________________________
 The ballistic limit Vc as a function of dimensionless areal density and impact obliquity:
 
 $$
-\\frac{V_c}{V_s} = \\frac{X_1}{1 + X_2 \\sec\\theta + X_3 \\left(\\frac{V_s - V_c}{V_c}\\right)} \\quad \\text{where} \\quad X_3 = \\frac{V_s - V_c}{V_c}
+\frac{V_c}{V_s} = \frac{X_1}{1 + X_2 \sec\theta + X_3 \left(\frac{V_s - V_c}{V_c}\right)} \quad \text{where} \quad X_3 = \frac{V_s - V_c}{V_c}
 $$
 
 and
 
 $$
-\\frac{A_d A_p}{m_p} = X_6 \\cdot \\text{(material/geometry term)}$$
+\frac{A_d A_p}{m_p} = X_6 \cdot \text{(material/geometry term)}$$
 
 $$
-V_r^2 = V_s^2 - V_c^2 e^{X_5 \\sec\\theta} \\left(1 + X_4 \\frac{V_r^2}{V_s^2 - V_c^2}\\right)$$
+V_r^2 = V_s^2 - V_c^2 e^{X_5 \sec\theta} \left(1 + X_4 \frac{V_r^2}{V_s^2 - V_c^2}\right)$$
 
 with:
 
@@ -270,29 +270,29 @@ with:
 ### Drag-Corrected Initial Velocity (Driels, p. 35)
 
 $$
-V_0 = V_p \\cdot \\exp\\left(\\frac{ar \\cdot m^{1/3}}{1 - ar \\cdot m^{1/3}}\\right)$$
+V_0 = V_p \cdot \exp\left(\frac{ar \cdot m^{1/3}}{1 - ar \cdot m^{1/3}}\right)$$
 
 where ar = 12 Kd K^{2/3}, K = m·Ap/(ρ·Ap^{3/2}), Kd ≈ 0.66
 
 ### Tissue Penetration Force Balance (Sturdivan, p. 49)
 
 $$
-F = m_p \\frac{dV}{dt} = -\\left(C_V \\rho A_p V^b + C_I A_p V^2\\right)$$
+F = m_p \frac{dV}{dt} = -\left(C_V \rho A_p V^b + C_I A_p V^2\right)$$
 
 **Penetration depth solution:**
 
 $$
-x = \\frac{m_p}{C_I A_p} \\ln\\left(1 + \\frac{C_I V_0}{C_V + C_I b}\\right)$$
+x = \frac{m_p}{C_I A_p} \ln\left(1 + \frac{C_I V_0}{C_V + C_I b}\right)$$
 
 **with inferred initial velocity:**
 
 $$
-V_0 = V_s \\left(1 + 0.0378 e^{-V_s/82000}\\right) \\quad [\\text{m/s, steel}]$$
+V_0 = V_s \left(1 + 0.0378 e^{-V_s/82000}\right) \quad [\text{m/s, steel}]$$
 
 ### Reference Material (Wallboard) Penetration (Jordan, p. 53)
 
 $$
-V_s[\\text{m/s}] = 59.46 \\left(\\frac{A_d A_p}{m_p}\\right)^2 + 116.5 \\left(\\frac{A_d A_p}{m_p}\\right) + 191.1$$
+V_s[\text{m/s}] = 59.46 \left(\frac{A_d A_p}{m_p}\right)^2 + 116.5 \left(\frac{A_d A_p}{m_p}\right) + 191.1$$
 
 Valid range: 0 < Ad·Ap/mp < 4, ρ_target = 0.285 g/cc (Celotex)
 
@@ -329,7 +329,7 @@ ______________________________________________________________________
 **Gelatin (Figure 5, p. 52):** Quadratic fit across all projectile types and masses:
 
 $$
-V_s [\\text{m/s}] = f(A_d A_p / m_p) \\quad \\text{[single curve, no mass dependence]}
+V_s [\text{m/s}] = f(A_d A_p / m_p) \quad \text{[single curve, no mass dependence]}
 $$
 
 Data scatter: ±200 m/s around fit; source: Breeze et al. (2013), Sturdivan (1978).

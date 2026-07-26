@@ -105,12 +105,12 @@ arrival angle, but those are second-order in $gt/V$ and are ignored here.
 
 | Symbol | Value | Source |
 | --- | --- | --- |
-| $V_0$ | 1000 m/s | Gurney 105 mm M1 HE (default in `fragmentation.py`) |
-| $\rho_\text{air}$ | 1.225 kg/m³ | ISA sea level |
-| $C_D$ | 0.65 | tumbling irregular fragment |
-| $C_\text{shape}$ | 0.90 | presented-area shape factor |
-| $\rho_\text{steel}$ | 7850 kg/m³ | shell steel |
-| $g$ | 9.81 m/s² | standard gravity |
+| $V_0$ | `gurney_velocity(ShellParams())` ≈ 994 m/s | Gurney, 105 mm M1 HE (`ShellParams()` default in `fragmentation.py`) |
+| $\rho_\text{air}$ | 1.225 kg/m³ | `DragParams()` default, ISA sea level |
+| $C_D$ | 0.65 | `DragParams()` default, tumbling irregular fragment |
+| $C_\text{shape}$ | 0.90 | `DragParams()` default, presented-area shape factor |
+| $\rho_\text{steel}$ | 7850 kg/m³ | `ShellParams().steel.rho`, shell steel |
+| $g$ | 9.81 m/s² | standard gravity (not modelled in `fragmentation.py`) |
 | Masses | 0.5, 5, 50 g | representative fragment sizes |
 | Ranges | 50, 100 m | lethal-area region of interest |
 
@@ -119,31 +119,29 @@ arrival angle, but those are second-order in $gt/V$ and are ignored here.
 ```{python}
 import numpy as np
 import pandas as pd
+from arty.fragmentation import ShellParams, DragParams, gurney_velocity, retardation_coeff, ke_at_range
 
-# --- Defaults pulled from src/arty/fragmentation.py ---
-V0 = 1000.0           # m/s
-rho_air = 1.225       # kg/m^3
-rho_steel = 7850.0    # kg/m^3
-C_D = 0.65
-C_shape = 0.90
-g = 9.81              # m/s^2
-
-def lam(m_kg: float) -> float:
-    """Drag retardation coefficient [1/m] for fragment of mass m [kg]."""
-    return rho_air * C_D * C_shape / (2.0 * rho_steel ** (2.0 / 3.0)) * m_kg ** (-1.0 / 3.0)
+# --- Drag baseline shared with src/arty/fragmentation.py (105 mm M1 HE default) ---
+shell = ShellParams()
+drag = DragParams()
+V0 = gurney_velocity(shell)   # m/s
+rho_steel = shell.steel.rho   # kg/m^3
+g = 9.81                      # m/s^2 — not modelled in fragmentation.py; the subject of this notebook
 
 def V_of_s(m_kg: float, s_m: float) -> float:
-    """Drag-only velocity [m/s] at slant range s [m]."""
-    return V0 * np.exp(-lam(m_kg) * s_m)
+    """Drag-only velocity [m/s] at slant range s [m] (arty.retardation_coeff)."""
+    lam = retardation_coeff(np.array([m_kg]), drag, rho_steel)[0]
+    return V0 * np.exp(-lam * s_m)
 
 def t_of_s(m_kg: float, s_m: float) -> float:
     """Time of flight [s] along slant range s [m] under exponential drag."""
-    L = lam(m_kg)
-    return (np.exp(L * s_m) - 1.0) / (L * V0)
+    lam = retardation_coeff(np.array([m_kg]), drag, rho_steel)[0]
+    return (np.exp(lam * s_m) - 1.0) / (lam * V0)
 
 def ke_drag(m_kg: float, s_m: float) -> float:
-    """Drag-only KE [J] at range s."""
-    return 0.5 * m_kg * V_of_s(m_kg, s_m) ** 2
+    """Drag-only KE [J] at range s (arty.ke_at_range)."""
+    lam = retardation_coeff(np.array([m_kg]), drag, rho_steel)[0]
+    return ke_at_range(np.array([m_kg]), V0, np.array([lam]), np.array([s_m]))[0]
 
 def dke_gravity(m_kg: float, s_m: float) -> float:
     """Extra KE [J] from gravity-driven vertical drop during ToF."""
@@ -216,7 +214,7 @@ import math
 for mg in [0.5, 5.0, 50.0]:
     m = mg * 1e-3
     A = (m / rho_steel) ** (2.0 / 3.0)
-    vt = math.sqrt(2 * m * g / (rho_air * 0.5 * A))
+    vt = math.sqrt(2 * m * g / (drag.rho_air * 0.5 * A))
     print(f"  m={mg:4.1f} g: terminal v ≈ {vt:5.1f} m/s, ½mv_t² ≈ {0.5*m*vt**2:5.2f} J")
 ```
 
@@ -239,7 +237,8 @@ m = 5e-3
 s = 100.0
 V_nom = V_of_s(m, s)
 for cd in [0.5, 0.65, 0.9]:
-    lam_alt = rho_air * cd * C_shape / (2 * rho_steel**(2/3)) * m**(-1/3)
+    drag_alt = DragParams(C_D=cd, C_shape=drag.C_shape, rho_air=drag.rho_air)
+    lam_alt = retardation_coeff(np.array([m]), drag_alt, rho_steel)[0]
     V_alt = V0 * np.exp(-lam_alt * s)
     print(f"  C_D={cd}: V(100 m)={V_alt:5.1f} m/s, ΔKE vs nominal = "
           f"{100*((V_alt/V_nom)**2 - 1):+5.1f}%")
@@ -251,9 +250,9 @@ The computed numbers (see table above):
 
 | mass | s = 50 m | s = 100 m |
 | --- | --- | --- |
-| 0.5 g | V = 565 m/s, t = 0.067 s, ΔKE/KE = **0.0001 %** | V = 319 m/s, t = 0.187 s, ΔKE/KE = **0.0033 %** |
-| 5 g   | V = 767 m/s, t = 0.057 s, ΔKE/KE = **0.0001 %** | V = 588 m/s, t = 0.132 s, ΔKE/KE = **0.0005 %** |
-| 50 g  | V = 884 m/s, t = 0.053 s, ΔKE/KE ≈ **0 %**     | V = 782 m/s, t = 0.113 s, ΔKE/KE = **0.0002 %** |
+| 0.5 g | V = 561 m/s, t = 0.068 s, ΔKE/KE = **0.0001 %** | V = 317 m/s, t = 0.188 s, ΔKE/KE = **0.0034 %** |
+| 5 g   | V = 763 m/s, t = 0.058 s, ΔKE/KE = **0.0001 %** | V = 585 m/s, t = 0.133 s, ΔKE/KE = **0.0005 %** |
+| 50 g  | V = 879 m/s, t = 0.054 s, ΔKE/KE ≈ **0 %**     | V = 777 m/s, t = 0.114 s, ΔKE/KE = **0.0002 %** |
 
 The largest perturbation anywhere in the table is **0.003 %** of impact KE
 (0.5 g fragment at 100 m). The vertical drop $\tfrac{1}{2} g t^2$ peaks at
@@ -284,7 +283,7 @@ ES-310 $P_{k|hit}$ anchors. The straight-line drag model in
 
 The cross-over where gravity starts to matter for *energy* is around 200 m
 slant range for the lightest (0.5 g) fragments, where ΔKE/KE reaches
-≈0.5 %, and beyond ~250 m it dominates. The lethality field is already
+≈0.6 %, and beyond ~250 m it dominates (≈6 %). The lethality field is already
 near zero at those ranges (small fragments fall below the ES-310 100 J
 threshold around 120 m), so the regime where gravity matters is the regime
 where the fragment is no longer dangerous.

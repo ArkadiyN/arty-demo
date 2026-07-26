@@ -9,7 +9,7 @@ ______________________________________________________________________
 
 ## target-area-profile/derivation.md
 
-Prior review result: reviewed and corrected before the current change. The two issues resolved were (1) explicit acknowledgement that $g\_\\text{new}$ differs from the old factor by $h/s$ and that $R\_{50}$ calibration must be redone, and (2) documentation in §4.4 that eq. (9) (1D disk) is no longer a limit of eq. (22'). Both corrections are present in the derivation on file. Dimensional consistency passes ($\\text{m}^2/\\text{m}^2$), all posture limits are correct. **Status: PASS — no outstanding issues.**
+Prior review result: reviewed and corrected before the current change. The two issues resolved were (1) explicit acknowledgement that $g_\text{new}$ differs from the old factor by $h/s$ and that $R_{50}$ calibration must be redone, and (2) documentation in §4.4 that eq. (9) (1D disk) is no longer a limit of eq. (22'). Both corrections are present in the derivation on file. Dimensional consistency passes ($\text{m}^2/\text{m}^2$), all posture limits are correct. **Status: PASS — no outstanding issues.**
 
 ______________________________________________________________________
 
@@ -17,11 +17,11 @@ ______________________________________________________________________
 
 ### 1. Dimensional consistency
 
-All six equations in the §4 unit table are correct. The Mott $\\mu^z$ formula (§3.5) carries no unit check in the table — it defers to the existing notebook convention. This is a non-blocking deferred item; the unit check must be added at integration time. All other equations check out.
+All six equations in the §4 unit table are correct. The Mott $\mu^z$ formula (§3.5) carries no unit check in the table — it defers to the existing notebook convention. This is a non-blocking deferred item; the unit check must be added at integration time. All other equations check out.
 
-Equivalent-column convention $C^b\_\\text{eff} = C^c \\cdot (t_b / L_c)$ carries units [kg]·[m/m] = [kg]. Correct.
+Equivalent-column convention $C^b_\text{eff} = C^c \cdot (t_b / L_c)$ carries units [kg]·[m/m] = [kg]. Correct.
 
-**Verdict: PASS** (with deferred $\\mu^z$ unit check at integration).
+**Verdict: PASS** (with deferred $\mu^z$ unit check at integration).
 
 ______________________________________________________________________
 
@@ -36,7 +36,7 @@ ______________________________________________________________________
 | Boattail      | 30.2      | 440                    | 438                  | ✓      |
 | Base (k=0.75) | 24.0      | 370                    | 375                  | ✓      |
 
-All four zones now internally consistent with $V_0^z = k^z V_g / \\sqrt{M^z/C^z + 1/2}$ at $V_g = 2440$ m/s. The corrected cylinder $V_0 \\approx 1578$ m/s is consistent with BRL 126 panel data: the measured perforating velocity of ~835 m/s at 75 ft is after drag attenuation; starting at ~1578 m/s is physically plausible for thin-walled cylinder steel at this M/C.
+All four zones now internally consistent with $V_0^z = k^z V_g / \sqrt{M^z/C^z + 1/2}$ at $V_g = 2440$ m/s. The corrected cylinder $V_0 \approx 1578$ m/s is consistent with BRL 126 panel data: the measured perforating velocity of ~835 m/s at 75 ft is after drag attenuation; starting at ~1578 m/s is physically plausible for thin-walled cylinder steel at this M/C.
 
 Base reduction factors k = 0.75 (M1) and 0.70 (M107) are within NWC TP 7124's stated range 0.7–0.8.
 
@@ -48,7 +48,7 @@ ______________________________________________________________________
 
 Zero-boattail shell (`has_boattail=False`): Tier-2 table correctly assigns 0% boattail mass; implementation must exclude the zone from hazard computation when $M^t = 0$. Non-blocking implementation note.
 
-$v\_{g,z} \\ge 0$ case (fragment upward or horizontal): the corrected §3.7 now explicitly states these fragments do not reach the ground in the straight-line model. The implementation must guard against division by $v\_{g,z}$ near zero. Non-blocking implementation note, correctly documented.
+$v_{g,z} \ge 0$ case (fragment upward or horizontal): the corrected §3.7 now explicitly states these fragments do not reach the ground in the straight-line model. The implementation must guard against division by $v_{g,z}$ near zero. Non-blocking implementation note, correctly documented.
 
 **Verdict: PASS** (two implementation guards needed at integration).
 
@@ -74,7 +74,7 @@ ______________________________________________________________________
 
 | #   | Item                                                             | Assessment                                                          |
 | --- | ---------------------------------------------------------------- | ------------------------------------------------------------------- |
-| 1   | Base equivalent-column $C^b\_\\text{eff}$ not literature-sourced | Deferred-OK. Small contribution; geometrically motivated.           |
+| 1   | Base equivalent-column $C^b_\text{eff}$ not literature-sourced | Deferred-OK. Small contribution; geometrically motivated.           |
 | 2   | M48 nose vs. side velocity cross-check                           | Deferred-OK. Future validation task.                                |
 | 3   | AoF-resolved validation data absent                              | Deferred-OK. Phase-1 limitation correctly acknowledged.             |
 | 4   | M107 secant-ogive arc centre spot-check                          | Deferred-OK for derivation; must be performed at integration.       |
@@ -86,13 +86,13 @@ ______________________________________________________________________
 
 ### 6. Tier-2 ogive spray formula
 
-Formula: $\\theta^o\_\\text{Tier-2} = 90° - \\arcsin!\\left(\\dfrac{\\sqrt{\\text{CRH}-1/4}}{2,\\text{CRH}}\\right)$
+Formula: $\theta^o_\text{Tier-2} = 90° - \arcsin!\left(\dfrac{\sqrt{\text{CRH}-1/4}}{2,\text{CRH}}\right)$
 
 Geometry verified: the argument equals $L_n/(2R^o)$ for a tangent ogive, which is the sine of the surface slope angle at the axial midpoint, so the formula correctly subtracts it from 90° to obtain the normal angle from the axis.
 
 Numerical spot-check:
 
-| CRH | $\\theta^o$ |
+| CRH | $\theta^o$ |
 | --- | ----------- |
 | 4   | 76.0°       |
 | 6   | 78.5°       |
@@ -108,7 +108,7 @@ ______________________________________________________________________
 
 ### 7. Base equivalent-column convention
 
-$C^b\_\\text{eff} = C^c \\cdot (t_b / L_c)$: geometrically motivated (explosive column over base thickness), units correct, impact small (4% of steel mass). NWC TP 7124 rarefaction reduction $k^b$ partially compensates for the approximation's limitations. Correctly flagged as open item 1.
+$C^b_\text{eff} = C^c \cdot (t_b / L_c)$: geometrically motivated (explosive column over base thickness), units correct, impact small (4% of steel mass). NWC TP 7124 rarefaction reduction $k^b$ partially compensates for the approximation's limitations. Correctly flagged as open item 1.
 
 **Verdict: PASS** (acknowledged engineering approximation).
 
@@ -116,7 +116,7 @@ ______________________________________________________________________
 
 ### 8. Cross-consistency with target-area-profile derivation
 
-Both derivations produce the same geometry factor $A_p / (2\\pi s^2 \\cdot 2\\sin\\theta^z \\delta)$. The target-area-profile eq. (P4) and the 3D geometry §3.8 boxed formula are identical in form with $\\Theta \\leftrightarrow \\theta^z$.
+Both derivations produce the same geometry factor $A_p / (2\pi s^2 \cdot 2\sin\theta^z \delta)$. The target-area-profile eq. (P4) and the 3D geometry §3.8 boxed formula are identical in form with $\Theta \leftrightarrow \theta^z$.
 
 **Verdict: PASS.**
 
@@ -126,17 +126,17 @@ ______________________________________________________________________
 
 **Issue 1 — RESOLVED: AoF rotation geometry (§3.7 and §5)**
 
-The original derivation wrote $\\hat{u}\_\\text{fwd} = (\\cos\\alpha, 0, -\\sin\\alpha)$ with $\\alpha = 90° - \\text{AoF}$, which inverted the forward-axis direction at all AoF values. The correction replaces this with:
+The original derivation wrote $\hat{u}_\text{fwd} = (\cos\alpha, 0, -\sin\alpha)$ with $\alpha = 90° - \text{AoF}$, which inverted the forward-axis direction at all AoF values. The correction replaces this with:
 
-$$\\hat{u}\_\\text{fwd} = (\\cos(\\text{AoF}),\\ 0,\\ -\\sin(\\text{AoF}))$$
+$$\hat{u}_\text{fwd} = (\cos(\text{AoF}),\\ 0,\\ -\sin(\text{AoF}))$$
 
-and rewrites the rotation matrix as $R_y(\\text{AoF})$. The expanded $v\_{g,z}$ components are now:
+and rewrites the rotation matrix as $R_y(\text{AoF})$. The expanded $v_{g,z}$ components are now:
 
-$$v\_{g,z} = -\\sin(\\text{AoF})\\cos\\theta^z + \\cos(\\text{AoF})\\sin\\theta^z\\sin\\phi$$
+$$v_{g,z} = -\sin(\text{AoF})\cos\theta^z + \cos(\text{AoF})\sin\theta^z\sin\phi$$
 
-The special-case bullets are corrected: AoF=0° (horizontal shell) correctly shows cylinder spray going horizontal or upward (never reaching the ground in the straight-line model); AoF=90° (vertical shell) correctly gives $v\_{g,z} = -\\cos\\theta^z$ independent of $\\phi$.
+The special-case bullets are corrected: AoF=0° (horizontal shell) correctly shows cylinder spray going horizontal or upward (never reaching the ground in the straight-line model); AoF=90° (vertical shell) correctly gives $v_{g,z} = -\cos\theta^z$ independent of $\phi$.
 
-The §5 circular-symmetry derivation is rewritten. At AoF=90° the ogive zone gives hit positions $(h_b\\tan\\theta^z\\sin\\phi, h_b\\tan\\theta^z\\cos\\phi)$ — a ring of radius $h_b\\tan\\theta^z$ independent of $\\phi$. Cylinder fragments ($\\theta^z = 90°$) have $v\_{g,z} = 0$ and do not reach the ground, which is physically correct. Base fragments ($\\theta^z = 165°$) have $v\_{g,z} > 0$ and travel upward, also correct for a vertically-arriving shell.
+The §5 circular-symmetry derivation is rewritten. At AoF=90° the ogive zone gives hit positions $(h_b\tan\theta^z\sin\phi, h_b\tan\theta^z\cos\phi)$ — a ring of radius $h_b\tan\theta^z$ independent of $\phi$. Cylinder fragments ($\theta^z = 90°$) have $v_{g,z} = 0$ and do not reach the ground, which is physically correct. Base fragments ($\theta^z = 165°$) have $v_{g,z} > 0$ and travel upward, also correct for a vertically-arriving shell.
 
 **Issue 2 — RESOLVED: Cylinder $V_0$ in §6 (physical plausibility)**
 
@@ -144,19 +144,19 @@ The original table showed $M^c/C^c = 1.89$ and $V_0^c = 982$ m/s. The formula at
 
 - Explain why the high cylinder velocity is physically correct (low zone-local M/C = 1.89, cylinder holds most of the interior explosive)
 - Correctly interpret the BRL 126 panel measurements as drag-attenuated velocities at range, not initial velocities
-- Explain the ratio $V_0^c / V_0^o \\approx 2.7$ as the mechanism behind cylinder fragment dominance at side panels
+- Explain the ratio $V_0^c / V_0^o \approx 2.7$ as the mechanism behind cylinder fragment dominance at side panels
 
 ______________________________________________________________________
 
 ## Deferred items (non-blocking)
 
-- **Mott $\\mu^z$ unit check** absent from §4 table. Add at integration, referencing Gold (2017) PAFRAG eq. 16.
-- **Notation collision $\\gamma$**: used for both fragment arrival angle and Mott material constant. Rename the Mott constant to $\\Gamma_M$ or $B_M$ at integration.
-- **$v\_{g,z} \\ge 0$ guard**: implementation must skip the hit-position formula when $v\_{g,z} \\ge 0$. Already documented in §3.7.
+- **Mott $\mu^z$ unit check** absent from §4 table. Add at integration, referencing Gold (2017) PAFRAG eq. 16.
+- **Notation collision $\gamma$**: used for both fragment arrival angle and Mott material constant. Rename the Mott constant to $\Gamma_M$ or $B_M$ at integration.
+- **$v_{g,z} \ge 0$ guard**: implementation must skip the hit-position formula when $v_{g,z} \ge 0$. Already documented in §3.7.
 - **Boattail angle convention** (open item 5): resolve full vs. half-taper interpretation in `boattail_angle_deg` before writing implementation code.
 - **M107 secant-ogive spot-check** (open item 4): perform before publishing M107 spray angle.
 - **Tier-2 CRH = 6.0 limitations entry**: add to main `.qmd` at integration.
-- **$R\_{50}$ recalibration**: the new $s^{-2}$ geometry factor (vs. old $s^{-1}$) changes absolute hit counts; recalibrate against TM 9-1901 once the new factor is integrated.
+- **$R_{50}$ recalibration**: the new $s^{-2}$ geometry factor (vs. old $s^{-1}$) changes absolute hit counts; recalibrate against TM 9-1901 once the new factor is integrated.
 
 ______________________________________________________________________
 

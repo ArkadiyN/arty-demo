@@ -22,7 +22,7 @@ ______________________________________________________________________
 
 `fragmentation.py` SHALL expose `PostureParams(w_perp: float, h: float, d: float)` and
 `presented_area(gamma: float, posture: PostureParams) -> float` implementing
-$A_p(\\gamma, \\text{posture}) = w\_\\perp (h \\cos\\gamma + d \\sin\\gamma)$ where $\\gamma$ is
+$A_p(\gamma, \text{posture}) = w_\perp (h \cos\gamma + d \sin\gamma)$ where $\gamma$ is
 the fragment arrival elevation angle from horizontal (radians).
 
 Pre-built constants `STANDING` and `PRONE` SHALL be exported:
@@ -57,8 +57,8 @@ ______________________________________________________________________
 ### Requirement: fragment_ground_impact implements AoF rotation correctly
 
 `arty.zones.fragment_ground_impact(theta_z_deg, phi_rad, aof_deg, h_b)` SHALL compute
-the ground impact point of a fragment leaving zone $z$ with spray angle $\\theta^z$ from
-the forward shell axis and azimuth $\\phi$ around that axis.
+the ground impact point of a fragment leaving zone $z$ with spray angle $\theta^z$ from
+the forward shell axis and azimuth $\phi$ around that axis.
 
 The ground-frame velocity components are computed by
 `arty.zones.fragment_velocity(theta_z_deg, phi_rad, aof_deg) -> (vgx, vgy, vgz)`,
@@ -68,23 +68,23 @@ spray-cone renderers) SHALL call `fragment_velocity` rather than recomputing
 it:
 
 $$
-v\_{g,x} = \\cos(\\text{AoF})\\cos\\theta^z + \\sin(\\text{AoF})\\sin\\theta^z\\sin\\phi
+v_{g,x} = \cos(\text{AoF})\cos\theta^z + \sin(\text{AoF})\sin\theta^z\sin\phi
 $$
 $$
-v\_{g,y} = \\sin\\theta^z\\cos\\phi
+v_{g,y} = \sin\theta^z\cos\phi
 $$
 $$
-v\_{g,z} = -\\sin(\\text{AoF})\\cos\\theta^z + \\cos(\\text{AoF})\\sin\\theta^z\\sin\\phi
+v_{g,z} = -\sin(\text{AoF})\cos\theta^z + \cos(\text{AoF})\sin\theta^z\sin\phi
 $$
 
 Ground impact (with burst at height $h_b$):
 $$
-x\_\\text{hit} = -\\frac{v\_{g,x}}{v\_{g,z}} h_b, \\qquad
-y\_\\text{hit} = -\\frac{v\_{g,y}}{v\_{g,z}} h_b, \\qquad
-\\sin\\gamma = |v\_{g,z}|
+x_\text{hit} = -\frac{v_{g,x}}{v_{g,z}} h_b, \qquad
+y_\text{hit} = -\frac{v_{g,y}}{v_{g,z}} h_b, \qquad
+\sin\gamma = |v_{g,z}|
 $$
 
-The function SHALL return `None` when $v\_{g,z} \\ge 0$ (fragment travels upward or horizontally
+The function SHALL return `None` when $v_{g,z} \ge 0$ (fragment travels upward or horizontally
 and does not reach the ground in the straight-line model).
 
 #### Scenario: Vertical shell, ogive zone forms symmetric ring

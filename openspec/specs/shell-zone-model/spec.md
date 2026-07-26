@@ -99,8 +99,8 @@ ______________________________________________________________________
 `compute_shell_zones` SHALL use the secant-arc surface normal formula when a Tier-2 shell carries `ogive_len` (the actual arc section used, shorter than the full tangent ogive of the same CRH), rather than the full-tangent approximation:
 
 $$
-\\theta\_\\text{spray} = \\arctan!\\left(\\frac{\\sqrt{R_o^2 - x_m^2}}{x_m}\\right),
-\\qquad x_m = \\frac{L_n}{2},\\quad R_o = \\text{CRH} \\times D
+\theta_\text{spray} = \arctan!\left(\frac{\sqrt{R_o^2 - x_m^2}}{x_m}\right),
+\qquad x_m = \frac{L_n}{2},\quad R_o = \text{CRH} \times D
 $$
 
 This corrects the over-estimate that the full-tangent formula produces for shells where

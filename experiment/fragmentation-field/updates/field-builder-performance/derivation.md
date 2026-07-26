@@ -22,26 +22,26 @@ Functions: `four_zone_field`, `_four_zone_field_split`, `four_zone_line_split`
 Per ground cell each zone contributes (original inner loop)
 
 $$
-v_z(x,y) ;=; \\frac{A_p(\\gamma)}{2\\pi s^2, 2\\sin\\theta^z,\\delta}
-\\int pdf^z(m),\\mathrm{pk}\\big(\\tfrac12 m (V_0^z e^{-\\lambda(m)s})^2\\big),dm ,
-\\quad (1)
+v_z(x,y) ;=; \frac{A_p(\gamma)}{2\pi s^2, 2\sin\theta^z,\delta}
+\int pdf^z(m),\mathrm{pk}\big(\tfrac12 m (V_0^z e^{-\lambda(m)s})^2\big),dm ,
+\quad (1)
 $$
 
-with $s=\\sqrt{x^2+y^2+h_b^2}$ (ground plane $z=0$) and
-$\\gamma=\\arcsin(h_b/s)$.
+with $s=\sqrt{x^2+y^2+h_b^2}$ (ground plane $z=0$) and
+$\gamma=\arcsin(h_b/s)$.
 
-**Key observation (s-only factorisation).** Every factor in (1) — $\\gamma$, the
-drag attenuation $e^{-\\lambda(m)s}$, and the $1/s^2$ spreading — is a function of
+**Key observation (s-only factorisation).** Every factor in (1) — $\gamma$, the
+drag attenuation $e^{-\lambda(m)s}$, and the $1/s^2$ spreading — is a function of
 the slant range $s$ **alone**. The only per-direction dependence is the belt
-membership gate $|\\cos\\Theta-\\cos\\theta^z|\\le\\sin\\delta$, with
-$\\cos\\Theta=(x\\cos\\alpha+h_b\\sin\\alpha)/s$, which is a hard 0/1 mask that the
+membership gate $|\cos\Theta-\cos\theta^z|\le\sin\delta$, with
+$\cos\Theta=(x\cos\alpha+h_b\sin\alpha)/s$, which is a hard 0/1 mask that the
 refactor preserves unchanged.
 
 **Reformulation.** For each zone: build the belt mask (vectorised), gather the
 slant ranges of the in-belt cells, evaluate the mass integral (1) exactly on
 those cells with a single `(n_belt, n_mass)` `np.trapezoid`, and scatter back.
-The geometric/presented-area prefactor $A_p(\\arcsin h_b/s)/(2\\pi s^2,2\\delta)$
-is computed per cell at the exact $s$ (shared across zones bar the $1/\\sin\\theta^z$
+The geometric/presented-area prefactor $A_p(\arcsin h_b/s)/(2\pi s^2,2\delta)$
+is computed per cell at the exact $s$ (shared across zones bar the $1/\sin\theta^z$
 scaling). This is the *same* set of floating-point operations as the loop, so it
 is **bit-exact** (measured 2.2e-16). The `(n_cells×n_mass)` working array is
 processed in chunks of ≤ `_FAMILY_A_CHUNK = 2e6` elements to bound peak memory
@@ -55,21 +55,21 @@ above is both faster (the belt is a fraction of the grid) and bit-exact, so it
 was preferred over interpolation.
 
 `compute_frag_field_3d` is the single-zone variant. It differs only in that its
-spreading factor uses the point's **own** polar $\\sin\\Theta$ (not a fixed
-$\\sin\\theta^z$), so $v = J(s)/\\sin\\Theta$ with $J(s)$ the mass integral: the
+spreading factor uses the point's **own** polar $\sin\Theta$ (not a fixed
+$\sin\theta^z$), so $v = J(s)/\sin\Theta$ with $J(s)$ the mass integral: the
 mass integral is still evaluated exactly on in-belt cells and multiplied by the
-per-cell $A_p/(2\\pi s^2,2\\sin\\Theta,\\delta)$. Bit-exact (3.3e-16).
+per-cell $A_p/(2\pi s^2,2\sin\Theta,\delta)$. Bit-exact (3.3e-16).
 
 ______________________________________________________________________
 
-## §2 Family B — lethal-density fields $\\rho_L(x,y,z)$
+## §2 Family B — lethal-density fields $\rho_L(x,y,z)$
 
 Functions: `four_zone_lethal_density_field` (zones.py),
 `compute_lethal_density_field_3d` (fragmentation.py), and their `_vol` stackers.
 
 Per point each zone contributes
-$\\rho_L = \\mathbb{1}[\\text{belt}]\\cdot g(s), N_0^z e^{-\\sqrt{m\_{\\min}(s)/\\mu^z}}$,
-$g(s)=1/(2\\pi s^2,2\\sin\\theta^z,\\delta)$, where $m\_{\\min}(s)$ is **already** a
+$\rho_L = \mathbb{1}[\text{belt}]\cdot g(s), N_0^z e^{-\sqrt{m_{\min}(s)/\mu^z}}$,
+$g(s)=1/(2\pi s^2,2\sin\theta^z,\delta)$, where $m_{\min}(s)$ is **already** a
 precomputed 1-D table interpolated with `np.interp`. So the whole point kernel is
 a function of $s$ and the belt mask — trivially vectorisable over the `(x,y)`
 layer with array `np.interp`/`np.exp`. **Bit-exact** (≤ 1.1e-16): same table,
@@ -95,31 +95,31 @@ ______________________________________________________________________
 Functions: `pkill_field_3d` (fragmentation.py), `four_zone_pkill_field`,
 `four_zone_pkill_line` (zones.py), via the new `_pkill_columns_vec` engine.
 
-$P_k(x,y)=1-e^{-\\lambda}$, $\\lambda=w\_\\perp\\int_0^h \\rho_L(x,y,z),dz$, evaluated
+$P_k(x,y)=1-e^{-\lambda}$, $\lambda=w_\perp\int_0^h \rho_L(x,y,z),dz$, evaluated
 by the **belt-segmented composite-midpoint** rule of the original code: the
 column $[0,h]$ is split at the belt-membership crossing heights
 (`belt_column_breakpoints`), and each sub-interval is integrated with `n_seg`
 strictly-interior midpoint nodes (never an endpoint, to avoid the belt-edge 0/1
 coin-flip — preserved exactly).
 
-**Vectorisation.** The set of belt-edge target cosines $K=c\\pm\\sin\\delta$ is
+**Vectorisation.** The set of belt-edge target cosines $K=c\pm\sin\delta$ is
 *global* (independent of $(x,y)$), so for each $K$ the crossing heights solve one
-quadratic $A\\zeta^2+B\\zeta+C=0$ (§5.1 of the target-height-intercept derivation)
+quadratic $A\zeta^2+B\zeta+C=0$ (§5.1 of the target-height-intercept derivation)
 whose coefficients are arrays over cells. `_vec_quadratic_roots` reproduces the
 scalar `_stable_quadratic_roots` element-for-element (same cancellation-free
-Numerical-Recipes form, same $A!\\to!0$ linear degeneracy and double-root
+Numerical-Recipes form, same $A!\to!0$ linear degeneracy and double-root
 branch). Per-cell breakpoints are stacked into a padded `(P, M)` array, sorted,
 and every consecutive pair defines a segment; midpoint nodes and weights are
-built with `n_seg`, $\\rho_L$ is evaluated at all `(P, M-1, n_seg)` samples with
-array ops, and $\\lambda$ is the weighted sum. Columns are chunked to bound memory.
+built with `n_seg`, $\rho_L$ is evaluated at all `(P, M-1, n_seg)` samples with
+array ops, and $\lambda$ is the weighted sum. Columns are chunked to bound memory.
 
 **Equivalence.** Every *true* membership flip is captured (as in the scalar
 path), and the midpoint samples on each smooth segment are identical. The one
 deviation is that near-coincident breakpoints are **not** deduplicated (the
 scalar path merges roots within 1e-12): an unmerged pair leaves an extra segment
-of width $\\lesssim$1e-12 whose midpoint contribution is $\\rho_L\\cdot!$1e-12, and
-shifts the neighbouring segment's nodes by $\\lesssim$1e-12 — a
-$\\mathcal{O}(\\text{1e-12})$ perturbation on $\\lambda$. Measured max diff on
+of width $\lesssim$1e-12 whose midpoint contribution is $\rho_L\cdot!$1e-12, and
+shifts the neighbouring segment's nodes by $\lesssim$1e-12 — a
+$\mathcal{O}(\text{1e-12})$ perturbation on $\lambda$. Measured max diff on
 $P_k$: 1.4e-15 (float reassociation dominates), i.e. bit-exact in practice.
 
 ______________________________________________________________________
@@ -129,13 +129,13 @@ ______________________________________________________________________
 The single largest cost in the density/volume/pkill builders was
 `build_mmin_table` doing a Python list-comprehension of scalar
 `min_lethal_mass` bisections (one 80-iteration root-find per $s$-node).
-$\\mathrm{KE}(m;s)=\\tfrac12 m(V_0 e^{-\\lambda(m)s})^2$ is monotone in $m$, so a
+$\mathrm{KE}(m;s)=\tfrac12 m(V_0 e^{-\lambda(m)s})^2$ is monotone in $m$, so a
 single bisection is vectorised over all $s$-nodes at once. To stay
 **bit-identical** to the scalar routine — which breaks each element's loop early
 once its bracket narrows below `tol` — each node is *frozen* (its `lo/hi` stop
 updating) the iteration its bracket first falls below `tol`, exactly reproducing
 the scalar early-stop. Verified `np.array_equal` (0.0 diff) against the scalar
-`min_lethal_mass` over dense $s$-grids for $V_0\\in{500,900,1500,1800,2500}$
+`min_lethal_mass` over dense $s$-grids for $V_0\in{500,900,1500,1800,2500}$
 m/s. Because the field/volume/pkill builders all route through this one function,
 the change is bit-exact everywhere it appears.
 
@@ -154,7 +154,7 @@ ______________________________________________________________________
 ## §6 Regression max-diff and before/after timings
 
 Representative parameters: 155 mm M107 HE (Tier-1, four active zones), AoF 30°,
-$h_b=2$ m, $\\delta=15°$, STANDING. Harness: `experiment/_scratch/bench.py`
+$h_b=2$ m, $\delta=15°$, STANDING. Harness: `experiment/_scratch/bench.py`
 (`capture` on the original tree → `ref.npz`; `compare` on the refactor). Timings
 are single-call wall-clock, this machine.
 
@@ -200,7 +200,7 @@ Headline detailed cases on the refactored code (the app's max slider settings):
 | `pkill_field_3d` **n=300**, r=60                                |  275 ms |
 
 The detailed four-zone ground field (n=300, 90 000 columns), previously ~10 s
-(2.5 s at n=150, scaling $\\propto n^2$), is now ~1.2 s; every other slow case is
+(2.5 s at n=150, scaling $\propto n^2$), is now ~1.2 s; every other slow case is
 sub-100 ms. All 220 existing tests pass; `ruff` clean.
 
 ______________________________________________________________________

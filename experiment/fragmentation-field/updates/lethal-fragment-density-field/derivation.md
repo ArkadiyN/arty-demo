@@ -23,33 +23,33 @@ Burst at `B = (0, 0, h_b)`, ground at `z = 0`, field point `P = (x, y, z)`.
 **True 3D slant range (Option B1):**
 
 $$
-s ;=; \\lVert P - B\\rVert ;=; \\sqrt{x^2 + y^2 + (z - h_b)^2}
-\\qquad (1)
+s ;=; \lVert P - B\rVert ;=; \sqrt{x^2 + y^2 + (z - h_b)^2}
+\qquad (1)
 $$
 
 **Unit ray** from burst to field point:
 
 $$
-\\hat r ;=; \\frac{P - B}{s} ;=; \\frac{(x,; y,; z - h_b)}{s}
-\\qquad (2)
+\hat r ;=; \frac{P - B}{s} ;=; \frac{(x,; y,; z - h_b)}{s}
+\qquad (2)
 $$
 
 **Lethal-fragment areal density** (Option A1), per zone `z`, summed over zones:
 
 $$
-\\rho_L(P) ;=; \\sum\_{z},
-\\mathbb{1}!\\bigl[,\\lvert\\cos\\Theta_z - \\cos\\theta^z\\rvert \\le \\sin\\delta,\\bigr];
-\\underbrace{\\frac{1}{2\\pi s^2,\\cdot,2\\sin\\theta^z,\\delta}}_{\\text{spreading } g^z(s);[\\text{m}^{-2}]}
-;\\cdot;
-\\underbrace{N_0^z,\\exp!\\Bigl(-\\sqrt{m_{\\min}^z(s)/\\mu^z}\\Bigr)}\_{\\text{lethal count } N^z(s);[-]}
-\\qquad (3)
+\rho_L(P) ;=; \sum_{z},
+\mathbb{1}!\bigl[,\lvert\cos\Theta_z - \cos\theta^z\rvert \le \sin\delta,\bigr];
+\underbrace{\frac{1}{2\pi s^2,\cdot,2\sin\theta^z,\delta}}_{\text{spreading } g^z(s);[\text{m}^{-2}]}
+;\cdot;
+\underbrace{N_0^z,\exp!\Bigl(-\sqrt{m_{\min}^z(s)/\mu^z}\Bigr)}_{\text{lethal count } N^z(s);[-]}
+\qquad (3)
 $$
 
 with the belt-acceptance polar angle
 
 $$
-\\cos\\Theta_z ;=; \\hat r \\cdot \\hat e\_{\\text{axis}}
-\\qquad (4)
+\cos\Theta_z ;=; \hat r \cdot \hat e_{\text{axis}}
+\qquad (4)
 $$
 
 and `m_min^z(s)` the lightest fragment still lethal at slant range `s` for that
@@ -92,9 +92,9 @@ ______________________________________________________________________
 `m_min^z(s)` solves, for fragment mass `m`,
 
 $$
-E^z(m, s) ;=; \\tfrac12, m, \\bigl(V_0^z, e^{-\\lambda(m),s}\\bigr)^2 ;=; E\_{\\text{leth}},
-\\qquad \\lambda(m) = k,m^{-1/3}
-\\qquad (5)
+E^z(m, s) ;=; \tfrac12, m, \bigl(V_0^z, e^{-\lambda(m),s}\bigr)^2 ;=; E_{\text{leth}},
+\qquad \lambda(m) = k,m^{-1/3}
+\qquad (5)
 $$
 
 with `k = ρ_air C_D C_shape / (2 ρ_steel^{2/3})` (`retardation_coeff`,
@@ -104,9 +104,9 @@ genuinely required; `min_lethal_mass` bisects ~80 iterations. The Mott
 cumulative count of fragments with `m ≥ m_min` is
 
 $$
-N^z(s) ;=; \\int\_{m\_{\\min}^z(s)}^{\\infty} n^z(m),dm
-;=; N_0^z,\\exp!\\Bigl(-\\sqrt{m\_{\\min}^z(s)/\\mu^z}\\Bigr) ;=; \\texttt{mott_N}(m\_{\\min}, N_0^z, \\mu^z)
-\\qquad (6)
+N^z(s) ;=; \int_{m_{\min}^z(s)}^{\infty} n^z(m),dm
+;=; N_0^z,\exp!\Bigl(-\sqrt{m_{\min}^z(s)/\mu^z}\Bigr) ;=; \texttt{mott_N}(m_{\min}, N_0^z, \mu^z)
+\qquad (6)
 $$
 
 since the Mott pdf `n(m) = N_0/(2√(μ m)) · exp(−√(m/μ))` integrates to the
@@ -202,16 +202,16 @@ ground plane).
 The existing per-point ground integrand (single-zone, `:425`) is
 
 $$
-I\_{\\text{old}}(s) ;=; \\int \\underbrace{n(m)}_{\\text{pdf}};\\underbrace{p_{k|h}(E)}_{\\text{target}};\\underbrace{A_p(\\gamma)}_{\\text{target}};\\frac{1}{2\\pi s^2,2\\sin\\theta^z,\\delta},dm .
+I_{\text{old}}(s) ;=; \int \underbrace{n(m)}_{\text{pdf}};\underbrace{p_{k|h}(E)}_{\text{target}};\underbrace{A_p(\gamma)}_{\text{target}};\frac{1}{2\pi s^2,2\sin\theta^z,\delta},dm .
 $$
 
 Dividing out **both** target-coupled factors means (i) removing `A_p(γ)` [m²] and
 (ii) replacing the graded `p_{k|h}(E)` by the binary `𝟙[m ≥ m_min(s)]`:
 
 $$
-\\rho_L(x,y,0)
-;=; \\int n(m),\\mathbb{1}[m\\ge m\_{\\min}(s)],\\frac{dm}{2\\pi s^2,2\\sin\\theta^z,\\delta}
-;=; \\frac{N_0,e^{-\\sqrt{m\_{\\min}/\\mu}}}{2\\pi s^2,2\\sin\\theta^z,\\delta},
+\rho_L(x,y,0)
+;=; \int n(m),\mathbb{1}[m\ge m_{\min}(s)],\frac{dm}{2\pi s^2,2\sin\theta^z,\delta}
+;=; \frac{N_0,e^{-\sqrt{m_{\min}/\mu}}}{2\pi s^2,2\sin\theta^z,\delta},
 $$
 
 which is eq. (3). **The spreading-only part matches exactly** — same
@@ -220,8 +220,8 @@ isolation is clean. The only intended differences from `I_old` are the two
 removed target factors. Equivalently, the reconstruction identity holds:
 
 $$
-\\boxed{;\\rho_L(x,y,0)\\cdot A_p(\\gamma);\\Big|_{\\text{binary}\\to\\text{graded}}
-;=; I_{\\text{old}}(s);}
+\boxed{;\rho_L(x,y,0)\cdot A_p(\gamma);\Big|_{\text{binary}\to\text{graded}}
+;=; I_{\text{old}}(s);}
 $$
 
 i.e. multiply `ρ_L` by a target presented area `A_p` and swap the binary cut back
@@ -265,8 +265,8 @@ The two axes differ by a sign flip on the **x-component only**, not the whole
 vector. For a general ray `ĥr = (rx, ry, rz)`,
 
 $$
-\\cos\\Theta\_{\\text{single}} = -r_x\\cos\\alpha - r_z\\sin\\alpha, \\qquad
-\\cos\\Theta\_{\\text{four}} = +r_x\\cos\\alpha - r_z\\sin\\alpha .
+\cos\Theta_{\text{single}} = -r_x\cos\alpha - r_z\sin\alpha, \qquad
+\cos\Theta_{\text{four}} = +r_x\cos\alpha - r_z\sin\alpha .
 $$
 
 These are **not** negatives of each other in general: `cosΘ_single = −cosΘ_four` holds only when `rz = 0` (the `x=0` line of the field has `rx=0`,

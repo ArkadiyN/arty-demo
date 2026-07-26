@@ -24,8 +24,8 @@ derivation eq. 3 — fragments past the binary `E_leth = 1000 J` mass cut). We m
 it to a **point kill probability**
 
 $$
-\\boxed{;P_k(x,y,z) ;=; 1 - \\exp!\\bigl(-,\\rho_L(x,y,z),\\cdot,A\_\\text{ref}\\bigr);}
-\\qquad (1)
+\boxed{;P_k(x,y,z) ;=; 1 - \exp!\bigl(-,\rho_L(x,y,z),\cdot,A_\text{ref}\bigr);}
+\qquad (1)
 $$
 
 with `A_ref` [m²] a **fixed** nominal personnel presented area. `P_k` answers:
@@ -37,8 +37,8 @@ call (that varies with arrival angle/posture — exactly what `P_k` abstracts aw
 scoping §2). Recommended value (scoping §2, option R1):
 
 $$
-A\_\\text{ref} ;=; A_f ;=; w\_\\perp, h ;=; 0.5 \\times 1.7 ;=; 0.85\\ \\text{m}^2
-\\qquad (2)
+A_\text{ref} ;=; A_f ;=; w_\perp, h ;=; 0.5 \times 1.7 ;=; 0.85\\ \text{m}^2
+\qquad (2)
 $$
 
 the standing frontal silhouette already defined in `fragmentation.py:96`
@@ -67,8 +67,8 @@ however, the literal ES-310 aggregate formula** — ES-310 (same document,
 L42–46) writes the multi-hit aggregate as
 
 $$
-P_k ;=; 1 - (1 - P\_{k|\\text{hit}})^{N\_\\text{hits}}
-\\qquad (\\text{ES-310 aggregate})
+P_k ;=; 1 - (1 - P_{k|\text{hit}})^{N_\text{hits}}
+\qquad (\text{ES-310 aggregate})
 $$
 
 with a **per-hit** kill probability `P_{k|hit}`, and anchors `P_{k|hit} = 0.5`
@@ -89,8 +89,8 @@ Construction:
    areal-fragment density `ρ_L` intercepts, on average,
 
    $$
-   \\lambda(x,y,z) ;=; \\rho_L(x,y,z),\\cdot,A\_\\text{ref}
-   \\qquad (3)
+   \lambda(x,y,z) ;=; \rho_L(x,y,z),\cdot,A_\text{ref}
+   \qquad (3)
    $$
 
    lethal fragments. `ρ_L` already counts **only** fragments past the lethal-mass
@@ -105,8 +105,8 @@ Construction:
    silhouette as Poisson with mean `λ`:
 
    $$
-   P(K = k) ;=; \\frac{\\lambda^{k},e^{-\\lambda}}{k!},\\qquad k = 0,1,2,\\dots
-   \\qquad (4)
+   P(K = k) ;=; \frac{\lambda^{k},e^{-\lambda}}{k!},\qquad k = 0,1,2,\dots
+   \qquad (4)
    $$
 
 1. **At least one hit ⇒ kill (`P_{k|hit} = 1` simplification, beyond the binary
@@ -114,8 +114,8 @@ Construction:
    hits, so the target is killed iff `K ≥ 1`:
 
    $$
-   P_k ;=; P(K \\ge 1) ;=; 1 - P(K = 0) ;=; 1 - e^{-\\lambda}
-   ;=; 1 - \\exp(-\\rho_L,A\_\\text{ref}),
+   P_k ;=; P(K \ge 1) ;=; 1 - P(K = 0) ;=; 1 - e^{-\lambda}
+   ;=; 1 - \exp(-\rho_L,A_\text{ref}),
    $$
 
    which is eq. (1). ∎
@@ -219,9 +219,9 @@ floating-point image lands in `[0, 1)` and clamps cleanly to `[0,1]`.
 ### 4.4 Monotone increasing in `ρ_L`
 
 $$
-\\frac{\\partial P_k}{\\partial \\rho_L}
-= A\_\\text{ref},e^{-\\rho_L A\_\\text{ref}} ;>; 0
-\\qquad\\text{for all } \\rho_L \\ge 0\\ (A\_\\text{ref}>0).
+\frac{\partial P_k}{\partial \rho_L}
+= A_\text{ref},e^{-\rho_L A_\text{ref}} ;>; 0
+\qquad\text{for all } \rho_L \ge 0\\ (A_\text{ref}>0).
 $$
 
 Strictly positive everywhere ⇒ `P_k` is **strictly monotone increasing** in `ρ_L`.
@@ -237,10 +237,10 @@ lethal core — the correct qualitative shape for a saturating kill map.
 Taylor expand eq. (1) about `λ = 0`:
 
 $$
-P_k = 1 - e^{-\\lambda}
-= \\lambda - \\tfrac{\\lambda^2}{2} + O(\\lambda^3)
-;\\approx; \\lambda ;=; \\rho_L,A\_\\text{ref}
-\\qquad (\\lambda \\ll 1).
+P_k = 1 - e^{-\lambda}
+= \lambda - \tfrac{\lambda^2}{2} + O(\lambda^3)
+;\approx; \lambda ;=; \rho_L,A_\text{ref}
+\qquad (\lambda \ll 1).
 $$
 
 So at the **lethal fringe** (`ρ_L·A_ref ≪ 1`), `P_k ≈ ρ_L·A_ref` — the kill
@@ -262,8 +262,8 @@ numerically identical to `compute_lethal_density_field_3d(z=0.0)`";
 
 $$
 P_k(x,y,0)
-= 1 - \\exp!\\bigl(-\\rho_L(x,y,0),A\_\\text{ref}\\bigr)
-= 1 - \\exp!\\bigl(-\\rho_L^{,2\\mathrm D}(x,y),A\_\\text{ref}\\bigr),
+= 1 - \exp!\bigl(-\rho_L(x,y,0),A_\text{ref}\bigr)
+= 1 - \exp!\bigl(-\rho_L^{,2\mathrm D}(x,y),A_\text{ref}\bigr),
 $$
 
 i.e. applying eq. (1) to the volume's `z=0` slice gives **exactly** the same
