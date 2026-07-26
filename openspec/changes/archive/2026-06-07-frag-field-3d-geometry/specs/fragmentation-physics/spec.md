@@ -37,7 +37,7 @@ $\\delta$ of $\\theta^z$ (spray-belt acceptance test).
 
 - **WHEN** `four_zone_field(zones_m1, aof_deg=30.0, h_b=2.0, posture=STANDING, ...)` is called
 - **THEN** `P_kill` at the forward ground point (positive x along the line of fire) is non-zero
-  and reflects the ogive zone's spray angle (< 90°)
+    and reflects the ogive zone's spray angle (< 90°)
 
 #### Scenario: Symmetry at AoF = 90° (vertical shell)
 
@@ -47,10 +47,10 @@ $\\delta$ of $\\theta^z$ (spray-belt acceptance test).
 #### Scenario: Dead base treatment contributes zero
 
 - **WHEN** `zones` is a `ShellZones` where `base.mass_kg > 0` but the calling shell has
-  `base_treatment == "dead"` and `four_zone_field` is called with those zones
+    `base_treatment == "dead"` and `four_zone_field` is called with those zones
 - **THEN** the base zone is excluded from `field_N` (base has `mass_kg == 0.0` in the
-  `ShellZones` produced by `compute_shell_zones` when `base_treatment == "dead"`,
-  per the shell-zone-model spec)
+    `ShellZones` produced by `compute_shell_zones` when `base_treatment == "dead"`,
+    per the shell-zone-model spec)
 
 **Note:** `base_treatment == "dead"` is the current default for all shells in the registry.
 The base zone always receives `mass_kg > 0` from geometry, but its contribution is zeroed by
@@ -72,7 +72,7 @@ shape semantics as before this change.
 
 - **WHEN** `compute_frag_field_3d(SHELLS["105mm M1 HE"], BurstParams(angle_of_fall=30.0, h_b=2.0), STANDING, drag)` is called
 - **THEN** `P_kill` is not azimuthally symmetric: the forward half (`x > 0`) has a different
-  mean value than the rear half (`x < 0`)
+    mean value than the rear half (`x < 0`)
 
 #### Scenario: compute_frag_field_3d produces symmetric field at AoF = 90°
 
@@ -90,4 +90,4 @@ ______________________________________________________________________
 
 - **WHEN** `compute_frag_field(SHELLS["105mm M1 HE"], drag)` is called
 - **THEN** `P_kill` at r = 20 m matches the pre-change value within 0.1%
-  (the single-zone symmetric model is unchanged)
+    (the single-zone symmetric model is unchanged)

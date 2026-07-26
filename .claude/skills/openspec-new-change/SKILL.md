@@ -17,65 +17,65 @@ Start a new change using the experimental artifact-driven approach.
 
 1. **If no clear input provided, ask what they want to build**
 
-   Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
+    Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
 
-   > "What change do you want to work on? Describe what you want to build or fix."
+    > "What change do you want to work on? Describe what you want to build or fix."
 
-   From their description, derive a kebab-case name (e.g., "add user authentication" → `add-user-auth`).
+    From their description, derive a kebab-case name (e.g., "add user authentication" → `add-user-auth`).
 
-   **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
+    **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
 
 1. **Decompose into single-aspect changes (physics/model work)**
 
-   If the request touches a physics or simulation model, check whether it
-   spans more than one **model aspect** before creating anything. An aspect is
-   separate if it has its own governing-equation set, its own
-   independently-validatable parameter group, or a separately PASS/FAIL-able
-   output (see the **model-workflow** skill → "Decompose first").
+    If the request touches a physics or simulation model, check whether it
+    spans more than one **model aspect** before creating anything. An aspect is
+    separate if it has its own governing-equation set, its own
+    independently-validatable parameter group, or a separately PASS/FAIL-able
+    output (see the **model-workflow** skill → "Decompose first").
 
-   - **One aspect → one change.** Proceed normally.
-   - **N aspects → N changes.** Do NOT scaffold one change that bundles them.
-     List the aspects and their dependency order, confirm the split with the
-     user (AskUserQuestion), then create one change per aspect. Sequence
-     coupled aspects rather than merging them.
+    - **One aspect → one change.** Proceed normally.
+    - **N aspects → N changes.** Do NOT scaffold one change that bundles them.
+        List the aspects and their dependency order, confirm the split with the
+        user (AskUserQuestion), then create one change per aspect. Sequence
+        coupled aspects rather than merging them.
 
 1. **Determine the workflow schema**
 
-   Use the default schema (omit `--schema`) unless the user explicitly requests a different workflow.
+    Use the default schema (omit `--schema`) unless the user explicitly requests a different workflow.
 
-   **Use a different schema only if the user mentions:**
+    **Use a different schema only if the user mentions:**
 
-   - A specific schema name → use `--schema <name>`
-   - "show workflows" or "what workflows" → run `openspec schemas --json` and let them choose
+    - A specific schema name → use `--schema <name>`
+    - "show workflows" or "what workflows" → run `openspec schemas --json` and let them choose
 
-   **Otherwise**: Omit `--schema` to use the default.
+    **Otherwise**: Omit `--schema` to use the default.
 
 1. **Create the change directory**
 
-   ```bash
-   openspec new change "<name>"
-   ```
+    ```bash
+    openspec new change "<name>"
+    ```
 
-   Add `--schema <name>` only if the user requested a specific workflow.
-   This creates a scaffolded change at `openspec/changes/<name>/` with the selected schema.
+    Add `--schema <name>` only if the user requested a specific workflow.
+    This creates a scaffolded change at `openspec/changes/<name>/` with the selected schema.
 
 1. **Show the artifact status**
 
-   ```bash
-   openspec status --change "<name>"
-   ```
+    ```bash
+    openspec status --change "<name>"
+    ```
 
-   This shows which artifacts need to be created and which are ready (dependencies satisfied).
+    This shows which artifacts need to be created and which are ready (dependencies satisfied).
 
 1. **Get instructions for the first artifact**
-   The first artifact depends on the schema (e.g., `proposal` for spec-driven).
-   Check the status output to find the first artifact with status "ready".
+    The first artifact depends on the schema (e.g., `proposal` for spec-driven).
+    Check the status output to find the first artifact with status "ready".
 
-   ```bash
-   openspec instructions <first-artifact-id> --change "<name>"
-   ```
+    ```bash
+    openspec instructions <first-artifact-id> --change "<name>"
+    ```
 
-   This outputs the template and context for creating the first artifact.
+    This outputs the template and context for creating the first artifact.
 
 1. **STOP and wait for user direction**
 

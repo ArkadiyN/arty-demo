@@ -14,25 +14,25 @@ area of the shared 2D grid, so callers can request a resolution finer than the
 #### Scenario: Line evaluator matches the grid evaluator at shared nodes
 
 - **WHEN** `four_zone_line_split` is called with `line_coords` aligned to the
-  shared 2D grid's node positions, for the same `zones`, `aof_deg`, `h_b`,
-  `posture`, `drag_lam_grid`, `m_grid`, and `delta_deg` as a
-  `_four_zone_field_split` call
+    shared 2D grid's node positions, for the same `zones`, `aof_deg`, `h_b`,
+    `posture`, `drag_lam_grid`, `m_grid`, and `delta_deg` as a
+    `_four_zone_field_split` call
 - **THEN** the per-zone and total P(kill) values returned match the
-  corresponding `_four_zone_field_split` grid values within floating-point
-  tolerance
+    corresponding `_four_zone_field_split` grid values within floating-point
+    tolerance
 
 #### Scenario: Resolution is independent of the shared grid step
 
 - **WHEN** `four_zone_line_split` is called with a `line_coords` array spaced
-  finer than the shared 2D grid step
+    finer than the shared 2D grid step
 - **THEN** it returns one P(kill) value (per zone, plus total) for each
-  requested line coordinate, evaluated directly rather than interpolated from
-  the coarser grid
+    requested line coordinate, evaluated directly rather than interpolated from
+    the coarser grid
 
 #### Scenario: Narrow low-burst-height footprint is resolved
 
 - **WHEN** `four_zone_line_split` is evaluated along a line at a burst height
-  where the true P(kill) footprint width is narrower than the shared 2D grid
-  step
+    where the true P(kill) footprint width is narrower than the shared 2D grid
+    step
 - **THEN** it returns non-zero P(kill) values within that footprint, rather
-  than the all-zero result a coarser grid read would give
+    than the all-zero result a coarser grid read would give

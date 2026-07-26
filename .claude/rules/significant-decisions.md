@@ -9,9 +9,9 @@ significant** — otherwise just proceed.
 Pause and surface the decision only when **both** hold:
 
 1. **It is significant** — either *hard to reverse* (commits, deletions,
-   shared-file rewrites, schema/spec changes, outward or external actions,
-   costly/irreversible subagent delegations) **or** it *materially changes
-   direction or output*; and
+    shared-file rewrites, schema/spec changes, outward or external actions,
+    costly/irreversible subagent delegations) **or** it *materially changes
+    direction or output*; and
 1. **Confidence is genuinely low** — you do not have a clearly correct choice.
 
 When both hold: STOP before acting. State the options and your recommendation,

@@ -35,14 +35,14 @@ background (prompts auto-denied, silently) is session-host-dependent and not
 controllable. Treat **every** dispatch as potentially background:
 
 - Stick to command shapes that cleanly match an allow-listed glob; avoid
-  backticks and `$` in `grep`/`sed` patterns where plain text works — such
-  patterns have been observed auto-denied even when correctly quoted.
+    backticks and `$` in `grep`/`sed` patterns where plain text works — such
+    patterns have been observed auto-denied even when correctly quoted.
 - Write nontrivial check code to `experiment/_scratch/check.py` and run it
-  with a short single-line `uv run python experiment/_scratch/check.py` —
-  not a multi-line inline `-c "..."`.
+    with a short single-line `uv run python experiment/_scratch/check.py` —
+    not a multi-line inline `-c "..."`.
 - A quiet return ≠ success: the orchestrating agent must check returned
-  summaries for permission-denial language, not just treat "it returned" as
-  "it succeeded."
+    summaries for permission-denial language, not just treat "it returned" as
+    "it succeeded."
 
 ## A pass can return `completed` having produced nothing — classify before re-dispatching
 
@@ -58,25 +58,25 @@ When the artifact is missing or stub-short, do **not** reflexively re-fire a
 full pass. Classify first — it is nearly free:
 
 1. **Diagnose from the cited output file.** The notification names the output
-   file; open it, or just compare `tool_uses` in the usage block to the
-   agent's `maxTurns`. `tool_uses ≥ maxTurns` with mostly `Read`/`grep` and no
-   `Write` = **turn-exhaustion from over-reading** (the dominant mode — the
-   agent spent its whole budget discovering/reading and never reached the
-   write). Denial language = a permission block (see the background-mode
-   section). Neither = a genuine crash / API error.
+    file; open it, or just compare `tool_uses` in the usage block to the
+    agent's `maxTurns`. `tool_uses ≥ maxTurns` with mostly `Read`/`grep` and no
+    `Write` = **turn-exhaustion from over-reading** (the dominant mode — the
+    agent spent its whole budget discovering/reading and never reached the
+    write). Denial language = a permission block (see the background-mode
+    section). Neither = a genuine crash / API error.
 1. **On turn-exhaustion, re-dispatch fresh — never `SendMessage`-resume**
-   (Gate 4; the failed instance's window is polluted with the over-read
-   anyway). But fix the *cause* in the new brief or it recurs identically:
-   instruct **write-early** — bank a findings ledger while reading (the facts
-   it learns, not a heading skeleton), so the pass records progress before the
-   cap and a continuation reads its own notes instead of re-deriving cold.
+    (Gate 4; the failed instance's window is polluted with the over-read
+    anyway). But fix the *cause* in the new brief or it recurs identically:
+    instruct **write-early** — bank a findings ledger while reading (the facts
+    it learns, not a heading skeleton), so the pass records progress before the
+    cap and a continuation reads its own notes instead of re-deriving cold.
 1. **Cap re-dispatches at two, and use artifact growth as the loop sensor.** A
-   pass that returns with **zero artifact bytes twice** is a deterministic
-   read-bound loop, not bad luck — **stop and escalate to the human** with the
-   classification and token cost; do not fire a third. A partial that **grows**
-   each pass is converging, so a bounded continue is fine. (This is why the
-   ledger matters: a heading-only skeleton gives neither cheap resumption nor a
-   progress signal; a findings ledger gives both.)
+    pass that returns with **zero artifact bytes twice** is a deterministic
+    read-bound loop, not bad luck — **stop and escalate to the human** with the
+    classification and token cost; do not fire a third. A partial that **grows**
+    each pass is converging, so a bounded continue is fine. (This is why the
+    ledger matters: a heading-only skeleton gives neither cheap resumption nor a
+    progress signal; a findings ledger gives both.)
 
 Spending a second full pass blind — no diagnosis, unknown cause — is a costly
 subagent delegation under `.claude/rules/significant-decisions.md`; when the

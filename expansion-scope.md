@@ -13,17 +13,17 @@ parameters. The expansion adds the layers that make it a battlefield
 simulation:
 
 - **Track A — Fire missions:** *where do the bursts actually land*
-  (ballistics + error budget + sheaf), and *what does a volley/mission of many
-  bursts do cumulatively*.
+    (ballistics + error budget + sheaf), and *what does a volley/mission of many
+    bursts do cumulatively*.
 - **Track B — Terrain:** the ground stops being `z = 0`. Terrain moves burst
-  points, changes angle of fall, masks fragments (reverse slope, defilade),
-  and becomes the map canvas for mission visualization.
+    points, changes angle of fall, masks fragments (reverse slope, defilade),
+    and becomes the map canvas for mission visualization.
 - **Track C — Fortification destruction & blast:** overpressure and
-  penetration effects against static works (and blast casualties), behind an
-  explicit anti-armor firewall.
+    penetration effects against static works (and blast casualties), behind an
+    explicit anti-armor firewall.
 - **Track D — Scenario capstone:** a scenario schema that integrates all
-  tracks into end-to-end missions on a map — completing coverage of
-  `project_scope.md`, into which this document's roadmap is summarized.
+    tracks into end-to-end missions on a map — completing coverage of
+    `project_scope.md`, into which this document's roadmap is summarized.
 
 The single-burst pkill field becomes the **kernel**: the expansion is largely
 "place many kernels correctly, on real ground, and aggregate them." That
@@ -95,12 +95,12 @@ test** (compare mission outcomes under both; the tolerance and comparison
 protocol are the aspect's first deliverable):
 
 - **Reduced footprint (recommended).** Fit a compact parametric lethal-area
-  function (Carleton-family) to the full four-zone model offline, per
-  (shell, fuse, AoF bucket); missions consume only the fitted footprint. The
-  full model stays the source of truth and the learning tool's engine.
+    function (Carleton-family) to the full four-zone model offline, per
+    (shell, fuse, AoF bucket); missions consume only the fitted footprint. The
+    full model stays the source of truth and the learning tool's engine.
 - **Full-kernel cache (fallback).** Canonical-grid cache per AoF bucket,
-  placed by rotate/translate interpolation — only if the materiality test
-  shows mission outcomes shift beyond tolerance under the footprint.
+    placed by rotate/translate interpolation — only if the materiality test
+    shows mission outcomes shift beyond tolerance under the footprint.
 
 This test is also the standing gate for every later performance decision:
 no compiled dependency (Numba/Rust) enters without a *failed* materiality
@@ -119,40 +119,40 @@ velocity) for the fragmentation kernel, not just a position. Three options,
 ordered as an escalation path:
 
 - **Option A — Anchor-point-calibrated point mass (recommended start).**
-  Point-mass ODE (scipy `solve_ivp`, drag + gravity) with the drag scale
-  fitted to a *handful* of published anchor points — (range, elevation, ToF,
-  AoF, PE) tuples from secondary sources (BRL reports, artillery histories).
-  Gives a real trajectory (needed later for terrain intercept) while avoiding
-  the full-table digitization risk below. Less authentic in the last few
-  percent; far more robust to sourcing failure.
+    Point-mass ODE (scipy `solve_ivp`, drag + gravity) with the drag scale
+    fitted to a *handful* of published anchor points — (range, elevation, ToF,
+    AoF, PE) tuples from secondary sources (BRL reports, artillery histories).
+    Gives a real trajectory (needed later for terrain intercept) while avoiding
+    the full-table digitization risk below. Less authentic in the last few
+    percent; far more robust to sourcing failure.
 - **Option B — Digitized firing tables (upgrade path).** Full WW2 firing
-  tables (e.g., FT 105-H-3 for the 105 mm M1 shell, FT 155 series for the
-  M107) tabulate per charge: elevation ↔ range, AoF, ToF, terminal velocity,
-  **and the probable errors themselves**. Maximum authenticity, and the
-  ground truth Option A calibrates against where available. Known risks:
-  scans live in archive.org / CARL / DTIC, not the librarian's Scopus
-  pipeline (expect manual curation); PE tables sit in the worst-scanned
-  appendices; OCR of dense 1940s numeric tables fails *silently* — a
-  digitization QA step with human spot-checks is mandatory, and each new
-  gun/charge repeats the cost.
+    tables (e.g., FT 105-H-3 for the 105 mm M1 shell, FT 155 series for the
+    M107) tabulate per charge: elevation ↔ range, AoF, ToF, terminal velocity,
+    **and the probable errors themselves**. Maximum authenticity, and the
+    ground truth Option A calibrates against where available. Known risks:
+    scans live in archive.org / CARL / DTIC, not the librarian's Scopus
+    pipeline (expect manual curation); PE tables sit in the worst-scanned
+    appendices; OCR of dense 1940s numeric tables fails *silently* — a
+    digitization QA step with human spot-checks is mandatory, and each new
+    gun/charge repeats the cost.
 - **Option C — Fully sourced KD drag curves (research-grade end-state).**
-  Modified point mass with literature drag data for the actual shell shapes;
-  only worth it if the librarian sweep surfaces usable KD data.
+    Modified point mass with literature drag data for the actual shell shapes;
+    only worth it if the librarian sweep surfaces usable KD data.
 
 ### A2. Error model — the core of "uncertainty of accuracy"
 
 Standard gunnery decomposition, which `project_scope.md` already anticipates:
 
 1. **Systematic error (MPI bias)** — met, propellant temperature, wear,
-   survey. One draw per mission/occasion; shifts the whole pattern. Reduced
-   (not eliminated) by **registration** or FO adjustment.
+    survey. One draw per mission/occasion; shifts the whole pattern. Reduced
+    (not eliminated) by **registration** or FO adjustment.
 1. **Random dispersion** — round-to-round, irreducible. Bivariate normal in
-   range/deflection, parameterized by PE_r and PE_d from the A1 data source
-   (firing-table lookups under Option B; fitted PE anchor points under
-   Option A), with PE = 0.6745σ. Range PE ≫ deflection PE → the elongated
-   beaten zone falls out naturally.
+    range/deflection, parameterized by PE_r and PE_d from the A1 data source
+    (firing-table lookups under Option B; fitted PE anchor points under
+    Option A), with PE = 0.6745σ. Range PE ≫ deflection PE → the elongated
+    beaten zone falls out naturally.
 1. **Aim/target-location error** — by the FO; matters for the adjustment
-   simulation.
+    simulation.
 
 Deliverable quantity: per-round impact distribution around the aim point,
 conditioned on mission state (registered? adjusted? map-shooting?).
@@ -165,16 +165,16 @@ Two complementary methods — recommend building **both**; they share the
 kernel:
 
 - **Expected-coverage convolution (fast, deterministic).** The pkill field is
-  already a grid; the expected mission effect is (approximately) the
-  single-burst kernel convolved with the impact-point PDF, scaled by round
-  count (`scipy.signal.fftconvolve`). Instant "heat map" as sliders move —
-  fits the existing sensitivity-app interaction model.
+    already a grid; the expected mission effect is (approximately) the
+    single-burst kernel convolved with the impact-point PDF, scaled by round
+    count (`scipy.signal.fftconvolve`). Instant "heat map" as sliders move —
+    fits the existing sensitivity-app interaction model.
 - **Monte Carlo realizations (variability, storytelling).** Sample actual
-  impact points per volley, superpose per-round pkill via the survivor rule
-  `P = 1 − ∏(1−pᵢ)`. Shows *a* mission, not the average — crucial for the
-  instructional point that identical missions differ. Cheap: N ≈ 24–72 bursts
-  × precomputed kernel lookups (see A0). Variance reduction via
-  `scipy.stats.qmc` if needed.
+    impact points per volley, superpose per-round pkill via the survivor rule
+    `P = 1 − ∏(1−pᵢ)`. Shows *a* mission, not the average — crucial for the
+    instructional point that identical missions differ. Cheap: N ≈ 24–72 bursts
+    × precomputed kernel lookups (see A0). Variance reduction via
+    `scipy.stats.qmc` if needed.
 
 **Early modeler question — consistency criterion between the two paths.**
 The convolution computes expected lethal *exposure*; converting it to P(kill)
@@ -215,22 +215,22 @@ mode derives burst parameters, the learning tool still sets them freely):
 
 - **PD** — burst at the surface intercept (h_b ≈ 0).
 - **Time** — airburst at set time of flight; height-of-burst error joins the
-  A2 budget as its own dispersion component (rides Phase 2a).
+    A2 budget as its own dispersion component (rides Phase 2a).
 - **Delay incl. ricochet** — genuinely new physics (graze-angle-dependent
-  ricochet, burst on the bounce); its own modeler aspect, interacting with
-  Track B's local surface slope.
+    ricochet, burst on the bounce); its own modeler aspect, interacting with
+    Track B's local surface slope.
 
 ## 4. Track B — Simulated surface
 
 ### B1. Staged approach
 
 - **Stage 1 — Analytic surfaces.** `ElevationProvider` protocol: `z(x,y)`,
-  `gradient(x,y)`; implementations: flat, tilted plane, ridge/valley
-  primitives, Gaussian hills, composable sums. Enough to demo reverse-slope
-  protection and crest masking — the two terrain effects with the biggest
-  instructional payoff.
+    `gradient(x,y)`; implementations: flat, tilted plane, ridge/valley
+    primitives, Gaussian hills, composable sums. Enough to demo reverse-slope
+    protection and crest masking — the two terrain effects with the biggest
+    instructional payoff.
 - **Stage 2 — Real relief (DEM).** Same protocol, backed by a raster patch
-  re-projected into the local gun-target frame (meters). Sources, best-first:
+    re-projected into the local gun-target frame (meters). Sources, best-first:
 
 | Source                                              | Resolution               | Access                                   | Notes                                          |
 | --------------------------------------------------- | ------------------------ | ---------------------------------------- | ---------------------------------------------- |
@@ -254,29 +254,29 @@ fetched for the demo battlefield and claims capped accordingly.
 ### B2. Terrain × physics interactions, ordered by payoff/cost
 
 1. **Impact-point intercept** — trajectory ∩ terrain instead of `z=0`: shifts
-   range on slopes, changes *local* angle of fall relative to the surface
-   (grazing vs. plunging → fragmentation pattern changes already modeled via
-   AoF). Needs Option B/C ballistics (a trajectory to intersect).
+    range on slopes, changes *local* angle of fall relative to the surface
+    (grazing vs. plunging → fragmentation pattern changes already modeled via
+    AoF). Needs Option B/C ballistics (a trajectory to intersect).
 1. **Burst height above local ground** for time/VT airburst realism.
 1. **Fragment masking** — line-of-sight from burst point to each target cell
-   over the height field (classic reverse-slope defilade). Pure geometry with
-   a big visual payoff, but naive per-cell raycasting does not scale
-   (~250k cells × 36 bursts × ~100 steps/ray); use per-burst viewshed sweep
-   algorithms (O(cells) each) — an algorithm choice, not a loop.
+    over the height field (classic reverse-slope defilade). Pure geometry with
+    a big visual payoff, but naive per-cell raycasting does not scale
+    (~250k cells × 36 bursts × ~100 steps/ray); use per-burst viewshed sweep
+    algorithms (O(cells) each) — an algorithm choice, not a loop.
 1. **Crest clearance / high-angle necessity** — low-angle solution blocked by
-   a ridge forces high-angle; ties terrain into the ballistics options.
+    a ridge forces high-angle; ties terrain into the ballistics options.
 1. (Later) **FO line-of-sight** — what the observer can actually see governs
-   the adjustment loop.
+    the adjustment loop.
 
 ### B3. Map visualization
 
 - **Recommended: stay Plotly** (existing stack): `go.Surface` relief with
-  pkill draped as color, plus 2-D contour+hillshade for the tactical map
-  view. Zero new UI deps.
+    pkill draped as color, plus 2-D contour+hillshade for the tactical map
+    view. Zero new UI deps.
 - Option: **pydeck** in Streamlit for real-basemap presentations
-  (satellite/topo tiles under the overlays) — worth it only at Stage 2.
+    (satellite/topo tiles under the overlays) — worth it only at Stage 2.
 - Option: folium/leaflet — better for lat/lon web maps, weaker for draped
-  scalar fields; not recommended here.
+    scalar fields; not recommended here.
 
 ## 5. Track C — Fortification destruction & blast
 
@@ -285,37 +285,37 @@ damage *categories* with wide tolerance bands, which is the fidelity the
 source formulas themselves carry. Three quantities, each a modeler aspect:
 
 1. **Scaled-distance overpressure** — Kingery–Bulmash-family blast scaling,
-   ground vs. airburst reflection. Serves *two* consumers: structural loading
-   here, and blast-on-personnel casualties (the original scope's
-   "overpressure vs. distance" line is about people, not just works).
-   Well-covered literature; clean librarian + modeler aspect.
+    ground vs. airburst reflection. Serves *two* consumers: structural loading
+    here, and blast-on-personnel casualties (the original scope's
+    "overpressure vs. distance" line is about people, not just works).
+    Well-covered literature; clean librarian + modeler aspect.
 1. **Penetration / damage-given-hit** — empirical formulas of the
-   ACE / modified-NDRC / TM 5-855 family for low-velocity HE shell into
-   soil, timber, and mass concrete; earth-cover equivalence; discrete damage
-   states (suppressed / damaged / destroyed).
+    ACE / modified-NDRC / TM 5-855 family for low-velocity HE shell into
+    soil, timber, and mass concrete; earth-cover equivalence; discrete damage
+    states (suppressed / damaged / destroyed).
 1. **P(direct hit) on a point target** — the A2 dispersion model evaluated at
-   small-target scale. This is the physics behind A4's *destruction mission*:
-   Track C completes that mission type rather than adding a separate
-   simulation.
+    small-target scale. This is the physics behind A4's *destruction mission*:
+    Track C completes that mission type rather than adding a separate
+    simulation.
 1. **Target catalogue extension** — gun-crew and soft-vehicle targets
-   (dimensions + hardness threshold) as consumers of fragmentation + blast,
-   extending the existing presented-area/posture machinery; foxhole/trench
-   protection enters as Track C cover classes. Soft vehicles stay soft — see
-   the firewall.
+    (dimensions + hardness threshold) as consumers of fragmentation + blast,
+    extending the existing presented-area/posture machinery; foxhole/trench
+    protection enters as Track C cover classes. Soft vehicles stay soft — see
+    the firewall.
 
 **Anti-armor firewall.** Armor stays permanently out of scope, and the
 firewall is defined by materials and projectiles, not target names — the
 math itself must be incapable of expressing an armor engagement:
 
 1. Materials whitelist: soil, timber, unreinforced/lightly-reinforced
-   concrete. Steel plate is excluded as a material.
+    concrete. Steel plate is excluded as a material.
 1. Projectile whitelist: HE shell (PD/delay fuze). No kinetic AP penetrators.
 1. Target whitelist: static works — foxhole, trench, earth-timber bunker,
-   concrete pillbox. No vehicles as hard targets; the soft-vehicle target
-   stays a fragmentation/blast target with a hardness threshold, never a
-   penetration target.
+    concrete pillbox. No vehicles as hard targets; the soft-vehicle target
+    stays a fragmentation/blast target with a hardness threshold, never a
+    penetration target.
 1. Output form: discrete damage states from empirical formulas — deliberately
-   unable to express a penetration duel.
+    unable to express a penetration duel.
 
 **Direct laying — reclassified from "out of scope" to deferred add-on.**
 Direct fire introduces no new machinery: same point-mass trajectory in an
@@ -358,30 +358,30 @@ Stage 2.
 ## 8. Phasing (dependency-ordered, each phase demos standalone)
 
 1. **Phase 2a — Dispersion on flat ground.** Anchor-point data (librarian) →
-   ballistics Option A → PD/Time fuse function + error model (incl. HOB
-   error) → sheaf → A0 materiality test + footprint → MC + convolution
-   aggregation → "beaten zone" mission app view. *Highest instructional
-   value per effort; zero terrain dependency.*
+    ballistics Option A → PD/Time fuse function + error model (incl. HOB
+    error) → sheaf → A0 materiality test + footprint → MC + convolution
+    aggregation → "beaten zone" mission app view. *Highest instructional
+    value per effort; zero terrain dependency.*
 1. **Phase 2b — Analytic terrain.** `ElevationProvider`,
-   burst-height-above-ground, fragment masking, reverse-slope demo.
-   *Hidden dependency:* impact on a slope shifts the burst point, but a full
-   trajectory-terrain intersection belongs to 2c. 2b therefore adopts an
-   explicit approximation — the descending branch treated as a straight line
-   at AoF — documented as such (modeler sign-off), or the phase ordering
-   silently breaks.
+    burst-height-above-ground, fragment masking, reverse-slope demo.
+    *Hidden dependency:* impact on a slope shifts the burst point, but a full
+    trajectory-terrain intersection belongs to 2c. 2b therefore adopts an
+    explicit approximation — the descending branch treated as a straight line
+    at AoF — documented as such (modeler sign-off), or the phase ordering
+    silently breaks.
 1. **Phase 2c — Real relief.** DEM adapter, trajectory-terrain intercept
-   (needs ballistics Option C), map-styled visualization.
+    (needs ballistics Option C), map-styled visualization.
 1. **Phase 2d — Mission choreography.** FO/FDC state machine, bracketing,
-   registration, mission timeline + event log replay.
+    registration, mission timeline + event log replay.
 1. **Phase 2e — Terminal events.** Delay/ricochet fuse physics (A5); needs
-   2b's local surface slope. PD/Time fuses and HOB error already rode 2a.
+    2b's local surface slope. PD/Time fuses and HOB error already rode 2a.
 1. **Phase 2f — Fortification destruction.** Track C: overpressure,
-   penetration/damage states, point-target P(hit), target catalogue;
-   completes the destruction mission. Needs 2a (dispersion at small-target
-   scale) and the delay fuse from 2e.
+    penetration/damage states, point-target P(hit), target catalogue;
+    completes the destruction mission. Needs 2a (dispersion at small-target
+    scale) and the delay fuse from 2e.
 1. **Phase 3 — Scenario capstone.** Track D: scenario schema, end-to-end
-   mission on a map with event-log replay. Integrates everything; the
-   original Tool Flow delivered.
+    mission on a map with event-log replay. Integrates everything; the
+    original Tool Flow delivered.
 
 2a and 2b are independent and could run as parallel OpenSpec changes; 2c
 needs both; 2d needs 2a; 2e needs 2a + 2b; 2f needs 2a + 2e; Phase 3 needs
@@ -417,23 +417,23 @@ Ranked by likelihood of being the thing that actually stalls the expansion:
 **Does it scale?**
 
 - **Compute — yes, conditionally.** Convolution path is FFT-bounded.
-  MC path is linear in rounds × realizations: fine at battery scale
-  (≤72 rounds, ~10² realizations) with the A0 footprint; with naive
-  full-kernel re-evaluation it is not.
+    MC path is linear in rounds × realizations: fine at battery scale
+    (≤72 rounds, ~10² realizations) with the A0 footprint; with naive
+    full-kernel re-evaluation it is not.
 - **Compiled acceleration (Numba/Rust) — not needed by design.** At battery
-  scale with the reduced footprint, everything is numpy/scipy-bounded
-  (~10⁷-op mission evaluations, milliseconds). The only path to compiled
-  dependencies is fidelity creep (risk #1), and the A0 materiality test is
-  the gate that keeps them out; they'd also cost deployment friction (JIT
-  warm-up in Streamlit, build toolchain in uv) with no user-visible gain.
+    scale with the reduced footprint, everything is numpy/scipy-bounded
+    (~10⁷-op mission evaluations, milliseconds). The only path to compiled
+    dependencies is fidelity creep (risk #1), and the A0 materiality test is
+    the gate that keeps them out; they'd also cost deployment friction (JIT
+    warm-up in Streamlit, build toolchain in uv) with no user-visible gain.
 - **Visualization — 2D yes, 3D no.** Mission-scale 3D volume rendering dies
-  in the browser. 3D volumes stay a single-burst learning tool; missions get
-  2D draped fields. Locked as a presentation-architecture decision.
+    in the browser. 3D volumes stay a single-burst learning tool; missions get
+    2D draped fields. Locked as a presentation-architecture decision.
 - **Data — the real non-scaling axis.** Adding guns/shells is bounded by
-  archival sourcing and digitization QA, not code. The single-battery,
-  single-shell-type cap is what keeps the project tractable.
+    archival sourcing and digitization QA, not code. The single-battery,
+    single-shell-type cap is what keeps the project tractable.
 - **Scope ceiling.** Everything holds at battery level; battalion fires/TOT
-  would strain MC counts and the event log — out of scope by design.
+    would strain MC counts and the event log — out of scope by design.
 
 ## Recommended defaults
 

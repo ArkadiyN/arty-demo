@@ -21,23 +21,23 @@ read as all-zero even though the field is genuinely non-zero nearby.
 
 - Mirror the existing cross-range slice chart with a downrange slice chart.
 - Mirror the existing elevation (x-z) cross-section with an across (y-z)
-  cross-section, pairing each slice chart with the cross-section that shares
-  its fixed axis.
+    cross-section, pairing each slice chart with the cross-section that shares
+    its fixed axis.
 - Fix the grid-resolution sampling artifact for both slice charts without
-  paying O(n_grid²) cost for a globally finer grid.
+    paying O(n_grid²) cost for a globally finer grid.
 
 **Non-Goals:**
 
 - No change to the underlying physics (spray-belt acceptance test, presented
-  area, drag attenuation, Mott integration) — this is a presentation and
-  sampling-resolution change, not a new derived quantity.
+    area, drag attenuation, Mott integration) — this is a presentation and
+    sampling-resolution change, not a new derived quantity.
 - No change to `four_zone_field` / `_four_zone_field_split`'s existing public
-  behavior; the 2D heatmaps are untouched.
+    behavior; the 2D heatmaps are untouched.
 - Does not address the pre-existing pattern (predating this change) of
-  `_spray_cone`/`_spray_cone_across` re-deriving the fragment ray-projection
-  formula inline in `app/sensitivity.py` instead of calling
-  `arty.zones.fragment_ground_impact` — flagged by `@model-reviewer` as a
-  candidate follow-up, out of scope here.
+    `_spray_cone`/`_spray_cone_across` re-deriving the fragment ray-projection
+    formula inline in `app/sensitivity.py` instead of calling
+    `arty.zones.fragment_ground_impact` — flagged by `@model-reviewer` as a
+    candidate follow-up, out of scope here.
 
 ## Decisions
 
@@ -85,10 +85,10 @@ equation would require.
 ## Risks / Trade-offs
 
 - \[Two independent evaluators (`_four_zone_field_split` and
-  `four_zone_line_split`) duplicate the per-point physics loop body\] →
-  Mitigated by `@model-reviewer` confirming the loop bodies are formula-
-  identical; any future physics change must be applied to both. A shared
-  per-point helper would remove this duplication as a follow-up.
+    `four_zone_line_split`) duplicate the per-point physics loop body\]
+    Mitigated by `@model-reviewer` confirming the loop bodies are formula-
+    identical; any future physics change must be applied to both. A shared
+    per-point helper would remove this duplication as a follow-up.
 - [Fine line step (0.25 m) is still a fixed step, not adaptive] → Acceptable
-  for this app's interactive use; the reported low-burst-height symptom
-  (footprint width ≈1.46 m) is well above this step.
+    for this app's interactive use; the reported low-burst-height symptom
+    (footprint width ≈1.46 m) is well above this step.

@@ -45,9 +45,9 @@ calls functions, and renders results and prose. It must **not** contain:
 
 - physics or geometry functions (put them in `src/arty/`),
 - parameter values or material constants (define them in `src/arty/`, e.g. the
-  shell/explosive registries, and import them),
+    shell/explosive registries, and import them),
 - computation or plotting helpers reused across figures (factor them into
-  `src/arty/`, e.g. an `arty.plots` module).
+    `src/arty/`, e.g. an `arty.plots` module).
 
 A `.qmd` code cell should read like: `from arty.fragmentation import ...`, then
 call + display. If you find yourself writing a derivation, a loop over physics,

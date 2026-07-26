@@ -10,31 +10,31 @@ copy.
 
 1. Install dependencies with `uv`:
 
-   ```bash
-   uv sync
-   ```
+    ```bash
+    uv sync
+    ```
 
 1. Copy `.env.example` to `.env` and set `QUARTO_PYTHON` to point at the
-   project venv (already the default in `.env.example`):
+    project venv (already the default in `.env.example`):
 
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 
 1. Export the `.env` variables into your shell so Quarto's Python engine
-   uses the project venv, then render:
+    uses the project venv, then render:
 
-   ```bash
-   set -a; source .env; set +a
-   quarto render experiment/<model>/<model>.qmd
-   ```
+    ```bash
+    set -a; source .env; set +a
+    quarto render experiment/<model>/<model>.qmd
+    ```
 
-   For example:
+    For example:
 
-   ```bash
-   set -a; source .env; set +a
-   quarto render experiment/fragmentation-field/fragmentation-field.qmd
-   ```
+    ```bash
+    set -a; source .env; set +a
+    quarto render experiment/fragmentation-field/fragmentation-field.qmd
+    ```
 
 This produces `<model>.html` alongside the `.qmd` source, plus a
 `<model>_files/` directory containing the figures and static assets the
@@ -53,15 +53,15 @@ update in real time.
 
 1. Install dependencies with `uv` (if not already done above):
 
-   ```bash
-   uv sync
-   ```
+    ```bash
+    uv sync
+    ```
 
 1. Start the app:
 
-   ```bash
-   uv run streamlit run app/sensitivity.py
-   ```
+    ```bash
+    uv run streamlit run app/sensitivity.py
+    ```
 
-   Streamlit prints a local URL (default `http://localhost:8501`) — open it
-   in a browser. Stop the server with `Ctrl+C`.
+    Streamlit prints a local URL (default `http://localhost:8501`) — open it
+    in a browser. Stop the server with `Ctrl+C`.

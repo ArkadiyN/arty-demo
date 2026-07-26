@@ -281,9 +281,9 @@ After having established the crucial parameters of the model, Charge B (shown in
 #### **Visual Annotation for Figure 7:**
 
 - Three-panel graphic:
-  1. CALE analysis showing computer-simulated expansion profiles.
-  1. Flash radiograph at ![][image102] and ![][image103] showing crack patterns and escaping gases.
-  1. High-speed framing image at ![][image102] capturing the gas plumes.
+    1. CALE analysis showing computer-simulated expansion profiles.
+    1. Flash radiograph at ![][image102] and ![][image103] showing crack patterns and escaping gases.
+    1. High-speed framing image at ![][image102] capturing the gas plumes.
 - Notes highlight the "Early break-up" at the threaded base joint, and "Detonation products breakthrough through cracks".
 
 ## **Page 15: Section 4 (Continued) - Fracture Evolution Details**
@@ -298,9 +298,9 @@ Examination of the entire series of images taken approximately ![][image101] apa
 
 - A plot of ![][image70] expansion on the y-axis against Time (![][image15]s) on the x-axis.
 - Inset photographs of the warhead are mapped to key milestone points on the curve:
-  - ![][image106] (![][image107]): Axial cracking starts.
-  - ![][image108] (![][image109]): Gases visibly break through and appear on the surface.
-  - A threshold line is marked at ![][image110], representing the average analytical fragmentation event.
+    - ![][image106] (![][image107]): Axial cracking starts.
+    - ![][image108] (![][image109]): Gases visibly break through and appear on the surface.
+    - A threshold line is marked at ![][image110], representing the average analytical fragmentation event.
 
 ## **Page 16: Section 4 (Continued) - Expansion and Velocity Analyses**
 
@@ -362,49 +362,49 @@ Considering the relative simplicity of the model, the accuracy of the MOTT code 
 ## **Page 20: Section 7 - Distribution List**
 
 - **U.S. Army ARDEC**
-  - ATTN: AMSRD-AAR-EMK
-  - AMSRD-AAR-GC
-  - AMARD-AAR-AEE-W, E. Baker
-  - V. Gold (5 copies)
-  - AMSRD-AAR-AEM-J, J. Hirlinger
-  - G. Flemming
-  - AMSRD-AAR-AEW-M(D), S. Liss
-  - G. Moshier
-  - AMSRD-AAR-AEM-D, G. Voorhis
-  - *Location:* Picatinny Arsenal, NJ 07806-5000
+    - ATTN: AMSRD-AAR-EMK
+    - AMSRD-AAR-GC
+    - AMARD-AAR-AEE-W, E. Baker
+    - V. Gold (5 copies)
+    - AMSRD-AAR-AEM-J, J. Hirlinger
+    - G. Flemming
+    - AMSRD-AAR-AEW-M(D), S. Liss
+    - G. Moshier
+    - AMSRD-AAR-AEM-D, G. Voorhis
+    - *Location:* Picatinny Arsenal, NJ 07806-5000
 - **Defense Technical Information Center (DTIC)**
-  - ATTN: Accessions Division
-  - 8725 John J. Kingman Road, Ste 0944
-  - Fort Belvoir, VA 22060-6218
+    - ATTN: Accessions Division
+    - 8725 John J. Kingman Road, Ste 0944
+    - Fort Belvoir, VA 22060-6218
 - **Commander, Soldier and Biological/Chemical Command**
-  - ATTN: AMSSB-CII, Library
-  - Aberdeen Proving Ground, MD 21010-5423
+    - ATTN: AMSSB-CII, Library
+    - Aberdeen Proving Ground, MD 21010-5423
 - **Director, U.S. Army Research Laboratory**
-  - ATTN: AMSRL-CI-LP, Technical Library, Bldg. 4600
-  - Aberdeen Proving Ground, MD 21005-5066
+    - ATTN: AMSRL-CI-LP, Technical Library, Bldg. 4600
+    - Aberdeen Proving Ground, MD 21005-5066
 - **Chief, Benet Weapons Laboratory, AETC**
-  - U.S. Army Research, Development and Engineering Command
-  - Armament Research, Development and Engineering Center
-  - ATTN: AMSRD-AAR-AEW
-  - Watervliet, NY 12189-5000
+    - U.S. Army Research, Development and Engineering Command
+    - Armament Research, Development and Engineering Center
+    - ATTN: AMSRD-AAR-AEW
+    - Watervliet, NY 12189-5000
 - **Director, U.S. Army TRADOC Analysis Center-WSMR**
-  - ATTN: ATRC-WSS-R
-  - White Sands Missile Range, NM 88002
+    - ATTN: ATRC-WSS-R
+    - White Sands Missile Range, NM 88002
 - **Chemical Propulsion Information Agency**
-  - ATTN: Accessions
-  - 10630 Little Patuxent Parkway, Suite 202
-  - Columbia, MD 21044-3204
+    - ATTN: Accessions
+    - 10630 Little Patuxent Parkway, Suite 202
+    - Columbia, MD 21044-3204
 
 ## **Page 21: Distribution List (Continued)**
 
 - **GIDEP Operations Center**
-  - P.O. Box 8000
-  - Corona, CA 91718-8000
+    - P.O. Box 8000
+    - Corona, CA 91718-8000
 - **Alliant Tech Systems**
-  - ATTN: C. Nelson
-  - G. Holms
-  - 600 Second Street, NE
-  - Hopkins, MN 55343
+    - ATTN: C. Nelson
+    - G. Holms
+    - 600 Second Street, NE
+    - Hopkins, MN 55343
 
 eof
 
