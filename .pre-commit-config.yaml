@@ -48,7 +48,31 @@ repos:
         # no partial write), so the file itself isn't at risk — it just can't
         # be auto-formatted until the upstream bug is fixed or the OCR noise
         # is cleaned up.
-        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$|doc-reference/ww2-shells/ordnance-105mm-m1-1940/shell-he-105mm-m1\.md$'
+        #
+        # explosion-fragment-model's source file (1-s2.0-S221491472030502X-main.md)
+        # is excluded individually too: confirmed by direct repro (fix the
+        # file, verify 0 flags with check-katex, run `pre-commit run mdformat
+        # --all-files` alone, re-check) that mdformat --extensions mkdocs
+        # still re-escapes `_` to `\_` and doubles a `\lambda` backslash on
+        # this file's L34/L81/L119 specifically, even though the same
+        # extension leaves the other 29 doc-reference files untouched. Not
+        # yet root-caused to a specific line pattern; until it is, this file
+        # is excluded like shell-he-105mm-m1.md rather than left to silently
+        # regress every time mdformat runs.
+        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$|doc-reference/ww2-shells/ordnance-105mm-m1-1940/shell-he-105mm-m1\.md$|doc-reference/fragmentation/explosion-fragment-model/1-s2\.0-S221491472030502X-main\.md$'
+
+      # Belt-and-suspenders counterpart to the mdformat exclude above: that
+      # stops *tools* from introducing math-escaping corruption; this stops
+      # already-corrupted math from ever being *committed*, regardless of
+      # source (new PDF ingestion, a manual edit, a future formatter's own
+      # bug). Scoped to the same math-bearing paths as the mdformat
+      # exclude/.mdformat-ignore lists.
+      - id: check-katex
+        name: check-katex
+        language: system
+        entry: uv run python src/utils/check-katex.py --fail-on-flag
+        files: '^(doc-reference/.*\.md$|.*\.qmd$|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$)'
+        pass_filenames: true
 
       # Blocking backstop for agent-memory discipline. The PostToolUse hook of
       # the same script only *nudges* the writing agent after the write lands;
