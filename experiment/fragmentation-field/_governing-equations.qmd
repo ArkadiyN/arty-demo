@@ -75,10 +75,19 @@ equation (4) matches the PAFRAG source notation exactly.
 | $\mu$          | Half the average fragment mass           | kg    | computed          |
 
 **Note on $\gamma$ and $\sigma_F$:** These are the dominant uncertainties.
-Mott (1947) Table 1 gives γ ≈ 53 for 0.2%C steel and γ ≈ 67 for 0.3%C steel.
-US M1 shell bodies use SAE 1045 steel (≈ 0.45%C); γ ≈ 65 is a central estimate.
-Dynamic flow stress at high strain rate is typically 800–1 000 MPa for hardened steel,
-higher than the quasi-static value of 600 MPa. The sensitivity section explores both.
+Mott (1947 §3) tabulates γ = 53 for 0.25%C steel and γ = 67 for 0.45%C steel
+(the row spacing is non-uniform: 0 / 0.1 / 0.25 / 0.45 %C).
+The 105 mm M1 bill of material names the body steel **WD-X1335** (spec 57-107);
+γ = 65 is a bracket-anchored estimate sitting just under Mott's 0.45%C row, *not*
+a fit to fragment-count data (the earlier "SAE 1045, ≈ 0.45%C" attribution was
+uncited and is superseded). Dynamic flow stress at high strain rate is typically
+800–1 000 MPa for hardened steel, higher than the quasi-static value of 600 MPa.
+The sensitivity section explores both.
+
+Only the **ratio** $\sigma_F/\gamma$ is observable: (4) contains the pair
+nowhere else, so $(k\sigma_F, k\gamma)$ reproduces $\mu$ and $N_0$ exactly for
+any $k$. The split into two numbers is a reporting convention, which is why the
+second catalogued grade (§*Steel-grade catalog*) moves $\gamma$ alone.
 
 The most probable fragment mass (mode of the number-weighted PDF) is $m_{\text{mode}} = \mu/4$.
 

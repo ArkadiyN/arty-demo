@@ -19,3 +19,6 @@
 - [Volume penumbra per path](pkill_volume_penumbra_is_outer_not_near_burst.md) — single-zone near-binary, four-zone genuinely graded; recompute per path
 - [Family-A sinΘ bound](family_a_sinTheta_notation_relic.md) — quantifies the known legacy sinΘ quirk: 1/sin(90°−δ)−1, ~15.5% at δ=30°; single-zone path only
 - [Cross-aspect notebook citation staleness](cross_aspect_notebook_citation_staleness.md) — a later aspect's .qmd rewrite can strand another derivation's citation even when the claim stays true
+- [Robustness check wrong axis](robustness_check_wrong_axis.md) — a sweep that only varies magnitude within a fixed ordering assumption can't catch a wrong ordering/sign-flip risk
+- [Gap-closure needs source's own confidence check](gap_closure_check_source_own_confidence.md) — a cited doc-reference entry, or an uncited sibling, may flag the exact identification a derivation treats as "closed"
+- [Verify fix completeness: grep whole file](verify_fix_completeness_grep_whole_file.md) — a wording fix often lands at the headline location but leaves stale echoes/dangling forward-refs elsewhere

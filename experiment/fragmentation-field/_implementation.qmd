@@ -28,4 +28,31 @@ for m_g in [0.5, 1, 5, 10, 50]:
     print(f"  N(m > {m_g:4.1f} g)   : {mott_N(np.array([m_g*1e-3]), N0, mu)[0]:.0f}")
 ```
 
+### Grade contrast across the steel catalog
+
+Swapping the case material re-runs the same `mott_params` call with a
+different $\gamma$; the Gurney velocity is unaffected (it depends on the
+charge-to-metal ratio, not the grade). The catalogued low-carbon WDSS 1
+fragments into **fewer but heavier** pieces than the baseline WD-X1335 body,
+the sign Mott's series requires (lower carbon → lower $\gamma$ → larger $\mu$).
+
+```{python}
+from dataclasses import replace
+
+print("=== Mott parameters by catalog steel grade (105 mm M1 geometry) ===")
+print(f"  {'grade':<20}{'gamma':>7}{'mu [g]':>10}{'N0':>9}{'N(>0.5 g)':>12}")
+for key, st in STEELS.items():
+    mu_s, N0_s = mott_params(replace(shell, steel=st), V0)
+    n05_s = mott_N(np.array([0.5e-3]), N0_s, mu_s)[0]
+    print(f"  {key:<20}{st.gamma:>7.0f}{mu_s*1e3:>10.4f}{N0_s:>9.0f}{n05_s:>12.0f}")
+```
+
+Read the $\mu$, $N_0$ and $N(>0.5\,\mathrm{g})$ columns, **not** $R_{50}$: the
+count and the per-fragment reach move in opposite directions and very nearly
+cancel in $P_\text{kill}(r)$, so a $-38\,\%$ swing in $N_0$ shifts $R_{50}$ by
+only $\approx +2.5\,\%$ — and $R_{50}$ is in fact *non-monotone* in $\gamma$,
+with a broad maximum sitting essentially at the adopted $\gamma = 47$
+(`updates/wdss1-steel-grade/derivation.md` C8). A grade selector wired to a
+headline $R_{50}$ readout would look broken while behaving correctly.
+
 ______________________________________________________________________

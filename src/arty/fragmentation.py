@@ -31,13 +31,53 @@ class SteelParams:
 
 
 STEELS: dict[str, SteelParams] = {
-    # US WW2 HE shells (M1 105mm, M107 155mm): min YS 65 ksi, 15% elongation.
-    # sigma_f / gamma calibrated to M1 PAFRAG fragment-count data.
+    # US WW2 HE shell bodies (M1 105 mm, M107 155 mm).
+    # Grade NAME is sourced: "Steel WD-X1335, spec 57-107" on the 105 mm M1 bill
+    # of material (ordnance-105mm-m1-1940, p.16). That is the only sourced fact
+    # about this entry's material identity.
+    # Composition is NOT sourced: spec 57-107 is not digitized. WD-X1335 is read
+    # here as AISI 1335 -> 0.33-0.38 %C, a plausible but UNCONFIRMED inference
+    # from grade-name similarity (the AISI 1335 card carries no WD-series
+    # linkage; SAE 1040 is an equally plausible analog). Working value, not a
+    # sourced one -- see derivation.md A8.
+    # Separate, unrelated legacy figure: "min YS 65 ksi, 15 % elong" is carried
+    # over uncited from the original entry and is NOT supplied by the AISI 1335
+    # card or any other source in doc-reference/. Retained only as provenance
+    # history; nothing here depends on it.
+    # NOT a fit to fragment-count data. sigma_f = 800 MPa is the low end of the
+    # 800-1000 MPa dynamic flow-stress range for hardened steel (quasi-static
+    # ~600 MPa); gamma = 65 is a bracket-anchored estimate sitting just under
+    # Mott 1947 §3 row "steel 0.45 C" (gamma = 67), read as an as-forged value.
+    # (Under the same interpolation rule 65 corresponds to ~0.42 %C; at the
+    # inferred 0.355 %C the rule gives gamma ~60.4, so the shipped 65 OVERstates
+    # rather than understates the grade contrast -- see check C7 / assumption
+    # A5.) The resulting N(>0.5 g) ~ 5300 falls inside the 3000-8000 PAFRAG/arena
+    # band -- a consistency check, not a calibration.
+    # Only R = sigma_f/gamma is observable (see mott_params); the split is a
+    # reporting convention. Provenance: updates/wdss1-steel-grade/derivation.md.
     "WW2 US HE Shell": SteelParams(
         name="WW2 US HE Shell",
         rho=7850.0,
         sigma_f=800e6,
         gamma=65.0,
+    ),
+    # US WW2 "WDSS 1" War Department shell steel, 0.14-0.20 %C, 1.00-1.30 %Mn
+    # (Ammunition Series 6, Table 6-1, 17 Feb 1953); band midpoint 0.17 %C.
+    # 60mm/81mm mortar and 57mm recoilless bodies -- a ductile, low-carbon grade.
+    # gamma = 47: local-linear interpolation of the Mott 1947 §3 composition
+    # series (after Koerber & Rohdal 1924) inside the single 0.1 %C (gamma = 42)
+    # to 0.25 %C (gamma = 53) segment -- no extrapolation, no slope break.
+    # The band endpoints 0.14/0.20 %C give gamma = 45/49:
+    # that is the parameter uncertainty, not separate grades.
+    # sigma_f held at 800 MPa and rho at 7850: only R = sigma_f/gamma is
+    # identifiable, so the whole composition move is carried by gamma, by the
+    # convention inherited from the baseline entry.
+    # Derivation, checks and assumptions: updates/wdss1-steel-grade/derivation.md.
+    "US WW2 WDSS1": SteelParams(
+        name="US WW2 WDSS1",
+        rho=7850.0,
+        sigma_f=800e6,
+        gamma=47.0,
     ),
 }
 
