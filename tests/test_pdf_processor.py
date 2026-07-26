@@ -28,13 +28,23 @@ _parse_page_vision_response
   • Pages with no matching section get ("", False).
   • Handles extra whitespace / CRLF around markers.
 
-_extract_doc_via_vision_google (Google client mocked)
-  • Calls client.models.generate_content exactly once (1 API call for N pages).
+_extract_doc_via_vision_google_chunk (Google client mocked)
+  • Calls client.models.generate_content exactly once (1 API call per chunk).
   • Returns per-page (markdown, has_figure) matching page count.
   • Retries on transient google.genai.errors.ServerError (e.g. 504) up to 3
     attempts, backing off between them, and recovers if a later call succeeds.
   • Re-raises the ServerError once all 3 attempts are exhausted.
   • Non-ServerError exceptions propagate immediately without retrying.
+
+_extract_doc_via_vision_google (chunking wrapper, chunk fn mocked)
+  • Splits pages into chunk_size-sized batches, one call to
+    _extract_doc_via_vision_google_chunk per batch.
+  • Default chunk size is 8.
+  • Fewer pages than chunk_size makes a single call.
+  • Results from all chunks are concatenated in original page order.
+  • A chunk's exhausted-retry failure propagates (caller's existing
+    try/except still handles document-level fallback — chunking does not
+    change that contract).
 
 Vision pipeline — Google path (Google client mocked, real fitz pages)
   • generate_markdown with analyze_formulas=True uses Google when available.
@@ -79,6 +89,7 @@ _analyze_image_for_formula = _mod._analyze_image_for_formula
 _render_pages_combined = _mod._render_pages_combined
 _parse_page_vision_response = _mod._parse_page_vision_response
 _extract_doc_via_vision_google = _mod._extract_doc_via_vision_google
+_extract_doc_via_vision_google_chunk = _mod._extract_doc_via_vision_google_chunk
 extract_pdf_images = _mod.extract_pdf_images
 generate_markdown = _mod.generate_markdown
 
@@ -473,11 +484,11 @@ class TestParsePageVisionResponse:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# _extract_doc_via_vision_google  (Google client mocked)
+# _extract_doc_via_vision_google_chunk  (Google client mocked)
 # ══════════════════════════════════════════════════════════════════════════════
 
 @pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
-class TestExtractDocViaVisionGoogle:
+class TestExtractDocViaVisionGoogleChunk:
     def _mock_google_client(self, response_text):
         client = MagicMock()
         client.models.generate_content.return_value.text = response_text
@@ -488,7 +499,7 @@ class TestExtractDocViaVisionGoogle:
         pages = [doc[i] for i in range(3)]
         reply = "=== PAGE 1 ===\nP1\n=== PAGE 2 ===\nP2\n=== PAGE 3 ===\nP3"
         client = self._mock_google_client(reply)
-        _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
         assert client.models.generate_content.call_count == 1
 
     def test_returns_per_page_results(self):
@@ -496,7 +507,7 @@ class TestExtractDocViaVisionGoogle:
         pages = [doc[i] for i in range(2)]
         reply = "=== PAGE 1 ===\nFirst page content\n=== PAGE 2 ===\nSecond page content"
         client = self._mock_google_client(reply)
-        results = _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        results = _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
         assert len(results) == 2
         assert results[0][0] == "First page content"
         assert results[1][0] == "Second page content"
@@ -506,17 +517,17 @@ class TestExtractDocViaVisionGoogle:
         pages = [doc[0]]
         reply = "=== PAGE 1 ===\nText [FIGURE] end\n[HAS_FIGURE]"
         client = self._mock_google_client(reply)
-        results = _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        results = _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
         _, has_fig = results[0]
         assert has_fig is True
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# _extract_doc_via_vision_google  — retry on transient ServerError (504)
+# _extract_doc_via_vision_google_chunk  — retry on transient ServerError (504)
 # ══════════════════════════════════════════════════════════════════════════════
 
 @pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
-class TestExtractDocViaVisionGoogleRetry:
+class TestExtractDocViaVisionGoogleChunkRetry:
     def _server_error(self, code=504):
         from google.genai import errors
         return errors.ServerError(code, {"error": {"message": "Gateway Timeout"}})
@@ -531,7 +542,7 @@ class TestExtractDocViaVisionGoogleRetry:
             self._server_error(),
             MagicMock(text=reply),
         ]
-        results = _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        results = _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
         assert client.models.generate_content.call_count == 2
         assert results[0][0] == "Recovered"
 
@@ -543,7 +554,7 @@ class TestExtractDocViaVisionGoogleRetry:
         client = MagicMock()
         client.models.generate_content.side_effect = self._server_error()
         with pytest.raises(errors.ServerError):
-            _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+            _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
         assert client.models.generate_content.call_count == 3
 
     def test_non_server_error_fails_fast_without_retry(self):
@@ -552,7 +563,7 @@ class TestExtractDocViaVisionGoogleRetry:
         client = MagicMock()
         client.models.generate_content.side_effect = ValueError("bad request")
         with pytest.raises(ValueError):
-            _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+            _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
         assert client.models.generate_content.call_count == 1
 
     def test_retries_and_succeeds_after_empty_response(self, monkeypatch):
@@ -565,7 +576,7 @@ class TestExtractDocViaVisionGoogleRetry:
             MagicMock(text=None),
             MagicMock(text=reply),
         ]
-        results = _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+        results = _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
         assert client.models.generate_content.call_count == 2
         assert results[0][0] == "Recovered"
 
@@ -576,8 +587,84 @@ class TestExtractDocViaVisionGoogleRetry:
         client = MagicMock()
         client.models.generate_content.return_value = MagicMock(text=None)
         with pytest.raises(_mod._EmptyVisionResponse):
-            _extract_doc_via_vision_google(pages, client, "gemma-4-31b-it")
+            _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
         assert client.models.generate_content.call_count == 3
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# _extract_doc_via_vision_google  — chunking wrapper (chunk fn mocked)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestExtractDocViaVisionGoogleChunking:
+    """Chunking is pure list-slicing over opaque page stand-ins — no fitz/PDF needed."""
+
+    def test_splits_into_chunk_size_batches(self, monkeypatch):
+        pages = list(range(20))
+        calls = []
+
+        def fake_chunk(chunk, client, model):
+            calls.append(list(chunk))
+            return [(f"p{p}", False) for p in chunk]
+
+        monkeypatch.setattr(_mod, "_extract_doc_via_vision_google_chunk", fake_chunk)
+        results = _extract_doc_via_vision_google(pages, MagicMock(), "model", chunk_size=8)
+
+        assert [len(c) for c in calls] == [8, 8, 4]
+        assert results == [(f"p{p}", False) for p in pages]
+
+    def test_default_chunk_size_is_8(self, monkeypatch):
+        assert _mod._DEFAULT_VISION_CHUNK_SIZE == 8
+        pages = list(range(9))
+        calls = []
+        monkeypatch.setattr(
+            _mod, "_extract_doc_via_vision_google_chunk",
+            lambda chunk, client, model: calls.append(len(chunk)) or [("", False)] * len(chunk),
+        )
+        _extract_doc_via_vision_google(pages, MagicMock(), "model")
+        assert calls == [8, 1]
+
+    def test_fewer_pages_than_chunk_size_makes_one_call(self, monkeypatch):
+        pages = list(range(5))
+        calls = []
+        monkeypatch.setattr(
+            _mod, "_extract_doc_via_vision_google_chunk",
+            lambda chunk, client, model: calls.append(len(chunk)) or [("", False)] * len(chunk),
+        )
+        _extract_doc_via_vision_google(pages, MagicMock(), "model", chunk_size=8)
+        assert calls == [5]
+
+    def test_exact_multiple_of_chunk_size(self, monkeypatch):
+        pages = list(range(16))
+        calls = []
+        monkeypatch.setattr(
+            _mod, "_extract_doc_via_vision_google_chunk",
+            lambda chunk, client, model: calls.append(len(chunk)) or [("", False)] * len(chunk),
+        )
+        _extract_doc_via_vision_google(pages, MagicMock(), "model", chunk_size=8)
+        assert calls == [8, 8]
+
+    def test_results_concatenated_in_page_order(self, monkeypatch):
+        pages = list(range(10))
+
+        def fake_chunk(chunk, client, model):
+            return [(f"page-{p}", p % 2 == 0) for p in chunk]
+
+        monkeypatch.setattr(_mod, "_extract_doc_via_vision_google_chunk", fake_chunk)
+        results = _extract_doc_via_vision_google(pages, MagicMock(), "model", chunk_size=4)
+
+        assert results == [(f"page-{p}", p % 2 == 0) for p in pages]
+
+    def test_chunk_failure_propagates(self, monkeypatch):
+        """A chunk's exhausted-retry failure still raises — callers' existing
+        try/except unchanged fallback contract, just at chunk granularity."""
+        def fake_chunk(chunk, client, model):
+            if chunk[0] == 8:
+                raise RuntimeError("boom")
+            return [("", False)] * len(chunk)
+
+        monkeypatch.setattr(_mod, "_extract_doc_via_vision_google_chunk", fake_chunk)
+        with pytest.raises(RuntimeError, match="boom"):
+            _extract_doc_via_vision_google(list(range(16)), MagicMock(), "model", chunk_size=8)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -609,7 +696,9 @@ class TestVisionPipelineGoogle:
         with patch.object(_mod, "_try_get_google_client", return_value=(g_client, "gemma-4-31b-it")):
             generate_markdown(str(REAL_PDF), str(tmp_path), analyze_formulas=True)
 
-        assert g_client.models.generate_content.call_count == 1
+        import math
+        expected_calls = math.ceil(n_image / _mod._DEFAULT_VISION_CHUNK_SIZE)
+        assert g_client.models.generate_content.call_count == expected_calls
 
     def test_google_text_appears_in_output(self, tmp_path):
         doc = fitz.open(str(REAL_PDF))

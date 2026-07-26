@@ -284,8 +284,17 @@ class _EmptyVisionResponse(Exception):
     """Raised when Google returns no text part (retryable, like a ServerError)."""
 
 
-def _extract_doc_via_vision_google(pages, client, model):
-    """Send all pages as one combined image to Google; return per-page (md, has_figure).
+# Pages per Google vision request. Keeps each request comfortably inside
+# GOOGLE_TIMEOUT_MS (a full-document combined image can take longer to
+# transcribe than the timeout allows, which silently degrades the whole
+# document to the slow per-page Anthropic fallback) and bounds the output-
+# budget failure mode in _extract_doc_via_vision_google_chunk to one batch
+# instead of the whole document.
+_DEFAULT_VISION_CHUNK_SIZE = 8
+
+
+def _extract_doc_via_vision_google_chunk(pages, client, model):
+    """Send one batch of pages as a combined image to Google; return per-page (md, has_figure).
 
     pages: ordered list of fitz.Page objects (the image-based pages only).
     The combined image is labeled PAGE 1..N so the response maps back positionally.
@@ -321,6 +330,23 @@ def _extract_doc_via_vision_google(pages, client, model):
             print(f"  Google vision call failed ({e}); retrying in {wait_s}s "
                   f"(attempt {attempt}/{max_attempts})...")
             time.sleep(wait_s)
+
+
+def _extract_doc_via_vision_google(pages, client, model, chunk_size=_DEFAULT_VISION_CHUNK_SIZE):
+    """Send all pages to Google in batches of chunk_size; return per-page (md, has_figure).
+
+    pages: ordered list of fitz.Page objects (the image-based pages only).
+    Chunking keeps each request well within the API timeout and the 30
+    req/min quota (an 8-page chunk needs no artificial pacing), and confines
+    the output-budget failure mode to one chunk instead of the whole
+    document. Results are concatenated in input order, so callers see the
+    same shape as a single combined call.
+    """
+    results = []
+    for start in range(0, len(pages), chunk_size):
+        chunk = pages[start:start + chunk_size]
+        results.extend(_extract_doc_via_vision_google_chunk(chunk, client, model))
+    return results
 
 
 # ---------------------------------------------------------------------------
