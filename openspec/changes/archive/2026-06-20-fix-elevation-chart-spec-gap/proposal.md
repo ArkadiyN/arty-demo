@@ -18,36 +18,36 @@ both the spec-accuracy gap and the underlying duplication.
 ## What Changes
 
 - Eliminate the duplicated ray-projection trig in `_spray_cone` /
-  `_spray_cone_across` (`app/sensitivity.py`) by sourcing the ray-direction
-  geometry from `arty.zones` instead of recomputing it locally. The exact
-  shape of that shared source (e.g. exposing the direction vector from
-  `fragment_ground_impact`, or a new small helper) is a `src/arty/` design
-  decision, not prescribed here.
+    `_spray_cone_across` (`app/sensitivity.py`) by sourcing the ray-direction
+    geometry from `arty.zones` instead of recomputing it locally. The exact
+    shape of that shared source (e.g. exposing the direction vector from
+    `fragment_ground_impact`, or a new small helper) is a `src/arty/` design
+    decision, not prescribed here.
 - Correct the `elevation-view-chart` spec so it documents the sensitivity
-  app's actual local Plotly functions (names, file, behavior) instead of
-  implying they live in `src/arty/plots.py`. The notebook-facing
-  `fig_single_zone_elevation`/`fig_zone_elevation` requirements are unaffected
-  (those remain correct for the Quarto notebook).
+    app's actual local Plotly functions (names, file, behavior) instead of
+    implying they live in `src/arty/plots.py`. The notebook-facing
+    `fig_single_zone_elevation`/`fig_zone_elevation` requirements are unaffected
+    (those remain correct for the Quarto notebook).
 
 ## Capabilities
 
 ### Modified Capabilities
 
 - `burst-geometry`: `fragment_ground_impact` (or a small companion helper)
-  becomes the single source of the ray-direction formula used both for
-  ground-impact computation and for the app's spray-cone ray rendering
-  (including rays that don't reach the ground and are drawn capped instead).
+    becomes the single source of the ray-direction formula used both for
+    ground-impact computation and for the app's spray-cone ray rendering
+    (including rays that don't reach the ground and are drawn capped instead).
 - `elevation-view-chart`: the "Elevation chart appears in the sensitivity app"
-  requirement is corrected to name the actual app-local Plotly functions and
-  their file, and gains a requirement that their ray geometry is sourced from
-  `arty.zones`, not re-derived.
+    requirement is corrected to name the actual app-local Plotly functions and
+    their file, and gains a requirement that their ray geometry is sourced from
+    `arty.zones`, not re-derived.
 
 ## Impact
 
 - `src/arty/zones.py`: `fragment_ground_impact` and/or a new companion helper
-  exposing the ray-direction components for rendering use.
+    exposing the ray-direction components for rendering use.
 - `app/sensitivity.py`: `_spray_cone` / `_spray_cone_across` refactored to call
-  the shared source instead of recomputing `vgx`/`vgy`/`vgz` inline. No visual
-  change to the rendered charts.
+    the shared source instead of recomputing `vgx`/`vgy`/`vgz` inline. No visual
+    change to the rendered charts.
 - `openspec/specs/elevation-view-chart/spec.md`: corrected function names/
-  locations for the sensitivity-app requirement.
+    locations for the sensitivity-app requirement.

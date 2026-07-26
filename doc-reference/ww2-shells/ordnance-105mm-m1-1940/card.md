@@ -55,7 +55,6 @@ ______________________________________________________________________
 
 ## Data Access Notes
 
-1. **Full drawing set and manufacturing procedures:** See `/images/` subdirectory for all 32 scanned pages
 1. **Detailed composition and properties (Spec 57-107):** Not located in open sources; stored in archived U.S. Army Ordnance specifications (DTIC, if available)
 1. **Mechanical properties (yield, tensile, hardness):** Inferred typical range for WW2 19-ton/20-ton shell steel: 250–350 MPa yield, ~400–500 HB hardness (estimated; not confirmed for WD-X1335)
 
@@ -81,5 +80,6 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-**Document Markdown:** `shell-he-105mm-m1.md`\
-**Full Images:** `images/` (32 pages extracted)
+**Source transcription and scanned images:** removed to reduce repo size; see
+`https://www.bulletpicker.com/pdf/Shell-HE-105mm-M1.pdf` for the original, or
+git history for the prior transcription/extracted pages.

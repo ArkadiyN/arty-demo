@@ -17,87 +17,87 @@ Archive a completed change in the experimental workflow.
 
 1. **If no change name provided, prompt for selection**
 
-   Run `openspec list --json` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+    Run `openspec list --json` to get available changes. Use the **AskUserQuestion tool** to let the user select.
 
-   Show only active changes (not already archived).
-   Include the schema used for each change if available.
+    Show only active changes (not already archived).
+    Include the schema used for each change if available.
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+    **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
 
 1. **Check artifact completion status**
 
-   Run `openspec status --change "<name>" --json` to check artifact completion.
+    Run `openspec status --change "<name>" --json` to check artifact completion.
 
-   Parse the JSON to understand:
+    Parse the JSON to understand:
 
-   - `schemaName`: The workflow being used
-   - `artifacts`: List of artifacts with their status (`done` or other)
+    - `schemaName`: The workflow being used
+    - `artifacts`: List of artifacts with their status (`done` or other)
 
-   **If any artifacts are not `done`:**
+    **If any artifacts are not `done`:**
 
-   - Display warning listing incomplete artifacts
-   - Use **AskUserQuestion tool** to confirm user wants to proceed
-   - Proceed if user confirms
+    - Display warning listing incomplete artifacts
+    - Use **AskUserQuestion tool** to confirm user wants to proceed
+    - Proceed if user confirms
 
 1. **Check task completion status**
 
-   Read the tasks file (typically `tasks.md`) to check for incomplete tasks.
+    Read the tasks file (typically `tasks.md`) to check for incomplete tasks.
 
-   Count tasks marked with `- [ ]` (incomplete) vs `- [x]` (complete).
+    Count tasks marked with `- [ ]` (incomplete) vs `- [x]` (complete).
 
-   **If incomplete tasks found:**
+    **If incomplete tasks found:**
 
-   - Display warning showing count of incomplete tasks
-   - Use **AskUserQuestion tool** to confirm user wants to proceed
-   - Proceed if user confirms
+    - Display warning showing count of incomplete tasks
+    - Use **AskUserQuestion tool** to confirm user wants to proceed
+    - Proceed if user confirms
 
-   **If no tasks file exists:** Proceed without task-related warning.
+    **If no tasks file exists:** Proceed without task-related warning.
 
 1. **Assess delta spec sync state**
 
-   Check for delta specs at `openspec/changes/<name>/specs/`. If none exist, proceed without sync prompt.
+    Check for delta specs at `openspec/changes/<name>/specs/`. If none exist, proceed without sync prompt.
 
-   **If delta specs exist:**
+    **If delta specs exist:**
 
-   - Compare each delta spec with its corresponding main spec at `openspec/specs/<capability>/spec.md`
-   - Determine what changes would be applied (adds, modifications, removals, renames)
-   - Show a combined summary before prompting
+    - Compare each delta spec with its corresponding main spec at `openspec/specs/<capability>/spec.md`
+    - Determine what changes would be applied (adds, modifications, removals, renames)
+    - Show a combined summary before prompting
 
-   **Prompt options:**
+    **Prompt options:**
 
-   - If changes needed: "Sync now (recommended)", "Archive without syncing"
-   - If already synced: "Archive now", "Sync anyway", "Cancel"
+    - If changes needed: "Sync now (recommended)", "Archive without syncing"
+    - If already synced: "Archive now", "Sync anyway", "Cancel"
 
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
+    If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
 
 1. **Perform the archive**
 
-   Create the archive directory if it doesn't exist:
+    Create the archive directory if it doesn't exist:
 
-   ```bash
-   mkdir -p openspec/changes/archive
-   ```
+    ```bash
+    mkdir -p openspec/changes/archive
+    ```
 
-   Generate target name using current date: `YYYY-MM-DD-<change-name>`
+    Generate target name using current date: `YYYY-MM-DD-<change-name>`
 
-   **Check if target already exists:**
+    **Check if target already exists:**
 
-   - If yes: Fail with error, suggest renaming existing archive or using different date
-   - If no: Move the change directory to archive
+    - If yes: Fail with error, suggest renaming existing archive or using different date
+    - If no: Move the change directory to archive
 
-   ```bash
-   mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
-   ```
+    ```bash
+    mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
+    ```
 
 1. **Display summary**
 
-   Show archive completion summary including:
+    Show archive completion summary including:
 
-   - Change name
-   - Schema that was used
-   - Archive location
-   - Whether specs were synced (if applicable)
-   - Note about any warnings (incomplete artifacts/tasks)
+    - Change name
+    - Schema that was used
+    - Archive location
+    - Whether specs were synced (if applicable)
+    - Note about any warnings (incomplete artifacts/tasks)
 
 **Output On Success**
 

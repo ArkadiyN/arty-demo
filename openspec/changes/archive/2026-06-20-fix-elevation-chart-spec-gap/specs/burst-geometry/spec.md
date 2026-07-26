@@ -16,9 +16,11 @@ it:
 $$
 v\_{g,x} = \\cos(\\text{AoF})\\cos\\theta^z + \\sin(\\text{AoF})\\sin\\theta^z\\sin\\phi
 $$
+
 $$
 v\_{g,y} = \\sin\\theta^z\\cos\\phi
 $$
+
 $$
 v\_{g,z} = -\\sin(\\text{AoF})\\cos\\theta^z + \\cos(\\text{AoF})\\sin\\theta^z\\sin\\phi
 $$
@@ -41,7 +43,7 @@ and does not reach the ground in the straight-line model).
 #### Scenario: Horizontal shell, equatorial fragment travels upward
 
 - **WHEN** `fragment_ground_impact(90.0, phi=0.0, aof_deg=0.0, h_b=2.0)` is called
-  (cylinder spray direction, shell horizontal, fragment pointed straight up from AoF=0)
+    (cylinder spray direction, shell horizontal, fragment pointed straight up from AoF=0)
 - **THEN** the result is `None` (v_gz = cos(0)·sin(90°)·sin(0) = 0, does not reach ground)
 
 #### Scenario: AoF = 30°, forward-biased spray angle hits forward of burst

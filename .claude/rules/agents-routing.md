@@ -34,14 +34,14 @@ when they encode a physical quantity.
 **On trigger — stop and hand off:**
 
 - Unclear whether new math is needed → delegate a **chart / new-math triage**
-  to @modeler (describe the quantities and axes; ask the single yes/no).
+    to @modeler (describe the quantities and axes; ask the single yes/no).
 - *No new math* → proceed by importing and calling `arty`; only layout and
-  styling live in `app/` or the `.qmd`.
+    styling live in `app/` or the `.qmd`.
 - *New math needed* → run **Workflow B** (model-workflow skill) first, then
-  wire it up. The main agent never writes the math.
+    wire it up. The main agent never writes the math.
 - **Inside an OpenSpec change:** detect at the **proposal/design** stage, not
-  at apply. Specs reference `derivation.md` and call `arty`; they never author
-  physics. `apply` is **blocked** until the quantity exists in `src/arty/`.
+    at apply. Specs reference `derivation.md` and call `arty`; they never author
+    physics. `apply` is **blocked** until the quantity exists in `src/arty/`.
 
 ## Gate 3 — Correctness questions
 
@@ -54,15 +54,15 @@ The "let me read the implementation" reflex *is* the trigger, not an exception.
 **On trigger — classify from the user's words:**
 
 - Wrong *physical quantity, geometry, or behavior* (an angle, velocity, count,
-  lethality, where fragments go) → @modeler. The brief is the user's literal
-  report plus any chart/file they named — do **not** read `src/arty/` first to
-  sharpen it; that read is the gate violation (see the model-workflow skill's
-  briefing rules).
+    lethality, where fragments go) → @modeler. The brief is the user's literal
+    report plus any chart/file they named — do **not** read `src/arty/` first to
+    sharpen it; that read is the gate violation (see the model-workflow skill's
+    briefing rules).
 - Wrong *presentation, layout, widget-state, or wiring* of otherwise-correct
-  values → an app/notebook bug — fix in `app/` or the `.qmd` (calling `arty`).
+    values → an app/notebook bug — fix in `app/` or the `.qmd` (calling `arty`).
 - Needs a quantity `arty` does not return → Gate 2.
 - Ambiguous (is the *number* wrong, or just its *rendering*?) → ask the user
-  one line.
+    one line.
 
 On a defect, @modeler fixes via the normal passes; @model-reviewer then
 independently verifies — the modeler never signs off on its own correction.
@@ -109,20 +109,20 @@ expensive failure mode in this project. When dispatching, override the model
 (Agent tool `model` parameter) by pass type:
 
 - **Sonnet override** — chart/new-math triage, aspect-inventory, and
-  correctness-classification passes that stop at a short finding.
+    correctness-classification passes that stop at a short finding.
 - **Agent default (Opus)** — scoping, derivation, src/ implementation,
-  notebook presentation, and any pass that writes or judges physics.
+    notebook presentation, and any pass that writes or judges physics.
 
 ## Delegation quick reference
 
 - **@librarian** — any external papers, references, or data lookup; check
-  BEFORE building or modifying a model whether literature support is needed.
+    BEFORE building or modifying a model whether literature support is needed.
 - **@modeler** — owns one model aspect end-to-end, exactly one pass per
-  invocation.
+    invocation.
 - **@model-reviewer** — after every modeler pass; also checks that no physics,
-  computation, or parameter values leaked into a `.qmd`.
+    computation, or parameter values leaked into a `.qmd`.
 - **Every pass is a fresh dispatch** — never continue a modelling agent via
-  `SendMessage` to advance the workflow (Gate 4).
+    `SendMessage` to advance the workflow (Gate 4).
 
 Steps, sequencing, artifact paths, and briefing litmus tests: load the
 **model-workflow** skill.

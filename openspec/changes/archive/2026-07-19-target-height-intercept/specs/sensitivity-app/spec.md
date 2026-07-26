@@ -18,14 +18,14 @@ compute paths the same way the existing 3D volume expander does.
 
 - **WHEN** the app loads and the user expands "Ground Kill Probability"
 - **THEN** a Plotly heatmap of `P(kill)(x,y)` is shown, computed via `pkill_field_3d` in
-  "Single-zone (legacy)" mode and `four_zone_pkill_field` in "Four-zone (new)" mode
+    "Single-zone (legacy)" mode and `four_zone_pkill_field` in "Four-zone (new)" mode
 
 #### Scenario: Posture toggle changes the ground field
 
 - **WHEN** the sidebar Posture radio is switched between "Standing" and "Prone" with
-  `angle_of_fall=90°`, `h_b=2.0`
+    `angle_of_fall=90°`, `h_b=2.0`
 - **THEN** the ground P(kill) heatmap's close-in ring (`2 m < r < 7 m`) shows a
-  substantially higher kill probability for "Standing" than for "Prone"
+    substantially higher kill probability for "Standing" than for "Prone"
 
 #### Scenario: No Family-A comparison is rendered in this section
 

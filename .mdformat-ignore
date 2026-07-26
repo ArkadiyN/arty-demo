@@ -2,7 +2,9 @@
 # (doubles backslashes, strips \, thin-space, escapes subscript underscores)
 *.qmd
 
-# Model derivation/review docs and openspec specs also embed LaTeX math
+# Model derivation/review docs and openspec proposals also embed LaTeX math
 # and hit the same corruption (e.g. z_{rep} -> z\_{rep}); same fix as above.
+# openspec/ is the whole tree, not just specs/ — math also shows up in
+# tasks.md/design.md and in archived specs/ snapshots under changes/archive/.
 experiment/**/updates/**/*.md
-openspec/specs/**/*.md
+openspec/**/*.md

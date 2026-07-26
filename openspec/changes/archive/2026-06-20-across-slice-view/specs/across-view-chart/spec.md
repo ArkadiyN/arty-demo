@@ -14,27 +14,27 @@ chart SHALL display ground fill and the burst point at `(0, h_b)`.
 
 - **WHEN** the across cross-section is rendered for any `aof_deg` and `theta_z`
 - **THEN** the two lobes (azimuth +90° and -90°) are mirror images of each
-  other about y=0 (identical height extent, opposite sign of y)
+    other about y=0 (identical height extent, opposite sign of y)
 
 #### Scenario: Equatorial belt is horizontal in the across view
 
 - **WHEN** Single-zone mode is active (belt spray angle = 90° from the shell
-  axis)
+    axis)
 - **THEN** the across cross-section fan is horizontal (zero vertical extent)
 
 #### Scenario: Off-equatorial zones show vertical extent
 
 - **WHEN** Four-zone mode is active for a shell with a non-zero boattail or
-  base zone (spray angle ≠ 90°)
+    base zone (spray angle ≠ 90°)
 - **THEN** the boattail and base fans in the across cross-section have
-  non-zero vertical extent
+    non-zero vertical extent
 
 #### Scenario: Spray-cone rays are clipped by the plot axes, not a fixed cap
 
 - **WHEN** the across cross-section is rendered at any burst height and AoF
 - **THEN** every drawn ray reaches the visible plot boundary (axis-determined
-  extent) rather than stopping at a fixed internal length cap, regardless of
-  ray orientation (horizontal vs near-vertical)
+    extent) rather than stopping at a fixed internal length cap, regardless of
+    ray orientation (horizontal vs near-vertical)
 
 ### Requirement: Across cross-section pairs with the cross-range slice chart
 
@@ -49,7 +49,7 @@ cross-range-slider value.
 #### Scenario: Across cross-section is positioned under the cross-range slice chart
 
 - **WHEN** the Zone Breakdown section is rendered in Four-zone or
-  Single-zone mode
+    Single-zone mode
 - **THEN** the across cross-section appears directly below the cross-range
-  slice chart, and the elevation cross-section appears directly below the
-  downrange slice chart
+    slice chart, and the elevation cross-section appears directly below the
+    downrange slice chart

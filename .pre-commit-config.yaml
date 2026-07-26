@@ -37,17 +37,16 @@ repos:
         # pattern needs to be scanned for and fixed before those paths can be
         # safely un-excluded.
         #
-        # shell-he-105mm-m1.md is excluded individually: it's a raw OCR
-        # transcription of a drawing spec sheet (no LaTeX, dense with
-        # leader-line/dimension noise), and one line pair reproduces a real
-        # mdformat-mkdocs round-trip bug (confirmed minimal repro: an ATX
-        # heading immediately followed, with no blank line, by an ordered
-        # list item whose number isn't 1 — e.g. "# |i" / "2. HARDEN" — fails
-        # even in bare mdformat with no plugins, so it's upstream, not
-        # project config). mdformat refuses to write on this failure (verified
-        # no partial write), so the file itself isn't at risk — it just can't
-        # be auto-formatted until the upstream bug is fixed or the OCR noise
-        # is cleaned up.
+        # openspec/ is excluded as the *whole tree* (`openspec/.*\.md$`), not
+        # just `openspec/specs/`: math also appears in change proposals'
+        # tasks.md/design.md and in archived specs/ snapshots under
+        # `openspec/changes/archive/**`, which the narrower pattern used to
+        # miss — 6 archived files (burst-geometry/shell-zone-model/
+        # fragmentation-physics/pkill-ground-field specs + one tasks.md) were
+        # found silently corrupted (double-escaped \\cos, \_ subscripts) by a
+        # pre-mkdocs mdformat run that slipped through that gap, undetected by
+        # check-katex for the same reason (see its files: pattern below,
+        # widened the same way).
         #
         # explosion-fragment-model's source file (1-s2.0-S221491472030502X-main.md)
         # is excluded individually too: confirmed by direct repro (fix the
@@ -59,19 +58,20 @@ repos:
         # yet root-caused to a specific line pattern; until it is, this file
         # is excluded like shell-he-105mm-m1.md rather than left to silently
         # regress every time mdformat runs.
-        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$|doc-reference/ww2-shells/ordnance-105mm-m1-1940/shell-he-105mm-m1\.md$|doc-reference/fragmentation/explosion-fragment-model/1-s2\.0-S221491472030502X-main\.md$'
+        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/.*\.md$|doc-reference/fragmentation/explosion-fragment-model/1-s2\.0-S221491472030502X-main\.md$'
 
       # Belt-and-suspenders counterpart to the mdformat exclude above: that
       # stops *tools* from introducing math-escaping corruption; this stops
       # already-corrupted math from ever being *committed*, regardless of
       # source (new PDF ingestion, a manual edit, a future formatter's own
       # bug). Scoped to the same math-bearing paths as the mdformat
-      # exclude/.mdformat-ignore lists.
+      # exclude/.mdformat-ignore lists — openspec/ is the whole tree here too,
+      # for the same archive/tasks.md coverage reason.
       - id: check-katex
         name: check-katex
         language: system
         entry: uv run python src/utils/check-katex.py --fail-on-flag
-        files: '^(doc-reference/.*\.md$|.*\.qmd$|experiment/.*/updates/.*\.md$|openspec/specs/.*\.md$)'
+        files: '^(doc-reference/.*\.md$|.*\.qmd$|experiment/.*/updates/.*\.md$|openspec/.*\.md$)'
         pass_filenames: true
 
       # Blocking backstop for agent-memory discipline. The PostToolUse hook of

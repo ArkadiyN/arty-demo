@@ -61,9 +61,11 @@ The ground-frame velocity components are:
 $$
 v\_{g,x} = \\cos(\\text{AoF})\\cos\\theta^z + \\sin(\\text{AoF})\\sin\\theta^z\\sin\\phi
 $$
+
 $$
 v\_{g,y} = \\sin\\theta^z\\cos\\phi
 $$
+
 $$
 v\_{g,z} = -\\sin(\\text{AoF})\\cos\\theta^z + \\cos(\\text{AoF})\\sin\\theta^z\\sin\\phi
 $$
@@ -86,7 +88,7 @@ and does not reach the ground in the straight-line model).
 #### Scenario: Horizontal shell, equatorial fragment travels upward
 
 - **WHEN** `fragment_ground_impact(90.0, phi=0.0, aof_deg=0.0, h_b=2.0)` is called
-  (cylinder spray direction, shell horizontal, fragment pointed straight up from AoF=0)
+    (cylinder spray direction, shell horizontal, fragment pointed straight up from AoF=0)
 - **THEN** the result is `None` (v_gz = cos(0)·sin(90°)·sin(0) = 0, does not reach ground)
 
 #### Scenario: AoF = 30°, cylinder zone, forward azimuth hits forward of burst
@@ -105,5 +107,5 @@ within floating-point precision.
 #### Scenario: h_b doubling doubles hit coordinates
 
 - **WHEN** `fragment_ground_impact(theta, phi, aof_deg, h_b=2.0)` returns `(x1, y1, g1)` and
-  `fragment_ground_impact(theta, phi, aof_deg, h_b=4.0)` returns `(x2, y2, g2)`
+    `fragment_ground_impact(theta, phi, aof_deg, h_b=4.0)` returns `(x2, y2, g2)`
 - **THEN** `abs(x2 - 2*x1) < 1e-9` and `abs(y2 - 2*y1) < 1e-9`

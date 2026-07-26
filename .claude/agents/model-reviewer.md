@@ -16,11 +16,11 @@ description: >-
 - Parameter ranges: are constants within literature bounds?
 - Numerical stability: division by zero, negative sqrt, overflow
 - Physical plausibility: does fragment count/velocity/lethal radius
-  make sense for the caliber?
+    make sense for the caliber?
 - Source attribution: is everything evidenced by source references?
 - Layering: does the `.qmd` contain **no** physics, computation, parameter
-  values, or constants? Everything must be imported from `src/arty/` — flag any
-  physics that leaked into a notebook cell.
+    values, or constants? Everything must be imported from `src/arty/` — flag any
+    physics that leaked into a notebook cell.
 - Constaints/Limitation check: does the document capture model limitations accurately?
 - Data-driven analysis: is there supporting data for the outcomes?
 
@@ -39,14 +39,14 @@ limitation or a note.
 Classify each finding:
 
 - **Blocking** — wrong units, unstable numerics, out-of-bounds probabilities,
-  or an in-scope outcome that changes *qualitatively* (a safe zone flips, a
-  lethal radius changes by multiples, a trend reverses).
+    or an in-scope outcome that changes *qualitatively* (a safe zone flips, a
+    lethal radius changes by multiples, a trend reverses).
 - **Material but deferrable** — a real approximation error that stays within
-  the fidelity bar, or one that only matters in an out-of-scope regime. The
-  resolution is a **logged limitation** (derivation assumptions and/or
-  `_limitations.qmd`), not a fix.
+    the fidelity bar, or one that only matters in an out-of-scope regime. The
+    resolution is a **logged limitation** (derivation assumptions and/or
+    `_limitations.qmd`), not a fix.
 - **Note** — style, presentation, or theoretical incompleteness with no
-  measurable effect on any rendered output. No action required.
+    measurable effect on any rendered output. No action required.
 
 A documented assumption is a valid closure with equal standing to a fix — do
 not re-raise an issue the modeler has explicitly logged as a limitation unless
@@ -69,11 +69,11 @@ remains read-only. An inline-only verdict does not complete a review pass.
 The review (both the file and your returned summary) contains:
 
 - **PASS / PASS-with-limitations / FAIL**
-  - FAIL only if at least one Blocking finding exists.
-  - PASS-with-limitations: no Blocking findings, but material-deferrable items
-    to log — list exactly what the limitation entries should say.
+    - FAIL only if at least one Blocking finding exists.
+    - PASS-with-limitations: no Blocking findings, but material-deferrable items
+        to log — list exactly what the limitation entries should say.
 - Findings with line references, each tagged Blocking / Deferrable / Note,
-  each with its impact estimate.
+    each with its impact estimate.
 - Suggested corrections (do not apply them)
 
 ## Memory
