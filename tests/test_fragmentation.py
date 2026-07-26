@@ -99,6 +99,14 @@ def test_steel_params_ww2_us():
     assert steel.gamma == pytest.approx(65.0)
 
 
+def test_steel_params_wdss1():
+    # WDSS 1: 0.14-0.20 %C -> Mott gamma = 47 (updates/wdss1-steel-grade/derivation.md §2)
+    steel = STEELS["US WW2 WDSS1"]
+    assert steel.rho == pytest.approx(7850.0)
+    assert steel.sigma_f == pytest.approx(800e6)
+    assert steel.gamma == pytest.approx(47.0)
+
+
 def test_shell_params_defaults():
     s = ShellParams()
     assert s.caliber == pytest.approx(0.105)
@@ -139,6 +147,46 @@ def test_mott_fragment_count_in_pafrag_range():
     # Fragments heavier than 0.5 g: N(>0.5g) = N0 * exp(-sqrt(0.5e-3 / mu))
     n_gt_half_g = N0 * np.exp(-np.sqrt(0.5e-3 / mu))
     assert 3000 <= n_gt_half_g <= 8000, f"N(>0.5g)={n_gt_half_g:.0f} outside 3000–8000"
+
+
+@pytest.mark.parametrize("grade", sorted(STEELS))
+def test_mott_fragment_count_in_pafrag_range_all_grades(grade):
+    # Check C4: every catalogued grade must sit inside the PAFRAG/arena band at
+    # M1 geometry. WDSS-1 (gamma=47) gives ~4270; its 0.14 %C band endpoint
+    # (gamma=45) gives ~4126, about 38 % above the 3000 floor -- any future
+    # entry lower in carbon must re-check this rather than assume it.
+    shell = ShellParams(steel=STEELS[grade])
+    V0 = gurney_velocity(shell)
+    mu, N0 = mott_params(shell, V0)
+    n_gt_half_g = N0 * np.exp(-np.sqrt(0.5e-3 / mu))
+    assert 3000 <= n_gt_half_g <= 8000, (
+        f"{grade}: N(>0.5g)={n_gt_half_g:.0f} outside 3000–8000"
+    )
+
+
+@pytest.mark.parametrize("k", [0.5, 2.0, 137.0])
+def test_mott_params_depend_only_on_sigma_f_over_gamma(k):
+    # Check C2: (sigma_f, gamma) is one identifiable DOF -- scaling both by the
+    # same k leaves mu and N0 bit-identical, so the split is a convention only.
+    V0 = gurney_velocity(ShellParams())
+    base = STEELS["US WW2 WDSS1"]
+    scaled = SteelParams(
+        name="scaled", rho=base.rho, sigma_f=k * base.sigma_f, gamma=k * base.gamma
+    )
+    mu_0, N0_0 = mott_params(ShellParams(steel=base), V0)
+    mu_k, N0_k = mott_params(ShellParams(steel=scaled), V0)
+    assert mu_k == mu_0
+    assert N0_k == N0_0
+
+
+def test_wdss1_gives_fewer_larger_fragments_than_baseline():
+    # Check C3: lower carbon -> lower Mott gamma -> fewer, heavier fragments.
+    V0 = gurney_velocity(ShellParams())
+    mu_base, N0_base = mott_params(ShellParams(steel=STEELS["WW2 US HE Shell"]), V0)
+    mu_mild, N0_mild = mott_params(ShellParams(steel=STEELS["US WW2 WDSS1"]), V0)
+    assert STEELS["US WW2 WDSS1"].gamma < STEELS["WW2 US HE Shell"].gamma
+    assert mu_mild > mu_base
+    assert N0_mild < N0_base
 
 
 def test_higher_gamma_gives_smaller_mu():

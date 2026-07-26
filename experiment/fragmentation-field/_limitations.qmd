@@ -70,8 +70,8 @@ PAFRAG modeling" with only fair agreement to high-speed photography. Steel ducti
 variation means harder steel fractures earlier (smaller r_bu, smaller fragments) and
 softer steel fractures later; this carries ~10–20 % uncertainty in r_bu. Because
 μ ∝ r_bu³ (Gold 2017, eq. 5), a 15 % error in r_bu produces a 50 % error in μ.
-Similarly, γ and σ_F each carry ~25 % uncertainty — Mott (1947, Table 1) brackets
-γ at 53–67 for steels ranging from 0.2%C to 0.3%C — and both enter μ as the 3/2
+Similarly, γ and σ_F each carry ~25 % uncertainty — Mott (1947, §3) brackets
+γ at 53–67 for steels ranging from 0.25%C to 0.45%C — and both enter μ as the 3/2
 power (Gold 2017, eq. 5), giving roughly 35–40 % uncertainty in the fragment size
 scale. The R₅₀ sensitivity sweep above captures the σ_F range but not the joint
 uncertainty.
@@ -233,3 +233,44 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   **conservative-high**, confined to the thin inner ring. In both, the true
   innermost dead zone under the burst ($r\lesssim(h_b-h)/\tan\delta$)
   correctly remains $P_k\approx0$.
+
+**13 · The baseline steel grade's *composition* is an inference, not a source
+(v 0.7.0).**
+What is sourced about the default `WW2 US HE Shell` entry is its **name only**:
+"Steel WD-X1335, spec 57-107", from the 105 mm M1 bill of material
+(`doc-reference/ww2-shells/ordnance-105mm-m1-1940/card.md` p. 16). Spec 57-107
+is not digitised, so the composition **0.33–0.38 % C** quoted for that grade is
+read off the AISI 1335 data sheet on the *unconfirmed* hypothesis
+**WD-X1335 ≈ AISI 1335** — an inference from grade-name similarity, not a second
+sourced fact (the AISI card carries no WD-series linkage, and SAE 1040 at
+0.40 % C is an equally plausible analog). This is asymmetric with the
+`US WW2 WDSS1` entry, whose 0.14–0.20 % C *is* a direct transcription of
+*Ammunition Series 6* Table 6-1. Consequence: the *direction* of the carbon
+ranking between the two catalogued grades is safe — every candidate analog for
+WD-X1335 sits well above WDSS-1's band — but its *magnitude*, and every "% C"
+figure quoted for the baseline, inherit the inference. No shipped parameter
+value depends on it: $\gamma = 65$ is a bracket-anchored estimate, not a
+quantity fitted to 0.355 % C. Closing this needs spec 57-107 or an equivalent
+WD-series chemistry table. Three related residues from the same derivation
+(`updates/wdss1-steel-grade/derivation.md`, §7):
+
+- **The modelled grade contrast is an upper bound (A5).** The two entries sit on
+  different rules — the baseline $\gamma$ is bracket-anchored, WDSS-1's is a
+  within-table interpolation of Mott (1947 §3) — and this pairing yields the
+  *largest* defensible contrast (−38.5 % on $N_0$, against −31 %/−36 % for
+  rule-consistent baselines). Direction robust, magnitude is an upper bound, not
+  conservative.
+- **Mechanical properties are unsourced for both grades (A6).** Table 6-1 is
+  chemistry-only: no yield strength, no heat treatment. $\sigma_F = 800$ MPa is
+  a shared reporting convention, not a per-grade measurement — legitimate only
+  because the Mott closure (eq. 4) sees the pair solely through the ratio
+  $\sigma_F/\gamma$, so the grade difference is carried entirely by $\gamma$.
+  An earlier working band of 0.18–0.28 % C for WDSS-1, from a secondary
+  attribution that Table 6-1 contradicts, is flagged for review and used
+  nowhere.
+- **$R_{50}$ is the wrong readout for grade choice (C8).** The −38.5 % move in
+  $N_0$ shifts $R_{50}$ by only +2.5 % (98.9 → 101.5 m): fewer but heavier
+  fragments each retain lethal KE further out, and the two effects very nearly
+  cancel. $R_{50}$ is in fact non-monotone in $\gamma$ with a broad maximum
+  essentially *at* the adopted $\gamma = 47$. Read grade effects on fragment
+  *count and mass distribution*, not on lethal radius.

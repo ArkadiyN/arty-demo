@@ -11,6 +11,7 @@
 | 0.5.1 | Fix the false safe zone: the **ground** $P_k$ field now forms the mean lethal-hit count by integrating $\rho_L$ over the target's whole vertical column, $\lambda = w_\perp\!\int_0^{h}\!\rho_L(x,y,z)\,dz$ (eq. 23), instead of sampling the $z=0$ plane times a frozen $A_\text{ref}$. Removes the spurious inner "safe ring" at steep AoF and re-couples posture (standing/prone). The 3-D volume view keeps the frozen $A_\text{ref}$ as a point diagnostic. | `updates/target-height-intercept/derivation.md` |
 | 0.6.0 | Fix the false safe zone in the **graded (Family-A) ground $P_\text{kill}$ heatmaps** — the headline single-zone and four-zone maps, their difference, and cross-sections. The belt gate and arrival geometry $(s,\gamma,\cos\Theta)$ are now evaluated at the height where the spray belt illuminates the target column $[0,h]$ (via the reused belt-edge quadratic, eq. 5), instead of only along the $z=0$ feet ray, keeping the graded $A_p(\gamma)\cdot P_{k\|\text{hit}}(E)$ kernel exactly intact. Removes the spurious inner safe ring at steep AoF on the headline heatmaps and re-couples posture; reduces to the shipped value on every cell where the belt already reaches the feet. | `updates/familyA-false-safe-zone/derivation.md` |
 | 0.6.1 | Repoint the single-zone (legacy) graded field kernel from a backward shell-axis convention $\hat{e}=(-\cos\alpha,0,-\sin\alpha)$ to the shared **forward** axis $\hat{e}=(+\cos\alpha,0,-\sin\alpha)$ used by the four-zone path (a pure $x$-mirror sign fix at the belt-gate and $\cos\Theta$ evaluation). The single-zone down-range lobe now sits on the **same side** of the burst as the four-zone equatorial lobe, turning the "Four-zone − Single-zone" diff map from a disjoint mirror-opposite sum into a co-located per-zone attribution (exact on the belt centre, off it accurate to the bounded $\sin\Theta$-normalization residual). Invariant on the $x=0$ cross-range slice and at AoF $=90°$, so $R_{50}$ and all AoF $=90°$ regressions are unchanged. | `updates/legacy-field-shell-axis-fix/derivation.md` |
+| 0.7.0 | Add a second catalogued case material, `US WW2 WDSS1` (War Department shell steel WDSS 1, 0.14–0.20 % C — the 60/81 mm mortar and 57 mm recoilless body grade), alongside the existing WD-X1335 baseline, with $\gamma = 47$ interpolated inside Mott's (1947 §3) 0.1–0.25 % C segment and $\sigma_F = 800$ MPa held as a shared reporting convention (the Mott closure, eq. 4, sees the pair only through $\sigma_F/\gamma$). The softer grade raises $\mu$ and cuts $N_0$ by 38.5 %; $R_{50}$ moves only +2.5 %, so grade is a fragment-count/mass effect, not a lethal-radius one. | `updates/wdss1-steel-grade/derivation.md` |
 
 ______________________________________________________________________
 
@@ -54,8 +55,12 @@ for sf_mpa in [600, 700, 800, 900, 1000]:
 
 **Parameter sensitivity notes:**
 
-- **γ** is the dominant uncertainty. For SAE 1045 steel (M1 shell), Mott's 1947
-  table brackets it at 53–67; the R₅₀ varies by ±10–15 m across this range.
+- **γ** is the dominant uncertainty on the *fragment size and count*. For the
+  baseline WD-X1335 body steel (M1 shell), Mott's 1947 §3 table brackets it at
+  53–67 (0.25–0.45 % C). R₅₀ barely moves across that range (≈ 2 m: 101.1 m at
+  γ = 53 vs 98.9 m at γ = 65, `updates/wdss1-steel-grade/derivation.md` C8) —
+  it is non-monotone in γ with a broad maximum near γ ≈ 47, so read γ
+  uncertainty on μ, N₀ and N(>0.5 g), not on lethal radius.
 - **σ_F** (dynamic flow stress) is the second uncertainty; 800–1 000 MPa is the
   high-strain-rate range for hardened steel. Higher σ_F produces larger average
   fragments and a slightly larger lethal radius.

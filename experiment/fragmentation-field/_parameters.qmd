@@ -11,7 +11,7 @@ drawing-derived registry geometry in `arty.shells`).
 import numpy as np
 
 from arty.fragmentation import (
-    ShellParams, DragParams, TargetParams,
+    ShellParams, DragParams, TargetParams, STEELS,
     gurney_velocity, mott_params, mott_N, retardation_coeff,
     ke_at_range, min_lethal_mass, pk_given_hit, expected_kills, p_kill,
     _shell_geometry, _PK_E, _PK_VAL,
@@ -57,6 +57,34 @@ print(f"  Projectile       : {mass_total:.2f} kg")
 print(f"  Filler (TNT)     : {mass_filler:.2f} kg")
 print(f"  Shell body (M)   : {mass_shell:.2f} kg")
 print(f"  M/C ratio        : {mass_shell/mass_filler:.2f}")
+```
+
+### Steel-grade catalog
+
+`arty.fragmentation.STEELS` is the registry of case materials. Each entry
+carries $(\rho, \sigma_F, \gamma)$; only $\gamma$ differs between the two
+catalogued WW2 US grades, because the Mott closure (eq. 4) sees the pair
+solely through the ratio $\sigma_F/\gamma$, so a composition change is
+carried entirely by $\gamma$ with $\sigma_F$ held as a reporting convention.
+
+| Key | Grade | Carbon | $\gamma$ | Sourcing of the composition |
+| --- | ----- | ------ | -------- | --------------------------- |
+| `WW2 US HE Shell` | WD-X1335 (105 mm M1, 155 mm M107 HE bodies) | 0.33–0.38 % C | 65 | Grade **name** sourced (M1 bill of material); the composition is an *unconfirmed* reading of WD-X1335 as AISI 1335 — see limitation 13 |
+| `US WW2 WDSS1` | WDSS 1 War Department shell steel (60/81 mm mortar, 57 mm recoilless bodies) | 0.14–0.20 % C | 47 | Direct transcription, *Ammunition Series 6* Table 6-1 (17 Feb 1953) |
+
+$\gamma = 47$ is a local-linear interpolation of Mott's (1947 §3) composition
+series inside its single 0.1 % C ($\gamma = 42$) → 0.25 % C ($\gamma = 53$)
+segment — no extrapolation and no slope break. The composition band endpoints
+0.14/0.20 % C give $\gamma = 45$–49; that spread is the parameter uncertainty on one grade,
+not two further grades. Derivation, checks and assumptions:
+`updates/wdss1-steel-grade/derivation.md`.
+
+```{python}
+print("=== Steel-grade catalog (arty.fragmentation.STEELS) ===")
+print(f"  {'key':<20}{'rho [kg/m³]':>13}{'sigma_F [MPa]':>15}{'gamma [-]':>11}")
+for key, st in STEELS.items():
+    marker = "  ← default" if st is shell.steel else ""
+    print(f"  {key:<20}{st.rho:>13.0f}{st.sigma_f/1e6:>15.0f}{st.gamma:>11.0f}{marker}")
 ```
 
 ______________________________________________________________________
