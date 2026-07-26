@@ -72,4 +72,50 @@ SHELLS: dict[str, ShellParams] = {
         has_boattail=True,
         base_treatment="mott",
     ),
+    "60mm M49A2 HE": ShellParams(
+        caliber=0.0599948,        # 2.362" max body OD
+        wall_t=0.007112,          # 0.280" min wall (drawing spec)
+        mass_total=1.043262,      # 2.30 lb = 2.01 lb body + 0.29 lb fuze
+        mass_filler=0.154221,     # 0.34 lb flake TNT
+        mass_deductions=0.131542, # 0.29 lb fuze only (no rotating band)
+        filler=FILLERS["TNT"],
+        steel=STEELS["US WW2 WDSS1"],
+        # Tail fin assembly (0.43 lb) excluded from mass_total — separate
+        # steel grade, doesn't fragment with the body (Ammunition Series 6
+        # Table 6-1, 17 Feb 1953).
+        # NOTE: stated "fused projectile" weight (2.96 lb) exceeds
+        # body+fuze+fins (2.01+0.29+0.43=2.73 lb) by 0.23 lb — unexplained
+        # (possibly rounding in source table); not chased down.
+        cylinder_len=0.023876,       # 0.94"
+        ogive_len=0.019050,          # 1.69" - 0.94" (cyl+ogive - cyl)
+        ogive_inner_R=0.014224,      # 0.56" R
+        ogive_tip_dia=0.048514,      # 1.91" flat-front width
+        boattail_len=0.097206,       # 5.517" - 1.69" (total excl. base plate - cyl+ogive)
+        boattail_inner_dia=0.029464, # 0.58" R -> 1.16" dia
+        base_thickness=0.014732,     # 0.58"
+        has_boattail=True,
+        base_treatment="mott",       # matches catalog convention; base plate small
+        # --- KNOWN GAP: zone-geometry schema mismatch (unresolved) ---
+        # Outer ogive is a STRAIGHT taper with a flat front, not a curved
+        # arc — doesn't fit Tier-1 (ogive_outer_R arc) or Tier-2 (ogive_crh
+        # tangent-ogive curve). Inner cavity wall IS curved (ogive_inner_R
+        # above, 0.56" R) — straight-outer/curved-inner, not symmetric.
+        # Boattail is two large-radius curves (outer 15.605" R = 0.396367 m,
+        # inner 11.30" R = 0.287020 m, over the 3.827"/0.097206 m
+        # boattail_len above) visually close to straight but not
+        # measured/derived as a taper angle.
+        # Full cross-section drawing: /mnt/f/Projects/TMP/img/m49_shape.png
+        # — also shows an uncaptured fin-boom joint at the tail (15° angle
+        # callout, "6.4 REFERENCE" dim, and "1.13±.06"/"1.04±.02" dims whose
+        # exact referents weren't legible from the crop).
+        # ogive_outer_R and ogive_crh are left unset and boattail_angle_deg
+        # is left at its 0.0 default ON PURPOSE — filling ogive_crh would
+        # silently invoke CRH_DEFAULT_TIER2=6.0 (a curved-ogive assumption
+        # this shell doesn't have), and boattail_angle_deg=0.0 reads as "no
+        # taper" despite a real tapered section. Zone/spray-angle geometry
+        # for this shell is therefore NOT physically meaningful yet — needs
+        # a modeler pass to add straight-cone ogive + curve-to-angle
+        # boattail schema support before use in fragmentation-zone output.
+        # Mass/Gurney-velocity fields above are unaffected by this gap.
+    ),
 }
