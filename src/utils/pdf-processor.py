@@ -511,13 +511,27 @@ def _page_to_markdown_heuristic(page, bbox_to_name):
 # Public API
 # ---------------------------------------------------------------------------
 
-def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False):
+def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False,
+                        vision_chunk_size=_DEFAULT_VISION_CHUNK_SIZE,
+                        screenshot_pages=False):
     doc = fitz.open(pdf_path)
     images_dir = os.path.join(output_dir, "images")
     print(f"Opened PDF: {pdf_path} ({len(doc)} pages)")
     _assert_not_scanned(doc)
 
-    if analyze_formulas:
+    if screenshot_pages:
+        os.makedirs(images_dir, exist_ok=True)
+        count = 0
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            if _page_is_image_based(page):
+                count += 1
+                img_bytes, img_ext = _get_fullpage_image(page)
+                name = f"page{page_num + 1}.{img_ext}"
+                with open(os.path.join(images_dir, name), "wb") as f:
+                    f.write(img_bytes)
+                print(f"  Page {page_num + 1}: saved as images/{name}")
+    elif analyze_formulas:
         os.makedirs(images_dir, exist_ok=True)
         fig_counter = 0
 
@@ -528,7 +542,8 @@ def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False):
             if image_pages:
                 try:
                     results = _extract_doc_via_vision_google(
-                        [p for _, p in image_pages], g_client, g_model
+                        [p for _, p in image_pages], g_client, g_model,
+                        chunk_size=vision_chunk_size,
                     )
                     for j, (page_idx, page) in enumerate(image_pages):
                         _, has_figure = results[j]
@@ -568,7 +583,8 @@ def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False):
     return count
 
 
-def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False):
+def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
+                       vision_chunk_size=_DEFAULT_VISION_CHUNK_SIZE):
     doc = fitz.open(pdf_path)
     images_dir = os.path.join(output_dir, "images")
     print(f"Opened PDF: {pdf_path} ({len(doc)} pages)")
@@ -595,7 +611,9 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False):
             g_client, g_model = google
             image_pages = [doc[i] for i in image_page_indices]
             try:
-                results = _extract_doc_via_vision_google(image_pages, g_client, g_model)
+                results = _extract_doc_via_vision_google(
+                    image_pages, g_client, g_model, chunk_size=vision_chunk_size,
+                )
                 vision_map = {image_page_indices[j]: results[j]
                               for j in range(len(image_page_indices))}
             except Exception as e:
@@ -666,6 +684,23 @@ def main():
             "real figures only. Tries Google first, then Anthropic. Requires credentials."
         )
     )
+    parser.add_argument(
+        "--vision-chunk-size", type=int, default=_DEFAULT_VISION_CHUNK_SIZE,
+        help=(
+            "Pages per Google vision request when --analyze-formulas is set "
+            f"(default: {_DEFAULT_VISION_CHUNK_SIZE}). Lower this for dense/scanned "
+            "documents where a large combined image causes the model to exhaust its "
+            "output budget on internal reasoning instead of transcribing."
+        )
+    )
+    parser.add_argument(
+        "--screenshot-pages", action="store_true",
+        help=(
+            "Save every image-based page as a full-page screenshot, with no vision "
+            "AI call and no figure-detection gating. Pure local rasterization "
+            "(no network/API dependency). Ignores --analyze-formulas."
+        )
+    )
     args = parser.parse_args()
 
     if not os.path.exists(args.pdf):
@@ -675,9 +710,12 @@ def main():
     output_dir = args.output_dir or os.path.dirname(os.path.abspath(args.pdf))
 
     if args.markdown:
-        generate_markdown(args.pdf, output_dir, analyze_formulas=args.analyze_formulas)
+        generate_markdown(args.pdf, output_dir, analyze_formulas=args.analyze_formulas,
+                           vision_chunk_size=args.vision_chunk_size)
     else:
-        extract_pdf_images(args.pdf, output_dir, analyze_formulas=args.analyze_formulas)
+        extract_pdf_images(args.pdf, output_dir, analyze_formulas=args.analyze_formulas,
+                            vision_chunk_size=args.vision_chunk_size,
+                            screenshot_pages=args.screenshot_pages)
 
 
 if __name__ == "__main__":

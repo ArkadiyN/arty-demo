@@ -864,3 +864,33 @@ class TestRealPDF:
     def test_all_pages_are_image_based(self):
         doc = fitz.open(str(REAL_PDF))
         assert all(_page_is_image_based(doc[i]) for i in range(len(doc)))
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# extract_pdf_images(screenshot_pages=True)
+# ══════════════════════════════════════════════════════════════════════════════
+
+@pytest.mark.skipif(not REAL_PDF.exists(), reason="test PDF not found on disk")
+class TestScreenshotPages:
+    """Pure local rasterization path — no vision AI, no network call."""
+
+    def test_saves_one_image_per_image_based_page(self, tmp_path):
+        doc = fitz.open(str(REAL_PDF))
+        expected = sum(1 for i in range(len(doc)) if _page_is_image_based(doc[i]))
+
+        count = extract_pdf_images(str(REAL_PDF), str(tmp_path), screenshot_pages=True)
+
+        assert count == expected
+        assert len(list((tmp_path / "images").iterdir())) == expected
+
+    def test_filenames_are_page_numbered(self, tmp_path):
+        extract_pdf_images(str(REAL_PDF), str(tmp_path), screenshot_pages=True)
+        names = {p.name for p in (tmp_path / "images").iterdir()}
+        assert all(re.match(r"^page\d+\.\w+$", n) for n in names)
+
+    def test_ignores_analyze_formulas_when_set(self, tmp_path):
+        """screenshot_pages must take the local-only branch even if -f is also passed."""
+        count = extract_pdf_images(
+            str(REAL_PDF), str(tmp_path), analyze_formulas=True, screenshot_pages=True,
+        )
+        assert count > 0
