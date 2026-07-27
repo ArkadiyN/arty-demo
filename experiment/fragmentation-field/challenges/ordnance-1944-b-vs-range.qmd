@@ -313,6 +313,25 @@ substitutable replacement value — reconciling the two definitions and
 recalibrating the model against them is separate follow-up work, not done
 here.
 
+**Follow-up closed: recalibration checked, does not fully close the gap.**
+[`ordnance-1944-drag-coefficient-calibration-check.md`](ordnance-1944-drag-coefficient-calibration-check.md)
+has since run that recalibration — substituting the literature-supported
+combined drag values (1.2, 1.7; DDESB TP-12 and SAND92-0243) for the
+model's current 0.585 against all three calibers' tabulated $v(r)$ data.
+Finding: a higher constant drag substantially shrinks the model/source
+velocity ratio everywhere, but does not close it uniformly — for 75mm and
+155mm the ratio falls, overshoots toward unity, then rises again with
+range; for 105mm it never turns over and keeps diverging over the tested
+range. The residual is caliber- and range-dependent, not a simple
+under-scaled constant. This matches SAND92-0243's own framing of the
+1.2–1.7 combined drag as *velocity-dependent*, not a single value — so the
+mismatch traced above is a **characterized model gap** (a fixed-rate
+exponential decay cannot reproduce a $v(r)$ whose deviation from that decay
+changes sign with range), not evidence the recalibration direction was
+wrong. Closing it fully needs a velocity- or range-dependent drag term in
+`retardation_coeff`, which is out of scope for this notebook; logged as a
+limitation (`_limitations.qmd` §7 addendum).
+
 ### Qualitative damage-pattern-shape note (§3.4/§4)
 
 A full comparison against the card's damage-pattern figures (Figs. 67-73,
