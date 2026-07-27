@@ -28,13 +28,18 @@
      "WebFetch",
      "WebSearch",
      "Edit(.claude/worktrees/*)",
+     "Write(.claude/worktrees/*)",
      "Bash(uv run *)",
      "Bash(uv *)",
      "Bash(quarto *)",
      "Edit(src/arty/**)",
+     "Write(src/arty/**)",
      "Edit(experiment/**)",
+     "Write(experiment/**)",
      "Edit(doc-reference/**)",
-     "Edit(tests/**)"
+     "Write(doc-reference/**)",
+     "Edit(tests/**)",
+     "Write(tests/**)"
     ]
   },
   "worktree": {

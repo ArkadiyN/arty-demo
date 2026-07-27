@@ -1,0 +1,341 @@
+---
+title: "Challenge: Family B vs. the 1944 Ordnance Dept. B-vs-Range Data"
+format:
+  html:
+    code-fold: true
+    toc: true
+jupyter: python3
+---
+
+## Background
+
+The project ships two independent ground-lethality kernels — Family A
+(graded ES-310 $P_{k|hit}$) and **Family B**, the Poisson binary-cut
+lethal-density kernel (`lethal_density_point` / `four_zone_lethal_density_field`
+in `src/arty/zones.py`). This notebook checks Family B's output against a
+primary source: the 1944 U.S. Ordnance Department's tabulated ground-burst
+casualty data, $B(r)$ = "average number of effective hits per sq. ft. of
+target area at distance $r$ from burst," for the three WW2 HE shells this
+project's registry (`src/arty/shells.py`) already carries — 75 mm M48,
+105 mm M1, and 155 mm M107.
+
+The full problem statement, scope (Family A is out of scope for this pass —
+see the note below), and verdict criterion are in the scoping doc,
+[`ordnance-1944-b-vs-range.md`](ordnance-1944-b-vs-range.md); this notebook
+answers its §3–§4 quantitative study and gives a brief qualitative note on
+its §3.4/§4 damage-pattern-shape question. All physics and field-building
+calls are existing `arty` functions (`arty.shells`, `arty.zones`); this
+notebook only reduces, tabulates, and plots their output.
+
+## Governing equations
+
+No new equations are introduced — `four_zone_lethal_density_field` already
+returns the lethal-fragment areal density $\rho_L(x, y, z)$ [m$^{-2}$], the
+same physical quantity as the card's $B$ [ft$^{-2}$]. Per §2 of the scoping
+doc, the reduction to the card's convention is an azimuthal average over the
+existing field grid at fixed ground range $r$, plus a unit conversion:
+
+$$
+B_\text{model}(r) \;=\;
+\left\langle \rho_L(r\cos\phi,\, r\sin\phi,\, z=0) \right\rangle_\phi
+\times (0.3048\ \text{m/ft})^2 . \quad (1)
+$$
+
+| Symbol | Meaning | Unit |
+| --- | --- | --- |
+| $\rho_L(x,y,z)$ | Lethal-fragment areal density from `four_zone_lethal_density_field` | m$^{-2}$ |
+| $r$ | Ground range from burst | ft |
+| $\phi$ | Azimuth around the burst axis | rad |
+| $B_\text{model}(r)$ | Azimuthally-averaged model prediction, card units | ft$^{-2}$ |
+| $B_\text{card}(r)$ | Ordnance Dept. tabulated casualty value (Tables 43/51/59) | ft$^{-2}$ |
+
+The card's own casualty threshold — 58 ft-lb kinetic energy ($\approx$ 78.6 J,
+`card.md` line 25) — is passed explicitly as an override of
+`four_zone_lethal_density_field`'s `E_leth` keyword, in place of the
+project's own default (`E_LETH_DEFAULT` in `src/arty/fragmentation.py`,
+1000 J, a different physical anchor — the ES-310 $P_{k|hit}=0.5$ "moderate
+personnel kill" threshold, $\approx$ 737 ft-lb). This is the right choice for
+a like-for-like comparison against the historical card, not a reuse of the
+model's default; it feeds the same Mott $m_\text{min}(s)$ table
+`four_zone_lethal_density_field` already builds internally.
+
+**Scope note.** The scoping doc also defines a Family A → $B$ reduction
+(dividing out the presented area $A_p$). This notebook only exercises
+**Family B**, per the delegated task; a Family A companion pass, and the
+cross-family divergence check the scoping doc's §4 also asks for, are left
+for a follow-up notebook.
+
+## Parameters
+
+| Symbol | Value | Source |
+| --- | --- | --- |
+| Shells | `"75mm M48 HE"`, `"105mm M1 HE"`, `"155mm M107 HE"` | `arty.shells.SHELLS` |
+| $h_b$ | 0 m (ground burst) | matches the card's ground-burst casualty tables |
+| $\delta$ (spray half-angle) | 15° | `four_zone_lethal_density_field` default |
+| $E_\text{leth}$ | 58 ft-lb $\approx$ 78.6 J | card's casualty definition, converted to SI |
+| Angle of fall (AoF) | primary 30°; sensitivity band 0–60° | not carried in the shell registry for these shells — no single AoF is prescribed, so a representative WW2 gun/howitzer band is swept per the scoping doc's fallback instruction (§3) |
+| Grid resolution | 121×121, `max_r = 1.25 r` per query point | dense enough to resolve each shell's tabulated range set |
+
+## Implementation
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.interpolate import RegularGridInterpolator
+
+from arty.shells import SHELLS
+from arty.zones import DragParams, compute_shell_zones, four_zone_lethal_density_field
+
+FT_TO_M = 0.3048
+FT_LB_TO_J = 1.3558179483314004
+E_LETH_58FTLB_J = 58.0 * FT_LB_TO_J  # ~78.6 J, card's casualty KE threshold
+
+H_B = 0.0          # ground burst
+DELTA_DEG = 15.0
+N_GRID = 121
+AOF_SWEEP_DEG = [0.0, 15.0, 30.0, 45.0, 60.0]
+AOF_PRIMARY_DEG = 30.0
+
+
+def b_model_at_range(zones, drag, rho_steel, r_ft, aof_deg, n_phi=72):
+    """Azimuthally-averaged B_model(r) [ft^-2] at ground range r_ft [ft], AoF [deg].
+
+    Eq. (1): samples the existing four_zone_lethal_density_field ρ_L [m^-2]
+    output on a ring at z=0 and converts to the card's ft^-2 convention.
+    """
+    r_m = r_ft * FT_TO_M
+    max_r = r_m * 1.25
+    X, Y, rho_L = four_zone_lethal_density_field(
+        zones,
+        aof_deg=aof_deg,
+        h_b=H_B,
+        drag=drag,
+        rho_steel=rho_steel,
+        z=0.0,
+        max_r=max_r,
+        n_grid=N_GRID,
+        delta_deg=DELTA_DEG,
+        E_leth=E_LETH_58FTLB_J,
+    )
+    interp = RegularGridInterpolator(
+        (Y[:, 0], X[0, :]), rho_L, bounds_error=False, fill_value=0.0
+    )
+    phis = np.linspace(0.0, 2 * np.pi, n_phi, endpoint=False)
+    xs = r_m * np.cos(phis)
+    ys = r_m * np.sin(phis)
+    rho_ring = interp(np.column_stack([ys, xs]))
+    return rho_ring.mean() * FT_TO_M**2  # m^-2 -> ft^-2
+```
+
+### Card data (Tables 43, 51, 59 — Ordnance Dept. 1944)
+
+Transcribed from `doc-reference/wound-ballistics/ordnance-dept-1944-shell-
+fragment-damage/ordnance-1944.md`, with the column-identification and
+transposition fixes documented in the `_scratch/ordnance-1944-check-*.py`
+reference scripts (each table is OCR-interleaved with a companion
+perforation table; column identity is resolved there from max-range and
+monotonicity cross-checks, not assumed):
+
+```{python}
+CARD_DATA = {
+    "75mm M48 HE": {
+        "r_ft": np.array([20, 30, 40, 60, 80, 100, 130, 160, 190, 225], dtype=float),
+        "B": np.array([0.106, 0.0391, 0.0192, 0.0066, 0.0030, 0.0016, 0.0006, 0.0003, 0.0001, 0.0001]),
+        "table": "Table 43",
+    },
+    "105mm M1 HE": {
+        "r_ft": np.array([20, 30, 40, 60, 80, 100, 120, 140, 170, 200, 300], dtype=float),
+        "B": np.array([0.194, 0.0816, 0.0424, 0.0155, 0.0071, 0.0037, 0.0022, 0.0014, 0.0007, 0.0004, 0.0001]),
+        "table": "Table 51",
+    },
+    "155mm M107 HE": {
+        "r_ft": np.array([20, 30, 40, 60, 80, 100, 120, 140, 170, 200, 300, 400], dtype=float),
+        "B": np.array([0.247, 0.104, 0.0547, 0.0209, 0.0102, 0.0057, 0.0036, 0.0024, 0.0014, 0.0009, 0.0002, 0.0001]),
+        "table": "Table 59",
+    },
+}
+```
+
+### Run the comparison for all three shells
+
+```{python}
+drag = DragParams()
+results = {}
+
+for shell_name, card in CARD_DATA.items():
+    shell = SHELLS[shell_name]
+    zones = compute_shell_zones(shell)
+    rho_steel = shell.steel.rho
+
+    rows = []
+    for r_ft, b_card in zip(card["r_ft"], card["B"]):
+        b_primary = b_model_at_range(zones, drag, rho_steel, r_ft, AOF_PRIMARY_DEG)
+        band = [
+            b_model_at_range(zones, drag, rho_steel, r_ft, aof)
+            for aof in AOF_SWEEP_DEG
+        ]
+        rows.append({
+            "r [ft]": r_ft,
+            "B_model (AoF=30°)": b_primary,
+            "B_card": b_card,
+            "ratio (model/card)": b_primary / b_card,
+            "B_model band [min, max]": f"[{min(band):.4g}, {max(band):.4g}]",
+        })
+    results[shell_name] = pd.DataFrame(rows)
+
+for shell_name, df in results.items():
+    print(f"\n{shell_name} ({CARD_DATA[shell_name]['table']}):")
+    display(df.style.format({
+        "r [ft]": "{:.0f}",
+        "B_model (AoF=30°)": "{:.4g}",
+        "B_card": "{:.4g}",
+        "ratio (model/card)": "{:.3g}",
+    }))
+```
+
+### Model vs. card, per shell
+
+```{python}
+fig, axes = plt.subplots(1, 3, figsize=(15, 4.5), sharey=False)
+for ax, (shell_name, df) in zip(axes, results.items()):
+    ax.semilogy(df["r [ft]"], df["B_card"], "o-", label="Card (Ordnance Dept. 1944)")
+    ax.semilogy(df["r [ft]"], df["B_model (AoF=30°)"], "s--", label="Family B model (AoF=30°)")
+    ax.set_xlabel("Ground range r [ft]")
+    ax.set_ylabel("B(r) [effective hits / ft²]")
+    ax.set_title(f"{shell_name}\n({CARD_DATA[shell_name]['table']})")
+    ax.legend(fontsize=8)
+    ax.grid(True, which="both", alpha=0.3)
+fig.tight_layout()
+fig.show()
+```
+
+The log scale is necessary here: the ratio spans more than an order of
+magnitude within each shell (see below), so a linear axis would flatten the
+card curve to indistinguishable-from-zero next to the model curve.
+
+## Validation
+
+### Factor-of-2 band check (§4 quantitative verdict)
+
+The scoping doc's criterion: the model passes at a given $(shell, r)$ if
+$0.5 \le B_\text{model}/B_\text{card} \le 2$ at every tabulated range.
+
+```{python}
+for shell_name, df in results.items():
+    n_total = len(df)
+    n_pass = ((df["ratio (model/card)"] >= 0.5) & (df["ratio (model/card)"] <= 2.0)).sum()
+    ratio_lo, ratio_hi = df["ratio (model/card)"].min(), df["ratio (model/card)"].max()
+    print(f"{shell_name}: {n_pass}/{n_total} ranges within factor-of-2 band; "
+          f"ratio spans {ratio_lo:.1f}x - {ratio_hi:.1f}x")
+```
+
+### Shape check
+
+$B_\text{model}(r)$ and $B_\text{card}(r)$ are each checked for monotonic
+non-increase in $r$ (the qualitative half of §4's criterion):
+
+```{python}
+for shell_name, df in results.items():
+    model_monotone = np.all(np.diff(df["B_model (AoF=30°)"]) <= 1e-12)
+    card_monotone = np.all(np.diff(df["B_card"]) <= 0)
+    print(f"{shell_name}: model monotone non-increasing = {model_monotone}, "
+          f"card monotone non-increasing = {card_monotone}")
+```
+
+## Key findings
+
+**Quantitative — FAIL against the factor-of-2 band, for all three shells.**
+Family B systematically *over-predicts* $B(r)$ at every tabulated range:
+
+| Shell | Ratio range (model/card) | Trend with range |
+| --- | --- | --- |
+| 75 mm M48 HE (Table 43) | ~7x – 33x | grows with $r$ |
+| 105 mm M1 HE (Table 51) | ~9x – 26x | grows with $r$ |
+| 155 mm M107 HE (Table 59) | ~14x – 34x | grows with $r$ |
+
+Zero of the tabulated ranges fall inside the $[0.5\times, 2\times]$ band for
+any shell. The AoF sensitivity band (0–60°, see the printed tables above)
+shifts the absolute ratio somewhat but does not close the gap to the
+factor-of-2 window at any range for any shell — this is not an AoF-tuning
+problem.
+
+**Qualitative — shape agrees.** Both $B_\text{model}(r)$ and $B_\text{card}(r)$
+are monotonically decreasing (per the check above), and neither curve shows
+a spurious plateau or ring the card's data doesn't show. The *falloff shape*
+is correctly captured; only the *absolute magnitude* is wrong, and
+increasingly so at longer range.
+
+**A systematic finding, not a per-shell data problem.** The over-prediction
+direction, rough order of magnitude (7-34x), and the fact that the ratio
+*grows with range* are consistent across three independent shells, calibers,
+and source tables. That consistency across independent data points to a
+Family B calibration issue — most plausibly the binary energy-cutoff
+formulation itself (every fragment above 58 ft-lb counted as a full
+casualty-producing hit, with no partial-lethality falloff) combined with the
+model's inverse-square/exponential-drag geometric spreading, rather than a
+transcription error in any one table. It is *not* diagnosed further here —
+that is a correctness pass for @modeler, not a conclusion this presentation
+notebook should draw beyond flagging the pattern.
+
+### Follow-up: root cause traced, drag literature identified
+
+A separate, already-completed investigation (one pass per caliber) has since
+traced this pattern to a specific cause. Checking the model's inputs against
+the source's own tabulated data for all three shells —
+[`ordnance-1944-initial-conditions-check-75mm.md`](ordnance-1944-initial-conditions-check-75mm.md),
+[`ordnance-1944-initial-conditions-check-105mm.md`](ordnance-1944-initial-conditions-check-105mm.md),
+[`ordnance-1944-initial-conditions-check-155mm.md`](ordnance-1944-initial-conditions-check-155mm.md) —
+ruled out both the initial fragment velocity $V_0$ (the model's Gurney $V_0$
+runs a few percent to ~15% *low* relative to the card's stated value, the
+wrong direction to explain an over-prediction) and the 58 ft-lb lethal-energy
+threshold (already matched explicitly in this notebook, see above). On all
+three shells, the same several-fold gap instead traces to fragment velocity
+decaying too slowly in the model versus the source's own tabulated
+velocity-vs-range data — the model's combined drag term is several-fold too
+small, worst at long range, exactly matching the growing-with-range shape of
+the $B(r)$ over-prediction reported above.
+
+That combined drag term, `DragParams` in `src/arty/fragmentation.py`
+(re-exported via `arty.zones`, as imported above)
+(`C_D=0.65`, `C_shape=0.90`, combined $\approx$ 0.585), was previously
+unsourced — no literature backed those specific values. A newly-collected
+reference now gives literature support for a higher drag coefficient for
+this same class of fragment (naturally-fragmenting steel weapon fragments):
+[`doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md`](../../../doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md)
+(DDESB Technical Paper 12, 1975, tracing to the original 1955 BRL
+measurement, Dunn & Porter, *Air Drag Measurements of Fragments*) recommends
+$C_D \approx 1.28$ (supersonic-plateau constant) for this fragment
+population. That source uses a different shape-factor parameterization
+($m = k A^{1.5}$) than the model's `C_shape`, so it is supporting evidence
+for the *direction and rough magnitude* of the gap, not a directly-
+substitutable replacement value — reconciling the two definitions and
+recalibrating the model against them is separate follow-up work, not done
+here.
+
+### Qualitative damage-pattern-shape note (§3.4/§4)
+
+A full comparison against the card's damage-pattern figures (Figs. 67-73,
+93-100, 117-125) — rendering the ground $P_k$ field at ground-burst, 30 ft,
+and 60 ft HOB and eyeballing shape against the saved images — was scoped as
+optional for this pass given the quantitative verdict above is already a
+clear, well-evidenced FAIL and is this notebook's primary deliverable. The
+existing four-zone field plots (`_four-zone-3d.qmd`, `_field-plots.qmd`)
+already render a forward-of-burst-axis elongated fringe rather than a
+symmetric ring, which is qualitatively consistent with the card's
+described "Θ" pear/ellipse shape; a rigorous per-shell, per-HOB comparison
+against the specific saved figures is left as a follow-up study rather than
+duplicated here.
+
+### Verdict
+
+**FAIL** against the scoping doc's §4 quantitative criterion, for all three
+shells (75 mm, 105 mm, 155 mm) — $B_\text{model}$ over-predicts the card's
+casualty density by roughly 7-34x, growing with range, well outside the
+factor-of-2 band. The falloff *shape* matches (monotonic decrease, no
+spurious features), so this is a magnitude-calibration defect in Family B,
+not a wrong functional form — and it recurs the same way across three
+independent shells/tables, which is evidence for a systematic Family B issue
+rather than three unrelated per-shell errors. This is a defect finding for a
+follow-up correctness pass (Gate 3), not something this presentation
+notebook fixes.

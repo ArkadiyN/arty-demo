@@ -132,4 +132,16 @@ assert 0.35 <= Pk_s <= 0.65, f"Expected Pk ≈ 50%, got {Pk_s:.1%}"
 print("  ✓ PASS — within ±15% of historical 50% datum")
 ```
 
+### Check 7: 1944 Ordnance Dept. B-vs-range data (75mm/105mm/155mm)
+
+See the [ordnance-1944 B-vs-range challenge](challenges/ordnance-1944-b-vs-range.html)
+for the full comparison against the declassified 1944 US Ordnance Dept.
+casualty tables (Tables 43/51/59). **Verdict: FAIL** against the challenge's
+factor-of-2 band for all three shells — Family B over-predicts $B(r)$ by
+roughly 7–34×, growing with range, though the falloff shape (monotonic
+decrease) matches. The consistency of the pattern across three independent
+shells/tables points to a systematic Family B calibration gap rather than a
+per-shell data issue; root-causing it is left to a follow-up correctness
+pass, not resolved by this validation check.
+
 ______________________________________________________________________

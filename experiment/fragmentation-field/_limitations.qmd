@@ -86,6 +86,22 @@ C_D ≈ 0.2–0.4 and reaching 20–40 % further than the model predicts. The fr
 aero-stable splinters is not known from first principles; arena tests suggest it is a
 small minority but they dominate the far-field hazard.
 
+*Provenance caveat — do not conflate two uses of Felix et al. (2022).* The
+citation above sources only the **qualitative** point that elongated,
+edge-on-flying splinters have lower drag (C_D ≈ 0.2–0.4). It does **not** source
+the **baseline magnitude** of the two drag constants (C_D = 0.65,
+C_shape = 0.90) used in §4 — Felix et al. give no such value (their quantitative
+shape result is a 1:1.6–1.7 aspect ratio), and the Catovic et al. (2012) drag
+paper they cite for irregular-fragment drag is not collected in
+`doc-reference/`. The C_D = 0.65 baseline is instead anchored to Cunniff (2014,
+§4; Driels K_d ≈ 0.66, within McCleskey's 0.5–1.5 wind-tunnel band), and that
+value is *disputed*: Vigil (SAND92-0243, 1992) uses C_D = 1.0–1.71 for
+plate-like tumbling fragments. C_shape = 0.90 has no direct source at all and
+remains an engineering estimate (see the §4 provenance note). Neither
+`DragParams` in `src/arty/fragmentation.py` nor the lethal-density-field
+`derivation.md` currently records this provenance; the §4 note is the system of
+record.
+
 **8 · Lethality model assumes no protection and open ground.**
 The ES-310 Pk|hit curve (FAS/Navy 1998) is calibrated for standing unprotected
 infantry: the 4 kJ "heavy kill" anchor is explicitly described as the

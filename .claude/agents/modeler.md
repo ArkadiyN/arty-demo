@@ -4,7 +4,7 @@ description: Research agent that derives physics models for simulation and owns 
 tools: Bash, Read, Write, Edit
 skills: quarto-science, agent-memory-discipline
 maxTurns: 15
-model: opus
+model: claude-opus-4-8
 memory: project
 ---
 

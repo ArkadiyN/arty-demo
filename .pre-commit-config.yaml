@@ -58,7 +58,11 @@ repos:
         # yet root-caused to a specific line pattern; until it is, this file
         # is excluded like shell-he-105mm-m1.md rather than left to silently
         # regress every time mdformat runs.
-        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/.*\.md$|doc-reference/fragmentation/explosion-fragment-model/1-s2\.0-S221491472030502X-main\.md$'
+        #
+        # dod-1975-fragment-debris-hazards/card.md hits the same bug
+        # (doubles `\rho`/`\text` on L32-33) — excluded individually too,
+        # same reasoning.
+        exclude: '\.claude/agent-memory/|experiment/.*/updates/.*\.md$|openspec/.*\.md$|doc-reference/fragmentation/explosion-fragment-model/1-s2\.0-S221491472030502X-main\.md$|doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card\.md$'
 
       # Belt-and-suspenders counterpart to the mdformat exclude above: that
       # stops *tools* from introducing math-escaping corruption; this stops

@@ -17,7 +17,13 @@ ______________________________________________________________________
 
 ### Requirement: Parameter sliders are grouped by model section
 
-The app SHALL display controls in five collapsible groups: **Shell & Explosive**, **Mott Fragmentation**, **Drag**, **Burst Geometry** (new), **Target**. The **Burst Geometry** group SHALL contain sliders for `h_b` (0–20 m, default 2.0), `angle_of_fall` (0–90°, default 30°), `spray_half_angle` (5–30°, default 15°). The **Target** group SHALL replace the raw presented-width slider with a radio button selecting `Standing` or `Prone` posture.
+The app SHALL display controls in five collapsible groups: **Shell & Explosive**, **Mott Fragmentation**, **Drag**, **Burst Geometry** (new), **Target**. The **Drag** group SHALL contain sliders for `C_D` (0.40–0.90, default 0.65) and `C_shape` (0.50–3.00, default 0.90) — both are `DragParams` assumptions and enter the retardation coefficient only as the product `C_D·C_shape`. The **Burst Geometry** group SHALL contain sliders for `h_b` (0–20 m, default 2.0), `angle_of_fall` (0–90°, default 30°), `spray_half_angle` (5–30°, default 15°). The **Target** group SHALL replace the raw presented-width slider with a radio button selecting `Standing` or `Prone` posture.
+
+#### Scenario: Drag group exposes both drag assumptions
+
+- **WHEN** the Drag group is expanded
+- **THEN** both `C_D` and `C_shape` sliders are shown, letting the user probe
+    how much of the retardation gap a higher effective drag could close
 
 #### Scenario: Slider ranges cover the uncertainty bands from the notebook
 

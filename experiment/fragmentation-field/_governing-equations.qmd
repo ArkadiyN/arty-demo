@@ -115,6 +115,32 @@ $A_f = C_{\text{shape}}(m/\rho)^{2/3}$, so smaller fragments decelerate faster.
 | $C_D$               | Drag coefficient, tumbling fragment              | —     | 0.65  |
 | $C_{\text{shape}}$ | Mean presented-area factor vs. equal-volume cube | —     | 0.90  |
 
+**Note on $C_D$ and $C_{\text{shape}}$ (provenance and uncertainty):** Unlike
+the Mott parameters in §3, these two constants are engineering baselines that
+the collected literature does *not* settle. For $C_D$, Cunniff (2014, §4)
+adopts a tumbling drag coefficient $K_d \approx 0.66$ in the Driels retardation
+formula, citing McCleskey's wind-tunnel data in which $C_D$ ranges over roughly
+$0.5$–$1.5$ with the presented-area-to-mass ratio; $C_D = 0.65$ sits at the low
+end of that band, appropriate for a randomly tumbling irregular chunk. **The
+value is not settled across sources:** Vigil (SAND92-0243, 1992, *Maximum
+Horizontal Range*) instead uses $C_D = 1.0$–$1.71$ for fragments modelled as
+tumbling flat plates/disks — a materially higher range. The disagreement is one
+of geometry assumption (mean-over-all-aspects irregular chunk vs. flat-faced
+plate presenting maximum area), not measurement error; we adopt the
+irregular-tumbling value.
+
+$C_{\text{shape}} = 0.90$ has **no direct source** among the collected
+references. Vigil (SAND92-0243) defines two distinct shape factors — $Re$
+(min/max frontal-area ratio, range $0$–$1.0$) and $Sf$ (volume/frontal-area,
+range $0$–$0.5$) — but neither is the mean-presented-area-vs-equal-volume-cube
+factor used here, so neither can be borrowed as its value. Felix, Colwill &
+Harris (2022, Defence Technology) cite Catovic et al. (2012) on
+aerodynamic-drag prediction for irregular fragments in their reference list but
+reproduce no drag or shape-factor magnitude (their own shape result is a
+length-to-width aspect ratio of $\approx 1{:}1.6$–$1.7$, not a presented-area
+factor), and Catovic (2012) is not collected. $C_{\text{shape}} = 0.90$
+therefore remains an uncited engineering estimate; see limitation #7.
+
 ### 5 · Kinetic Energy and Fragmentation Field
 
 Kinetic energy at distance $s$ from burst:
