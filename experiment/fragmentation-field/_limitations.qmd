@@ -86,6 +86,41 @@ C_D ≈ 0.2–0.4 and reaching 20–40 % further than the model predicts. The fr
 aero-stable splinters is not known from first principles; arena tests suggest it is a
 small minority but they dominate the far-field hazard.
 
+*Provenance caveat — do not conflate two uses of Felix et al. (2022).* The
+citation above sources only the **qualitative** point that elongated,
+edge-on-flying splinters have lower drag (C_D ≈ 0.2–0.4). It does **not** source
+the **baseline magnitude** of the two drag constants (C_D = 0.65,
+C_shape = 0.90) used in §4 — Felix et al. give no such value (their quantitative
+shape result is a 1:1.6–1.7 aspect ratio), and the Catovic et al. (2012) drag
+paper they cite for irregular-fragment drag is not collected in
+`doc-reference/`. The C_D = 0.65 baseline is instead anchored to Cunniff (2014,
+§4; Driels K_d ≈ 0.66, within McCleskey's 0.5–1.5 wind-tunnel band), and that
+value is *disputed*: Vigil (SAND92-0243, 1992) uses C_D = 1.0–1.71 for
+plate-like tumbling fragments. C_shape = 0.90 has no direct source at all and
+remains an engineering estimate (see the §4 provenance note). Neither
+`DragParams` in `src/arty/fragmentation.py` nor the lethal-density-field
+`derivation.md` currently records this provenance; the §4 note is the system of
+record.
+
+*Addendum — the constant isn't just mis-scaled, it's the wrong functional
+form.* `retardation_coeff` treats the combined drag as one fixed constant per
+shot. Both collected sources say drag on this fragment population is
+velocity-dependent, not constant: SAND92-0243 states directly that "the drag
+coefficient can vary between 1.2 and 1.7" with velocity
+(`doc-reference/ww2-shells/sandia-sand92-0243/index.md`, L211-212), and DDESB
+TP-12's own $C_D$-vs-Mach curve (Fig. 3) sweeps from $\approx$1.08 subsonic to
+a $\approx$1.40 transonic peak before settling to $\approx$1.28 supersonic
+(`doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md`,
+lines 11-16). A calibration check
+(`experiment/fragmentation-field/challenges/ordnance-1944-drag-coefficient-calibration-check.md`)
+confirmed the practical consequence: substituting any single constant in the
+1.2-1.7 range shrinks the velocity-decay mismatch against the 1944 Ordnance
+Dept. source (`ordnance-1944-b-vs-range.qmd`) but cannot close it uniformly
+across the three calibers checked (75/105/155mm) or across range within one
+caliber — the residual rises then falls with range for 75mm/155mm and never
+turns over for 105mm. Closing this needs a velocity- or range-dependent drag
+term in `retardation_coeff`, not a bigger constant; not implemented here.
+
 **8 · Lethality model assumes no protection and open ground.**
 The ES-310 Pk|hit curve (FAS/Navy 1998) is calibrated for standing unprotected
 infantry: the 4 kJ "heavy kill" anchor is explicitly described as the

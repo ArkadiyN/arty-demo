@@ -203,9 +203,28 @@ where elevation (y) vs. horizontal distance (X) captured for all velocity/geomet
 
 **Critical observation:** For **equal C/M ratios**, aluminum produces highest velocity (low density), steel intermediate, tantalum lowest (high density).
 
+## Drag coefficient (p.18, verified against source text)
+
+The report's parameter-sweep range for the trajectory tables/curves is
+Cd = 1.0–1.71 (Section 9 discussion, item e). Separately, and more
+specifically, p.18 states directly: **"The drag coefficient is a function of
+initial fragment velocity. The drag coefficient can vary between 1.2 and
+1.7."** — i.e. velocity-dependent, not a single constant.
+
+**Applicability check (not missile-specific):** the same page frames the
+whole analysis as being for "tumbling (assumed), plate or disk like irregular
+fragments" from **cased explosive geometries** generally (thin-walled casing
+around an explosive charge — the report's own example is a steel-cased HMX
+charge at a test facility, not a guided missile). The one "missile" mention
+on this page is a caveat that fragments which happen to fly *aerodynamically
+stably* (not tumbling) could exceed the predicted range — not a restriction
+of the Cd range to missile fragments specifically. This is the same tumbling,
+irregular-shape fragment population the model's `DragParams` targets, so the
+1.2–1.7 range is directly applicable, not a different fragment class.
+
 ## Limitations & Caveats
 
-1. **Drag coefficient:** Assumes tumbling plate-like fragments; Cd = 1.0–1.71. Real fragments may be irregular, altering drag.
+1. **Drag coefficient:** Assumes tumbling plate-like fragments; Cd = 1.0–1.71 (sweep range), 1.2–1.7 (stated typical variation with velocity, see above). Real fragments may be irregular, altering drag.
 1. **Material properties:** Does not account for temperature-dependent fragment density or velocity degradation at high altitudes.
 1. **Angle of fall:** Tables assume launch angle B = 20° (optimum for range). Real detonations are typically vertical or low-angle; actual range may differ.
 1. **Cross-coupling:** No interaction between fragment zones (assumes independent trajectories).

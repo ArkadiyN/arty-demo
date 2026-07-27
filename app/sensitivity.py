@@ -96,6 +96,13 @@ with st.sidebar:
             C_D = st.slider(
                 "C_D (drag coefficient)", 0.40, 0.90, float(DragParams().C_D), step=0.01
             )
+            C_shape = st.slider(
+                "C_shape (presented-area shape factor)", 0.50, 3.00,
+                float(DragParams().C_shape), step=0.05,
+                help="Irregular/tumbling fragments present more drag area than a "
+                     "streamlined body; C_D and C_shape enter the retardation "
+                     "coefficient only as the product C_D·C_shape.",
+            )
             rho_air = st.slider(
                 "Air density  [kg/m³]", 0.90, 1.40, float(DragParams().rho_air), step=0.01
             )
@@ -155,7 +162,7 @@ shell = ShellParams(
     base_treatment=preset.base_treatment,
     ogive_crh=preset.ogive_crh,
 )
-drag = DragParams(C_D=C_D, rho_air=rho_air)
+drag = DragParams(C_D=C_D, C_shape=C_shape, rho_air=rho_air)
 burst = BurstParams(h_b=h_b, angle_of_fall=float(angle_of_fall), spray_half_angle=float(spray_half_angle))
 posture: PostureParams = STANDING if posture_name == "Standing" else PRONE
 
@@ -179,7 +186,7 @@ def _compute_zones(
     shell_name, filler_name,
     mass_total, mass_filler, caliber_mm, wall_t_mm,
     gamma, sigma_f, rho_steel,
-    C_D, rho_air,
+    C_D, C_shape, rho_air,
     h_b, angle_of_fall, spray_half_angle,
     posture, max_radius, n_grid,
 ):
@@ -211,7 +218,7 @@ def _compute_zones(
         base_treatment=preset_s.base_treatment,
         ogive_crh=preset_s.ogive_crh,
     )
-    drag_s = DragParams(C_D=C_D, rho_air=rho_air)
+    drag_s = DragParams(C_D=C_D, C_shape=C_shape, rho_air=rho_air)
 
     zones = compute_shell_zones(shell_s)
 
@@ -324,7 +331,7 @@ if model_mode == "Four-zone (new)":
         shell_name, filler_name,
         mass_total, mass_filler, caliber_mm, wall_t_mm,
         gamma, sigma_f, rho_steel,
-        C_D, rho_air,
+        C_D, C_shape, rho_air,
         h_b, angle_of_fall, spray_half_angle,
         posture, max_radius, _N_GRID,
     )

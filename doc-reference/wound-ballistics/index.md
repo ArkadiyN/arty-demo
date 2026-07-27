@@ -88,7 +88,29 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-### 4. U.S. Army/ARL (Misc.) — "Army Equipment Publication 55-Vol. 3: Casualty Criteria"
+### 4. U.S. Ordnance Department — "Terminal Ballistic Data: Shell Fragment Damage"
+
+**Year:** 1944 (declassified)\
+**Type:** Technical Military Reference / Experimental Ballistics Data\
+**Source:** US Ordnance Department, Volume II, Part 3 (pages 126–186 of original)\
+**File:** `/doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/`
+
+**Summary:** Quantitative experimental data on fragment damage patterns and effective-hits-per-square-foot (B) tables for field artillery shells, derived from Ordnance Department ballistic trials. Covers three key systems in this project's fragmentation model: 75-mm H.E. M48 (Table 43), 105-mm H.E. M1 (Table 51), and 155-mm H.E. M107 (Table 59). Provides independent validation dataset for fragment velocity decay, damage-pattern distribution, casualty threshold initialization, and range-dependent effectiveness. Damage patterns are presented as 60+ detailed figures showing spatial distribution of effective hits at various ranges, burst heights, and impact types.
+
+**Key Data:**
+
+- **Initial fragment velocities:** 75-mm M48 (3,120 f/s); 105-mm M1 (3,500 f/s); 155-mm M107 (3,500 f/s)
+- **Effective-hits-per-sq-ft (B) @ 20 ft range:** 75-mm M48 (0.213); 105-mm M1 (0.231); 155-mm M107 (0.291)
+- **Casualty threshold:** ≥58 ft-lb kinetic energy (incapacitation definition)
+- **Distance ranges:** 75-mm (20–225 ft), 105-mm (20–300 ft), 155-mm (20–400 ft) from burst center
+- **Damage-pattern figures:** 75-mm (Figs. 67–73); 105-mm (Figs. 93–100); 155-mm (Figs. 117–125) showing hit-density contours by range and burst height
+- **Lightest effective fragment (@ 20 ft):** 75-mm (0.014 oz, 2,060 f/s); 105-mm (0.010 oz, 2,440 f/s); 155-mm (0.010 oz, 2,440 f/s)
+
+**Relevance to Model:** Provides quantitative validation targets for the fragmentation model: (1) calibrate initial fragment velocity distribution per shell type; (2) constrain velocity decay constants against measured B-value tables; (3) validate casualty threshold initialization (58 ft-lb minimum energy); (4) cross-check predicted damage-pattern geometry (hit-density contours) against experimental figures; (5) independent verification dataset alongside British WoF 1944 empirical casualty data to ensure model predictions are grounded in independent WWII-era measurement.
+
+______________________________________________________________________
+
+### 5. U.S. Army/ARL (Misc.) — "Army Equipment Publication 55-Vol. 3: Casualty Criteria"
 
 **Year:** ~1995–2010 (multiple editions)\
 **Type:** Military Casualty Assessment Standard\
@@ -98,7 +120,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-### 5. PMC7295711 — Bone Fragments in Blast Injury
+### 6. PMC7295711 — Bone Fragments in Blast Injury
 
 **Year:** (Pending metadata)\
 **Type:** Journal Article / Systematic Review\
@@ -108,7 +130,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-### 6. Lethality Threshold Critique
+### 7. Lethality Threshold Critique
 
 **Year:** (Pending metadata)\
 **Type:** (Pending classification)\
@@ -126,10 +148,16 @@ ______________________________________________________________________
 
 - Cunniff (2014) — Figure 1, ballistic limit model; Figure 3, presented area PDFs
 
+**Fragment Damage Patterns & Effective Hits:**
+
+- US Ordnance Dept (1944) — Tables 43, 51, 59; B-value tables 20–400 ft; damage pattern figures for three project-matched shells
+- British Artillery WoF (1944) — Fire intensity; casualty-production scaling
+
 **Fragment Lethality & Casualty Production:**
 
 - British Artillery WoF (1944) — Casualty risk factors by posture; fire intensity thresholds; optimal fragment mass
 - FAS ES-310 (1998) — Damage criteria table, Pk thresholds
+- US Ordnance Dept (1944) — 58 ft-lb casualty threshold; range-dependent effectiveness data
 
 **Human Vulnerability & Pk|hit:**
 
@@ -141,10 +169,12 @@ ______________________________________________________________________
 
 - Cunniff (2014) — Bayesian posterior framework, munition threat PDFs, Monte Carlo approach
 - British Artillery WoF (1944) — Uncertainty bounds in casualty prediction (±4–6 percentage points); model limitations
+- US Ordnance Dept (1944) — Averaging methodology for B-values; applicability constraints
 
 **Casualty Assessment:**
 
 - British Artillery WoF (1944) — Fire intensity requirements; casualty percentages by effect type
+- US Ordnance Dept (1944) — Casualty vs. perforation thresholds; target protection state dependency
 - AEP-55 Vol. 3 (TBD)
 - PMC7295711 (TBD)
 
@@ -153,6 +183,7 @@ ______________________________________________________________________
 **WWII / 1940s:**
 
 - British Artillery WoF (1944) — Empirical data from North Africa, Italy, Northwest Europe, Burma
+- US Ordnance Dept (1944) — Experimental ballistics data from Army and Navy proving grounds
 
 **1990s–2000s:**
 
@@ -169,11 +200,18 @@ ______________________________________________________________________
 
 ### For Fragmentation Lethality Model Development
 
-1. **Start with British Artillery WoF (1944) for empirical baseline:**
+1. **Start with Ordnance Dept (1944) for empirical shell-specific data:**
+
+    - Extract initial fragment velocities per shell type (75-mm: 3,120 f/s; 105-mm: 3,500 f/s; 155-mm: 3,500 f/s)
+    - Use B-value tables (Tables 43, 51, 59) to calibrate velocity decay and range-dependent lethality
+    - Cross-check damage pattern predictions against provided figures (Figs. 67–125)
+    - Initialize casualty threshold at 58 ft-lb minimum kinetic energy
+
+1. **Validate Against British Artillery WoF (1944) for empirical baseline:**
 
     - Extract posture-dependent casualty multipliers (prone = 1/3, trenched = 1/15–1/50)
     - Note fire intensity requirement: 0.1 lb/sq yd/hr for lethal effect
-    - Validate modern model predictions against historical WWII casualty data
+    - Ensure model-predicted casualty rates match historical WWII field data
 
 1. **Apply Cunniff (2014) for fragment-level physics:**
 
@@ -202,6 +240,8 @@ ______________________________________________________________________
 - [ ] Aggregate casualty rate (multi-hit) matches historical WWII field data (±15%)
 - [ ] Posture multipliers reproduce British WoF casualty factors (within 20% of 1/3 and 1/15–1/50)
 - [ ] Fire intensity scaling matches British WoF (0.1 lb/sq yd ≈ 0.12 kg/m²)
+- [ ] Initial fragment velocity matches Ordnance Dept values within 3% (75-mm: 3,120 f/s; 105-mm: 3,500 f/s; 155-mm: 3,500 f/s)
+- [ ] Velocity decay predicts Ordnance Dept B-values (±5%) across 20–400 ft range
 
 ______________________________________________________________________
 
@@ -209,11 +249,20 @@ ______________________________________________________________________
 
 ### Fragment Lethality Thresholds (Compiled)
 
-| Source             | Framework              | Light/Threshold | Moderate/50%  | Heavy/90%  |
-| ------------------ | ---------------------- | --------------- | ------------- | ---------- |
-| British WoF (1944) | Energy (ft-lbs)        | 5               | —             | —          |
-| British WoF (1944) | Fragment mass @ 200 ft | —               | 1/8 oz (28 g) | —          |
-| FAS ES-310 (1998)  | Pk / Energy (J)        | 0.1 / 100 J     | 0.5 / 1 kJ    | 0.9 / 4 kJ |
+| Source               | Framework                   | Light/Threshold | Moderate/50%  | Heavy/90%  |
+| -------------------- | --------------------------- | --------------- | ------------- | ---------- |
+| British WoF (1944)   | Energy (ft-lbs)             | 5               | —             | —          |
+| British WoF (1944)   | Fragment mass @ 200 ft      | —               | 1/8 oz (28 g) | —          |
+| FAS ES-310 (1998)    | Pk / Energy (J)             | 0.1 / 100 J     | 0.5 / 1 kJ    | 0.9 / 4 kJ |
+| Ordnance Dept (1944) | Casualty threshold (energy) | 58 ft-lb        | —             | —          |
+
+### Effective Hits per Square Foot (B-value) at 20 ft — Ordnance Dept 1944
+
+| Shell       | Initial Velocity | B @ 20 ft (Casualty) | B @ 20 ft (1/8-in. Steel) | Max Range |
+| ----------- | ---------------- | -------------------- | ------------------------- | --------- |
+| 75-mm M48   | 3,120 f/s        | 0.213                | —                         | 225 ft    |
+| 105-mm M1   | 3,500 f/s        | 0.231                | —                         | 300 ft    |
+| 155-mm M107 | 3,500 f/s        | 0.291                | —                         | 400 ft    |
 
 ### Fire Intensity Requirements (British WoF 1944)
 
@@ -240,6 +289,7 @@ ______________________________________________________________________
 | ----------------------- | ---- | ---------- | ------------------------------------ |
 | 25-pdr (UK)             | 1940 | 7.0%       | 1.0×                                 |
 | 4.5-inch Gun (UK)       | 1940 | 6.9%       | —                                    |
+| 75-mm M48 (US)          | —    | —          | —                                    |
 | 105-mm M1 (US)          | 1943 | 14.8%      | —                                    |
 | 122-mm OF-471 (Soviet)  | 1940 | 15.2%      | —                                    |
 | 155-mm M107 (US)        | 1950 | 15.8%      | —                                    |
@@ -252,6 +302,16 @@ ______________________________________________________________________
 ______________________________________________________________________
 
 ## Limitations & Caveats
+
+### US Ordnance Dept (1944) Limitations
+
+1. **B-value applicability:** Requires multiple random-burst trials; not valid for single-shot prediction
+1. **Azimuthal averaging:** B-values average over all firing directions; burst-specific asymmetry unmeasured
+1. **Unshielded targets only:** Data assume exposed personnel; insufficient data for deeply dug-in targets
+1. **Burst-height discretization:** Tested at discrete heights (grazing, 30 ft, 60 ft, etc.); continuous curves interpolated only
+1. **Soil/terrain variability:** Penetration depth depends on soil type, moisture, and fuze setting; limited to "typical" soil only
+1. **No fragment-mass distribution:** Tables report aggregate B-values; individual mass/velocity characteristics not separated
+1. **WWII projectile design:** Fragment mass and velocity distributions reflect 1940s metallurgy and bursting charge; modern shells differ significantly
 
 ### British WoF (1944) Historical Limitations
 
@@ -275,6 +335,6 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-**Last updated:** 2026-05-24\
+**Last updated:** 2026-07-26\
 **Maintained by:** @librarian\
 **Source repository:** https://github.com/[project]/doc-reference/\\
