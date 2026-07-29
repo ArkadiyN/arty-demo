@@ -42,9 +42,10 @@ _extract_doc_via_vision_google (chunking wrapper, chunk fn mocked)
   • Default chunk size is 8.
   • Fewer pages than chunk_size makes a single call.
   • Results from all chunks are concatenated in original page order.
-  • A chunk's exhausted-retry failure propagates (caller's existing
-    try/except still handles document-level fallback — chunking does not
-    change that contract).
+  • A chunk's exhausted-retry failure does not abort the document: its pages
+    come back as None, which generate_markdown's existing per-page Anthropic
+    fallback (for pages "missing" from the Google vision_map) picks up the
+    same way it already picks up pages Google never attempted.
 
 Vision pipeline — Google path (Google client mocked, real fitz pages)
   • generate_markdown with analyze_formulas=True uses Google when available.
@@ -654,17 +655,21 @@ class TestExtractDocViaVisionGoogleChunking:
 
         assert results == [(f"page-{p}", p % 2 == 0) for p in pages]
 
-    def test_chunk_failure_propagates(self, monkeypatch):
-        """A chunk's exhausted-retry failure still raises — callers' existing
-        try/except unchanged fallback contract, just at chunk granularity."""
+    def test_chunk_failure_does_not_abort_document(self, monkeypatch):
+        """A chunk's exhausted-retry failure must not discard other chunks'
+        already-succeeded results or crash before anything is written —
+        its pages come back as None so generate_markdown's existing per-page
+        Anthropic fallback (for pages "missing" from the Google vision_map)
+        can pick them up, same as pages Google never attempted."""
         def fake_chunk(chunk, client, model):
             if chunk[0] == 8:
                 raise RuntimeError("boom")
-            return [("", False)] * len(chunk)
+            return [(f"p{p}", False) for p in chunk]
 
         monkeypatch.setattr(_mod, "_extract_doc_via_vision_google_chunk", fake_chunk)
-        with pytest.raises(RuntimeError, match="boom"):
-            _extract_doc_via_vision_google(list(range(16)), MagicMock(), "model", chunk_size=8)
+        results = _extract_doc_via_vision_google(list(range(16)), MagicMock(), "model", chunk_size=8)
+
+        assert results == [(f"p{p}", False) for p in range(8)] + [None] * 8
 
 
 # ══════════════════════════════════════════════════════════════════════════════

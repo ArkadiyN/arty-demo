@@ -341,11 +341,23 @@ def _extract_doc_via_vision_google(pages, client, model, chunk_size=_DEFAULT_VIS
     the output-budget failure mode to one chunk instead of the whole
     document. Results are concatenated in input order, so callers see the
     same shape as a single combined call.
+
+    A chunk that still fails after its internal retries does NOT abort the
+    whole document: its pages come back as `None` (instead of an (md, has_figure)
+    tuple) so the caller's already-succeeded chunks are still returned, and
+    `generate_markdown`'s existing per-page Anthropic fallback (for pages
+    "missing" from the Google vision_map) picks up the `None` pages the same
+    way it already picks up pages Google never attempted.
     """
     results = []
     for start in range(0, len(pages), chunk_size):
         chunk = pages[start:start + chunk_size]
-        results.extend(_extract_doc_via_vision_google_chunk(chunk, client, model))
+        try:
+            results.extend(_extract_doc_via_vision_google_chunk(chunk, client, model))
+        except Exception as e:
+            print(f"  Chunk (pages {start + 1}-{start + len(chunk)}) failed after retries "
+                  f"({e}); leaving for per-page fallback instead of aborting the document")
+            results.extend([None for _ in chunk])
     return results
 
 
@@ -615,7 +627,8 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
                     image_pages, g_client, g_model, chunk_size=vision_chunk_size,
                 )
                 vision_map = {image_page_indices[j]: results[j]
-                              for j in range(len(image_page_indices))}
+                              for j in range(len(image_page_indices))
+                              if results[j] is not None}
             except Exception as e:
                 print(f"  Google vision failed ({e}), falling back to Anthropic")
                 google = None
