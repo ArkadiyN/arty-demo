@@ -28,12 +28,20 @@ _parse_page_vision_response
   • Pages with no matching section get ("", False).
   • Handles extra whitespace / CRLF around markers.
 
+_parse_page_spec
+  • Parses "N-M" ranges, bare "N" pages, and comma-separated combinations
+    into a sorted, deduped list of 0-indexed page numbers.
+  • Raises SystemExit on any entry out of [1, n_pages] or a reversed range.
+
 _extract_doc_via_vision_google_chunk (Google client mocked)
   • Calls client.models.generate_content exactly once (1 API call per chunk).
   • Returns per-page (markdown, has_figure) matching page count.
   • Retries on transient google.genai.errors.ServerError (e.g. 504) up to 3
     attempts, backing off between them, and recovers if a later call succeeds.
-  • Re-raises the ServerError once all 3 attempts are exhausted.
+  • Re-raises the ServerError once all 3 attempts are exhausted, UNLESS the
+    batch has more than one page — then it splits in half and retries each
+    half fresh instead of resending the same request that just timed out.
+  • A single-page batch has nothing left to split, so it still re-raises.
   • Non-ServerError exceptions propagate immediately without retrying.
 
 _extract_doc_via_vision_google (chunking wrapper, chunk fn mocked)
@@ -85,6 +93,7 @@ _block_to_markdown = _mod._block_to_markdown
 _try_get_google_client = _mod._try_get_google_client
 _get_anthropic_client = _mod._get_anthropic_client
 _assert_not_scanned = _mod._assert_not_scanned
+_parse_page_spec = _mod._parse_page_spec
 _page_is_image_based = _mod._page_is_image_based
 _analyze_image_for_formula = _mod._analyze_image_for_formula
 _render_pages_combined = _mod._render_pages_combined
@@ -393,6 +402,36 @@ class TestAssertNotScanned:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# _parse_page_spec
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestParsePageSpec:
+    def test_single_range(self):
+        assert _parse_page_spec("40-44", 89) == [39, 40, 41, 42, 43]
+
+    def test_single_page(self):
+        assert _parse_page_spec("5", 10) == [4]
+
+    def test_comma_separated_list_and_ranges(self):
+        assert _parse_page_spec("1,3,5-7", 10) == [0, 2, 4, 5, 6]
+
+    def test_dedupes_overlapping_entries(self):
+        assert _parse_page_spec("1-3,2-4", 10) == [0, 1, 2, 3]
+
+    def test_out_of_bounds_high_rejected(self):
+        with pytest.raises(SystemExit, match="out of bounds"):
+            _parse_page_spec("85-95", 89)
+
+    def test_zero_page_rejected(self):
+        with pytest.raises(SystemExit, match="out of bounds"):
+            _parse_page_spec("0-5", 89)
+
+    def test_reversed_range_rejected(self):
+        with pytest.raises(SystemExit, match="out of bounds"):
+            _parse_page_spec("10-5", 89)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # _render_pages_combined  (real fitz pages)
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -588,6 +627,40 @@ class TestExtractDocViaVisionGoogleChunkRetry:
         client = MagicMock()
         client.models.generate_content.return_value = MagicMock(text=None)
         with pytest.raises(_mod._EmptyVisionResponse):
+            _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
+        assert client.models.generate_content.call_count == 3
+
+    def test_splits_batch_in_half_after_exhausting_retries(self, monkeypatch):
+        """A DEADLINE_EXCEEDED hits the same fixed timeout on every identical
+        retry — not a transient fluke. Once a 4-page batch exhausts its 3
+        retries, it must split into two 2-page batches (each with its own
+        fresh 3 attempts) rather than giving up or resending the same
+        oversized request again."""
+        monkeypatch.setattr(_mod.time, "sleep", lambda *_: None)
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[0], doc[1], doc[2], doc[3]]
+        client = MagicMock()
+        client.models.generate_content.side_effect = [
+            self._server_error(),  # 4-page attempt 1
+            self._server_error(),  # 4-page attempt 2
+            self._server_error(),  # 4-page attempt 3 (exhausted -> split 2+2)
+            MagicMock(text="=== PAGE 1 ===\nA\n=== PAGE 2 ===\nB"),  # first half
+            MagicMock(text="=== PAGE 1 ===\nC\n=== PAGE 2 ===\nD"),  # second half
+        ]
+        results = _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
+        assert client.models.generate_content.call_count == 5
+        assert [r[0] for r in results] == ["A", "B", "C", "D"]
+
+    def test_single_page_batch_reraises_without_splitting(self, monkeypatch):
+        """A single-page batch can't be split smaller — exhausted retries must
+        still raise (picked up by the caller's existing None-page fallback)."""
+        from google.genai import errors
+        monkeypatch.setattr(_mod.time, "sleep", lambda *_: None)
+        doc = fitz.open(str(REAL_PDF))
+        pages = [doc[0]]
+        client = MagicMock()
+        client.models.generate_content.side_effect = self._server_error()
+        with pytest.raises(errors.ServerError):
             _extract_doc_via_vision_google_chunk(pages, client, "gemma-4-31b-it")
         assert client.models.generate_content.call_count == 3
 

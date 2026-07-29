@@ -18,6 +18,7 @@ uv run src/utils/pdf-processor.py <pdf_path> [--output-dir <dir>] [--markdown] [
 - `--markdown` / `-m` — generate a `.md` file with image references
 - `--analyze-formulas` / `-f` — use Claude vision for clean LaTeX and real figures only (recommended for scanned/OCR PDFs; requires auth)
 - `--vision-chunk-size N` — pages per vision API request when `-f` is set (default 8). Lower it (e.g. 3–4) for dense/scanned documents, where a large combined image makes the model burn its output budget on internal reasoning instead of transcribing — this is a real, observed failure mode, not a hypothetical.
+- `--pages "40-44"` (or `"40,42,50-52"`) — restrict `--markdown` to a 1-indexed page subset. Combine with `--analyze-formulas` to re-extract just a handful of pages at vision quality (e.g. tables the heuristic path garbled) without re-running the whole document. Writes to a separate `<stem>-pNN-NN.md`, so it never clobbers a prior full extraction — merge the improved section into the main transcript by hand afterward.
 - `--screenshot-pages` — save every image-based page as a full-page screenshot with **no vision AI call and no network dependency**. Pure local rasterization; cannot fail on API/quota/output-budget grounds. Ignores `--analyze-formulas`.
 
 **Outputs** land next to the PDF by default:
@@ -37,8 +38,31 @@ the heuristic path if that also fails), but the run itself is still one long
 blocking call that can take several minutes on a large document, and a
 heuristic-fallback page on a scanned doc is known to be low quality.
 
-If only specific data (a table, a figure, a stated conclusion) is needed from
-a large document rather than a full transcription:
+A chunk that hits a genuine timeout (`DEADLINE_EXCEEDED`/504) rather than a
+transient error will hit the same fixed deadline on every identical retry —
+so after 3 failed attempts, a multi-page chunk auto-splits in half and each
+half retries fresh with its own 3 attempts. This is automatic; you don't need
+to pre-guess a working `--vision-chunk-size`, but a chunk that's already at
+1 page and still times out has nothing left to split — it falls to the
+per-page Anthropic fallback instead.
+
+**If specific pages are already known** (a garbled table flagged by the
+extraction-quality check, a figure mentioned in a briefing, a page number
+from a prior partial extraction): re-run just those pages at vision quality —
+fast (one small combined-image call, well under the timeout) and far higher
+quality than the heuristic path, without touching the rest of the document:
+
+```
+uv run src/utils/pdf-processor.py <pdf_path> -o <output_dir> -m -f --pages "40-44"
+```
+
+This writes `<stem>-p40to44.md` alongside the existing transcript — merge the
+improved section into the main `.md` by hand (replace the garbled block,
+keep the rest).
+
+**If the target pages aren't known yet** — only specific data (a table, a
+figure, a stated conclusion) is needed from a large document, but which
+page(s) hold it is unclear:
 
 1. Run `--screenshot-pages` first — it's fast, has no failure mode, and gets
     every page onto disk as an image immediately.
@@ -46,8 +70,9 @@ a large document rather than a full transcription:
     quick heuristic-mode `--markdown` pass without `-f` for rough OCR text to
     grep against — heuristic quality is fine for locating a page, not for
     transcribing it).
-1. `Read` those specific page images directly (multimodal) and transcribe the
-    needed content by hand instead of waiting on a whole-document vision run.
+1. Either `--pages` + `-f` those specific pages (above — preferred, higher
+    fidelity), or `Read` the page images directly (multimodal) and transcribe
+    by hand if a vision API call isn't available.
 
 Treat a full `--analyze-formulas` transcription of the remaining pages as a
 lower-priority, optional follow-up once the needed content is already safely

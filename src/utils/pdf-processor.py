@@ -171,6 +171,25 @@ def _get_anthropic_client():
 # Page / image utilities
 # ---------------------------------------------------------------------------
 
+def _parse_page_spec(spec, n_pages):
+    """Parse a 1-indexed page spec like "40-44" or "40,42,50-52" into a sorted
+    list of 0-indexed page numbers, bounds-checked against n_pages."""
+    pages = set()
+    for part in spec.split(","):
+        part = part.strip()
+        if "-" in part:
+            start, end = part.split("-", 1)
+            start, end = int(start), int(end)
+        else:
+            start = end = int(part)
+        if start < 1 or end > n_pages or start > end:
+            raise SystemExit(
+                f"Error: page range '{part}' out of bounds for a {n_pages}-page document"
+            )
+        pages.update(range(start - 1, end))
+    return sorted(pages)
+
+
 def _assert_not_scanned(doc):
     """Raise if the PDF has no text layer (scanned image-only document)."""
     scanned = 0
@@ -298,6 +317,14 @@ def _extract_doc_via_vision_google_chunk(pages, client, model):
 
     pages: ordered list of fitz.Page objects (the image-based pages only).
     The combined image is labeled PAGE 1..N so the response maps back positionally.
+
+    A DEADLINE_EXCEEDED (504) means this batch's transcription genuinely takes
+    longer than GOOGLE_TIMEOUT_MS — identical retries hit the same fixed
+    deadline again, not a transient fluke, so they're not a reliable fix on
+    their own. Once retries are exhausted on a multi-page batch, split it in
+    half and retry each half fresh (smaller combined image, less to
+    transcribe, comfortably faster) instead of giving up or resending the
+    same oversized request a 4th time.
     """
     from google.genai import types, errors
 
@@ -325,6 +352,13 @@ def _extract_doc_via_vision_google_chunk(pages, client, model):
             return _parse_page_vision_response(response.text, n)
         except (errors.ServerError, _EmptyVisionResponse) as e:
             if attempt == max_attempts:
+                if n > 1:
+                    mid = n // 2
+                    print(f"  Still failing after {max_attempts} attempts at {n} pages "
+                          f"({e}); splitting into {mid}+{n - mid} pages and retrying smaller "
+                          "instead of repeating the same request")
+                    return (_extract_doc_via_vision_google_chunk(pages[:mid], client, model)
+                            + _extract_doc_via_vision_google_chunk(pages[mid:], client, model))
                 raise
             wait_s = 2 ** attempt
             print(f"  Google vision call failed ({e}); retrying in {wait_s}s "
@@ -596,11 +630,18 @@ def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False,
 
 
 def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
-                       vision_chunk_size=_DEFAULT_VISION_CHUNK_SIZE):
+                       vision_chunk_size=_DEFAULT_VISION_CHUNK_SIZE, pages=None):
+    """pages: optional 1-indexed page spec (e.g. "40-44") to process only a
+    subset — for re-extracting specific pages (garbled tables, broken cmap)
+    at vision quality without re-running the whole document. Output lands in
+    a separate `<stem>-pNN-NN.md` file so it never clobbers a prior full
+    extraction; merge the improved section in by hand."""
     doc = fitz.open(pdf_path)
     images_dir = os.path.join(output_dir, "images")
     print(f"Opened PDF: {pdf_path} ({len(doc)} pages)")
     _assert_not_scanned(doc)
+
+    page_range = _parse_page_spec(pages, len(doc)) if pages else list(range(len(doc)))
 
     if not analyze_formulas:
         xref_to_name, _ = _extract_all_images(doc, images_dir)
@@ -609,14 +650,18 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
         os.makedirs(images_dir, exist_ok=True)
 
     pdf_stem = os.path.splitext(os.path.basename(pdf_path))[0]
-    md_path = os.path.join(output_dir, f"{pdf_stem}.md")
+    if pages:
+        suffix = pages.replace(",", "_").replace("-", "to")
+        md_path = os.path.join(output_dir, f"{pdf_stem}-p{suffix}.md")
+    else:
+        md_path = os.path.join(output_dir, f"{pdf_stem}.md")
     parts = []
     fig_counter = 0
 
     # Build a vision_map: doc_page_index → (markdown, has_figure)
     vision_map = {}
     if analyze_formulas:
-        image_page_indices = [i for i in range(len(doc)) if _page_is_image_based(doc[i])]
+        image_page_indices = [i for i in page_range if _page_is_image_based(doc[i])]
 
         google = _try_get_google_client()
         if google and image_page_indices:
@@ -646,7 +691,7 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
                     print(f"  Page {page_idx + 1}: vision failed ({e}), falling back to heuristic")
                     vision_map[page_idx] = ("", False)
 
-    for page_num in range(len(doc)):
+    for page_num in page_range:
         page = doc[page_num]
 
         if page_num in vision_map:
@@ -707,6 +752,16 @@ def main():
         )
     )
     parser.add_argument(
+        "--pages",
+        help=(
+            "Restrict --markdown to a 1-indexed page subset, e.g. '40-44' or "
+            "'40,42,50-52'. Use with --analyze-formulas to re-extract just the "
+            "pages with garbled tables/formulas at vision quality without "
+            "re-running the whole document. Writes to a separate "
+            "'<stem>-pNN-NN.md' file rather than overwriting the full transcript."
+        )
+    )
+    parser.add_argument(
         "--screenshot-pages", action="store_true",
         help=(
             "Save every image-based page as a full-page screenshot, with no vision "
@@ -724,7 +779,7 @@ def main():
 
     if args.markdown:
         generate_markdown(args.pdf, output_dir, analyze_formulas=args.analyze_formulas,
-                           vision_chunk_size=args.vision_chunk_size)
+                           vision_chunk_size=args.vision_chunk_size, pages=args.pages)
     else:
         extract_pdf_images(args.pdf, output_dir, analyze_formulas=args.analyze_formulas,
                             vision_chunk_size=args.vision_chunk_size,
