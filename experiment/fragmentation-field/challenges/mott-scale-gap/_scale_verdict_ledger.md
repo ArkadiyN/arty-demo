@@ -2,10 +2,10 @@
 
 Working notes for the pass answering the user's "that seems extreme. How is the
 existing number selected and why?" against
-`../drag-gap-1944/tolch-1944-panel-distance.md` Result 3. No `src/arty/` changes.
+`../drag-gap-1944/tolch-1938-panel-distance.md` Result 3. No `src/arty/` changes.
 
 Inputs: `_params_provenance_note.md`, `_validation.qmd` Check 3,
-`doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/tolch-1944.md`,
+`doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md`,
 `doc-reference/fragmentation/gurney-equations-fragmentation/rspa.1947.0042.md`.
 Script: `experiment/_scratch/mott_scale_check.py`.
 
@@ -26,7 +26,7 @@ Script: `experiment/_scratch/mott_scale_check.py`.
 
 ## 2. Tolch's pit test is screen-resolved — it gives a real N(>m) curve
 
-`tolch-1944.md:196` (screen sizes), `:319-329` and `:1672` (4-round averages).
+`tolch-1938.md:196` (screen sizes), `:319-329` and `:1672` (4-round averages).
 Hand screen 0.22 in; screens No.1/2/3/4 openings 0.64/0.36/0.23/0.17 in.
 Mass cut per screen estimated as ρ·s³ (compact fragment; **conservative** —
 elongated slivers pass a screen at higher mass, which would push the implied

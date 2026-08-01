@@ -20,5 +20,5 @@ by 11–14×.
 **How to apply:** whenever a source offers both a normalised falloff and any
 absolute fragment count, use the count as the discriminator and treat the
 shape as a consistency check only. Worked example:
-`experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1944-panel-distance.md`
+`experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`
 (Results 1–2). See also [[gotcha-tolch-remaining-velocity-is-shell-not-fragment]].

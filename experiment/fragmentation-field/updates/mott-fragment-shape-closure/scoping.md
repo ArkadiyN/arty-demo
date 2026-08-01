@@ -2,7 +2,7 @@
 
 **Aspect**: the closure that turns Mott's fracture-spacing length scale `x₀`
 into a fragment mass `μ` in `mott_params()` (`src/arty/fragmentation.py:209`).
-Independently validatable against Tolch (1944) screened mass data. Does **not**
+Independently validatable against Tolch (1938) screened mass data. Does **not**
 cover `gurney_velocity`, drag, or lethality.
 
 **Inputs (do not re-derive)**: `challenges/mott-scale-gap/_params_provenance_note.md`,
@@ -55,7 +55,7 @@ decomposition, `t₀ =` wall thickness, `l₀/x₀ = 1.6`) is sourced in-repo. T
 optional asks are noted in §6.
 
 **Not usable:** Tolch's own fragment-dimension table (his 9 armour-perforating
-fragments, `tolch-1944.md:1459`) is OCR-destroyed in the digitized copy — `α`
+fragments, `tolch-1938.md:1459`) is OCR-destroyed in the digitized copy — `α`
 cannot be read off Tolch directly. Tolch constrains `μ` only, via the screened
 mass distribution.
 
