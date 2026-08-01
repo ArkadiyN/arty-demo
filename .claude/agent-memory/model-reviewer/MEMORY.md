@@ -23,3 +23,4 @@
 - [Gap-closure needs source's own confidence check](gap_closure_check_source_own_confidence.md) — a cited doc-reference entry, or an uncited sibling, may flag the exact identification a derivation treats as "closed"
 - [Verify fix completeness: grep whole file](verify_fix_completeness_grep_whole_file.md) — a wording fix often lands at the headline location but leaves stale echoes/dangling forward-refs elsewhere
 - [Interleaved OCR table row check](interleaved_ocr_table_row_check.md) — one documented row-swap fix doesn't mean every row was checked; redo monotonicity for every row of every sibling table
+- [Gold 2017 eq(17) N0 typo](gold_2017_eq17_N0_typo.md) — eq(17) N0=m/mu contradicts the paper's own line 54/eq(1) N0=M/2mu; follow the factor-of-2 form

@@ -28,7 +28,6 @@ from arty.fragmentation import (
     STANDING,
     PostureParams,
     ShellParams,
-    SteelParams,
     _FAMILY_A_CHUNK,
     _belt_column_zrep_vec,
     _forward_shell_axis,
@@ -129,13 +128,29 @@ def _zone_gurney(M_z: float, C_z: float, V_g: float, k: float = 1.0) -> float:
     return k * V_g / np.sqrt(M_z / C_z + 0.5)
 
 
-def _zone_mott_mu(r_bu_z: float, V0_z: float, steel: SteelParams) -> float:
-    """Zone Mott half-mass [kg] from Gold (2017) eq. 16."""
+def _zone_mott_mu(
+    r_bu_z: float, V0_z: float, t_bu_z: float, shell: ShellParams
+) -> float:
+    """Zone Mott half-mass [kg] from Gold (2017) eq. 16 with the eq. 6 shape closure.
+
+    r_bu_z : zone break-up mean radius [m]
+    V0_z   : zone initial fragment velocity [m/s]
+    t_bu_z : zone wall thickness at break-up [m]
+    """
     if V0_z <= 0.0:
         return float("inf")
+    steel = shell.steel
+    # Mott fracture spacing x0 [m], Gold 2017 eq. (2), with the material
+    # constant gamma' (= SteelParams.gamma) — same form as `mott_params`.
+    x0 = np.sqrt(2.0 * steel.sigma_f / (steel.rho * steel.gamma)) * r_bu_z / V0_z
+    # Shape closure: the fragment is a parallelepiped l_bar x x_bar x t_bu, not
+    # a cube. alpha = (l_bar/x0)(t_bu/x0) = A * kappa_x^2 * t_bu/x0, absorbed
+    # into gamma by Gold 2017 eq. (6). alpha = 1 recovers the legacy cube form.
+    alpha = shell.aspect_ratio * shell.breadth_factor**2 * t_bu_z / x0
+    gamma = alpha ** (-2.0 / 3.0) * steel.gamma
     return (
         np.sqrt(2.0 / steel.rho)
-        * (steel.sigma_f / steel.gamma) ** 1.5
+        * (steel.sigma_f / gamma) ** 1.5
         * (r_bu_z / V0_z) ** 3
     )
 
@@ -145,6 +160,16 @@ def _r_bu_from_inner(r_i: float, r_o: float) -> float:
     r_i_bu = r_i * np.sqrt(3.0)
     r_o_bu = np.sqrt(r_i_bu**2 + (r_o**2 - r_i**2))
     return 0.5 * (r_i_bu + r_o_bu)
+
+
+def _t_bu_from_inner(r_i: float, r_o: float) -> float:
+    """Wall thickness at break-up [m] for an expanding annulus.
+
+    Plane-strain incompressibility of the annulus (the r_o_bu^2 - r_i_bu^2 =
+    r_o^2 - r_i^2 line in `_r_bu_from_inner`) gives the exact identity
+    t_bu * r_bu = t * r_mean — the same one `mott_params` uses single-zone.
+    """
+    return (r_o - r_i) * 0.5 * (r_o + r_i) / _r_bu_from_inner(r_i, r_o)
 
 
 def _base_k(shell: ShellParams) -> float:
@@ -271,6 +296,15 @@ def compute_shell_zones(shell: ShellParams) -> ShellZones:
         # Base plate: appropriate driving radius is the outer minus base thickness
         rbu_base  = max(1e-3, D / 2.0 - t_b / 2.0)
 
+        # Zone wall thicknesses at break-up (annulus incompressibility).
+        # The base plate is a disk driven axially, not an expanding annulus, so
+        # it carries no radial thinning: t_bu = t_b (mirrors the no-expansion
+        # r_bu_base convention above).
+        tbu_ogive = _t_bu_from_inner(r_i_mean_ogive, r_o_mean_ogive)
+        tbu_cyl   = _t_bu_from_inner(D / 2.0 - t_w, D / 2.0)
+        tbu_bt    = _t_bu_from_inner(r_i_mean_bt, r_o_mean_bt)
+        tbu_base  = t_w_base
+
         # Ogive spray angle: outward surface normal at axial midpoint
         x_m = L_n / 2.0
         # Outward normal in (x, r) is parallel to (x_m - xo_c, r_o(x_m) - ro_c)
@@ -318,6 +352,12 @@ def compute_shell_zones(shell: ShellParams) -> ShellZones:
         rbu_bt    = _r_bu_from_inner(r_i_bt, r_i_bt + t_w_bt)
         rbu_base  = max(1e-3, D / 2.0 - t_w_base / 2.0)
 
+        # Break-up wall thicknesses (see Tier-1 branch for the base convention)
+        tbu_cyl   = _t_bu_from_inner(r_i_cyl, D / 2.0)
+        tbu_ogive = _t_bu_from_inner(r_i_ogive, r_i_ogive + t_w_ogive)
+        tbu_bt    = _t_bu_from_inner(r_i_bt, r_i_bt + t_w_bt)
+        tbu_base  = t_w_base
+
         # Spray angles
         crh = shell.ogive_crh if shell.ogive_crh is not None else CRH_DEFAULT_TIER2
         if shell.ogive_len is not None:
@@ -346,10 +386,10 @@ def compute_shell_zones(shell: ShellParams) -> ShellZones:
     V0_bt    = _zone_gurney(M_bt,    C_bt,    V_g, k=1.0) if M_bt > 0 else 0.0
     V0_base  = _zone_gurney(M_base,  max(C_base, 1e-9), V_g, k=k_base)
 
-    mu_ogive = _zone_mott_mu(rbu_ogive, V0_ogive, shell.steel)
-    mu_cyl   = _zone_mott_mu(rbu_cyl,   V0_cyl,   shell.steel)
-    mu_bt    = _zone_mott_mu(rbu_bt,    V0_bt,    shell.steel) if M_bt > 0 else float("inf")
-    mu_base  = _zone_mott_mu(rbu_base,  V0_base,  shell.steel)
+    mu_ogive = _zone_mott_mu(rbu_ogive, V0_ogive, tbu_ogive, shell)
+    mu_cyl   = _zone_mott_mu(rbu_cyl,   V0_cyl,   tbu_cyl,   shell)
+    mu_bt    = _zone_mott_mu(rbu_bt, V0_bt, tbu_bt, shell) if M_bt > 0 else float("inf")
+    mu_base  = _zone_mott_mu(rbu_base,  V0_base,  tbu_base,  shell)
 
     return ShellZones(
         ogive   =ZoneParams(M_ogive, C_ogive, V0_ogive, mu_ogive, spray_ogive, rbu_ogive, t_w_ogive),

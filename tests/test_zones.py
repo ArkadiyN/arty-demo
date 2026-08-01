@@ -17,6 +17,9 @@ compute_shell_zones  (Tier-1: M1, M107 — Tier-2: M48, synthetic)
   • M48 secant ogive spray angle in 83–88° (> full-tangent CRH-7.43 ~79.6°).
   • Tier-2 without boattail: boattail mass == 0, cylinder fraction ≈ 0.53.
   • Tier-2 without ogive_len: spray angle matches full-tangent formula within 0.1°.
+  • Per-zone Mott mu (_zone_mott_mu): default aspect_ratio/breadth_factor match
+    an explicitly-defaulted call bit-for-bit; raising aspect_ratio increases
+    the cylinder zone's mu (mirrors the single-zone mott_params direction).
 
 fragment_ground_impact
   • Vertical shell (AoF=90°), 8 azimuths: ring radius == h_b × tan(theta).
@@ -42,6 +45,7 @@ four_zone_line_split
     grid row (total and per-zone) at shared nodes.
 """
 
+import dataclasses
 import math
 
 import numpy as np
@@ -158,6 +162,39 @@ def test_zone_masses_sum_m48(m48_zones):
     zone_sum = (m48_zones.ogive.mass_kg + m48_zones.cylinder.mass_kg
                 + m48_zones.boattail.mass_kg + m48_zones.base.mass_kg)
     assert zone_sum == pytest.approx(total, rel=0.01)
+
+
+# ---------------------------------------------------------------------------
+# compute_shell_zones — per-zone Mott mu shape closure (_zone_mott_mu)
+# ---------------------------------------------------------------------------
+
+
+def test_default_shape_factors_preserve_zone_mott_output(m1_zones):
+    # _zone_mott_mu reads shell.aspect_ratio / shell.breadth_factor, mirroring
+    # mott_params' single-zone closure (test_fragmentation.py::
+    # test_default_shape_factors_preserve_mott_output). An unset shell must
+    # reproduce the explicitly-defaulted call bit-for-bit for every zone --
+    # this is a self-consistency check on the defaults, not a regression
+    # pin against a hardcoded number.
+    shell = SHELLS["105mm M1 HE"]
+    assert shell.aspect_ratio == 1.6
+    assert shell.breadth_factor == 1.5
+    explicit_zones = compute_shell_zones(
+        dataclasses.replace(shell, aspect_ratio=1.6, breadth_factor=1.5)
+    )
+    assert m1_zones.ogive.mu == explicit_zones.ogive.mu
+    assert m1_zones.cylinder.mu == explicit_zones.cylinder.mu
+    assert m1_zones.base.mu == explicit_zones.base.mu
+
+
+def test_higher_aspect_ratio_gives_larger_cylinder_mu(m1_zones):
+    # mu ~ alpha^(+1) per-zone, same direction as the single-zone closure
+    # (test_fragmentation.py::test_higher_aspect_ratio_gives_larger_mu). Raise
+    # aspect_ratio alone, all other shell fields fixed, and check the
+    # cylinder zone's mu increases.
+    shell = SHELLS["105mm M1 HE"]
+    hi_zones = compute_shell_zones(dataclasses.replace(shell, aspect_ratio=1.71))
+    assert hi_zones.cylinder.mu > m1_zones.cylinder.mu
 
 
 def test_m1_ogive_mass_fraction(m1_zones):

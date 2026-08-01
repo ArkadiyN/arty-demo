@@ -140,27 +140,42 @@ def test_gurney_velocity_increases_with_gurney_const():
 # ---------------------------------------------------------------------------
 
 
-def test_mott_fragment_count_in_pafrag_range():
+# The band asserted below is 800-3000, the 105 mm M1 *arena-recovery* count for
+# N(>0.5 g). It replaces the former 3000-8000 band, which was Gold (2017)
+# running the same eq. (16) with an un-shape-corrected gamma = 50 -- a
+# model-to-model consistency check, not data. Once mott_params carries the
+# explicit prism closure (alpha = 3.6 t_bu/x0), comparing against that
+# model-vs-model band would re-import the very cube assumption the closure
+# removes, so the test is re-based onto the measured row instead of widened.
+# Both rows are in _validation.qmd Check 3; reasoning in
+# updates/mott-fragment-shape-closure/derivation.md sect. 7.4.
+_ARENA_N_GT_HALF_G = (800.0, 3000.0)
+
+
+def test_mott_fragment_count_in_arena_recovery_range():
     shell = ShellParams()
     V0 = gurney_velocity(shell)
     mu, N0 = mott_params(shell, V0)
     # Fragments heavier than 0.5 g: N(>0.5g) = N0 * exp(-sqrt(0.5e-3 / mu))
     n_gt_half_g = N0 * np.exp(-np.sqrt(0.5e-3 / mu))
-    assert 3000 <= n_gt_half_g <= 8000, f"N(>0.5g)={n_gt_half_g:.0f} outside 3000–8000"
+    lo, hi = _ARENA_N_GT_HALF_G
+    assert lo <= n_gt_half_g <= hi, f"N(>0.5g)={n_gt_half_g:.0f} outside {lo:.0f}-{hi:.0f}"
 
 
 @pytest.mark.parametrize("grade", sorted(STEELS))
-def test_mott_fragment_count_in_pafrag_range_all_grades(grade):
-    # Check C4: every catalogued grade must sit inside the PAFRAG/arena band at
-    # M1 geometry. WDSS-1 (gamma=47) gives ~4270; its 0.14 %C band endpoint
-    # (gamma=45) gives ~4126, about 38 % above the 3000 floor -- any future
-    # entry lower in carbon must re-check this rather than assume it.
+def test_mott_fragment_count_in_arena_recovery_range_all_grades(grade):
+    # Check C4: every catalogued grade must sit inside the arena-recovery band at
+    # M1 geometry. The baseline shell steel (gamma=65) gives ~2210 and WDSS-1
+    # (gamma=47) ~2540, both comfortably inside; grade only moves the count by
+    # ~15 % because mu ∝ gamma'^-1 under the shape closure. A future entry much
+    # lower in carbon must re-check this rather than assume it.
     shell = ShellParams(steel=STEELS[grade])
     V0 = gurney_velocity(shell)
     mu, N0 = mott_params(shell, V0)
     n_gt_half_g = N0 * np.exp(-np.sqrt(0.5e-3 / mu))
-    assert 3000 <= n_gt_half_g <= 8000, (
-        f"{grade}: N(>0.5g)={n_gt_half_g:.0f} outside 3000–8000"
+    lo, hi = _ARENA_N_GT_HALF_G
+    assert lo <= n_gt_half_g <= hi, (
+        f"{grade}: N(>0.5g)={n_gt_half_g:.0f} outside {lo:.0f}-{hi:.0f}"
     )
 
 
@@ -189,8 +204,49 @@ def test_wdss1_gives_fewer_larger_fragments_than_baseline():
     assert N0_mild < N0_base
 
 
+def test_default_shape_factors_preserve_mott_output():
+    # Promoting A / kappa_x from module constants to ShellParams fields must not
+    # move the default numbers: an unset shell has to reproduce both the
+    # explicitly-defaulted call bit-for-bit and the reviewed baseline of
+    # updates/mott-fragment-shape-closure/derivation.md sect. 7.4, whose
+    # 105 mm M1 row is the ShellParams() default geometry: mu = 1.538 g,
+    # N0 = 3913 at its Gurney V0. (Sect. 7.3's 0.793 g / 3627 is the 75 mm
+    # M48, a different shell -- do not use it as the default baseline.)
+    shell = ShellParams()
+    assert shell.aspect_ratio == 1.6
+    assert shell.breadth_factor == 1.5
+    V0 = gurney_velocity(shell)
+    mu, N0 = mott_params(shell, V0)
+    mu_explicit, N0_explicit = mott_params(
+        ShellParams(aspect_ratio=1.6, breadth_factor=1.5), V0
+    )
+    assert mu == mu_explicit
+    assert N0 == N0_explicit
+    assert mu == pytest.approx(1.538e-3, rel=1e-2)
+    assert N0 == pytest.approx(3913.0, rel=1e-2)
+
+
+def test_higher_aspect_ratio_gives_larger_mu():
+    # mu ∝ alpha^(-2/3) via gamma = alpha^(-2/3) gamma' (derivation eq. 4b-4c),
+    # and mu ∝ (sigma_f/gamma)^1.5, so mu ∝ alpha^(+1) -- a longer fragment
+    # prism at fixed breadth and wall thickness is a heavier fragment, hence
+    # fewer of them. Exponent checked exactly: mu is linear in A.
+    V0 = gurney_velocity(ShellParams())
+    mu_def, N0_def = mott_params(ShellParams(), V0)
+    mu_hi, N0_hi = mott_params(ShellParams(aspect_ratio=1.71), V0)
+    assert mu_hi > mu_def
+    assert N0_hi < N0_def
+    assert mu_hi / mu_def == pytest.approx(1.71 / 1.6, rel=1e-12)
+    # kappa_x enters squared in alpha, so mu goes as kappa_x^2.
+    mu_kx, _ = mott_params(ShellParams(breadth_factor=2.0), V0)
+    assert mu_kx / mu_def == pytest.approx((2.0 / 1.5) ** 2, rel=1e-12)
+
+
 def test_higher_gamma_gives_smaller_mu():
-    # mu ∝ (sigma_f / gamma)^1.5 — higher gamma means smaller average fragment mass
+    # mu ∝ gamma'^-1 under the shape closure (was ∝ (sigma_f/gamma)^1.5 in the
+    # legacy cube form; the alpha^(-2/3) redefinition cancels half an exponent
+    # -- see updates/mott-fragment-shape-closure/derivation.md sect. 4).
+    # Higher gamma' still means smaller average fragment mass.
     V0 = gurney_velocity(ShellParams())
     shell_lo = ShellParams(steel=SteelParams(name="lo", rho=7850.0, sigma_f=800e6, gamma=53.0))
     shell_hi = ShellParams(steel=SteelParams(name="hi", rho=7850.0, sigma_f=800e6, gamma=67.0))
