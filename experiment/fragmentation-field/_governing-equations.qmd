@@ -172,34 +172,42 @@ $A_f = C_{\text{shape}}(m/\rho)^{2/3}$, so smaller fragments decelerate faster.
 | Symbol              | Description                                      | Unit  | Value |
 | ------------------- | ------------------------------------------------ | ----- | ----- |
 | $\rho_{\text{air}}$| Air density (sea level)                         | kg/m³ | 1.225 |
-| $C_D$               | Drag coefficient, tumbling fragment              | —     | 0.65  |
-| $C_{\text{shape}}$ | Mean presented-area factor vs. equal-volume cube | —     | 0.90  |
+| $C_D$               | Drag coefficient, tumbling fragment              | —     | 1.28  |
+| $C_{\text{shape}}$ | Mean presented-area factor vs. equal-volume cube | —     | 2.089 |
 
-**Note on $C_D$ and $C_{\text{shape}}$ (provenance and uncertainty):** Unlike
-the Mott parameters in §3, these two constants are engineering baselines that
-the collected literature does *not* settle. For $C_D$, Cunniff (2014, §4)
-adopts a tumbling drag coefficient $K_d \approx 0.66$ in the Driels retardation
-formula, citing McCleskey's wind-tunnel data in which $C_D$ ranges over roughly
-$0.5$–$1.5$ with the presented-area-to-mass ratio; $C_D = 0.65$ sits at the low
-end of that band, appropriate for a randomly tumbling irregular chunk. **The
-value is not settled across sources:** Vigil (SAND92-0243, 1992, *Maximum
-Horizontal Range*) instead uses $C_D = 1.0$–$1.71$ for fragments modelled as
-tumbling flat plates/disks — a materially higher range. The disagreement is one
-of geometry assumption (mean-over-all-aspects irregular chunk vs. flat-faced
-plate presenting maximum area), not measurement error; we adopt the
-irregular-tumbling value.
+**Provenance of $C_D$ and $C_{\text{shape}}$ (v0.9.0 — derived, not fitted).**
+Both constants are now anchored to DoD/DDESB (1975) *Fragment and Debris
+Hazards*, "Ballistic Properties". $C_D = 1.28$ is that source's recommended
+constant supersonic value (its own advice is to use the plateau rather than the
+full Mach curve). $C_{\text{shape}}$ is **not** a free parameter: the source
+writes fragment mass as $m = k A^{3/2}$ with $k$ the measured *ballistic
+density*, and equating its retardation law to eq. (6) gives the identity
 
-$C_{\text{shape}} = 0.90$ has **no direct source** among the collected
-references. Vigil (SAND92-0243) defines two distinct shape factors — $Re$
-(min/max frontal-area ratio, range $0$–$1.0$) and $Sf$ (volume/frontal-area,
-range $0$–$0.5$) — but neither is the mean-presented-area-vs-equal-volume-cube
-factor used here, so neither can be borrowed as its value. Felix, Colwill &
-Harris (2022, Defence Technology) cite Catovic et al. (2012) on
-aerodynamic-drag prediction for irregular fragments in their reference list but
-reproduce no drag or shape-factor magnitude (their own shape result is a
-length-to-width aspect ratio of $\approx 1{:}1.6$–$1.7$, not a presented-area
-factor), and Catovic (2012) is not collected. $C_{\text{shape}} = 0.90$
-therefore remains an uncited engineering estimate; see limitation #7.
+$$
+C_{\text{shape}} = \left(\frac{\rho_{\text{steel}}}{k}\right)^{2/3}
+\quad (6a)
+$$
+
+so at the source's recommended $k = 2600$ kg/m³ (660 gr/in³, forged-steel
+projectiles and fragmentation bombs) and $\rho_{\text{steel}} = 7850$ kg/m³,
+$C_{\text{shape}} = 2.089$ (combined $C_D C_{\text{shape}} = 2.674$). The
+identity is implemented as `c_shape_from_ballistic_density` in
+`arty.fragmentation`, so $\rho_{\text{steel}}$ cancels out of (6) exactly —
+fragment retardation depends on ballistic density, not steel density.
+
+Eq. (6a) also supplies a hard *geometric floor*: mean presented area of any
+convex body is $S/4$ (Cauchy), giving $C_{\text{shape}} = 1.500$ for a cube and
+$1.209$ for a sphere, the minimum-area shape. The pre-v0.9.0 pair
+($C_D = 0.65$, $C_{\text{shape}} = 0.90$, combined $0.585$) sat *below* that
+floor — it implied $k = 25\,400$ kg/m³, a fragment 3.2× denser than steel
+presenting less area than a sphere. Validation: the adopted constant reproduces
+the source's own $L_1 = 247$ m/kg$^{1/3}$ to 2.4 % (an air-density convention),
+and cuts the RMS log-velocity error against the 1944 Ordnance
+$(m, r, v)$ tables from 0.710 to 0.092 over arrival Mach $> 0.7$
+(`updates/mach-dependent-fragment-drag/derivation.md` V1–V2). A
+Mach-dependent $C_D(M)$ was tested against the same data and **rejected** — it
+does not beat the constant (RMS 0.072 vs 0.047) and would replace the closed
+form with a per-fragment ODE (ibid. §5). Residual limitations: #7.
 
 ### 5 · Kinetic Energy and Fragmentation Field
 

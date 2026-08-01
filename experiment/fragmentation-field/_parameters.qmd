@@ -23,7 +23,7 @@ shell = ShellParams(
     caliber=0.105, wall_t=0.011,
     mass_total=14.97, mass_filler=2.18, mass_deductions=0.75,
 )
-drag   = DragParams()      # C_D=0.65, C_shape=0.90, rho_air=1.225
+drag   = DragParams()      # C_D=1.28, C_shape=(rho_steel/k)^(2/3), rho_air=1.225
 target = TargetParams()    # presented width w = 0.5 m
 
 # Derived geometry / masses from src (SI internally)

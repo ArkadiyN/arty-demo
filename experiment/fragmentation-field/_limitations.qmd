@@ -77,71 +77,75 @@ scale. The R₅₀ sensitivity sweep above captures the σ_F range but not the j
 uncertainty.
 
 **7 · All fragments are tumbling irregular chunks.**
-The drag model uses C_D = 0.65, appropriate for a randomly oriented irregular
-fragment. Felix et al. (2022, §2.3) document that real fragments are 2–6× longer
-than they are wide, and note that shape "has a significant effect on the air
-resistance restricting the velocity of the fragment." Some of these elongated splinters
-fly with their long axis aligned to the velocity vector (edge-on), producing
-C_D ≈ 0.2–0.4 and reaching 20–40 % further than the model predicts. The fraction of
-aero-stable splinters is not known from first principles; arena tests suggest it is a
-small minority but they dominate the far-field hazard.
+The drag model uses a single *population-average, orientation-averaged* pair
+C_D = 1.28, C_shape = 2.089 (combined 2.674, §4) — one constant retardation
+rate per fragment mass, with no orientation distribution. Felix et al. (2022,
+§2.3) document that real fragments are 2–6× longer than they are wide, and note
+that shape "has a significant effect on the air resistance restricting the
+velocity of the fragment." Some of these elongated splinters fly with their long
+axis aligned to the velocity vector (edge-on), producing C_D ≈ 0.2–0.4 and
+reaching further than the model predicts. The fraction of aero-stable splinters
+is not known from first principles; arena tests suggest it is a small minority
+but they dominate the far-field hazard. The v0.9.0 anchor below corrects the
+population average; it does not introduce the orientation spread, so this
+limitation stands (and the *relative* excursion of an aero-stable splinter is
+now measured against a 4.6× larger baseline retardation — not re-quantified
+here).
 
-*Provenance caveat — do not conflate two uses of Felix et al. (2022).* The
-citation above sources only the **qualitative** point that elongated,
-edge-on-flying splinters have lower drag (C_D ≈ 0.2–0.4). It does **not** source
-the **baseline magnitude** of the two drag constants (C_D = 0.65,
-C_shape = 0.90) used in §4 — Felix et al. give no such value (their quantitative
-shape result is a 1:1.6–1.7 aspect ratio), and the Catovic et al. (2012) drag
-paper they cite for irregular-fragment drag is not collected in
-`doc-reference/`. The C_D = 0.65 baseline is instead anchored to Cunniff (2014,
-§4; Driels K_d ≈ 0.66, within McCleskey's 0.5–1.5 wind-tunnel band), and that
-value is *disputed*: Vigil (SAND92-0243, 1992) uses C_D = 1.0–1.71 for
-plate-like tumbling fragments. C_shape = 0.90 has no direct source at all and
-remains an engineering estimate (see the §4 provenance note). Neither
-`DragParams` in `src/arty/fragmentation.py` nor the lethal-density-field
-`derivation.md` currently records this provenance; the §4 note is the system of
-record.
+*Provenance — resolved in v0.9.0, and still do not conflate two uses of Felix
+et al. (2022).* The citation above sources only the **qualitative** point that
+elongated, edge-on-flying splinters have lower drag (C_D ≈ 0.2–0.4); Felix et
+al. give no baseline drag magnitude at all (their quantitative shape result is a
+1:1.6–1.7 aspect ratio), and the Catovic et al. (2012) drag paper they cite is
+not collected in `doc-reference/`. That distinction is what kept the former
+constants (C_D = 0.65, C_shape = 0.90, combined 0.585) unsourced: 0.65 rested on
+Cunniff (2014, §4; Driels K_d ≈ 0.66) and was disputed by Vigil (SAND92-0243,
+1992, C_D = 1.0–1.71), while C_shape = 0.90 had no source at all. Both are now
+**superseded and sourced** — C_D = 1.28 is DDESB TP-12's supersonic-plateau
+value and C_shape is *derived*, not fitted, from the same source's measured
+ballistic density $k = 2600$ kg/m³ via $C_\text{shape} =
+(\rho_\text{steel}/k)^{2/3}$
+([`updates/mach-dependent-fragment-drag/derivation.md`](updates/mach-dependent-fragment-drag/derivation.md)
+eq. 4, §2). The old 0.585 was not merely unsourced but *geometrically
+impossible* (it implies a fragment 3.2× denser than steel presenting less area
+than a sphere of equal mass, §3 there). This also settles the v0.8.0 mismatch
+between `C_shape` and the Mott prism shape factor $\alpha$: the ordering
+sphere 1.209 < cube 1.500 < the shape-closure prism's tumbling average 1.61 <
+adopted 2.089 is the expected one for an irregular, non-convex-hull-filling
+fragment measured by icosahedron gage, whereas 0.90 sat below even the sphere.
 
-*Addendum — the constant isn't just mis-scaled, it's the wrong functional
-form.* `retardation_coeff` treats the combined drag as one fixed constant per
-shot. Both collected sources say drag on this fragment population is
-velocity-dependent, not constant: SAND92-0243 states directly that "the drag
-coefficient can vary between 1.2 and 1.7" with velocity
-(`doc-reference/ww2-shells/sandia-sand92-0243/index.md`, L211-212), and DDESB
-TP-12's own $C_D$-vs-Mach curve (Fig. 3) sweeps from $\approx$1.08 subsonic to
-a $\approx$1.40 transonic peak before settling to $\approx$1.28 supersonic
-(`doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md`,
-lines 11-16). A calibration check
-(`experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md`)
-confirmed the practical consequence: substituting any single constant in the
-1.2-1.7 range shrinks the velocity-decay mismatch against the 1944 Ordnance
-Dept. source (`b-vs-range.qmd`) but cannot close it uniformly
-across the three calibers checked (75/105/155mm) or across range within one
-caliber — the residual rises then falls with range for 75mm/155mm and never
-turns over for 105mm. Closing this needs a velocity- or range-dependent drag
-term in `retardation_coeff`, not a bigger constant; not implemented here.
+*What remains open* — carried from that update's own limitations
+([`derivation.md`](updates/mach-dependent-fragment-drag/derivation.md) §7), not
+re-opened here:
 
-*Addendum — `C_shape` and the Mott shape factor $\alpha$ now describe the same
-fragment, and disagree.* Since v0.8.0 the mass closure asserts an explicit
-elongated prism (75 mm M48: 9.39 × 5.87 × 3.67 mm, aspect 1:1.6), so the
-presented area implied by the *size* model can be checked against the one the
-*drag* model assumes. Using Cauchy's theorem (orientation-averaged projected
-area = S/4), the tumbling-average $C_\text{shape}$ is **1.61** for that prism
-and **1.50** for a cube of equal mass, against the coded **0.90**
-(`fragmentation.py`, `DragParams`). Two consequences: (a) adopting the prism
-does **not** create a material new inconsistency — prism and cube differ by
-only 8 % in tumbling-average area, so the factor ≈1.7 gap to 0.90 pre-exists
-this change and is unaffected by it; (b) that gap points the *same* way as the
-velocity-decay residual above — the model under-decelerates fragments.
-`C_shape` was deliberately left at 0.90 in v0.8.0: raising it inside a
-mass-closure change would fold a drag correction into it and make the Tolch and
-Ordnance-1944 residuals un-attributable. The two constants should be revised
-together, against velocity data, in a dedicated drag update
-(`updates/mott-fragment-shape-closure/derivation.md` §8). A code-path trace
-confirms this independently: `retardation_coeff` never calls `mott_params` in
-any production or check-script path, so the shape-closure fix cannot affect
-the drag-coefficient calibration check's result regardless of the fix's own
-correctness (`challenges/drag-gap-1944/shape-closure-orthogonality.md`).
+- **L1 — Tolch's absolute perforating count still over-predicts ~4–6×, and this
+    is not attributed to drag.** Tolch (1938) is a *compound* test (drag × Mott
+    spectrum × a fitted energy threshold × a perforate/not model), so its
+    residual is not attributable to the retardation law; the Ordnance velocity
+    anchor, which exercises retardation alone, is followed instead. Do not
+    re-litigate this by re-fitting drag — the discriminating test is an
+    independent (THOR-type) perforation model.
+- **L2 — arrival-Mach < 0.7 velocities remain unclosed by any admissible drag
+    law.** At the longest 75 mm/155 mm stations the *required* combined constant
+    falls to 1.76–2.07 (implied C_D below the subsonic plateau of 1.08), and even
+    a full Mach-dependent Fig-3 integration under-predicts velocity up to 2.4×.
+    Free-fall terminal velocity is 20–23 m/s against 117–154 m/s observed, so
+    gravity is not the explanation. These arrivals are already below the casualty
+    threshold, so this sits outside the fidelity bar.
+- **L3 — the drag anchor does not close `challenges/drag-gap-1944/`.** It cuts
+    far-field lethal counts ~3× and narrows the *B(r)* over-prediction to
+    ~1.9–5.3×, but the residual must be sought in the count chain, the spray/belt
+    geometry, or the *B(r)* reduction itself — **not** in further drag increases:
+    the geometric envelope leaves at most ~10 % of headroom above 2.674 before
+    the fragment must be denser than a solid steel cube.
+
+A Mach-dependent $C_D(M)$ — the fix the pre-v0.9.0 text called for, on the
+grounds that the decay curve had the wrong *shape* rather than the wrong scale —
+was implemented as a trajectory integration over the digitized TP-12 Fig-3 curve
+and **rejected on evidence**: it scores no better than the corrected constant on
+the same 1944 Ordnance data, which is the source's own recommendation
+(`derivation.md` §5). The wrong-shape reading was an artefact of sweeping only
+the 1.2–1.7 band, which stops short of the geometrically admissible constant.
 
 **8 · Lethality model assumes no protection and open ground.**
 The ES-310 Pk|hit curve (FAS/Navy 1998) is calibrated for standing unprotected
@@ -343,3 +347,24 @@ WD-series chemistry table. Three related residues from the same derivation
   cancel. $R_{50}$ is in fact non-monotone in $\gamma$ with a broad maximum
   essentially *at* the adopted $\gamma = 47$. Read grade effects on fragment
   *count and mass distribution*, not on lethal radius.
+
+**14 · Check 5b's lethality-criterion half is an open discrepancy, not a
+pass (v 0.9.0).**
+[Check 5b](_validation.qmd) (3.5 g fragment at 61 m, British WW2
+weight-of-fire, 50% lethality) splits into two independent halves because the
+source's lethality criterion and the model's ES-310 `Pk|hit` curve are not the
+same scale (limitation 11). The **kinematic** half — retained KE against the
+source's own 58 ft-lb (78.6 J) marginal-lethality energy — passes to a
+factor-of-2 band under the v0.9.0 drag anchor
+(`updates/mach-dependent-fragment-drag/derivation.md` §5). The **criterion**
+half does not: ES-310 reads 0% against the source's 50%, an 11.6× stricter
+scale (ES-310 half-kill at 1 kJ vs. the source's 78.6 J), and is reported, not
+asserted, rather than tuned away. The pre-v0.9.0 model appeared to pass this
+check, but by compensating error: the superseded drag constant (combined
+0.585) gave a retardation length 4.5× too long, holding the fragment at 834 J
+— 10.6× the historical criterion — which happened to land near ES-310's 1 kJ
+half-kill point (`updates/mach-dependent-fragment-drag/checks/check5b-drag-spotcheck.py`).
+Closing this needs either a documented ES-310-to-source criterion mapping or
+an independent source for the 50%-lethality energy threshold itself; neither
+exists in `doc-reference/` today. No shipped parameter depends on this check
+passing — it is a spot-check, not a calibration target.

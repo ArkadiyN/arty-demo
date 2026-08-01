@@ -113,18 +113,37 @@ assert m_min_far == 2.0, f"expected m_hi=2.0 at extreme range, got {m_min_far}"
 print("  ✓ returns m_hi at extreme range (no lethal fragments)")
 ```
 
-### Check 5b: Historical spot-check — 3.5 g fragment at 61 m → Pk ≈ 50%
+### Check 5b: Historical spot-check — 3.5 g fragment at 61 m (British WoF 1944)
 
-A British WW2 source states that a fragment of 1/8 oz (~3.5 g) or more has a 50%
-probability of being lethal at 200 feet (~61 m) from the point of burst, given a hit
-on a vital organ. This is a conditional probability — Pk|hit, exactly what our model
-computes. We verify this at ground burst (hb ≈ 0, AoF = 0°, cross-range y = 61 m)
-using the standing-target geometry.
+The British WW2 weight-of-fire summary
+([`britishartillery-wt-of-fire`](../../doc-reference/wound-ballistics/britishartillery-wt-of-fire/britishartillery-wt-of-fire.md),
+"50% Lethality Criterion") states that a fragment of **1/8 oz (3.5 g) or more had 50%
+probability of lethality at 200 feet (61 m)** when striking vital organs. This is an
+*independent* datum — it is not part of the 1944 US Ordnance velocity-decay set the
+drag constants were anchored to
+([`updates/mach-dependent-fragment-drag/derivation.md`](updates/mach-dependent-fragment-drag/derivation.md)
+§5) — so it is not re-banded to match the model. Note the same source's extraction
+renders "1/8 oz" as "~28 grams"; 1/8 oz is **3.54 g** (28 g is a full ounce), and the
+oz figure is taken as authoritative.
+
+The datum is a *statement about lethality*, so reading it requires a lethality
+criterion, and the same source supplies two that differ by 11.6×: 5 ft-lb (6.8 J,
+British) and an earlier 58 ft-lb (78.6 J). The model's ES-310 Pk|hit curve is a third,
+far stricter scale (50% at 1 kJ — limitation 11). We therefore check the two halves
+separately:
+
+1. **Kinematics** (drag + Gurney velocity, what this model actually predicts): the
+     retained KE at 61 m against the source's own 58 ft-lb marginal-lethality energy,
+     to a factor-of-2 band — the same tolerance Check 7 uses.
+1. **Criterion mapping**: the ES-310 Pk|hit is *reported, not asserted*. It reads 0%,
+     which is an open discrepancy against the historical "50%" and is logged as
+     limitation 14 rather than tuned away.
 
 ```{python}
-# Check 5b — historical spot-check: 3.5 g fragment at 61 m
+# Check 5b — historical spot-check: 3.5 g fragment at 61 m (British WoF 1944)
 m_ref   = 3.5e-3          # kg  (1/8 oz)
 s_ref   = 61.0            # m   (200 ft slant range — ground burst, y = 61 m)
+E_ww2   = 78.6            # J   — 58 ft-lb, the source's earlier lethality criterion
 # Use 105 mm M1 default shell params already defined above
 lam_ref = retardation_coeff(np.array([m_ref]), drag, rho_steel)[0]
 V_s     = V0 * np.exp(-lam_ref * s_ref)
@@ -132,11 +151,22 @@ KE_s    = 0.5 * m_ref * V_s**2
 Pk_s    = pk_given_hit(KE_s)
 print(f"3.5 g fragment at {s_ref:.0f} m:")
 print(f"  Retained velocity : {V_s:.1f} m/s")
-print(f"  Kinetic energy    : {KE_s:.1f} J")
+print(f"  Kinetic energy    : {KE_s:.1f} J   ({KE_s/E_ww2:.2f}x the 58 ft-lb criterion)")
+# (1) kinematic half — asserted
+assert 0.5 * E_ww2 <= KE_s <= 2.0 * E_ww2, (
+    f"KE at 61 m = {KE_s:.1f} J outside factor-2 of the 58 ft-lb datum ({E_ww2} J)")
+print("  ✓ PASS — retained KE within factor 2 of the WW2 marginal-lethality energy")
+# (2) criterion half — reported only, NOT asserted (see limitation 14)
 print(f"  Pk|hit (ES-310)   : {Pk_s:.2%}")
-assert 0.35 <= Pk_s <= 0.65, f"Expected Pk ≈ 50%, got {Pk_s:.1%}"
-print("  ✓ PASS — within ±15% of historical 50% datum")
+print("  ! OPEN — ES-310 reads 0% against the historical 50%: a criterion-scale"
+      " mismatch (limitation 11/14), not a drag defect. Do not re-band to force a pass.")
 ```
+
+The pre-v0.9.0 model *passed* the old `0.35 <= Pk <= 0.65` form of this check, but by
+compensating error: the superseded drag constant (combined 0.585) gave a retardation
+length 4.5× too long, holding the fragment at 834 J — 10.6× the historical criterion —
+which happened to land near ES-310's 1 kJ half-kill point. Numbers from
+[`updates/mach-dependent-fragment-drag/checks/check5b-drag-spotcheck.py`](updates/mach-dependent-fragment-drag/checks/check5b-drag-spotcheck.py).
 
 ### Check 7: 1944 Ordnance Dept. B-vs-range data (75mm/105mm/155mm)
 

@@ -1,0 +1,65 @@
+"""Re-runs the Tolch (1938) absolute-perforating-count objection to raising the
+fragment drag constant, using the *post-shape-closure* Mott parameters.
+
+Feeds experiment/fragmentation-field/updates/mach-dependent-fragment-drag/scoping.md
+(section "Does Tolch still veto a higher drag constant?").
+
+Method reproduces challenges/drag-gap-1944/tolch-1938-panel-distance.md Result 2:
+E_thr is the single free parameter, fitted so that the model reproduces Tolch's
+observed Panel A (15 ft) -> Panel D (120 ft) perforation-density ratio 0.557;
+the *absolute* count N(m >= m_thr(15 ft)) is then a prediction, compared with
+Tolch's measured ~700-800 perforations per shell.
+"""
+import numpy as np
+from scipy.optimize import brentq
+
+from arty.shells import SHELLS
+from arty.fragmentation import (
+    DragParams,
+    _shell_geometry,
+    min_lethal_mass,
+    mott_N,
+    mott_params,
+)
+
+FT = 0.3048
+R_A, R_D = 15 * FT, 120 * FT
+RATIO_OBS = 0.557
+TOLCH_PERFORATIONS = 750.0  # "about 700 perforations"; pit test ~803 recovered
+
+SHELL = SHELLS["75mm M48 HE"]
+RHO_S = SHELL.steel.rho
+
+
+def ratio_for(E, c, V0, mu, N0):
+    ma = min_lethal_mass(R_A, V0, E, DragParams(C_D=c, C_shape=1.0), RHO_S)
+    md = min_lethal_mass(R_D, V0, E, DragParams(C_D=c, C_shape=1.0), RHO_S)
+    na = mott_N(np.array([ma]), N0, mu)[0]
+    nd = mott_N(np.array([md]), N0, mu)[0]
+    return nd / na, ma, na
+
+
+def main():
+    m_body = _shell_geometry(SHELL)[3]
+    print(f"75mm M48 HE, shell body {m_body*1e3:.0f} g, rho_steel {RHO_S:.0f}")
+    print("Tolch observed: ~700-800 perforating fragments per shell at 15 ft\n")
+    print(f"{'V0':>7} {'2mu(g)':>7} {'N0':>7} {'C_DC_s':>7} {'E_thr(J)':>9} "
+          f"{'m_thr15(g)':>11} {'N_perf':>8} {'N/obs':>6}")
+    for V0 in (807.5, 838.2, 951.0):
+        mu, N0 = mott_params(SHELL, V0)[:2]
+        for c in (0.585, 1.2, 1.7, 2.20, 2.67):
+            try:
+                E = brentq(lambda e: ratio_for(e, c, V0, mu, N0)[0] - RATIO_OBS,
+                           1e-4, 5e4, xtol=1e-6, rtol=1e-10)
+            except ValueError:
+                print(f"{V0:7.1f} {2*mu*1e3:7.3f} {N0:7.0f} {c:7.3f}  "
+                      f"no bracket")
+                continue
+            _, ma, na = ratio_for(E, c, V0, mu, N0)
+            print(f"{V0:7.1f} {2*mu*1e3:7.3f} {N0:7.0f} {c:7.3f} {E:9.2f} "
+                  f"{ma*1e3:11.4f} {na:8.0f} {na/TOLCH_PERFORATIONS:6.1f}")
+        print()
+
+
+if __name__ == "__main__":
+    main()

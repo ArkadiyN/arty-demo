@@ -30,7 +30,7 @@ pk_given_hit  (ES-310 graded Pk|hit)
 
 compute_frag_field  (1-D radially-symmetric model)
   • P(kill) is monotonically non-increasing with distance from burst.
-  • R₅₀ for default 105mm M1 HE is in the 50–200 m range.
+  • R₅₀ for default 105mm M1 HE is in the 30–80 m range (post drag anchor).
   • field_x, field_y, field_pk arrays all share the same shape.
   • ke_by_mass contains keys for the three representative masses: 0.5, 5, 50 g.
 
@@ -301,8 +301,14 @@ def test_p_kill_monotone():
 
 
 def test_r50_in_expected_range():
+    # Plausibility band, not a golden value. R50 = 46 m at the DoD-1975 drag
+    # anchor (updates/mach-dependent-fragment-drag/derivation.md), consistent
+    # with the ~50 m casualty radius usually quoted for this class of shell.
+    # The band was 50-200 m when combined C_D*C_shape was 0.585, which gave
+    # R50 = 91 m; the upper bound is deliberately set below 91 so that
+    # reverting the drag anchor fails this test.
     result = compute_frag_field()
-    assert 50 <= result.r50 <= 200, f"R50={result.r50:.0f} outside 50–200 m"
+    assert 30 <= result.r50 <= 80, f"R50={result.r50:.0f} outside 30–80 m"
 
 
 def test_field_arrays_consistent_shape():
@@ -411,8 +417,10 @@ def test_airburst_prone_advantage():
 
 
 def test_backward_compat():
+    # Band updated with test_r50_in_expected_range (see comment there) for the
+    # same DoD-1975 drag anchor (updates/mach-dependent-fragment-drag/derivation.md).
     result = compute_frag_field()
-    assert 50 <= result.r50 <= 200
+    assert 30 <= result.r50 <= 80
 
 
 def test_cross_range_no_gap():
@@ -503,7 +511,7 @@ def test_ke_at_range_linear_in_mass():
 
 
 def test_min_lethal_mass_returns_m_hi_when_all_sub_lethal():
-    # m_hi=0.1g at 50m with E_leth=500J: KE≈7J < 500J → all fragments sub-lethal → return m_hi
+    # m_hi=0.1g at 50m with E_leth=500J: KE << 500J → all fragments sub-lethal → return m_hi
     shell = ShellParams()
     V0 = gurney_velocity(shell)
     m_hi = 1e-4

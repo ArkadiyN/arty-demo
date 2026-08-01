@@ -106,7 +106,10 @@ with st.sidebar:
 
         with st.expander("Drag"):
             C_D = st.slider(
-                "C_D (drag coefficient)", 0.40, 0.90, float(DragParams().C_D), step=0.01
+                "C_D (drag coefficient)", 0.40, 1.50, float(DragParams().C_D), step=0.01,
+                help="DoD-1975 Fig. 3: subsonic plateau ~1.08-1.10, transonic "
+                     "peak ~1.40 near Mach 1.2-1.4, supersonic asymptote 1.28 "
+                     "(the constant this model uses, per derivation §5).",
             )
             C_shape = st.slider(
                 "C_shape (presented-area shape factor)", 0.50, 3.00,
