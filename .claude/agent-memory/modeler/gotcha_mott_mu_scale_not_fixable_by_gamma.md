@@ -5,7 +5,7 @@ metadata:
   type: project
 ---
 
-`mott_params` under-predicts fragment mass (mu ~4-15x too small vs Tolch 1944
+`mott_params` under-predicts fragment mass (mu ~4-15x too small vs Tolch 1938
 pit screens). The reflex is to re-pick `gamma`/`sigma_f`. **Don't** — it is
 arithmetically impossible: `mu ∝ (sigma_f/gamma)^1.5`, so 10x on mu needs 4.6x
 on the ratio (sigma_f ~3.7 GPa or gamma ~14), far outside Mott's gamma = 42-67

@@ -332,6 +332,42 @@ wrong. Closing it fully needs a velocity- or range-dependent drag term in
 `retardation_coeff`, which is out of scope for this notebook; logged as a
 limitation (`_limitations.qmd` §7 addendum).
 
+**Follow-up (v0.9.0): drag anchored to the DoD-1975 ballistic density,
+narrows the gap but does not close it.**
+[`updates/mach-dependent-fragment-drag/`](../../updates/mach-dependent-fragment-drag/)
+resolved the "velocity-dependent, not a simple constant" framing above the
+other way: a Mach-dependent $C_D(M)$ integrated along each trajectory
+([`scoping.md`](../../updates/mach-dependent-fragment-drag/scoping.md) §3a,
+§4 option 3) was tested against the digitized TP-12 Fig. 3 curve and
+**rejected** — it does not beat a single corrected constant on the 1944
+Ordnance velocity data. Instead, `DragParams` now derives $C_\text{shape}$
+from TP-12's own ballistic density $k$ rather than treating it as a free
+shape estimate ($C_\text{shape} = (\rho_\text{steel}/k)^{2/3}$,
+[`derivation.md`](../../updates/mach-dependent-fragment-drag/derivation.md)
+eq. 4), giving combined $C_D \cdot C_\text{shape} = 2.674$ (from 0.585, a
+4.6× increase — the old value was not merely low but geometrically
+impossible, implying a fragment denser than solid steel). Re-running this
+notebook's own $B(r)$ ratio at the new default against the prior
+(post-shape-closure, pre-anchor) baseline
+([`checks/b-vs-range-drag-attribution.py`](checks/b-vs-range-drag-attribution.py)):
+
+| Shell | Ratio range, pre-anchor | Ratio range, v0.9.0 | Far-field reduction |
+| --- | --- | --- | --- |
+| 75 mm M48 HE | ~3.8x – 27.3x | ~2.7x – 5.3x | 6.7x |
+| 105 mm M1 HE | ~2.7x – 14.7x | ~2.3x – 3.4x | 4.8x |
+| 155 mm M107 HE | ~2.1x – 9.3x | ~1.9x – 3.9x | 3.0x |
+
+(The "pre-anchor" column is the model as of v0.8.0 — already reduced from the
+original ~7x–34x reported above by the intervening Mott shape-closure fix,
+which changed fragment mass, not drag.) The gap narrows substantially at long
+range but is not closed: a residual ~2–5x over-prediction remains at every
+range for all three shells, still outside the $[0.5\times, 2\times]$ band.
+Per `derivation.md` §7 (L3), the admissible envelope for `C_D \cdot
+C_\text{shape}` leaves at most ~10% more headroom before the fragment would
+have to be denser than solid steel, so this residual cannot be closed by a
+further drag increase — it must be sought elsewhere in the model (the count
+chain, spray/belt geometry, or the $B(r)$ reduction formulation itself).
+
 ### Qualitative damage-pattern-shape note (§3.4/§4)
 
 A full comparison against the card's damage-pattern figures (Figs. 67-73,

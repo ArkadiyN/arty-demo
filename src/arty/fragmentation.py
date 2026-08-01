@@ -142,11 +142,53 @@ class ShellParams:
     breadth_factor: float = _MOTT_BREADTH_FACTOR  # kappa_x = x_bar/x0, breadth in fracture spacings [-]
 
 
+# ---------------------------------------------------------------------------
+# Fragment retardation constants (updates/mach-dependent-fragment-drag/derivation.md)
+# ---------------------------------------------------------------------------
+# DoD-1975 "Fragment and Debris Hazards" (TP-12), "Ballistic Properties",
+# doc-reference/fragmentation/dod-1975-fragment-debris-hazards/
+# 10-F-0806_Fragment_and_Debris_Hazards.md, closes the presented area A of a
+# fragment of mass m through the *ballistic density* k:  m = k A^(3/2)
+# (line 316), measured on recovered fragments. arty instead normalises the
+# presented area by the steel volume, A = C_shape (m/rho_steel)^(2/3), so the
+# two closures are the same law iff
+#
+#     C_shape = (rho_steel / k)^(2/3)                        derivation eq. (4)
+#
+# i.e. C_shape is not a free fudge factor but a restatement of a measured k,
+# and it is meaningless without the rho_steel it is normalised to. rho_steel
+# cancels out of the retardation coefficient when (4) is substituted: fragment
+# drag is set by k alone. Geometric floor: no body presents less area than a
+# sphere of equal volume, so C_shape >= 1.209 (cube = 1.500).
+
+# k, ballistic density for forged steel projectiles and fragmentation bombs
+# [kg/m³]. TP-12 line 321: "the average value of 660 grains/in.3 (2.60 g/cm3)
+# has been recommended". (Demolition bombs would be 2.33 g/cm³.)
+_K_BALLISTIC = 2600.0
+
+# rho_steel the ballistic density is inverted against [kg/m³]. Every shell in
+# arty.shells is 7850; kept explicit so the coupling stays visible if a shell
+# with a different steel density is ever added.
+_RHO_STEEL_REF = 7850.0
+
+
+def c_shape_from_ballistic_density(k: float, rho_steel: float) -> float:
+    """Return arty's shape factor C_shape [-] from ballistic density k [kg/m³] and steel density [kg/m³]."""
+    return (rho_steel / k) ** (2.0 / 3.0)
+
+
 @dataclass(frozen=True)
 class DragParams:
-    C_D: float = 0.65       # drag coefficient, tumbling irregular fragment
-    C_shape: float = 0.90   # presented-area shape factor
-    rho_air: float = 1.225  # air density [kg/m³]
+    # TP-12 line 338-339: "take the drag coefficient as constant at its
+    # supersonic value of 1.28". The Mach dependence of its Fig. 3 does not
+    # beat this constant on the 1944 Ordnance velocity-decay data (derivation §5).
+    C_D: float = 1.28
+    # Presented area per unit (m/rho_steel)^(2/3), derived from the DoD
+    # ballistic density via eq. (4) above -- 2.0890 at k = 2.60 g/cm³,
+    # rho_steel = 7850. Above the cube value (1.500), as an irregular fragment
+    # must be. NOT a free parameter: changing it asserts a different measured k.
+    C_shape: float = c_shape_from_ballistic_density(_K_BALLISTIC, _RHO_STEEL_REF)
+    rho_air: float = 1.225  # air density [kg/m³], ISA sea level
 
 
 @dataclass(frozen=True)

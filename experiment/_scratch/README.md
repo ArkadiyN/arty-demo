@@ -27,7 +27,7 @@ re-check any of them, the script has to be written again from scratch.
 
 | Lost script                     | Cited by                                                                         |
 | ------------------------------- | -------------------------------------------------------------------------------- |
-| `tolch-panel-distance-check.py` | `fragmentation-field/challenges/drag-gap-1944/tolch-1944-panel-distance.md`      |
+| `tolch-panel-distance-check.py` | `fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`      |
 | `mott_scale_check.py`           | `fragmentation-field/challenges/mott-scale-gap/_scale_verdict_ledger.md`         |
 | `mott_shape_closure.py`         | `fragmentation-field/updates/mott-fragment-shape-closure/{derivation,review}.md` |
 | `bench.py`                      | `fragmentation-field/updates/field-builder-performance/{derivation,review}.md`   |

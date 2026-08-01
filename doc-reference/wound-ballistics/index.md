@@ -145,7 +145,7 @@ ______________________________________________________________________
 **Year:** 1944 (declassified)\
 **Type:** Technical Military Report / Experimental Ballistics Data\
 **Source:** Ballistic Research Laboratory Report, US Army Proving Ground\
-**File:** `/doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/`
+**File:** `/doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/`
 
 **Summary:** Direct measurement of fragment density (hits per unit solid angle) as a function of remaining shell velocity, distance, and angular sector for 75mm M48 shell via semi-circular wood panel firings. Independent second source on the same shell already covered in Ordnance Dept (1944) entry #4, but provides raw fragment-density data parameterized by velocity (700–2,130 f/s) rather than casualty-weighted effective-hits tables. Demonstrates sharp velocity-dependence: base-spray density collapses ~93% from static to 2,130 f/s (opposing velocity suppression), while nose-spray density rises substantially with velocity (additive velocity effect). Uniquely captures fragment spatial and velocity distribution for velocity-decay model calibration.
 
@@ -176,7 +176,7 @@ ______________________________________________________________________
 **Fragment Damage Patterns & Effective Hits:**
 
 - US Ordnance Dept (1944) — Tables 43, 51, 59; B-value tables 20–400 ft; damage pattern figures for three project-matched shells
-- Tolch (1944) — Fragment density (hits/u.s.a.) vs. remaining velocity for 75mm M48; velocity-dependent spatial distribution; base/side/nose spray decomposition
+- Tolch (1938) — Fragment density (hits/u.s.a.) vs. remaining velocity for 75mm M48; velocity-dependent spatial distribution; base/side/nose spray decomposition
 - British Artillery WoF (1944) — Fire intensity; casualty-production scaling
 
 **Fragment Lethality & Casualty Production:**
@@ -184,7 +184,7 @@ ______________________________________________________________________
 - British Artillery WoF (1944) — Casualty risk factors by posture; fire intensity thresholds; optimal fragment mass
 - FAS ES-310 (1998) — Damage criteria table, Pk thresholds
 - US Ordnance Dept (1944) — 58 ft-lb casualty threshold; range-dependent effectiveness data
-- Tolch (1944) — Velocity-dependent fragment marking ability; base-spray density collapse (93% at 2,130 f/s); nose-spray expansion (Panel B ~11× at 2,130 f/s)
+- Tolch (1938) — Velocity-dependent fragment marking ability; base-spray density collapse (93% at 2,130 f/s); nose-spray expansion (Panel B ~11× at 2,130 f/s)
 
 **Human Vulnerability & Pk|hit:**
 
@@ -211,7 +211,7 @@ ______________________________________________________________________
 
 - British Artillery WoF (1944) — Empirical data from North Africa, Italy, Northwest Europe, Burma
 - US Ordnance Dept (1944) — Experimental ballistics data from Army and Navy proving grounds
-- Tolch (1944) — Velocity-dependent fragmentation data for 75mm M48 shell from ballistic research trials
+- Tolch (1938) — Velocity-dependent fragmentation data for 75mm M48 shell from ballistic research trials
 
 **1990s–2000s:**
 

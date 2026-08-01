@@ -1,4 +1,4 @@
-# Tolch (1944) 75mm M48 panel tests — is this an independent check on the drag gap?
+# Tolch (1938) 75mm M48 panel tests — is this an independent check on the drag gap?
 
 Assessment only (no `src/arty/` changes). Asks whether N.A. Tolch's panel-test
 fragment-density data corroborate, contradict, or extend the
@@ -6,7 +6,7 @@ fragment-density data corroborate, contradict, or extend the
 `initial-conditions-{75,105,155}mm.md` and
 `drag-coefficient-calibration.md`.
 
-Source: `doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/tolch-1944.md`.
+Source: `doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md`.
 
 ______________________________________________________________________
 
@@ -16,7 +16,7 @@ The card's framing (`card.md`, "Velocity-Dependence Summary" and "Drag Model
 Relevance") invites reading Tolch's velocity axis as a fragment-decay
 measurement. It is not. Tolch's "average remaining velocity when burst" is the
 **shell's** remaining velocity at the burst point
-([tolch-1944.md:790–800](../../../../doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/tolch-1944.md), firing-conditions table),
+([tolch-1938.md:790–800](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md), firing-conditions table),
 swept 0 (static) → 2,130 f/s by varying the firing charge/range. The panel
 radius is held fixed while that axis is swept.
 
@@ -48,10 +48,10 @@ ______________________________________________________________________
 ## Finding 2 — Tolch *does* contain a usable, independent drag observable
 
 The report's other axis is **panel radius**: four concentric semicircular
-1"-spruce panels at **15, 36, 75, and 120 ft** ([line 335](../../../../doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/tolch-1944.md)),
+1"-spruce panels at **15, 36, 75, and 120 ft** ([line 335](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md)),
 built in concentric pairs so two distances are sampled on the *same round*.
 Tolch frames the resulting density falloff as a drag measurement in as many
-words ([line 804](../../../../doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/tolch-1944.md)):
+words ([line 804](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md)):
 
 > "Since the fragments lose velocity in flight due to air resistance, their
 > ability to mark the panels decreases with the distance. […] In order to
@@ -73,7 +73,7 @@ the model's `v_model/v_source` ratio already runs 1.3–2.6× (75mm).
 
 ### The data (static firing, side spray, averaged over 76–111° from nose)
 
-Table at [tolch-1944.md:815 ff](../../../../doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/tolch-1944.md)
+Table at [tolch-1938.md:815 ff](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md)
 (OCR of a degraded page; digits cross-checked against the report's own summary
 paragraph and against §Summary item 1 at line 1673, both of which agree):
 
@@ -95,7 +95,7 @@ Cross-checks that validate this OCR:
     1.6 vs 1.83 for Panel C is a rounding/transcription slip in the source's own
     summary, not in the table).
 - Totals column reproduces the separately-typeset totals table
-    ([line 838](../../../../doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/tolch-1944.md)): 4.85 / 3.89 / 1.83 / 1.52. ✓
+    ([line 838](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md)): 4.85 / 3.89 / 1.83 / 1.52. ✓
 
 The **perforation** row is the one to use: a perforation is a hard, monotone
 velocity/energy threshold ("travels completely through the [1" spruce] panel",
@@ -282,7 +282,7 @@ ratio) and is out of scope here.
     energy *per presented area*; using $E$ alone biases $m_{thr}$ somewhat, but
     not by the 1–2 orders of magnitude separating the drag candidates.
 - Gravity drop and ground ricochet, which Tolch notes also remove far-panel
-    hits ([line 804](../../../../doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/tolch-1944.md)),
+    hits ([line 804](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md)),
     are neglected. Both *add* far-panel loss, so ignoring them makes the model's
     required drag an over-estimate — i.e. it biases toward the high-drag
     candidates, and they are rejected anyway. Conservative for this verdict.

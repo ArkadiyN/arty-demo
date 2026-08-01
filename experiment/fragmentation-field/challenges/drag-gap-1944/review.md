@@ -159,3 +159,82 @@ correction to prose in two files.
     project's default lethal-energy threshold (1000 J, ES-310 anchor) with the
     card's own literal 58 ft-lb (≈78.6 J) casualty definition, sourced from
     `card.md`, to match the historical comparison.
+
+______________________________________________________________________
+
+# Review: `shape-closure-orthogonality` (does the Mott shape-closure fix bear on the drag-calibration check?)
+
+**Reviewed:** `shape-closure-orthogonality.md`,
+`src/arty/fragmentation.py` (current, and the `b12f553` diff),
+`checks/drag-coefficient-calibration.py`,
+`drag-coefficient-calibration.md`,
+`initial-conditions-75mm.md`, `src/arty/shells.py`.
+
+## Verdict: PASS
+
+This is a factual dependency-trace claim (not a derivation), so the review
+focused on verifying the trace rather than physical plausibility. Every
+specific claim checked out:
+
+- Line numbers cited (`fragmentation.py:244-269`, `261`, `262`, `263-267`,
+    `268`, `272-279`, `299-306`) match the current file exactly, character for
+    character in content.
+- `retardation_coeff`'s body (lines 272-279) references only `m`, `drag.rho_air`,
+    `drag.C_D`, `drag.C_shape`, `rho_steel` — no `mu`, `N0`, `alpha`, `aspect_ratio`,
+    or `breadth_factor` symbol appears anywhere in its body. Confirmed by reading
+    the function directly, not just the doc's claim about it.
+- The check script (`checks/drag-coefficient-calibration.py`) imports only
+    `SHELLS`, `DragParams`, `retardation_coeff` — no `mott_params` import, no
+    `mu`/`N0` reference anywhere in the file. The `m_oz` arrays are literal,
+    hardcoded floats; spot-checked the 75mm array (`[0.014, 0.063, 0.244]`,
+    `v_fts=[2060, 972, 494]`) against `initial-conditions-75mm.md`
+    line 16 — matches verbatim.
+- `git show b12f553 -- src/arty/fragmentation.py` confirms the shape-closure
+    commit touched only `mott_params` (added `t_bu`, `x0`, `alpha`, `gamma`
+    lines) and a docstring/comment on `STEELS`; `retardation_coeff` and
+    `DragParams` are byte-identical before/after. `git show b12f553 --stat --   src/arty/shells.py` returns empty — the `SHELLS` registry (and hence
+    `shell.steel.rho`, the one `arty` quantity the check script does consume)
+    was untouched by the commit.
+- Checked for any *other* code path that could carry the shape-closure output
+    into `retardation_coeff`'s inputs, beyond what the assessment inspected:
+    grepped the whole repo for `mott_params`/`retardation_coeff` co-occurrence.
+    Found four production sites in `fragmentation.py`
+    (`compute_frag_field` and three others near lines 1268/1381/1458) where
+    both are called in the same function — but in every one, the masses passed
+    to `retardation_coeff` are either the field's own mass grid (`m_grid`,
+    for the KE/lethality field, independent of `mu`) or a fixed literal
+    representative-mass list (`rep_masses_g = [0.5, 5.0, 50.0]`, `line 440`),
+    never a value derived from `mu`/`N0`. So even a codebase-wide check (a
+    broader claim than the assessment attempted) turns up no path from the
+    shape-closure output to any `retardation_coeff` call, production or
+    check-script. This strengthens, not weakens, the assessment's conclusion.
+- The doc's "current (0.585)" figure matches `DragParams`'s live defaults
+    (`C_D=0.65`, `C_shape=0.90`, product 0.585) — no drift.
+- A related, earlier scratch script (`checks/shape-closure-orthogonality.py`,
+    docstring: *"mu/N0 do not enter retardation_coeff"*) independently states
+    the same finding — consistent corroboration, not a conflicting result.
+
+No gap in the trace was found: the assessment's scope (this specific check)
+is correctly bounded, and a broader repo-wide search (beyond what the
+assessment itself checked) turns up the same answer.
+
+## Findings
+
+None — no Blocking, Deferrable, or Note-level issues.
+
+## Verified independently
+
+- Re-read `mott_params`, `retardation_coeff`, `compute_frag_field` and all
+    other `mott_params`+`retardation_coeff` co-occurrence sites directly from
+    `src/arty/fragmentation.py`.
+- Diffed `b12f553` against `src/arty/fragmentation.py` and confirmed
+    `src/arty/shells.py` was untouched.
+- Re-read `checks/drag-coefficient-calibration.py` in
+    full; confirmed no `arty` import beyond `SHELLS`, `DragParams`,
+    `retardation_coeff`.
+- Cross-checked the 75mm literal data triple against its cited source check
+    file.
+
+## What to log
+
+Nothing — no limitation or correction to log for this artifact.
