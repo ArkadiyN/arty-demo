@@ -16,12 +16,12 @@ demonstration. Three sub-models are integrated:
   see the [gravity-omission assessment](challenges/gravity-ke/gravity.html) for the governing
   equations and numbers; beyond ~250 m gravity would dominate, but the field is already
   sub-lethal there.
-- Uniform azimuthal spray: fragments are spread uniformly in 360° around the burst point.
-  This is accurate only if the shell detonates with its **axis vertical** (90° angle of fall,
-  i.e. pure plunging fire). At shallower angles of fall — typical of field artillery at
-  medium ranges (angle of fall ≈ 10°–50°) — the pattern becomes an ellipse elongated along
-  the line of fire, with more fragments projected forward and aft than to the sides. The
-  angle-of-fall correction is deferred to a later model iteration.
+- Angle-of-fall-dependent spray is implemented, not deferred: fragments emit uniformly in
+  azimuth within the shell's own frame (Mott isotropic break-up), and the shell-axis tilt at
+  angle of fall < 90° projects that into a forward/aft-elongated ground footprint — the
+  four-zone Family-A geometry (`_four_zone_familyA_eval`). What remains open is validation:
+  no AoF-resolved empirical fragment-density-vs-azimuth data has been found to check the
+  predicted lobe shape against — see `_limitations.qmd`.
 - Shell dimensions and mass are fully used: caliber and wall thickness drive the break-up
   radius → Mott half-mass; shell mass and filler mass drive the Gurney M/C ratio → initial
   velocity.
