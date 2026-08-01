@@ -137,7 +137,11 @@ velocity-decay residual above — the model under-decelerates fragments.
 mass-closure change would fold a drag correction into it and make the Tolch and
 Ordnance-1944 residuals un-attributable. The two constants should be revised
 together, against velocity data, in a dedicated drag update
-(`updates/mott-fragment-shape-closure/derivation.md` §8).
+(`updates/mott-fragment-shape-closure/derivation.md` §8). A code-path trace
+confirms this independently: `retardation_coeff` never calls `mott_params` in
+any production or check-script path, so the shape-closure fix cannot affect
+the drag-coefficient calibration check's result regardless of the fix's own
+correctness (`challenges/shape-closure-vs-drag-calibration-orthogonality-check.md`).
 
 **8 · Lethality model assumes no protection and open ground.**
 The ES-310 Pk|hit curve (FAS/Navy 1998) is calibrated for standing unprotected
