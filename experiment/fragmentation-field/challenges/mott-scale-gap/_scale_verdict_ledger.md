@@ -2,9 +2,9 @@
 
 Working notes for the pass answering the user's "that seems extreme. How is the
 existing number selected and why?" against
-`tolch-1944-panel-distance-drag-check.md` Result 3. No `src/arty/` changes.
+`../drag-gap-1944/tolch-1944-panel-distance.md` Result 3. No `src/arty/` changes.
 
-Inputs: `_mott_params_provenance_note.md`, `_validation.qmd` Check 3,
+Inputs: `_params_provenance_note.md`, `_validation.qmd` Check 3,
 `doc-reference/wound-ballistics/tolch-1944-m48-panel-pit-fragmentation/tolch-1944.md`,
 `doc-reference/fragmentation/gurney-equations-fragmentation/rspa.1947.0042.md`.
 Script: `experiment/_scratch/mott_scale_check.py`.
@@ -105,6 +105,6 @@ with no re-tuning of γ or σ_f.
 μ too small / N₀ too high means the model breaks the shell into ~4–12× too
 many fragments, each ~4–15× too light. That inflates hit counts while
 shortening per-fragment reach — the same signature as the 7–33× B(r)
-over-prediction in `ordnance-1944-b-vs-range.md`, and it is confounded with
+over-prediction in `../drag-gap-1944/b-vs-range.md`, and it is confounded with
 the drag gap. Confirms the Tolch challenge's closing recommendation: fix the
 Mott scale **before** any further drag calibration.

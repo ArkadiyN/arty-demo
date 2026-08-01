@@ -15,6 +15,6 @@ drop-in values.
 
 **How to apply:** treat as root-cause-traced already — next step is a
 derivation pass recalibrating the retardation law, not a fresh hypothesis
-search. See `experiment/fragmentation-field/challenges/ordnance-1944-b-vs-range.qmd`
-and the per-caliber `ordnance-1944-initial-conditions-check-*.md` /
+search. See `experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range.qmd`
+and the per-caliber `initial-conditions-*.md` /
 `review.md` for the full validation record.

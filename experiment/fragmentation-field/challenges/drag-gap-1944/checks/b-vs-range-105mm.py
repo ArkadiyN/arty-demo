@@ -1,29 +1,28 @@
 """Check: does Family B (four_zone_lethal_density_field) reproduce the 1944
-Ordnance Dept. B-vs-range casualty data for the "155mm M107 HE" shell,
+Ordnance Dept. B-vs-range casualty data for the "105mm M1 HE" shell,
 ground-burst geometry?
 
-See experiment/fragmentation-field/challenges/ordnance-1944-b-vs-range.md
+See experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range.md
 for the reduction formula (Section 2) and study plan (Section 3). Mirrors
-experiment/fragmentation-field/_scratch/ordnance-1944-check-105mm.py, adapted
-for the 155mm shell.
+experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-75mm.py, adapted
+for the 105mm shell.
 
-Data source note: "155-MM N.E. SHELL, M107" (OCR mangles "H.E." as "N.E.") at
-ordnance-1944.md lines 874-907 (page 131), interleaved row-by-row with
-"TABLE 60" (perforation of 1/8-in. mild steel) from the same two-column OCR
-scan, exactly as found for the 75mm/105mm table pairs. Here the header block
-itself is scrambled too -- the table-number lines read "TABLE 60" then
-"TABLE 59" (line 877-878), i.e. reversed relative to the "CASUALTIES" /
-"PERFORATION..." lines that follow (879-880) -- so table numbering order is
-not trustworthy; column identity is resolved from the data alone. The two
-interleaved r-grids are: {20,30,40,60,80,100,150,200,300,400,600} (max range
-600 ft) and {20,30,40,60,80,100,120,140,170,200,300,400} (max range 400 ft).
-Per the scoping doc, the 155mm casualties table's max range is ~400 ft, which
-identifies the second grid as TABLE 59 CASUALTIES; the first (600 ft) grid is
-TABLE 60 PERFORATION. Cross-check: at every one of the 9 ranges shared by both
-grids (20-400 ft), B_casualties <= B_perforation and both columns are
-independently monotonically non-increasing in B and monotonically increasing
-in m -- unlike the 105mm case, no single-row transposition is present here
-(all rows are internally consistent), so no correction is needed.
+Data source note: "TABLE 51 CASUALTIES" / "105-MM H.E. SHELL, M1" is at
+ordnance-1944.md lines 725-759 (page 133), interleaved row-by-row with
+"TABLE 52" (perforation of 1/8-in. mild steel) from the same two-column OCR
+scan, exactly as found for the 75mm Table 43/44 pair. The two tables have
+different range grids (casualties: 20-300 ft in 11 rows; perforation:
+20-500 ft in 11 rows) that happen to coincide at every r <= 100 ft, which
+identifies the columns: casualties is the column with max range 300 ft
+(matching this shell's ~300 ft max range per the scoping doc), monotonically
+non-increasing B, and B_casualties <= B_perforation at each shared r -- all
+of which hold except at r=100 ft, where the two columns' (N, B, m, v)
+values are transposed in the raw scan (a one-row column swap: without the
+swap, B_casualties(.0070) > B_perforation(.0037), the sole violation of the
+casualties<=perforation and increasing-effective-mass-with-range trends
+elsewhere in both tables). Corrected here by swapping in the perforation
+column's r=100 row (N=470, B=.0037, m=.192, v=1550) for the casualties
+table's r=100 entry, restoring both trends.
 """
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
@@ -38,15 +37,15 @@ FT2_PER_M2 = 1.0 / FT_TO_M**2  # multiply rho_L [m^-2] by FT_TO_M**2 to get ft^-
 FT_LB_TO_J = 1.3558179483314004
 E_LETH_58FTLB_J = 58.0 * FT_LB_TO_J  # ~78.6 J
 
-# Table 59 (CASUALTIES), "155-MM H.E. SHELL, M107", ordnance-1944.md lines 874-907
-# (r [ft], B [effective fragments / sq ft]) -- transcribed from the 400-ft-max-range
-# interleaved column, see module docstring.
-CARD_R_FT = np.array([20, 30, 40, 60, 80, 100, 120, 140, 170, 200, 300, 400], dtype=float)
+# Table 51 (CASUALTIES), "105-MM H.E. SHELL, M1", ordnance-1944.md lines 725-759
+# (r [ft], B [effective fragments / sq ft]) -- transcribed with the r=100 column-swap
+# fix, see module docstring.
+CARD_R_FT = np.array([20, 30, 40, 60, 80, 100, 120, 140, 170, 200, 300], dtype=float)
 CARD_B = np.array(
-    [0.247, 0.104, 0.0547, 0.0209, 0.0102, 0.0057, 0.0036, 0.0024, 0.0014, 0.0009, 0.0002, 0.0001]
+    [0.194, 0.0816, 0.0424, 0.0155, 0.0071, 0.0037, 0.0022, 0.0014, 0.0007, 0.0004, 0.0001]
 )
 
-SHELL_NAME = "155mm M107 HE"
+SHELL_NAME = "105mm M1 HE"
 H_B = 0.0  # ground burst
 DELTA_DEG = 15.0
 N_GRID = 121

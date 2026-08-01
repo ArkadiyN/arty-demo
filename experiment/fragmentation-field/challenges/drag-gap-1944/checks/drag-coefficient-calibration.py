@@ -57,7 +57,7 @@ def run(label, shell_name, v0_src_fts, r_ft, m_oz, v_fts):
 
 if __name__ == "__main__":
     # 75mm M48 HE -- only the 3 range points explicitly quoted in
-    # ordnance-1944-initial-conditions-check-75mm.md (r=20,100,400 ft),
+    # initial-conditions-75mm.md (r=20,100,400 ft),
     # reused verbatim (not re-transcribed from the fuller source table).
     run(
         "75mm M48 HE",
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     )
 
     # 105mm M1 HE -- full Table 51 CASUALTIES (corrected identification),
-    # reused verbatim from ordnance-1944-initial-conditions-check-105mm.md.
+    # reused verbatim from initial-conditions-105mm.md.
     run(
         "105mm M1 HE",
         "105mm M1 HE",
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     )
 
     # 155mm M107 HE -- full corrected Table 59 CASUALTIES, reused verbatim
-    # from ordnance-1944-initial-conditions-check-155mm.md.
+    # from initial-conditions-155mm.md.
     run(
         "155mm M107 HE",
         "155mm M107 HE",

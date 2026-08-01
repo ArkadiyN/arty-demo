@@ -1,7 +1,7 @@
 # Drag-coefficient calibration check — does a higher combined C_D·C_shape close the velocity-decay gap?
 
 Assessment only (no `src/arty/` changes). Follows up the three
-`ordnance-1944-initial-conditions-check-{75,105,155}mm.md` findings, which
+`initial-conditions-{75,105,155}mm.md` findings, which
 all show `retardation_coeff`'s velocity decay several-fold too slow vs. the
 source's own tabulated `(m(r), v(r))` pairs, and flag `DragParams`'s
 `C_D=0.65`/`C_shape=0.90` (combined ≈0.585) as the leading suspect.
@@ -16,7 +16,7 @@ This check calls `arty.fragmentation.retardation_coeff` unmodified, substituting
 `DragParams(C_D=<combined>, C_shape=1.0)` (the function only ever uses the
 product `C_D · C_shape`), against the three calibers' already-tabulated
 `(m(r), v(r), V0)` triples, reused verbatim from the three check files.
-Script: `experiment/_scratch/ordnance-1944-drag-calibration-check.py`.
+Script: `experiment/fragmentation-field/challenges/drag-gap-1944/checks/drag-coefficient-calibration.py`.
 
 Candidates tested: current (0.585), 1.2 (SAND92-0243 low end), 1.7
 (SAND92-0243 high end).

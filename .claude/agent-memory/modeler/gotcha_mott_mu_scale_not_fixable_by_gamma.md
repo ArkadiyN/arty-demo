@@ -26,5 +26,5 @@ alpha ~ 4 covers most of the gap; V0 (terminal Gurney, not break-up) covers the
 rest.
 
 Evidence, fits and numbers:
-`experiment/fragmentation-field/challenges/_mott_scale_verdict_ledger.md` and
-`_mott_shape_closure_check.md` (same dir).
+`experiment/fragmentation-field/challenges/mott-scale-gap/_scale_verdict_ledger.md` and
+`_shape_closure_check.md` (same dir).

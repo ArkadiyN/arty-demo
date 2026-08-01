@@ -634,7 +634,7 @@ but are not this pass's primary subject.
 **Verification method:** read the re-extracted source
 (`rspa.1947.0042.md`, the §3 table and surrounding prose in full, including
 its own "Extraction note" / "Downstream impact" header); ran
-`uv run python experiment/fragmentation-field/updates/wdss1-steel-grade/recompute.py`
+`uv run python experiment/fragmentation-field/updates/wdss1-steel-grade/checks/recompute.py`
 directly (not trusting the derivation's transcription of its output) and
 independently re-derived by hand the local-linear and Newton-quadratic
 interpolants, the C7 alternate-baseline table, the C4 floor-margin
@@ -1007,7 +1007,7 @@ Cross-checked against the specific items the prior re-review (F13–F21 above)
 left open.
 
 **Verification method:** read every hunk of the diff in full; ran
-`uv run python experiment/fragmentation-field/updates/wdss1-steel-grade/recompute.py`
+`uv run python experiment/fragmentation-field/updates/wdss1-steel-grade/checks/recompute.py`
 directly and diffed its output against every number quoted in the diff
 (§4 table, C2, C5, C6, C7, C8 all match to reported precision); independently
 evaluated the two C8 points (γ=50, γ=75) that appear in `derivation.md`'s

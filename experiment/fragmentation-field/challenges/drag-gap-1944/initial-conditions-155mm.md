@@ -2,9 +2,9 @@
 
 Investigation only (no `src/arty/` changes). Checks whether the Family B
 over-prediction of B(r) for the 155mm M107 (per
-`ordnance-1944-b-vs-range.qmd`, reported ~14-34x over) traces to an input
+`b-vs-range.qmd`, reported ~14-34x over) traces to an input
 mismatch, repeating the method used for the 75mm M48
-(`ordnance-1944-initial-conditions-check-75mm.md`).
+(`initial-conditions-75mm.md`).
 
 ## Source-stated values (`doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/ordnance-1944.md`)
 
@@ -13,7 +13,7 @@ mismatch, repeating the method used for the 75mm M48
     ("INITIAL FRAGMENT VELOCITY 3,500 F/S", `ordnance-1944.md:876`).
 
 - **Table-identity correction (significant, re-derived here — differs from
-    the b-vs-range.qmd/`_scratch/ordnance-1944-check-155mm.py` transcription):**
+    the b-vs-range.qmd/`checks/b-vs-range-155mm.py` transcription):**
     the page at `ordnance-1944.md:874-907` interleaves two tables row-by-row,
     same as the 75mm/105mm cases, but the "TABLE 60"/"TABLE 59" number labels
     print in reversed order relative to "CASUALTIES"/"PERFORATION..." (lines
@@ -34,7 +34,7 @@ mismatch, repeating the method used for the 75mm M48
         CASUALTIES column**.
     - **Second interleaved column** (r up to 400 ft — the one the scratch script
         used as "Table 59"; B values 0.247, 0.104, 0.0547, ... match
-        `CARD_DATA["155mm M107 HE"]` in `ordnance-1944-b-vs-range.qmd:152-156`)
+        `CARD_DATA["155mm M107 HE"]` in `b-vs-range.qmd:152-156`)
         gives KE ≈ **247.7 ft-lb at r=20** (m=.035 oz, v=2,700 f/s) and **≈1,146
         ft-lb at r=400** (m=1.61 oz, v=856 f/s) — 4-20x the casualty threshold,
         rising with range, not matching 58 ft-lb at all. This is **Table 60,
@@ -82,7 +82,7 @@ mismatch, repeating the method used for the 75mm M48
 - (b) Minimum lethal fragment mass / energy threshold: same as the 75mm/105mm
     checks — `min_lethal_mass()`/`ke_at_range()` bisect on a *given* `E_leth`;
     the b-vs-range challenge passes `E_leth=58 ft-lb ≈ 78.6 J` explicitly
-    (`ordnance-1944-check-155mm.py:37-39`), matching the source's own casualty
+    (`checks/b-vs-range-155mm.py:37-39`), matching the source's own casualty
     criterion (`ordnance-1944.md:309`), not the module's own `E_LETH_DEFAULT`
     (1000 J). Section 1 above already confirmed the corrected Table 59
     CASUALTIES rows satisfy 0.5·m·v² ≈ 58 ft-lb (exactly at r=20 and r=400; the
@@ -138,7 +138,7 @@ source-implied ≈ 0.0592 m⁻¹ at r=20 ft (ratio 4.3×).
 | 600    | 0.402  | 383            | 1,675         | 4.37             | 3.00             |
 
 (Full 11-range table produced by
-`experiment/_scratch/ordnance-1944-155mm-decay-check.py`.)
+`experiment/fragmentation-field/challenges/drag-gap-1944/checks/initial-conditions-155mm-decay.py`.)
 
 Because the `v_model/v_source` ratio *grows with range*, under-decelerated
 model fragments retain increasingly more kinetic energy than real fragments the
@@ -172,7 +172,7 @@ shortfall (wrong-direction fix candidate, smallest of the three calibers);
 whether the 155mm's Gurney inputs (`mass_deductions=1.5` kg estimate) are
 individually accurate — minor next to the order-of-magnitude drag-law gap.
 Note also that, unlike the 105mm case, the 155mm scratch B(r) script
-(`ordnance-1944-check-155mm.py`) uses the *perforation* (Table 60) column as its
+(`checks/b-vs-range-155mm.py`) uses the *perforation* (Table 60) column as its
 `CARD_B` casualties array — the same mislabeling flagged for 105mm (see Section
 1's table-identity correction). Its B(r) over-prediction ratios would need
 re-deriving against the corrected Table 59 CASUALTIES `B(r)` before they can be

@@ -1,7 +1,7 @@
 # 105mm M1 HE — initial-condition check against ordnance-1944.md
 
 Investigation only (no `src/arty/` changes). Repeats the 75mm M48 check
-(`ordnance-1944-initial-conditions-check-75mm.md`) for the 105mm M1 HE shell,
+(`initial-conditions-75mm.md`) for the 105mm M1 HE shell,
 to see whether the same pattern (V0 mismatch direction, threshold match, and
 especially the drag/retardation-coefficient gap) holds here too.
 
@@ -19,7 +19,7 @@ especially the drag/retardation-coefficient gap) holds here too.
     Disambiguated by range grid: Table 51 has 11 rows spanning 20-300 ft,
     Table 52 has 11 rows spanning 20-500 ft — the same identification method
     the sibling 75mm/105mm B(r) scratch scripts already used
-    (`experiment/fragmentation-field/_scratch/ordnance-1944-check-105mm.py`
+    (`experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-105mm.py`
     docstring). That scratch script also documents a known r=100 ft
     column-transposition in the raw scan (casualties and perforation rows
     swapped at that one range) and its correction — reused verbatim here.
@@ -69,7 +69,7 @@ especially the drag/retardation-coefficient gap) holds here too.
 
 **Table-identification correction (found during transcription verification,
 not originally in scope):** the existing repo scratch check
-`experiment/fragmentation-field/_scratch/ordnance-1944-check-105mm.py`
+`experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-105mm.py`
 identifies the CASUALTIES table (Table 51) as the interleaved-row sequence
 with range grid 20-300 ft (11 rows), on the heuristic that this matches the
 shell's "~300 ft max range." That heuristic is **wrong for the 105mm M1**:
@@ -87,7 +87,7 @@ round too: casualties (58 ft-lb) requires much less energy than perforating
 the 20-300 ft sequence** — the opposite of the existing scratch script's
 labeling. This check reuses the source's own Table 51 (energy-validated,
 corrected identification) m(r), v(r) triples below; it does not touch the
-`ordnance-1944-check-105mm.py` B(r) comparison script itself (out of scope —
+`checks/b-vs-range-105mm.py` B(r) comparison script itself (out of scope —
 flagged for a follow-up fix, see Implication below).
 
 ## Comparison
@@ -158,10 +158,10 @@ the drag/retardation law, not confirmed here.
 **Separate, orthogonal finding — flag for follow-up, not fixed here:** the
 Table 51/52 identity swap found while transcribing the source data (see
 "Table-identification correction" above) affects
-`experiment/fragmentation-field/_scratch/ordnance-1944-check-105mm.py`'s
+`experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-105mm.py`'s
 `CARD_B` array, which is built from the *perforation* table (mislabeled as
 casualties) rather than the true Table 51 CASUALTIES. If the main
-`ordnance-1944-b-vs-range.qmd` 105mm comparison sources its card data from
+`b-vs-range.qmd` 105mm comparison sources its card data from
 that same mislabeled sequence, the reported 105mm B(r) over-prediction
 ratios would need re-deriving against the corrected casualties table before
 they can be trusted quantitatively (though the family-wide over-prediction

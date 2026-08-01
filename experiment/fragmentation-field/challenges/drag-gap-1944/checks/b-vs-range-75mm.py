@@ -1,28 +1,31 @@
 """Check: does Family B (four_zone_lethal_density_field) reproduce the 1944
-Ordnance Dept. B-vs-range casualty data for the "105mm M1 HE" shell,
+Ordnance Dept. B-vs-range casualty data for the "75mm M48 HE" shell,
 ground-burst geometry?
 
-See experiment/fragmentation-field/challenges/ordnance-1944-b-vs-range.md
-for the reduction formula (Section 2) and study plan (Section 3). Mirrors
-experiment/fragmentation-field/_scratch/ordnance-1944-check-75mm.py, adapted
-for the 105mm shell.
+See experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range.md
+for the reduction formula (Section 2) and study plan (Section 3).
 
-Data source note: "TABLE 51 CASUALTIES" / "105-MM H.E. SHELL, M1" is at
-ordnance-1944.md lines 725-759 (page 133), interleaved row-by-row with
-"TABLE 52" (perforation of 1/8-in. mild steel) from the same two-column OCR
-scan, exactly as found for the 75mm Table 43/44 pair. The two tables have
-different range grids (casualties: 20-300 ft in 11 rows; perforation:
-20-500 ft in 11 rows) that happen to coincide at every r <= 100 ft, which
-identifies the columns: casualties is the column with max range 300 ft
-(matching this shell's ~300 ft max range per the scoping doc), monotonically
-non-increasing B, and B_casualties <= B_perforation at each shared r -- all
-of which hold except at r=100 ft, where the two columns' (N, B, m, v)
-values are transposed in the raw scan (a one-row column swap: without the
-swap, B_casualties(.0070) > B_perforation(.0037), the sole violation of the
-casualties<=perforation and increasing-effective-mass-with-range trends
-elsewhere in both tables). Corrected here by swapping in the perforation
-column's r=100 row (N=470, B=.0037, m=.192, v=1550) for the casualties
-table's r=100 entry, restoring both trends.
+Data source note: the challenge brief cited ordnance-1944.md lines 340-369
+for Table 43, but that range is actually the Hand Grenade Mk. II / 20-mm
+H.E. Shell tables (a stale line reference). The genuine "75-MM H.E. SHELL,
+M48" / "TABLE 43 CASUALTIES" block is at lines 381-411 of that file. The
+page interleaves two tables (43 = casualties, 44 = perforation of 1/8-in.
+mild steel) row-by-row from a two-column OCR scan; the column carrying
+Table 43 is identified by its max range (225 ft), which matches the
+challenge doc's statement that Table 43's max range is 225 ft (vs. 300/400
+ft for the 105mm/155mm tables), and by B(r) being monotonically
+non-increasing in that column -- both column-identity checks agree.
+
+Row-swap note: at r=40 ft (lines 396-397) the two interleaved rows are
+transposed relative to every other row -- "40 386 .0192 .082 2,010" (line
+396) is actually Table 43 (casualties) and "40 750 .0375 .024 1,570" (line
+397) is actually Table 44 (perforation), the reverse of the usual
+first-line/second-line order. This is caught by the same two cross-column
+invariants the 105mm script's r=100 fix relies on: taking line 397 as
+casualties makes N jump 442->750 between r=30 and r=40 (violates monotonic
+N-decrease) and makes B_casualties (.0375) > B_perforation (.0192), the only
+row in the table where that inequality flips. Using line 396 for casualties
+(N=386, B=.0192) restores both invariants across all 10 rows.
 """
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
@@ -37,15 +40,14 @@ FT2_PER_M2 = 1.0 / FT_TO_M**2  # multiply rho_L [m^-2] by FT_TO_M**2 to get ft^-
 FT_LB_TO_J = 1.3558179483314004
 E_LETH_58FTLB_J = 58.0 * FT_LB_TO_J  # ~78.6 J
 
-# Table 51 (CASUALTIES), "105-MM H.E. SHELL, M1", ordnance-1944.md lines 725-759
-# (r [ft], B [effective fragments / sq ft]) -- transcribed with the r=100 column-swap
-# fix, see module docstring.
-CARD_R_FT = np.array([20, 30, 40, 60, 80, 100, 120, 140, 170, 200, 300], dtype=float)
-CARD_B = np.array(
-    [0.194, 0.0816, 0.0424, 0.0155, 0.0071, 0.0037, 0.0022, 0.0014, 0.0007, 0.0004, 0.0001]
-)
+# Table 43 (CASUALTIES), "75-MM H.E. SHELL, M48", ordnance-1944.md lines 392-411
+# (r [ft], B [effective fragments / sq ft]) -- transcribed directly, see module
+# docstring; r=40 entry is 0.0192 (line 396), not 0.0375 (line 397) -- see the
+# row-swap note above.
+CARD_R_FT = np.array([20, 30, 40, 60, 80, 100, 130, 160, 190, 225], dtype=float)
+CARD_B = np.array([0.106, 0.0391, 0.0192, 0.0066, 0.0030, 0.0016, 0.0006, 0.0003, 0.0001, 0.0001])
 
-SHELL_NAME = "105mm M1 HE"
+SHELL_NAME = "75mm M48 HE"
 H_B = 0.0  # ground burst
 DELTA_DEG = 15.0
 N_GRID = 121
@@ -105,6 +107,6 @@ if __name__ == "__main__":
             b_model_at_range(zones, drag, rho_steel, r_ft, aof)
             for aof in AOF_SWEEP_DEG
         ]
-        ratio = b_primary / b_card if b_card else float("nan")
+        ratio = b_primary / b_card
         band_str = f"[{min(band):.4g}, {max(band):.4g}]"
         print(f"{r_ft:8.0f} {b_primary:12.4g} {b_card:10.4g} {ratio:8.3g} {band_str:>28}")

@@ -1,7 +1,7 @@
-# Review: `ordnance-1944-b-vs-range` (Family B vs. 1944 Ordnance Dept. B-vs-range data)
+# Review: `drag-gap-1944/b-vs-range` (Family B vs. 1944 Ordnance Dept. B-vs-range data)
 
-**Reviewed:** `ordnance-1944-b-vs-range.qmd` (+ rendered `.html`),
-`ordnance-1944-b-vs-range.md`, `_scratch/ordnance-1944-check-{75mm,105mm,155mm}.py`,
+**Reviewed:** `b-vs-range.qmd` (+ rendered `.html`),
+`b-vs-range.md`, `checks/b-vs-range-{75mm,105mm,155mm}.py`,
 source tables in `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/ordnance-1944.md`
 and `card.md`.
 
@@ -27,7 +27,7 @@ below along with a documentation misattribution.
 `ordnance-1944.md` interleaves Table 44 (perforation) and Table 43
 (casualties) row-by-row from a two-column OCR scan, exactly as the 105mm and
 155mm scratch scripts document for their own tables. The 75mm script
-(`_scratch/ordnance-1944-check-75mm.py`) identifies the casualties column
+(`checks/b-vs-range-75mm.py`) identifies the casualties column
 correctly for every row **except r=40 ft**, where the raw text reads:
 
 ```
@@ -51,7 +51,7 @@ r=40 for 75mm M48 HE should be `0.0192`, not `0.0375`.**
 **Impact:** the ratio at that one row changes from 4.63x to ≈9.05x (still
 nowhere near the 2× band — no qualitative change to the FAIL verdict or
 monotonicity check). The printed "ratio spans" statistic for 75mm
-(`ordnance-1944-b-vs-range.html`: *"ratio spans 4.6x - 33.2x"*) is wrong as a
+(`b-vs-range.html`: *"ratio spans 4.6x - 33.2x"*) is wrong as a
 result and should read **7.4x - 33.2x** — which, note, is what the
 **Key Findings** narrative table two sections later already states
 (*"75 mm M48 HE ... ~7x – 33x"*, qmd line 249). That is, the prose summary
@@ -62,7 +62,7 @@ two parts of the same rendered notebook that would tip a careful reader off
 even without checking the source.
 
 Suggested correction (not applied): in both
-`experiment/fragmentation-field/_scratch/ordnance-1944-check-75mm.py` and the
+`experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-75mm.py` and the
 `CARD_DATA["75mm M48 HE"]["B"]` array in the `.qmd`, change the r=40 entry
 from `0.0375` to `0.0192`; add a docstring note analogous to the 105mm
 script's, documenting the swap and citing lines 396-397.
@@ -113,7 +113,7 @@ correction to prose in two files.
 
 ## Verified independently
 
-- Re-ran all three `_scratch/ordnance-1944-check-*.py` scripts
+- Re-ran all three `checks/b-vs-range-*.py` scripts
     (`uv run python ...`); reproduced the exact ratios reported in the `.qmd`'s
     tables and the Key Findings summary (except for the finding-1 discrepancy
     above).

@@ -14,8 +14,11 @@ Only `Bash(uv run *)` / `Bash(uv *)` are allow-listed; anything else needs a
 permission prompt, which a background subagent cannot receive — the call is
 auto-denied **silently**. Ad-hoc checks: `uv run python3 -c "..."`, or a
 scratch file. The scratch file must land under an allow-listed Write path —
-`/tmp` is **not** allow-listed. Use `experiment/_scratch/<name>.py` (or under
-the model folder you're working in); delete it when the check is done.
+`/tmp` is **not** allow-listed. Use `experiment/_scratch/<name>.py`.
+
+**Never delete a check script.** Retention, naming, and where a script lands
+when the pass ends are governed by `.claude/rules/verification-scripts.md` —
+`experiment/_scratch/` is a *staging* area, not a wastebasket.
 
 ## Known bug: subagents don't reliably inherit the worktree cwd
 

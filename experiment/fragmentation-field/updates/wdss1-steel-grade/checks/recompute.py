@@ -1,6 +1,6 @@
 """Re-derive the WDSS-1 steel-grade parameters and every number in derivation.md.
 
-Run:  uv run python experiment/fragmentation-field/updates/wdss1-steel-grade/recompute.py
+Run:  uv run python experiment/fragmentation-field/updates/wdss1-steel-grade/checks/recompute.py
 
 Kept alongside derivation.md deliberately: gamma is a *composition*-driven
 parameter, so any change to a cited composition band (or to the Mott table
