@@ -91,6 +91,18 @@ with st.sidebar:
             rho_steel = st.slider(
                 "Steel density  [kg/m³]", 7600.0, 8000.0, float(preset.steel.rho), step=10.0
             )
+            aspect_ratio = st.slider(
+                "A (fragment aspect ratio  l̄/x̄)", 1.50, 1.71, float(preset.aspect_ratio), step=0.01,
+                help="Fragment length:breadth ratio — literature spread 1:1.5 "
+                     "(Grady) to 1:1.65 (Wilson), point estimate 1.6 "
+                     "(Felix et al. 2022 §2.5).",
+            )
+            breadth_factor = st.slider(
+                "κ_x (breadth factor  x̄/x₀)", 1.00, 2.00, float(preset.breadth_factor), step=0.05,
+                help="Mean fragment breadth in units of Mott's fracture "
+                     "spacing x0 — Mott's own 1947 finding: circumferential "
+                     "lengths average 1.5x0.",
+            )
 
         with st.expander("Drag"):
             C_D = st.slider(
@@ -161,6 +173,8 @@ shell = ShellParams(
     has_boattail=preset.has_boattail,
     base_treatment=preset.base_treatment,
     ogive_crh=preset.ogive_crh,
+    aspect_ratio=aspect_ratio,
+    breadth_factor=breadth_factor,
 )
 drag = DragParams(C_D=C_D, C_shape=C_shape, rho_air=rho_air)
 burst = BurstParams(h_b=h_b, angle_of_fall=float(angle_of_fall), spray_half_angle=float(spray_half_angle))
@@ -185,7 +199,7 @@ def _compute_legacy(shell, drag, burst, posture, max_radius, n_grid):
 def _compute_zones(
     shell_name, filler_name,
     mass_total, mass_filler, caliber_mm, wall_t_mm,
-    gamma, sigma_f, rho_steel,
+    gamma, sigma_f, rho_steel, aspect_ratio, breadth_factor,
     C_D, C_shape, rho_air,
     h_b, angle_of_fall, spray_half_angle,
     posture, max_radius, n_grid,
@@ -217,6 +231,8 @@ def _compute_zones(
         has_boattail=preset_s.has_boattail,
         base_treatment=preset_s.base_treatment,
         ogive_crh=preset_s.ogive_crh,
+        aspect_ratio=aspect_ratio,
+        breadth_factor=breadth_factor,
     )
     drag_s = DragParams(C_D=C_D, C_shape=C_shape, rho_air=rho_air)
 
@@ -330,7 +346,7 @@ if model_mode == "Four-zone (new)":
     result_zones = _compute_zones(
         shell_name, filler_name,
         mass_total, mass_filler, caliber_mm, wall_t_mm,
-        gamma, sigma_f, rho_steel,
+        gamma, sigma_f, rho_steel, aspect_ratio, breadth_factor,
         C_D, C_shape, rho_air,
         h_b, angle_of_fall, spray_half_angle,
         posture, max_radius, _N_GRID,

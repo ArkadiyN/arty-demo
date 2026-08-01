@@ -66,15 +66,73 @@ $$
 This is algebraically identical to the form $\frac{1}{2}(2\sigma_F/\rho^{1/3}\gamma)^{3/2}(r/V_0)^3$;
 equation (4) matches the PAFRAG source notation exactly.
 
-| Symbol          | Description                              | Unit  | Value (105 mm M1) |
-| --------------- | ---------------------------------------- | ----- | ----------------- |
-| $\rho$         | Shell steel density                      | kg/m³ | 7 850             |
-| $\sigma_F$     | Dynamic flow stress at fracture          | Pa    | 800 × 10⁶         |
-| $\gamma$       | Mott statistical fragmentation parameter | —     | 65                |
-| $r_{\text{bu}}$| Mean shell radius at break-up            | m     | computed          |
-| $\mu$          | Half the average fragment mass           | kg    | computed          |
+**Fragment shape closure (eq. 4a–4c).** The $\gamma$ in eq. (4) is *not* the
+per-grade material constant: it is Gold's (2017) shape-absorbed constant
+$\gamma = \alpha^{-2/3}\gamma'$ (his eq. 6), where $\gamma'$ is Mott's material
+parameter (the catalogued per-grade number) and $\alpha$ carries the fragment's
+aspect. Closing $\alpha$ requires the fracture spacing $x_0$ — the half-width of
+the stress-released zone around a fracture (Gold 2017, eq. 2; Mott 1947, after
+eq. 5), evaluated at break-up:
 
-**Note on $\gamma$ and $\sigma_F$:** These are the dominant uncertainties.
+$$
+x_0 = \sqrt{\frac{2\sigma_F}{\rho\,\gamma'}}\;\frac{r_{\text{bu}}}{V_0} \quad (4a)
+$$
+
+The fragment is idealised as a parallelepiped $\bar l \times \bar x \times
+t_{\text{bu}}$ (Gold 2017, eq. 4) — a **plate**, not a cube — with mean
+circumferential breadth $\bar x = \kappa_x x_0$, mean axial length $\bar l = A
+\bar x$, and thickness equal to the wall *at break-up*:
+
+$$
+\alpha = \frac{\bar l\,t_{\text{bu}}}{x_0^{2}} = A\,\kappa_x^{2}\,\frac{t_{\text{bu}}}{x_0},
+\qquad \gamma = \alpha^{-2/3}\gamma' \quad (4b)
+$$
+
+$t_{\text{bu}}$ is fixed exactly by the same incompressible-wall bookkeeping as
+eq. (2b), which yields the identity $t_{\text{bu}}\,r_{\text{bu}} = t\,
+\tfrac{1}{2}(r_{i,0}+r_{o,0})$. It is *forced*, not chosen: the $N_0$ fragment
+faces $\bar x \bar l$ must tile the **expanded** mid-surface $M_{\text{shell}}/
+(\rho\,t_{\text{bu}})$, and using the as-manufactured wall $t$ with a break-up
+breadth would invent ~63 % extra case mass.
+
+Substituting (4a)–(4b) into (4) collapses to a compact equivalent form:
+
+$$
+\mu = A\,\kappa_x^{2}\,\frac{\sigma_F\,t_{\text{bu}}}{\gamma'}
+\left(\frac{r_{\text{bu}}}{V_0}\right)^{2} \quad (4c)
+$$
+
+so the closure changes the model's *scaling*, not just its magnitude: $\rho$
+cancels exactly, $\mu$ is **linear** in $\gamma'^{-1}$, $r_{\text{bu}}$ and the
+wall thickness $t$, and goes as $V_0^{-2}$ — where the un-shaped cube form gave
+$\gamma'^{-3/2}$, $r_{\text{bu}}^{3}$, $t^{0}$ and $V_0^{-3}$. Setting $A =
+\kappa_x = 1$ and $t_{\text{bu}} \to x_0$ gives $\alpha = 1$, $\gamma = \gamma'$
+and recovers the cube idealisation used before v0.8.0.
+
+| Symbol            | Description                                    | Unit  | Value (105 mm M1) |
+| ----------------- | ---------------------------------------------- | ----- | ----------------- |
+| $\rho$           | Shell steel density                            | kg/m³ | 7 850             |
+| $\sigma_F$       | Dynamic flow stress at fracture                | Pa    | 800 × 10⁶         |
+| $\gamma'$        | Mott statistical fragmentation parameter (material, per grade) | — | 65 |
+| $\gamma$          | Shape-absorbed constant $\alpha^{-2/3}\gamma'$ fed to eq. (4) | — | computed |
+| $A$               | Fragment length-to-breadth ratio $\bar l/\bar x$ | —   | 1.6               |
+| $\kappa_x$       | Mean breadth in fracture spacings $\bar x/x_0$ | —     | 1.5               |
+| $\alpha$          | Fragment shape factor, eq. (4b)                | —     | computed          |
+| $x_0$            | Mott fracture spacing at break-up              | m     | computed          |
+| $t_{\text{bu}}$  | Case wall thickness at break-up                | m     | computed          |
+| $r_{\text{bu}}$  | Mean shell radius at break-up                  | m     | computed          |
+| $\mu$             | Half the average fragment mass                 | kg    | computed          |
+
+**Sourcing of $A$ and $\kappa_x$.** $\kappa_x = 1.5$ is Mott's own finding (1)
+(1947): fragment circumferential lengths lie mostly in $x_0\ldots 2x_0$ with
+average $1.5x_0$. Gold restates $x_0$ *itself* as the mean breadth, i.e.
+silently sets $\kappa_x = 1$; Mott is the primary source and the only one who
+measures the mean. $A = 1.6$ is the cross-dataset mean width:length $1{:}1.6$
+of Felix et al. (2022, §2.5), corroborated by Wilson ($1{:}1.65$) and Grady
+($1{:}1.5$) — the same aspect-ratio result cited under $C_{\text{shape}}$ in §4.
+Full argument and checks: `updates/mott-fragment-shape-closure/derivation.md`.
+
+**Note on $\gamma'$ and $\sigma_F$:** These are the dominant uncertainties.
 Mott (1947 §3) tabulates γ = 53 for 0.25%C steel and γ = 67 for 0.45%C steel
 (the row spacing is non-uniform: 0 / 0.1 / 0.25 / 0.45 %C).
 The 105 mm M1 bill of material names the body steel **WD-X1335** (spec 57-107);
@@ -84,10 +142,12 @@ uncited and is superseded). Dynamic flow stress at high strain rate is typically
 800–1 000 MPa for hardened steel, higher than the quasi-static value of 600 MPa.
 The sensitivity section explores both.
 
-Only the **ratio** $\sigma_F/\gamma$ is observable: (4) contains the pair
-nowhere else, so $(k\sigma_F, k\gamma)$ reproduces $\mu$ and $N_0$ exactly for
+Only the **ratio** $\sigma_F/\gamma'$ is observable: (4c) contains the pair
+nowhere else, so $(k\sigma_F, k\gamma')$ reproduces $\mu$ and $N_0$ exactly for
 any $k$. The split into two numbers is a reporting convention, which is why the
-second catalogued grade (§*Steel-grade catalog*) moves $\gamma$ alone.
+second catalogued grade (§*Steel-grade catalog*) moves $\gamma'$ alone. The
+shape closure preserves this: $\alpha$ depends on $\sigma_F$ and $\gamma'$ only
+through $x_0 \propto \sqrt{\sigma_F/\gamma'}$.
 
 The most probable fragment mass (mode of the number-weighted PDF) is $m_{\text{mode}} = \mu/4$.
 

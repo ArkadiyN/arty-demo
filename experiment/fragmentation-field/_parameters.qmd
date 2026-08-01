@@ -44,6 +44,8 @@ rho_air      = drag.rho_air
 C_D          = drag.C_D
 C_shape      = drag.C_shape
 w_target     = target.w
+aspect_ratio   = shell.aspect_ratio
+breadth_factor = shell.breadth_factor
 
 print("=== Shell geometry ===")
 print(f"  Caliber          : {caliber_m*1e3:.0f} mm")
@@ -57,6 +59,9 @@ print(f"  Projectile       : {mass_total:.2f} kg")
 print(f"  Filler (TNT)     : {mass_filler:.2f} kg")
 print(f"  Shell body (M)   : {mass_shell:.2f} kg")
 print(f"  M/C ratio        : {mass_shell/mass_filler:.2f}")
+print(f"\n=== Mott fragment-shape closure ===")
+print(f"  Aspect ratio  A  : {aspect_ratio:.2f}   (l_bar/x_bar, fragment length:breadth)")
+print(f"  Breadth factor κx: {breadth_factor:.2f}   (x_bar/x0, breadth in fracture spacings)")
 ```
 
 ### Steel-grade catalog

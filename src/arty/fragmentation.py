@@ -51,8 +51,11 @@ STEELS: dict[str, SteelParams] = {
     # (Under the same interpolation rule 65 corresponds to ~0.42 %C; at the
     # inferred 0.355 %C the rule gives gamma ~60.4, so the shipped 65 OVERstates
     # rather than understates the grade contrast -- see check C7 / assumption
-    # A5.) The resulting N(>0.5 g) ~ 5300 falls inside the 3000-8000 PAFRAG/arena
-    # band -- a consistency check, not a calibration.
+    # A5.) The resulting N(>0.5 g) ~ 2200 falls inside the 800-3000 arena-recovery
+    # band -- a consistency check, not a calibration. (Before the fragment-shape
+    # closure this read ~5300 against Gold's un-shape-corrected 3000-8000
+    # model-to-model band; see updates/mott-fragment-shape-closure/derivation.md
+    # sect. 7.4. Neither number is a fit -- gamma was never tuned to either band.)
     # Only R = sigma_f/gamma is observable (see mott_params); the split is a
     # reporting convention. Provenance: updates/wdss1-steel-grade/derivation.md.
     "WW2 US HE Shell": SteelParams(
@@ -82,6 +85,31 @@ STEELS: dict[str, SteelParams] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Mott fragment-shape closure (updates/mott-fragment-shape-closure/derivation.md)
+# ---------------------------------------------------------------------------
+# Mott's mass parameter mu is closed from the fracture spacing x0 by idealising
+# the fragment as a parallelepiped l_bar x x_bar x t_bu (Gold 2017 eq. 4). The
+# two dimensionless factors below fix that prism; together they give
+# alpha = 3.6 * t_bu/x0 and gamma = alpha^(-2/3) * gamma' (Gold 2017 eq. 6).
+# Setting both to 1 with t_bu -> x0 recovers the legacy cube (alpha = 1) form.
+# They are the defaults of the ShellParams.aspect_ratio / .breadth_factor
+# fields below (single source of truth) and are overridable per call.
+
+# A = l_bar/x_bar, fragment length-to-circumferential-breadth ratio [-].
+# Mott/Grady/Hiroe cross-dataset mean width:length = 1:1.6
+# (explosion-fragment-model, 1-s2.0-S221491472030502X-main.md:137);
+# corroborated by Wilson 1:1.65 and Grady 1:1.5.
+_MOTT_ASPECT_RATIO = 1.6
+
+# kappa_x = x_bar/x0, mean circumferential breadth in units of the fracture
+# spacing [-]. Mott's own ruled-line statistic, finding (1): fragment lengths
+# lie mostly in x0..2x0 with average 1.5 x0 (rspa.1947.0042.md:190). Gold
+# restates x0 itself as the mean breadth, i.e. silently sets kappa_x = 1;
+# Mott is the primary source and the only one who measures the mean.
+_MOTT_BREADTH_FACTOR = 1.5
+
+
 @dataclass(frozen=True)
 class ShellParams:
     caliber: float = 0.105           # outer diameter [m]
@@ -105,6 +133,13 @@ class ShellParams:
     has_boattail: bool = True              # zone-existence flag
     base_treatment: str = "dead"           # "dead" | "plate" | "mott"
     ogive_crh: float | None = None         # Tier-2 CRH override [calibers]
+    # --- Mott fragment-shape closure (mott-fragment-shape-closure update) ---
+    # These describe the *fragment* prism, NOT the shell/ogive geometry above.
+    # Defaults are the reviewed literature point estimates; see the constants
+    # _MOTT_ASPECT_RATIO / _MOTT_BREADTH_FACTOR below for sourcing and
+    # updates/mott-fragment-shape-closure/derivation.md for the derivation.
+    aspect_ratio: float = _MOTT_ASPECT_RATIO      # A = l_bar/x_bar, fragment length:breadth [-]
+    breadth_factor: float = _MOTT_BREADTH_FACTOR  # kappa_x = x_bar/x0, breadth in fracture spacings [-]
 
 
 @dataclass(frozen=True)
@@ -207,10 +242,27 @@ def gurney_velocity(shell: ShellParams) -> float:
 
 
 def mott_params(shell: ShellParams, V0: float) -> tuple[float, float]:
-    _, _, r_bu, mass_shell = _shell_geometry(shell)
+    """Return Mott half-mass mu [kg] and fragment count N0 [-] for a shell at V0 [m/s]."""
+    r_outer, r_inner, r_bu, mass_shell = _shell_geometry(shell)
+    # Wall thickness at break-up. Plane-strain incompressibility of the wall
+    # annulus (the r_o_bu^2 - r_i_bu^2 = r_o^2 - r_i^2 line in _shell_geometry)
+    # gives the exact identity t_bu * r_bu = t * r_mean.
+    t_bu = shell.wall_t * 0.5 * (r_outer + r_inner) / r_bu
+    # Mott fracture spacing x0 [m], Gold 2017 eq. (2) / Mott 1947 after eq. (5),
+    # evaluated with the material constant gamma' (= SteelParams.gamma).
+    x0 = (
+        np.sqrt(2.0 * shell.steel.sigma_f / (shell.steel.rho * shell.steel.gamma))
+        * r_bu
+        / V0
+    )
+    # Shape closure: the fragment is a parallelepiped l_bar x x_bar x t_bu, not
+    # a cube. alpha = (l_bar/x0)(t_bu/x0) = A * kappa_x^2 * t_bu/x0, absorbed
+    # into gamma by Gold 2017 eq. (6). alpha = 1 recovers the legacy cube form.
+    alpha = shell.aspect_ratio * shell.breadth_factor**2 * t_bu / x0
+    gamma = alpha ** (-2.0 / 3.0) * shell.steel.gamma
     mu = (
         np.sqrt(2.0 / shell.steel.rho)
-        * (shell.steel.sigma_f / shell.steel.gamma) ** 1.5
+        * (shell.steel.sigma_f / gamma) ** 1.5
         * (r_bu / V0) ** 3
     )
     N0 = mass_shell / (2.0 * mu)

@@ -32,33 +32,39 @@ assert err < 1e-10, "mass not conserved"
 print("  ✓ mass conserved")
 ```
 
-### Check 3: Fragment count — Mott model output range
+### Check 3: Fragment count — arena-recovery range
 
 Felix et al. (2022) (*Defence Technology*, `explosion-fragment-model/`) note explicitly
 that *"the number of small fragments is overestimated"* by the Mott distribution. This
 is the known systematic bias: the model counts micro-fragments (< 0.1 g) that are
 physically produced but not recoverable in arena tests and are below any practical
-lethality threshold.
+lethality threshold. The check is therefore run at the > 0.5 g cut, above that bias.
 
-Two distinct benchmarks apply:
+Two distinct benchmarks appear in the literature:
 
 | Benchmark                       | Source                                                   | Expected range for N(> 0.5 g) |
 | ------------------------------- | -------------------------------------------------------- | ----------------------------- |
-| **Mott model self-consistency** | Gold (2017) uses γ = 50, Comp-B, similar velocity        | 3 000–8 000                   |
 | **Arena test recovery**         | Physical shells, ~50–70% recovery efficiency for > 0.5 g | 800–3 000                     |
+| **Mott model self-consistency** | Gold (2017) runs the same eq. (4) at γ = 50, cube closure | 3 000–8 000                   |
 
-The model is compared against the first benchmark; arena counts are lower because of
-recovery losses, not a model defect.
+**The model is compared against the first (measured) benchmark.** The second is not a
+measurement: it is the same Mott closure evaluated with an *un-shape-corrected* γ = 50,
+i.e. an implicit cube-shaped fragment. Since eq. (4a–4c) now carries an explicit prism
+shape factor $\alpha = 3.6\,t_{bu}/x_0$ in place of that cube assumption, scoring
+against the Gold band would re-import exactly the assumption this closure removes
+(`updates/mott-fragment-shape-closure/derivation.md` §7.4). The shape closure raises μ
+by ≈4.6× and cuts N₀ from ≈18 200 to ≈3 900 at M1 geometry, which moves N(> 0.5 g) from
+above the recovery band down inside it.
 
 ```{python}
 n_gt_half_g = mott_N(np.array([0.5e-3]), N0, mu)[0]
 n_gt_one_g  = mott_N(np.array([1.0e-3]), N0, mu)[0]
 n_gt_five_g = mott_N(np.array([5.0e-3]), N0, mu)[0]
-print(f"  N(> 0.5 g) = {n_gt_half_g:.0f}   (Mott model range: 3 000–8 000  ✓)")
+print(f"  N(> 0.5 g) = {n_gt_half_g:.0f}   (arena-recovery range: 800–3 000)")
 print(f"  N(> 1.0 g) = {n_gt_one_g:.0f}   (large fragments, less sensitivity to overprediction bias)")
 print(f"  N(> 5.0 g) = {n_gt_five_g:.0f}   (heavy fragments, Mott most reliable here)")
-in_range = 3000 < n_gt_half_g < 8000
-print(f"\n  {'✓ within Mott model expected range' if in_range else '⚠ outside expected Mott range'}")
+in_range = 800 <= n_gt_half_g <= 3000
+print(f"\n  {'✓ within arena-recovery range' if in_range else '⚠ outside arena-recovery range'}")
 assert in_range
 ```
 
