@@ -162,13 +162,13 @@ correction to prose in two files.
 
 ______________________________________________________________________
 
-# Review: `shape-closure-vs-drag-calibration-orthogonality-check` (does the Mott shape-closure fix bear on the drag-calibration check?)
+# Review: `shape-closure-orthogonality` (does the Mott shape-closure fix bear on the drag-calibration check?)
 
-**Reviewed:** `shape-closure-vs-drag-calibration-orthogonality-check.md`,
+**Reviewed:** `shape-closure-orthogonality.md`,
 `src/arty/fragmentation.py` (current, and the `b12f553` diff),
-`experiment/_scratch/ordnance-1944-drag-calibration-check.py`,
-`ordnance-1944-drag-coefficient-calibration-check.md`,
-`ordnance-1944-initial-conditions-check-75mm.md`, `src/arty/shells.py`.
+`checks/drag-coefficient-calibration.py`,
+`drag-coefficient-calibration.md`,
+`initial-conditions-75mm.md`, `src/arty/shells.py`.
 
 ## Verdict: PASS
 
@@ -183,11 +183,11 @@ specific claim checked out:
     `drag.C_D`, `drag.C_shape`, `rho_steel` — no `mu`, `N0`, `alpha`, `aspect_ratio`,
     or `breadth_factor` symbol appears anywhere in its body. Confirmed by reading
     the function directly, not just the doc's claim about it.
-- The scratch script (`ordnance-1944-drag-calibration-check.py`) imports only
+- The check script (`checks/drag-coefficient-calibration.py`) imports only
     `SHELLS`, `DragParams`, `retardation_coeff` — no `mott_params` import, no
     `mu`/`N0` reference anywhere in the file. The `m_oz` arrays are literal,
     hardcoded floats; spot-checked the 75mm array (`[0.014, 0.063, 0.244]`,
-    `v_fts=[2060, 972, 494]`) against `ordnance-1944-initial-conditions-check-75mm.md`
+    `v_fts=[2060, 972, 494]`) against `initial-conditions-75mm.md`
     line 16 — matches verbatim.
 - `git show b12f553 -- src/arty/fragmentation.py` confirms the shape-closure
     commit touched only `mott_params` (added `t_bu`, `x0`, `alpha`, `gamma`
@@ -210,7 +210,7 @@ specific claim checked out:
     check-script. This strengthens, not weakens, the assessment's conclusion.
 - The doc's "current (0.585)" figure matches `DragParams`'s live defaults
     (`C_D=0.65`, `C_shape=0.90`, product 0.585) — no drift.
-- A related, earlier scratch script (`experiment/_scratch/shape_vs_drag_followup.py`,
+- A related, earlier scratch script (`checks/shape-closure-orthogonality.py`,
     docstring: *"mu/N0 do not enter retardation_coeff"*) independently states
     the same finding — consistent corroboration, not a conflicting result.
 
@@ -229,7 +229,7 @@ None — no Blocking, Deferrable, or Note-level issues.
     `src/arty/fragmentation.py`.
 - Diffed `b12f553` against `src/arty/fragmentation.py` and confirmed
     `src/arty/shells.py` was untouched.
-- Re-read `experiment/_scratch/ordnance-1944-drag-calibration-check.py` in
+- Re-read `checks/drag-coefficient-calibration.py` in
     full; confirmed no `arty` import beyond `SHELLS`, `DragParams`,
     `retardation_coeff`.
 - Cross-checked the 75mm literal data triple against its cited source check

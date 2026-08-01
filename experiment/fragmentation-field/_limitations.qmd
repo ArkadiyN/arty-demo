@@ -141,7 +141,7 @@ together, against velocity data, in a dedicated drag update
 confirms this independently: `retardation_coeff` never calls `mott_params` in
 any production or check-script path, so the shape-closure fix cannot affect
 the drag-coefficient calibration check's result regardless of the fix's own
-correctness (`challenges/shape-closure-vs-drag-calibration-orthogonality-check.md`).
+correctness (`challenges/drag-gap-1944/shape-closure-orthogonality.md`).
 
 **8 · Lethality model assumes no protection and open ground.**
 The ES-310 Pk|hit curve (FAS/Navy 1998) is calibrated for standing unprotected

@@ -1,6 +1,6 @@
 # Does the Mott shape-closure fix feed the drag-coefficient calibration check?
 
-**No.** The `m` values `ordnance-1944-drag-coefficient-calibration-check.md`
+**No.** The `m` values `drag-coefficient-calibration.md`
 feeds into `retardation_coeff` are the source's own tabulated per-range
 "lightest effective fragment" masses (Table 43/51/59 `m(r)` columns,
 transcribed as literal `oz` arrays), never the model's own Mott
@@ -20,11 +20,11 @@ downstream by `mott_N(m, N0, mu)` (line 299-306) and by any
 distribution.
 
 **What the drag-calibration check calls.** Per its own header,
-`ordnance-1944-drag-coefficient-calibration-check.md` calls
+`drag-coefficient-calibration.md` calls
 `arty.fragmentation.retardation_coeff` "against the three calibers'
 already-tabulated `(m(r), v(r), V0)` triples, reused verbatim from the three
 check files." Its script,
-`experiment/_scratch/ordnance-1944-drag-calibration-check.py`, confirms this:
+`checks/drag-coefficient-calibration.py`, confirms this:
 `m_oz` arrays (e.g. `[0.014, 0.063, 0.244]` for 75mm) are hardcoded literals
 copied from the source's Table 43/51/59, converted to kg with a fixed
 `OZ_TO_KG` constant — no call to `mott_params`, `mu`, `N0`, or any shape
@@ -42,7 +42,7 @@ source-tabulated mass or a model-predicted Mott mass — `retardation_coeff`
 treats identically. In this check the mass passed in is the former.
 
 **Confirmation from the upstream check files.** The three
-`ordnance-1944-initial-conditions-check-{75,105,155}mm.md` files (which this
+`initial-conditions-{75,105,155}mm.md` files (which this
 check follows up on) explicitly document that `m(r)` is "Table 43
 (CASUALTIES) ... a *per-range* 'lightest effective fragment' weight `m(r)`
 [oz]," verified against the source's own 58 ft-lb casualty-energy threshold

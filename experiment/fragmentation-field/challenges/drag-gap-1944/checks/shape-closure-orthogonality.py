@@ -1,4 +1,6 @@
-"""Does the Mott fragment-shape closure (v0.8.0) close the velocity-decay gap?
+"""Feeds ../shape-closure-orthogonality.md.
+
+Does the Mott fragment-shape closure (v0.8.0) close the velocity-decay gap?
 
 (1) Structural: recompute the drag-calibration ratio table with the CURRENT
     arty code (post shape-closure) and confirm it reproduces the pre-closure
