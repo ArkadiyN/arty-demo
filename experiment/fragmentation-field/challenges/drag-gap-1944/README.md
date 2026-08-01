@@ -4,8 +4,8 @@
 1944 Ordnance Dept. *B*-vs-range casualty data — and if not, is the
 retardation/drag model the cause?
 
-**Status: open, but narrowed.** The gap is real and reproducible. Drag is
-implicated and has since been **corrected** — see
+**Status: Closed.** The gap was real and reproducible. Drag was implicated and
+has since been **corrected** — see
 [`../../updates/mach-dependent-fragment-drag/`](../../updates/mach-dependent-fragment-drag/)
 ([`scoping.md`](../../updates/mach-dependent-fragment-drag/scoping.md),
 [`derivation.md`](../../updates/mach-dependent-fragment-drag/derivation.md)),
@@ -16,8 +16,22 @@ rows stand, the conclusions drawn from them do not). It narrows the *B(r)*
 over-prediction from ~2.1–27.3× (pre-anchor) to ~1.9–5.3× (see
 [`b-vs-range.qmd`](b-vs-range.qmd)'s refreshed table, and
 [`checks/b-vs-range-drag-attribution.py`](checks/b-vs-range-drag-attribution.py))
-but does **not** close it; the residual must be sought outside the
-retardation law.
+but does **not** fully close it.
+
+**Closed, not chased further, for a physical reason, not a convenience one:**
+the corrected constant (2.674) already sits within ~10% of the geometric
+ceiling — the fragment's presented area implied by any higher constant would
+require it to be denser than solid steel (`_limitations.qmd` L3). The
+literature-motivated alternative to a bigger constant — a Mach-dependent
+`C_D(M)` integrated along the trajectory — was built and tested, and scored no
+better than the flat corrected constant on this same data
+(`derivation.md` §5; `_limitations.qmd`, "Mach-dependent... rejected on
+evidence"). The residual is attributed outside the retardation law — to the
+count chain, spray/belt geometry, or the *B(r)* reduction itself
+(`_limitations.qmd` L1, L3) — which are different model aspects, not more drag
+calibration. Continuing to tune `C_D`/`C_shape` against this one dataset past
+this point would be overfitting to 1944 Ordnance data on an already-exhausted
+parameter.
 
 ## Reading order
 
