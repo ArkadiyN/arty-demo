@@ -19,5 +19,5 @@ number in the report. The card is still wrong on disk (librarian's to fix).
 **How to apply:** Tolch's drag content is the **panel-radius** axis
 (15/36/75/120 ft) plus the absolute fragment counts in Summary items 1/6/8 —
 never the velocity sweep. Full working:
-`experiment/fragmentation-field/challenges/tolch-1944-panel-distance-drag-check.md`.
+`experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1944-panel-distance.md`.
 See also [[gotcha-density-falloff-shape-is-threshold-degenerate]].

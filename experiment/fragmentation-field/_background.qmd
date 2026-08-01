@@ -13,7 +13,7 @@ demonstration. Three sub-models are integrated:
 - Single HE shell; fuse type deferred; default is a ground burst with no airburst height.
 - Fragment trajectories assumed flat (horizontal); gravity is not in the equations of
   motion. Checked and found negligible inside the model's ~200 m operating envelope —
-  see the [gravity-omission assessment](challenges/gravity.html) for the governing
+  see the [gravity-omission assessment](challenges/gravity-ke/gravity.html) for the governing
   equations and numbers; beyond ~250 m gravity would dominate, but the field is already
   sub-lethal there.
 - Uniform azimuthal spray: fragments are spread uniformly in 360° around the burst point.

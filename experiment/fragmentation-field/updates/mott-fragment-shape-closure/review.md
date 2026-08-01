@@ -2,8 +2,8 @@
 
 Scope: `derivation.md` in this folder (pre-implementation, no `src/arty/`
 changes yet). Also read `scoping.md` and the three prior challenge notes
-(`_mott_params_provenance_note.md`, `_mott_scale_verdict_ledger.md`,
-`_mott_shape_closure_check.md`) it builds on.
+(`_params_provenance_note.md`, `_scale_verdict_ledger.md`,
+`_shape_closure_check.md`) it builds on.
 
 ## Verdict: **PASS**
 

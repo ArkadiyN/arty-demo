@@ -2,7 +2,7 @@
 
 Investigation only (no `src/arty/` changes). Checks whether the Family B
 over-prediction of B(r) for the 75mm M48 (per
-`ordnance-1944-b-vs-range.qmd`) traces to an input mismatch rather than a
+`b-vs-range.qmd`) traces to an input mismatch rather than a
 field-spreading/geometry error.
 
 ## Source-stated values (`doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/ordnance-1944.md`)
@@ -33,7 +33,7 @@ field-spreading/geometry error.
 - (b) Minimum lethal fragment mass: `min_lethal_mass()` bisects on
     `ke_at_range()` for a *given* `E_leth`; the b-vs-range challenge already
     passes `E_leth=58 ft-lb ≈ 78.6 J` explicitly
-    (`ordnance-1944-b-vs-range.qmd:91-92,119`), matching the source's
+    (`b-vs-range.qmd:91-92,119`), matching the source's
     threshold — **not** the module's own `E_LETH_DEFAULT=1000 J`
     (`fragmentation.py:439`, unused by this challenge). So the energy
     *threshold* is already matched; only the mass ↔ velocity mapping used to

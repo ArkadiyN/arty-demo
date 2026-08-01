@@ -10,7 +10,7 @@ two-column OCR scan (seen in `ordnance-1944.md`: casualties vs. perforation
 tables sharing overlapping range grids), a modeler's transcription may
 document and fix *one* row-swap (e.g. 105mm at r=100) while missing another
 in a sibling shell's table (75mm at r=40 was found still wrong on review —
-see `experiment/fragmentation-field/challenges/review.md` finding 1).
+see `experiment/fragmentation-field/challenges/drag-gap-1944/review.md` finding 1).
 
 **Why:** the modeler checks monotonicity/cross-column invariants (N
 decreasing with r; smaller-threshold-table B ≤ larger-threshold-table B)

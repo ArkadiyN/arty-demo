@@ -5,16 +5,16 @@ into a fragment mass `μ` in `mott_params()` (`src/arty/fragmentation.py:209`).
 Independently validatable against Tolch (1944) screened mass data. Does **not**
 cover `gurney_velocity`, drag, or lethality.
 
-**Inputs (do not re-derive)**: `challenges/_mott_params_provenance_note.md`,
-`challenges/_mott_scale_verdict_ledger.md`,
-`challenges/_mott_shape_closure_check.md`.
+**Inputs (do not re-derive)**: `challenges/mott-scale-gap/_params_provenance_note.md`,
+`challenges/mott-scale-gap/_scale_verdict_ledger.md`,
+`challenges/mott-scale-gap/_shape_closure_check.md`.
 
 ## 1. Problem
 
 Implemented: `μ = √(2/ρ)·(σ_f/γ)^{3/2}·(r_bu/V₀)³`, `N₀ = M/2μ`, with
 `γ = 65` read from Mott (1947) §3's carbon-content table and `σ_f = 800 MPa`.
 
-Two coupled defects, both confirmed in `_mott_shape_closure_check.md`:
+Two coupled defects, both confirmed in `_shape_closure_check.md`:
 
 1. **Cube closure.** The implemented form is algebraically `μ = ½ρx₀³`, i.e.
    Gold (2017) eq. (4) `μ = ½·α·ρ·x₀³` with the shape factor
@@ -29,7 +29,7 @@ Two coupled defects, both confirmed in `_mott_shape_closure_check.md`:
 Consequence (ledger §3): `μ` is 4–8× low, `N₀` ~4–12× high — the shell breaks
 into far too many, far too light fragments. This inflates hit counts while
 shortening per-fragment reach, and is confounded with the drag gap in
-`ordnance-1944-b-vs-range.md`. Fixing it is a precondition for any further drag
+`b-vs-range.md`. Fixing it is a precondition for any further drag
 calibration.
 
 ## 2. Literature audit

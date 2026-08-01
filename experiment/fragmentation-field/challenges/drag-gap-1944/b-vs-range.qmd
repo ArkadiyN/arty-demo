@@ -21,7 +21,7 @@ project's registry (`src/arty/shells.py`) already carries — 75 mm M48,
 
 The full problem statement, scope (Family A is out of scope for this pass —
 see the note below), and verdict criterion are in the scoping doc,
-[`ordnance-1944-b-vs-range.md`](ordnance-1944-b-vs-range.md); this notebook
+[`b-vs-range.md`](b-vs-range.md); this notebook
 answers its §3–§4 quantitative study and gives a brief qualitative note on
 its §3.4/§4 damage-pattern-shape question. All physics and field-building
 calls are existing `arty` functions (`arty.shells`, `arty.zones`); this
@@ -132,7 +132,7 @@ def b_model_at_range(zones, drag, rho_steel, r_ft, aof_deg, n_phi=72):
 
 Transcribed from `doc-reference/wound-ballistics/ordnance-dept-1944-shell-
 fragment-damage/ordnance-1944.md`, with the column-identification and
-transposition fixes documented in the `_scratch/ordnance-1944-check-*.py`
+transposition fixes documented in the `checks/b-vs-range-*.py`
 reference scripts (each table is OCR-interleaved with a companion
 perforation table; column identity is resolved there from max-range and
 monotonicity cross-checks, not assumed):
@@ -283,9 +283,9 @@ notebook should draw beyond flagging the pattern.
 A separate, already-completed investigation (one pass per caliber) has since
 traced this pattern to a specific cause. Checking the model's inputs against
 the source's own tabulated data for all three shells —
-[`ordnance-1944-initial-conditions-check-75mm.md`](ordnance-1944-initial-conditions-check-75mm.md),
-[`ordnance-1944-initial-conditions-check-105mm.md`](ordnance-1944-initial-conditions-check-105mm.md),
-[`ordnance-1944-initial-conditions-check-155mm.md`](ordnance-1944-initial-conditions-check-155mm.md) —
+[`initial-conditions-75mm.md`](initial-conditions-75mm.md),
+[`initial-conditions-105mm.md`](initial-conditions-105mm.md),
+[`initial-conditions-155mm.md`](initial-conditions-155mm.md) —
 ruled out both the initial fragment velocity $V_0$ (the model's Gurney $V_0$
 runs a few percent to ~15% *low* relative to the card's stated value, the
 wrong direction to explain an over-prediction) and the 58 ft-lb lethal-energy
@@ -302,7 +302,7 @@ That combined drag term, `DragParams` in `src/arty/fragmentation.py`
 unsourced — no literature backed those specific values. A newly-collected
 reference now gives literature support for a higher drag coefficient for
 this same class of fragment (naturally-fragmenting steel weapon fragments):
-[`doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md`](../../../doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md)
+[`doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md`](../../../../doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md)
 (DDESB Technical Paper 12, 1975, tracing to the original 1955 BRL
 measurement, Dunn & Porter, *Air Drag Measurements of Fragments*) recommends
 $C_D \approx 1.28$ (supersonic-plateau constant) for this fragment
@@ -314,7 +314,7 @@ recalibrating the model against them is separate follow-up work, not done
 here.
 
 **Follow-up closed: recalibration checked, does not fully close the gap.**
-[`ordnance-1944-drag-coefficient-calibration-check.md`](ordnance-1944-drag-coefficient-calibration-check.md)
+[`drag-coefficient-calibration.md`](drag-coefficient-calibration.md)
 has since run that recalibration — substituting the literature-supported
 combined drag values (1.2, 1.7; DDESB TP-12 and SAND92-0243) for the
 model's current 0.585 against all three calibers' tabulated $v(r)$ data.

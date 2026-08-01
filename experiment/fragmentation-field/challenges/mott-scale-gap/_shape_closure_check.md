@@ -1,7 +1,7 @@
 # Is the cube-shape mass closure literature-supported? — verdict: NO
 
 Literature-fidelity check on the Mott mass closure flagged as the leading
-scale-gap suspect in `_mott_scale_verdict_ledger.md` §4. No `src/arty/` changes.
+scale-gap suspect in `_scale_verdict_ledger.md` §4. No `src/arty/` changes.
 
 Passage checked: `experiment/fragmentation-field/_governing-equations.qmd`
 §3 "Mott: Fragment Mass Distribution" (eq. 3–4 and the γ/σ_F note).

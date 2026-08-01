@@ -140,7 +140,7 @@ print("  ✓ PASS — within ±15% of historical 50% datum")
 
 ### Check 7: 1944 Ordnance Dept. B-vs-range data (75mm/105mm/155mm)
 
-See the [ordnance-1944 B-vs-range challenge](challenges/ordnance-1944-b-vs-range.html)
+See the [ordnance-1944 B-vs-range challenge](challenges/drag-gap-1944/b-vs-range.html)
 for the full comparison against the declassified 1944 US Ordnance Dept.
 casualty tables (Tables 43/51/59). **Verdict: FAIL** against the challenge's
 factor-of-2 band for all three shells — Family B over-predicts $B(r)$ by

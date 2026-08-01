@@ -27,22 +27,44 @@ Everything related to a model lives under that model's folder:
 
 ```
 experiment/
+  _scratch/                   ← staging ONLY, for in-flight check scripts;
+                                emptied before every pass ends
   <model>/
     <model>.qmd               ← integrated, reader-facing model notebook
     challenges/
-      <question>.qmd          ← self-contained "does X matter?" notebooks or .md
+      README.md               ← index of threads + their verdicts
+      <thread>/               ← one investigation thread, NOT one loose file
+        README.md             ← thread index + current verdict (multi-doc only)
+        <question>.md/.qmd    ← the write-ups, in the order they were run
+        review.md             ← @model-reviewer's verdict on this thread
+        checks/*.py           ← the scripts that produced the numbers
     updates/
       <change-slug>/
         scoping.md            ← problem, options, literature audit, recommendation
         derivation.md         ← math + unit checks + self-consistency
         review.md             ← REQUIRED after every review pass, written by
                                 @model-reviewer (appended on re-review)
+        checks/*.py           ← the scripts that produced the numbers
 ```
 
 - `challenges/` are permanent — they publish a verdict that informs readers.
+- **A challenge is a thread, not a file.** Never drop a new challenge doc
+    loose into `challenges/`. Put it in the `<thread>/` folder of the question
+    it belongs to, or start a new thread folder. A bare `review.md` sitting at
+    `challenges/` level is ambiguous about what it reviewed — that ambiguity is
+    the reason for the folder.
+- **A thread gets a `README.md`** once it holds more than one document:
+    reading order, what each doc settles, and where the question stands. A
+    single-file challenge (`gravity-ke/gravity.qmd`) needs no README.
+- **`checks/` holds the scripts, and they are never deleted** — see
+    `.claude/rules/verification-scripts.md`. `experiment/_scratch/` is a
+    staging area; before a pass ends, a script that produced a cited number is
+    `git mv`-ed into the `checks/` folder of the artifact that cites it, and
+    committed with it. Do not create per-model or per-slug `_scratch/` dirs.
 - `updates/<change-slug>/` are working folders — once the change is integrated
     into the main `.qmd` (and the change history there links back), the folder
-    can be archived or deleted.
+    can be archived or deleted. **Its `checks/` scripts are not** — move them
+    to the relevant challenge thread rather than deleting with the folder.
 - Do not create top-level `docs/modeler-notes/` or `experiment/<question>/`
     directories. All modelling artifacts belong with their parent model.
 
@@ -79,9 +101,11 @@ is a published verdict; **the main model is not modified**.
 
 1. Delegate to @librarian if external data is needed → returns literature.
 1. Delegate to @modeler with the question + parent model path → writes
-    `experiment/<model>/challenges/<question>.md` (markdown): problem
-    statement, governing equations, the numerical study to run, and the verdict
-    criterion. Return.
+    `experiment/<model>/challenges/<thread>/<question>.md` (markdown):
+    problem statement, governing equations, the numerical study to run, and the
+    verdict criterion. Return. **Pick `<thread>` first** — an existing thread
+    folder if the question extends one, otherwise a new one; never write the
+    doc loose into `challenges/`.
     - The `.md` + `.qmd` split is for heavier challenges where the write-up
         benefits from a separate planning artifact. For a short, bounded
         "does X matter → no" assessment, a single self-contained `.qmd` (skip
@@ -90,11 +114,15 @@ is a published verdict; **the main model is not modified**.
 1. If the assessment needs physics not yet in `src/arty/`, delegate to
     @modeler to add it there first (src/ implementation pass). Return.
 1. Delegate to @modeler (notebook pass) → writes the thin
-    `challenges/<question>.qmd` that imports from `arty`, runs it, and renders.
-    No physics in the `.qmd`. Return.
-1. Delegate to @model-reviewer → validates the analysis and the verdict.
+    `challenges/<thread>/<question>.qmd` that imports from `arty`, runs it,
+    and renders. No physics in the `.qmd`. Any check script it wrote moves from
+    `experiment/_scratch/` to `challenges/<thread>/checks/`. Return.
+1. Delegate to @model-reviewer → validates the analysis and the verdict,
+    writing `challenges/<thread>/review.md`.
 1. Main agent links the challenge from the parent `.qmd` "Challenges"
-    section if the verdict is reader-relevant.
+    section if the verdict is reader-relevant, and updates
+    `challenges/README.md` (and the thread's own `README.md`, if it has one)
+    with the new verdict.
 
 Done when: notebook renders, verdict is unambiguous, reviewer approves.
 
@@ -144,7 +172,9 @@ result into the main `.qmd`. **Each change covers exactly one model aspect**
     small — the modeler is calling its own `src/arty/` code, so no handoff.
 
 Done when: physics is in `src/arty/`, the notebook reflects it, change-log
-entry exists, notebook renders.
+entry exists, notebook renders, and `experiment/_scratch/` is empty — every
+script that produced a cited number now sits in a `checks/` folder next to the
+artifact citing it (`.claude/rules/verification-scripts.md`).
 
 ## When to delegate to @librarian
 
@@ -159,7 +189,7 @@ The modeler owns a model aspect **end-to-end** (one pass per invocation):
 
 - **Physics reasoning** — which model applies, governing equations, parameters,
     validation criteria → markdown (`scoping.md` / `derivation.md` /
-    `challenges/<question>.md`).
+    `challenges/<thread>/<question>.md`).
 - **src/ implementation** — write/edit the `src/arty/` modules from an approved
     derivation. All project physics is common and lives in `src/arty/`, never in
     a `.qmd`.

@@ -249,7 +249,7 @@ thin-case breakdown noted in §5.5.
     retardation `λ ∝ m^{-1/3}` down ~1.5–1.7×). R50 is expected to move little
     (memory: `gotcha_r50_insensitive_to_steel` — count and per-fragment reach
     offset); a large R50 move would be a signal to re-check, not a pass.
-- The `B(r)` comparison in `ordnance-1944-b-vs-range.qmd` is expected to
+- The `B(r)` comparison in `b-vs-range.qmd` is expected to
     **improve on count and worsen nothing on decay shape** — that chart's
     residual is the drag gap, which this change does not touch.
 
@@ -270,7 +270,7 @@ inconsistency.** The prism and the cube differ by only 8 % in tumbling-average
 presented area; the real discrepancy — a factor ≈1.7 between the coded 0.90 and
 *any* compact tumbling shape — pre-exists this change and is unaffected by it.
 It points in the same direction as the known velocity-decay gap (the model
-under-decelerates fragments, `ordnance-1944-b-vs-range.md`).
+under-decelerates fragments, `b-vs-range.md`).
 
 Action for the src pass: **documentation only** — extend the existing
 `_limitations.qmd` `C_shape` entry with the numbers above and the note that
