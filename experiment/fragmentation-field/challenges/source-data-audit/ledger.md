@@ -1194,6 +1194,56 @@ where the page prints 181. **A closure resolved a glyph ambiguity that no
 amount of re-rendering would have** — worth recording as a use of the rule
 beyond catching outright errors.
 
+A fourth closure surfaced while transcribing the quotes and is now on the card:
+**eq. (3) closes against eq. (2) algebraically.** The page propagates
+`a = (24r²W/ρV²)^(1/3)` into a mean fragment weight `∝ ρa²t` and prints
+`ρ^(1/3) r^(4/3) W^(2/3) V^(-4/3) t`, which is exactly what squaring eq. (2)
+gives. A misread exponent in (2) would not reproduce (3) — and eq. (2)'s
+exponents are precisely what the §18b `(r/V)^(2/3)` verdict turns on, so the
+finding no longer rests on reading a handwritten `⅓` off a bad scan.
+
+#### The gap the closures do *not* close: greppability
+
+Prompted by the user asking whether this document needs vision re-extraction.
+**It does not, and vision extraction is the wrong tool for what is actually
+missing.** What the document supplies here is *prose* — the whole §18b finding
+rests on three sentences — and prose has **no closure invariant**. A table can
+be closed arithmetically; a paragraph cannot. The observed failure mode of the
+unfixed pipeline is invented values in cells the source leaves empty
+(`checks/vision-provider-probe.py`, 5/18 cells); its prose analogue is a fluent
+sentence the page does not contain, and on a scan this degraded there is no
+detector for it. A 400 dpi visual read is *stronger* evidence than an OCR pass,
+because it reads the actual page. Running the pipeline now would also mean
+running the known-broken configuration, ahead of Phase 7.
+
+But the anchors were only greppable in principle: `.claude/rules/source-data-fidelity.md`
+requires a stable string `grep` will find, and here there was no text to grep.
+Measured — **1 of the 9 anchors this repo cites is present in the embedded OCR
+layer** (`checks/mott-linfoot-1943-anchor-greppability.py`).
+
+Closed by transcribing the cited passages verbatim into
+`doc-reference/.../mott-linfoot-1943-theory-of-fragmentation/quotes.md`,
+deliberately a **quotation set, not an extraction**: only what is cited, in the
+report's own words, from the 300 dpi render (`checks/mott-linfoot-1943-page-render.py`).
+Both scripts are retained; the greppability one is a live regression guard, and
+it earned that status immediately — see below.
+
+Two things this turned up that belong in Phase 8:
+
+1. **Line breaks are load-bearing in an anchor surface.** Two of the nine
+    anchors failed their first grep because the quoted paragraph wrapped
+    mid-phrase. An anchor that straddles a newline is not greppable, and
+    nothing about the file *looks* wrong. The fidelity rule says anchors must
+    be greppable strings; it does not say the surface they are greppable
+    *against* must keep them unbroken, and any markdown re-flow can silently
+    break one. Candidate rule text, plus the check shape that catches it.
+1. **The repo has no prose ground truth for the extractor.** Tolch's
+    `tables/*.csv` covers tables only. Once Phase 7 lands, running the fixed
+    pipeline over this `source.pdf` and diffing against `quotes.md` scores
+    prose fidelity on the exact failure mode the fix targets. `quotes.md` says
+    so in its closing section; folded into Phase 7 item 6 as a second
+    regression case.
+
 ### 18b · Gold's `Mott (1943)` citation is wrong on two of three counts
 
 Gold 2017 (anchor `A series of engineering assumptions`) attributes three
@@ -1258,7 +1308,11 @@ under Phase 8 rather than fixed here.
 
 ### 18e · State
 
-Retained, carded, one table transcribed and closed. Tier assignment: **Tier 3**
+Retained, carded, one table transcribed and closed, cited prose transcribed
+verbatim to `quotes.md` and all nine anchors verified greppable. Three retained
+scripts: `mott-linfoot-1943-closures.py` (0 failures),
+`mott-linfoot-1943-anchor-greppability.py` (0 failures; reports 1/9 against the
+OCR layer), `mott-linfoot-1943-page-render.py`. Tier assignment: **Tier 3**
 (no repo artifact cites it) promoted to *read* status because it adjudicates a
 Tier-1 premise. Two `deferrable` findings registered against
 `mott-fragment-shape-closure/` — the Gold attribution, and that derivation's

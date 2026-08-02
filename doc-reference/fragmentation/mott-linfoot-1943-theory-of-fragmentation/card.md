@@ -10,10 +10,19 @@ the figure plates (figs. 3–7), the rest is cover and distribution matter.\
 
 **There is no markdown extraction of this document, deliberately.** The scan
 carries its own embedded OCR layer and that layer is unusable — a page of it
-does not reconstruct into sentences. Every fact and digit on this card was read
-off a 200–400 dpi render of the page instead, and is held admissible by the
-closures below rather than by a text match. Re-extraction is not attempted
-while the pipeline fix (`plan` Phase 7) is outstanding.
+does not reconstruct into sentences, and **eight of the nine anchors this repo
+cites cannot be found in it** (measured — `checks/mott-linfoot-1943-anchor-greppability.py`).
+Every fact and digit on this card was read off a 200–400 dpi render of the page
+instead, and is held admissible by the closures below rather than by a text
+match. Re-extraction is not attempted while the pipeline fix (`plan` Phase 7)
+is outstanding.
+
+**What makes the anchors greppable is `quotes.md`, beside this card** — the
+passages this repo actually cites, transcribed verbatim from a 300 dpi render.
+It is a *quotation set*, not an extraction: it covers only what is cited here
+and does not attempt the document. Every anchor string on this card is found by
+`grep` in that file. It doubles as the repo's only prose ground truth for
+scoring the repaired extractor (`plan` Phase 7).
 
 ## Why this document is here
 
@@ -82,6 +91,12 @@ agreement with the observed value". Recomputing gives 0.529 in.; `a` goes as
 `(W/ρ)^(1/3)`, so the 4% is 11% in `W/ρ` and sits inside Mott's own "our value
 will be very approximate".
 
+The exponents in eq. (2) are confirmed by the report itself: p.2 propagates it
+into a mean fragment weight `∝ ρa²t`, printing `ρ^(1/3) r^(4/3) W^(2/3) V^(-4/3) t`
+— which is exactly what squaring eq. (2) gives. A misread exponent in (2) would
+not reproduce (3). This matters because eq. (2)'s exponents are what the finding
+below turns on.
+
 **This is not the scaling `src/arty` uses, and it is not the 1947 scaling.**
 Eq. (2) makes breadth go as `(r/V)^(2/3)`. Mott (1947) instead gives
 `x₀ = (2P_F/ργ)^(1/2)·r/v`, i.e. `(r/V)^1`, from a different (Mott-wave,
@@ -107,10 +122,11 @@ data better (figs. 3–4).
 
 Anchor: `MATHEMATICAL DISCUSSION OF THE DISTRIBUTION LAW` (p.4). A sheet cut by
 two sets of parallel lines gives fragments of breadth `x` and length `y` drawn
-from `exp(-x/x₀)` and `exp(-y/y₀)`; the number with area above `a²` then goes as
-`z K₀(z)` with `z = 2a/√(x₀y₀)`. Cutting instead by lines of random direction is
-shown to give a straighter `log ν` vs `a` plot, and `ν(a)` is proved to tend to
-a non-zero constant as `a → 0`.
+from `exp(-x/x₀)` and `exp(-y/y₀)`; with `z = 2a/√(x₀y₀)`, the number per unit
+area with area above `a²` is `z K₁(z)/(x₀y₀)`, and differentiating, the number
+with `a` in `da` goes as `z K₀(z)`. Cutting instead by lines of random direction
+is shown to give a straighter `log ν` vs `a` plot, and `ν(a)` is proved to tend
+to a non-zero constant as `a → 0` (p.5).
 
 This is where the rectangular-prism idealization actually lives.
 
@@ -126,11 +142,17 @@ Gold (2017) makes three attributions to "Mott (1943)"
 | average cross-sectional area ∝ `(r/V)²`                       | **wrong paper** — that is Mott 1947 |
 | fragments idealized as a **parallelepiped**                   | **supported** (sect. 3)             |
 
-The report states the opposite of the first, twice and unambiguously:
+The report states the opposite of the first, **three times** and unambiguously
+(all three in `quotes.md`):
 
 - p.2, anchor `We have not been able to find a theory`: *"We have not been able
     to find a theory to account for the average **length** of the splinters in
     this type of shell."*
+- p.2, anchor `we have no theory of what determines the lengths`: having no
+    length theory is why the paper *restricts its own scope* — *"Since, however,
+    we have no theory of what determines the lengths of the splinters from a
+    shell, we confine ourselves to a bomb which, at the moment of bursting, is
+    roughly spherical."*
 - p.4, anchor `our theory is incomplete`: *"…our theory is incomplete, as it
     does not account for the length of splinters from shells, but only for
     their **breadth**…"*
