@@ -96,11 +96,17 @@ STEELS: dict[str, SteelParams] = {
 # They are the defaults of the ShellParams.aspect_ratio / .breadth_factor
 # fields below (single source of truth) and are overridable per call.
 
-# FINDING[blocking]: shipped code cites two sources by bare line number - 1-s2.0-S221491472030502X-main.md:137 (aspect ratio 1.6) and rspa.1947.0042.md:190 (kappa_x) - and neither source has been re-baselined, so the numbers below rest on anchors that rot silently on re-extraction; both need a greppable anchor and a tables/*.csv per .claude/rules/source-data-fidelity.md (affects: src/arty/fragmentation.py, doc-reference/fragmentation/explosion-fragment-model/card.md, doc-reference/fragmentation/gurney-equations-fragmentation/card.md, experiment/fragmentation-field/challenges/source-data-audit/ledger.md; since: 2026-08-02)
+# FINDING[blocking]: kappa_x below still cites rspa.1947.0042.md:190, a bare line number that rots silently whenever the document is re-extracted; gurney-equations-fragmentation has not been re-baselined and has no tables/*.csv, so this value is not yet admissible per .claude/rules/source-data-fidelity.md (affects: src/arty/fragmentation.py, doc-reference/fragmentation/gurney-equations-fragmentation/card.md, experiment/fragmentation-field/challenges/source-data-audit/ledger.md; since: 2026-08-02)
 # A = l_bar/x_bar, fragment length-to-circumferential-breadth ratio [-].
-# Mott/Grady/Hiroe cross-dataset mean width:length = 1:1.6
-# (explosion-fragment-model, 1-s2.0-S221491472030502X-main.md:137);
-# corroborated by Wilson 1:1.65 and Grady 1:1.5.
+# Mott/Grady/Hiroe cross-dataset mean width:length = 1:1.6, i.e. length is the
+# LONG dimension: Felix, Colwill & Harris (2022) define aspect ratio as "a
+# fragment's width divided by its length" (sect. 2.5), and Table 4's per-dataset
+# averages 1.58/1.66/1.48 mean to 1.573 -> 1.6. Corroborated on other materials
+# by Wilson 1:1.65 (tungsten alloy) and Grady 1:1.5 (AERMET-100).
+# Source: explosion-fragment-model, tables/table-4-average-aspect-ratios.csv;
+# anchors "Approximate average ratio" and "aspect ratio of a fragment is
+# defined". Verified by challenges/source-data-audit/checks/
+# explosion-fragment-model-aspect-ratio.py.
 _MOTT_ASPECT_RATIO = 1.6
 
 # kappa_x = x_bar/x0, mean circumferential breadth in units of the fracture

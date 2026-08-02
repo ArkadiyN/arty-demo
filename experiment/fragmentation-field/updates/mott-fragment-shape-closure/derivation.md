@@ -14,7 +14,7 @@ checks. No `src/arty/` edits here.
 | (G6) | `γ ≡ α^{-2/3}γ′` — shape absorbed into a redefined constant | Gold eq. (6), line 78 |
 | (G16) | `μ = √(2/ρ)·(σ_F/γ)^{3/2}·(r/V)³` (algebraically identical to the coded line, `fragmentation.py:211-215`) | Gold eq. (7)≡(16) |
 | (M1) | Mott's own ruled-line statistic: fragment circumferential lengths lie mostly in `x₀…2x₀`, **average ≈ 1.5x₀** | Mott 1947 finding (1), rspa line 190 |
-| (A16) | fragment width:length = **1:1.6** (mean of Mott's own aspect histogram, Grady, Hiroe; corroborated by Wilson 1:1.65, Grady 1:1.5). "Aspect ratio" is defined width÷length, so length = 1.6 × width | `…explosion-fragment-model/1-s2.0-S221491472030502X-main.md:137`, §2.5 line 51 |
+| (A16) | fragment width:length = **1:1.6** (mean of Mott's own aspect histogram, Grady, Hiroe; corroborated by Wilson 1:1.65, Grady 1:1.5). "Aspect ratio" is defined width÷length, so length = 1.6 × width | `…explosion-fragment-model/tables/table-4-average-aspect-ratios.csv`; anchors "Approximate average ratio" (Table 4) and "aspect ratio of a fragment is defined" (§2.5) — **re-baselined against the retained scan 2026-08-02**, ledger §16 |
 
 Working symbols: `x̄` mean circumferential breadth [m]; `l̄` mean axial length
 [m]; `t₀` fragment thickness [m]; `A ≡ l̄/x̄` [-]; `κ_x ≡ x̄/x₀` [-]; `t`

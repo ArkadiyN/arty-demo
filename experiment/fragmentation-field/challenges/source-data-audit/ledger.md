@@ -12,9 +12,9 @@ redo, not a record of fixes. `src/arty/` is assessed, never changed here.
 | 0 — inventory & provenance        | **done** (this document, sections 1–4)                                                      |
 | 1 — re-baseline ordnance-1944     | **done** — six tables transcribed + verified (§5)                                           |
 | 2 — re-baseline Tolch-1938        | **2a–2c done** (§6, incl. 2b's missed third table); 2d card rewrite blocked on Ph. 8 item 2 |
-| 2.5 — source admissibility gate   | **open — blocks 3, 4, 5** (§14); DoD-1975 (§13) and 105mm-M1-1940 (§15) done                |
+| 2.5 — source admissibility gate   | **2.5a closed** (§15, §16); 2.5b–d open, still block 3 and 5                                |
 | 3 — downstream verdict per thread | **blocked on 2.5** (verdict column below unfilled)                                          |
-| 4 — `src/arty` assessment         | **1944 drag law done** (§8); Tolch updates (4b) **blocked on 2.5a**                         |
+| 4 — `src/arty` assessment         | **1944 drag law done** (§8); **unblocked** — 2.5a closed (§16e)                             |
 | 5 — independent verification      | **blocked on 2.5 and 3**                                                                    |
 | 6 — surface reconciliation        | pending                                                                                     |
 
@@ -950,3 +950,93 @@ is half closed; `explosion-fragment-model` remains. The premise in §14 that
 Tier 1 was blocked on the human held only until the human was asked — and for
 this document the extraction was additionally recoverable from git at
 `69d3362^`, which nobody had checked.
+
+## 16. Tier-1 re-baseline: explosion-fragment-model (Phase 2.5a, second of two)
+
+Felix, Colwill & Harris (2022), *Defence Technology* **18** 159–169. Scan
+supplied by the user, retained at `source.pdf` (11 pages, gitignored); the pdf
+carries a clean text layer, so no vision extraction was involved.
+
+Artifacts: three CSVs + invariants under
+[`tables/`](../../../../doc-reference/fragmentation/explosion-fragment-model/tables),
+a new [`card.md`](../../../../doc-reference/fragmentation/explosion-fragment-model/card.md),
+and [`checks/explosion-fragment-model-aspect-ratio.py`](checks/explosion-fragment-model-aspect-ratio.py)
+(0 failures).
+
+### 16a. The shipped 1.6 is confirmed, in the right direction
+
+`src/arty/fragmentation.py` ships `_MOTT_ASPECT_RATIO = 1.6`. Against the page:
+
+- **Magnitude.** Table 4's bottom row gives per-dataset averages Grady 1.58
+    (ogive), Hiroe 1.66 (cylindrical), Mott 1.48 (cylindrical). Mean 1.5733 →
+    **1.6**. The paper's own sentence for this is garbled in print — *"the
+    average of the three results in Tables 4 and 1:1.6 rounded is taken as the
+    starting point"* — so the arithmetic, not the sentence, is what the check
+    pins.
+- **Direction, which is the part that could have been silently wrong.** §2.5:
+    *"The aspect ratio of a fragment is defined as a fragment's width divided by
+    its length."* Table 4's column head repeats it: `(width: length)`. So
+    length = 1.6 × width — fragments long and thin, which is the sense
+    `A = l̄/x̄` uses. **There is no numeric tell for this error class**: 1.6 is
+    plausible either way round, and an inverted reading would have produced
+    short fat fragments with every arithmetic check still passing. The check
+    asserts both defining sentences are still on the page.
+- **Corroboration.** §2.5's Wilson 1:1.65 (tungsten alloy) and Grady 1:1.5
+    (AERMET-100) both confirmed verbatim. Note the two Gradys are *different
+    figures* — 1.58 in Table 4, 1.5 in §2.5 — an easy conflation the card now
+    calls out.
+
+### 16b. The document had no card at all
+
+There was no `card.md` in this folder, only a raw extraction, `images/`, and a
+citation from shipped code pointing at **line 137 of the extraction**. So the
+one summary a future reader would consult did not exist, and the only pointer
+to the number was the anchor form this audit exists to eliminate. Written now.
+
+This is a gap the tiering in §14a did not predict: the eyeball/vision sweep
+(2.5c) triages on "a numeric table with no `tables/*.csv` beside it", which
+would have caught this — but "cited by shipped code with **no card**" is a
+sharper and cheaper triage, and worth adding to the 2.5c sweep.
+
+### 16c. A discrepancy recorded, not repaired
+
+Table 4's bottom row is labelled "Approximate average ratio" and its three
+values do not reproduce as count-weighted means of their own columns: Mott's
+59/30/10/1 gives 1.53, not the printed 1.48; Grady's 1.58 needs the open
+"1:4 and more" bin weighted near 6. The paper states no weighting rule for the
+open bin, so this cannot be resolved from the page — it is the authors'
+arithmetic, not a transcription error.
+
+It does not move the shipped value: 1.6 is exactly what the paper concludes,
+and the spread of the three datasets (1.48–1.66) is wider than the
+discrepancy. Recorded in the card and in the `.invariant` so a future pass that
+tries to re-derive the average from the distributions knows in advance it will
+not land on 1.6.
+
+### 16d. Anchors repaired in the citing artifacts
+
+Both bare-line-number citations of this document were replaced with greppable
+anchors plus a CSV path: `src/arty/fragmentation.py` (was
+`1-s2.0-S221491472030502X-main.md:137`) and
+`updates/mott-fragment-shape-closure/derivation.md` (A16, same anchor plus
+"§2.5 line 51"). This is a comment/citation edit only — no physics, no value
+changed. `scoping.md` and `review.md` in that update folder still carry line
+references; they are historical records of passes and were left alone.
+
+**The blocking marker in `fragmentation.py` is narrowed, not cleared.** Its
+other half — `rspa.1947.0042.md:190`, backing `kappa_x` — points into
+`gurney-equations-fragmentation`, which is Tier 2 and still has no `tables/`
+and no re-baseline.
+
+### 16e. Effect on the gate
+
+**Phase 2.5a is closed.** Both Tier-1 sources are re-baselined (§15, §16), and
+in both cases the constant `src/arty` ships was confirmed correct. What the
+gate bought was not a corrected number — it was knowing that, plus two
+anchors that no longer rot, two documents that now have tables a future pass
+reads instead of retyping, and a card that did not exist.
+
+Phase 4 (`src/arty` assessment) is **unblocked on its Tier-1 dependency**.
+Phase 3 remains blocked for any thread citing a Tier-2 source (§14a), and
+`mott-fragment-shape-closure` is such a thread: it rests on `kappa_x` from
+`gurney-equations-fragmentation`.

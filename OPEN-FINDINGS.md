@@ -35,8 +35,8 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
 - **ordnance-1944 card.md labels all three shell sections with the table number of a neighbouring shell (43→81mm M43A1, 51→105mm M38A1, 59→8in M103; correct are 38/39, 48/49, 56/57) and prints each casualties B value beside the perforation table's range — the exact lossy-summary mechanism that caused the column inversion; quoted numbers are correct, labels are not**
     - affects: `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md`
     - raised: 2026-08-02 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:659`
-- **shipped code cites two sources by bare line number - 1-s2.0-S221491472030502X-main.md:137 (aspect ratio 1.6) and rspa.1947.0042.md:190 (kappa_x) - and neither source has been re-baselined, so the numbers below rest on anchors that rot silently on re-extraction; both need a greppable anchor and a tables/*.csv per .claude/rules/source-data-fidelity.md**
-    - affects: `src/arty/fragmentation.py`, `doc-reference/fragmentation/explosion-fragment-model/card.md`, `doc-reference/fragmentation/gurney-equations-fragmentation/card.md`, `experiment/fragmentation-field/challenges/source-data-audit/ledger.md`
+- **kappa_x below still cites rspa.1947.0042.md:190, a bare line number that rots silently whenever the document is re-extracted; gurney-equations-fragmentation has not been re-baselined and has no tables/*.csv, so this value is not yet admissible per .claude/rules/source-data-fidelity.md**
+    - affects: `src/arty/fragmentation.py`, `doc-reference/fragmentation/gurney-equations-fragmentation/card.md`, `experiment/fragmentation-field/challenges/source-data-audit/ledger.md`
     - raised: 2026-08-02 (0d) in `src/arty/fragmentation.py:99`
 
 ## Deferrable (5)
