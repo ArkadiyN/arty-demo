@@ -109,7 +109,7 @@ and 0.25 C → 53. The note is corrected in place.
 
 ## Other content cited elsewhere in this repo
 
-- **x₀ = (2P_y/ρ)^{1/2}·r/v**, the fracture spacing, p.304 after eq. (5) —
+- **x₀ = (2P_F/ργ)^{1/2}·r/v**, the fracture spacing, p.304 after eq. (5) —
     cited by `updates/mott-fragment-shape-closure/derivation.md` (G2) alongside
     Gold 2017 eq. (2).
 - **Findings (2) and (3)** — x₀ ∝ r and x₀ ∝ 1/v, p.305 — the scaling

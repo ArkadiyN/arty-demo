@@ -1152,3 +1152,118 @@ sources — `ammunition-series-6-wdss-specs`, `sandia-sand92-0243`, `aisi-1335` 
 were supplied by the user in the same batch and are next; 2.5b is not yet
 closed. The `fragmentation.py` blocking marker for `kappa_x` is **cleared**,
 replaced by the narrower and more consequential γ-column finding in 17b.
+
+## 18 · Primary acquired — Mott & Linfoot 1943 (A.C. 3348)
+
+The user supplied a scan of the second Mott paper
+(`/mnt/f/Projects/TMP/Docs/mott_ADB968781.pdf`, DTIC `ADB968781`), flagged as
+poor quality. It was not on the audit's source list, because no repo artifact
+cites it directly. It is on the list now, retained at
+`doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/`, for
+one reason: it is the **primary behind Gold 2017's `Mott (1943)`
+attributions**, and Gold is what the shipped fragment-shape closure is derived
+from.
+
+### 18a · The scan defeats text matching, so the closures carry the fidelity
+
+The embedded OCR layer does not reconstruct into sentences — a page of it is
+unusable. This is the same wall §17 hit on the 1947 scan, one notch worse: there
+the text layer was poor but greppable, here it is not. Every digit and quotation
+on the card was read off a 200–400 dpi render of the page.
+
+That makes the closure invariant the *only* thing standing between a visual
+read and a wrong number, which is exactly the case
+`.claude/rules/source-data-fidelity.md` was written for. Three hold, in
+`checks/mott-linfoot-1943-closures.py`:
+
+- **The calculated column of the p.3 count table is a one-parameter fit.** It
+    is eq. (4) `N(m)dm = C exp(-M/M₀)dM`, `M = m^(1/3)`, at the printed
+    M₀ = 0.33 oz^(1/3); dividing each printed count by its bin's probability
+    mass must give the same `K = C·M₀` on every row. It does, to **±2%**, and
+    the column regenerates from that single K as 455/128/181/13/5 against the
+    printed 454/129/181/13/5.
+- **Both obs/calc column pairs sum identically** — 782 = 782 and 1478 = 1478,
+    with no free parameter, because C is fitted to the observed total.
+- **The p.2 worked example reproduces to 4%** — `a = (24r²W/ρV²)^(1/3)` at
+    W = 70 ft-lb/in², r = 2.2 in., V = 2500 ft/s gives 0.529 in. against the
+    printed 0.55.
+
+The first of these settled a bin boundary I could not read confidently: the
+`½ – 4 oz` bin really is that wide, because reading it as `½ – 1` predicts 92
+where the page prints 181. **A closure resolved a glyph ambiguity that no
+amount of re-rendering would have** — worth recording as a use of the rule
+beyond catching outright errors.
+
+### 18b · Gold's `Mott (1943)` citation is wrong on two of three counts
+
+Gold 2017 (anchor `A series of engineering assumptions`) attributes three
+things to Mott (1943). Against the page:
+
+| Gold's attribution                               | Verdict against the primary         |
+| ------------------------------------------------ | ----------------------------------- |
+| breadth:length ratio "is approximately constant" | **contradicted**                    |
+| average cross-sectional area ∝ `(r/V)²`          | **wrong paper** — that is Mott 1947 |
+| fragments idealized as a parallelepiped          | **supported** (sect. 3)             |
+
+The report disclaims a length theory twice, in terms that leave no room:
+*"We have not been able to find a theory to account for the average **length**
+of the splinters in this type of shell"* (p.2) and *"our theory is incomplete,
+as it does not account for the length of splinters from shells, but only for
+their **breadth**"* (p.4). Where sect. 3 does treat length, it makes it
+*independent* of breadth — two separate exponential parameters `x₀` and `y₀`,
+which is the opposite of a fixed ratio.
+
+The `(r/V)²` area scaling is 1947's: eq. (2) here gives breadth ∝ `(r/V)^(2/3)`
+from an energy-of-fracture argument, whereas `x₀ ∝ r/v` — hence area ∝ `(r/V)²`
+— comes from the 1947 Mott-wave argument. Gold's own eq. (2) is the 1947 form.
+The two theories are **alternatives, not a chain**, and the citation merges
+them.
+
+**Impact: no wrong number, one unsupported premise.** `_MOTT_ASPECT_RATIO = 1.6`
+takes its value from Felix 2022 Table 4 (§16), not from Mott 1943, so nothing
+shipped is wrong. What is unsupported is the *structural* premise that one
+constant `A = l̄/x̄` applies across shells, which Gold presents as
+primary-backed and `mott-fragment-shape-closure/derivation.md` inherits.
+Registered `deferrable` against that derivation for the Phase-3 pass.
+
+### 18c · The defect class this adds to the audit
+
+§15 and §17 both found **wrong digits or corrupt equations in an extraction**.
+This is different and new: the *extraction of the citing paper is fine*, the
+*digits are fine*, and the defect is that a secondary source attributes a claim
+to a primary that denies it. No glyph-level scan, no closure invariant, and no
+`tables/*.csv` can catch it — the only detector is reading the primary.
+
+That is worth stating plainly, because the audit's machinery is now good at
+digits and has nothing at all pointed at provenance. It is also the cheapest
+class to check *if* the primary is in hand, and the most expensive if it is
+not: this one cost a scan the user happened to have.
+
+The `.claude/rules/source-data-fidelity.md` "criterion match" gate
+(@model-reviewer's) is the nearest existing hook — *does the cited data measure
+the same quantity the model computes?* — but it is aimed at data, not at
+citation chains. Phase 8 should consider widening it to: **a claim attributed
+to a primary is checked against that primary, or marked secondhand.** Filed
+under Phase 8 rather than fixed here.
+
+### 18d · What this document does not settle
+
+- **No γ and no composition table** — the 1943 theory has no `γ` at all; its
+    material input is the rupture energy `W`. It therefore cannot adjudicate
+    the §17b γ-column non-closure, which stands.
+- **No breadth:length ratio value**, per 18b — so it neither confirms nor
+    moves the shipped 1.6.
+- Figures 3–7 (pdf pp. 10–12) are plates with no text layer; not digitized,
+    not cited.
+
+### 18e · State
+
+Retained, carded, one table transcribed and closed. Tier assignment: **Tier 3**
+(no repo artifact cites it) promoted to *read* status because it adjudicates a
+Tier-1 premise. Two `deferrable` findings registered against
+`mott-fragment-shape-closure/` — the Gold attribution, and that derivation's
+remaining bare-line-number citations into Gold, which are the same anchor-rot
+defect already registered for `ordnance-1944` and `dod-1975`.
+
+Phase 2.5b is still open: `ammunition-series-6-wdss-specs`,
+`sandia-sand92-0243` and `aisi-1335` remain.
