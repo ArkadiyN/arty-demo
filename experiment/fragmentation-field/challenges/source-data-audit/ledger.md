@@ -12,7 +12,7 @@ redo, not a record of fixes. `src/arty/` is assessed, never changed here.
 | 0 — inventory & provenance        | **done** (this document, sections 1–4)                                                      |
 | 1 — re-baseline ordnance-1944     | **done** — six tables transcribed + verified (§5)                                           |
 | 2 — re-baseline Tolch-1938        | **2a–2c done** (§6, incl. 2b's missed third table); 2d card rewrite blocked on Ph. 8 item 2 |
-| 2.5 — source admissibility gate   | **open — blocks 3, 4, 5** (§14); DoD-1975 done (§13), Tier 1 awaiting originals             |
+| 2.5 — source admissibility gate   | **open — blocks 3, 4, 5** (§14); DoD-1975 (§13) and 105mm-M1-1940 (§15) done                |
 | 3 — downstream verdict per thread | **blocked on 2.5** (verdict column below unfilled)                                          |
 | 4 — `src/arty` assessment         | **1944 drag law done** (§8); Tolch updates (4b) **blocked on 2.5a**                         |
 | 5 — independent verification      | **blocked on 2.5 and 3**                                                                    |
@@ -791,10 +791,17 @@ by folder name.
 | **4** | `aep-55-vol3`, `ammunition-series-6-steel-composition`, `aisi-1020`, `aisi-1045`, `cunniff-2014`, `lethality-threshold-critique`, `pmc7295711-bone-fragments`, `m49a2-60mm-mortar-shell` | one narrative mention each                   | 14c/14d sweeps only                                   |
 | —     | `ml-warhead-fragmentation`, `nwc-tp-7124`                                                                                                                                                | uncited                                      | nothing depends on them                               |
 
-**None of Tiers 1–4 has a `tables/*.csv` or a retained scan.** The three
-re-baselined documents (ordnance-1944, Tolch-1938, DoD-1975) are the only ones
-that do — so Tier 1 and Tier 2 need the human to supply originals before
-anything can be checked against a page.
+**None of Tiers 1–4 had a `tables/*.csv` or a retained scan when this section
+was written** — the three re-baselined documents (ordnance-1944, Tolch-1938,
+DoD-1975) were the only ones that did. `ordnance-105mm-m1-1940` has since
+joined them (§15).
+
+That correction matters more than the one document: this section asserted Tier
+1 was blocked on the human, and it held only until the human was asked. For the
+105 mm document the deleted extraction was *also* recoverable from git at
+`69d3362^`, which nobody had checked. **"No original available" is a conclusion
+to reach after looking, not a starting assumption** — and the two cheap places
+to look are the user and this repo's own history.
 
 One defect here needed no source to register, and is now marked at
 `src/arty/fragmentation.py`: **two bare line numbers inside shipped code** —
@@ -849,3 +856,97 @@ vendor datasheets that may simply not be re-acquirable, and the audit must not
 stall on one. What the gate forbids is state 2 going *unrecorded*: a modeler
 brief may not cite an unverifiable source as evidence, and a Phase-3 verdict
 resting on one is labelled **provisional**, never **sound**.
+
+## 15. Tier-1 re-baseline: ordnance-105mm-m1-1940 (Phase 2.5a, first of two)
+
+Scan supplied by the user and retained at `source.pdf` (183 pages, gitignored).
+Page 16 carries a real text layer, so no vision extraction was involved.
+
+Artifacts: [`tables/bill-of-material.csv`](../../../../doc-reference/ww2-shells/ordnance-105mm-m1-1940/tables/bill-of-material.csv)
+\+ `.invariant`, and
+[`checks/ordnance-105mm-bom-page-fidelity.py`](checks/ordnance-105mm-bom-page-fidelity.py)
+(0 failures over 8 rows).
+
+### 15a. The document supplies exactly one cell to the model, and it is correct
+
+`src/arty/fragmentation.py` quotes `Steel WD-X1335 / 57-107` off the
+**Body, Shell** row of the BILL OF MATERIAL. Checked against the page: correct,
+and corroborated independently on the LIST OF PARTS table at `source.pdf` p.9.
+The 53.9 lb body weight also on that row is quoted in the card but consumed by
+nothing (`grep` finds no `53.9` or `24.4` in any `.py` or `.qmd`).
+
+**So the shipped constant's provenance is sound — and that was never where the
+risk was.** The composition behind the grade name is an unconfirmed reading of
+WD-X1335 as AISI 1335, and `sigma_f` / `gamma` come from elsewhere entirely.
+This re-baseline does not touch that; it only establishes that the one sourced
+fact is the fact the source states.
+
+### 15b. Why a closure invariant on a column no model reads
+
+The cited cell is a **string**, and a string has no arithmetic — there is no
+direct way to show it was read off the row it belongs to. The BOM's two amount
+columns supply that indirectly: if the numeric cells sit on their part's row,
+the material cell does too. The page's own header words define the relation
+(`AVERAGE AMOUNT OF MATERIAL PER SHELL` × 100,000 =
+`AMOUNT OF MATERIAL PER 100,000 SHELL`), and it holds on all three rows that
+carry both figures.
+
+That is not a hypothetical guard here. The OCR transcription of this page that
+was committed until `69d3362` prints the Band, Rotating amounts on the line
+**above** the `Band, Rotating` part name — values offset one row from their
+labels, the same flattening defect that inverted the 1944 Ordnance tables
+(§1). Anything reading that transcription rather than the page could pick the
+wrong row off it.
+
+### 15c. Card defects found, none of them consumed
+
+The prior `card.md` was written without the page. Against `source.pdf` p.16:
+
+| card.md said                                                 | page 16 says                                         |
+| ------------------------------------------------------------ | ---------------------------------------------------- |
+| "Total Material Allotment **5,290,000** pounds per contract" | **5,390,000**, and the column is *per 100,000 shell* |
+| **Gliding** Metal                                            | **Gilding** Metal                                    |
+| band O.D. **4.58"**                                          | **4.56"**                                            |
+| exterior coating **3-87**, stencilling **35-2**              | **3-67**, **36-2**                                   |
+
+None of these reaches a model. Their value is as a **measurement of how much
+weight the rest of that card could carry** — four independent errors in one
+short table, from a card that also asserted things the document does not
+contain.
+
+### 15d. Two claims removed from the card as not belonging to this source
+
+1. **Mechanical properties.** The card carried "Inferred typical range for WW2
+    19-ton/20-ton shell steel: 250–350 MPa yield, ~400–500 HB hardness
+    (estimated; not confirmed for WD-X1335)". This document supplies **no**
+    mechanical data — it defers all of it to spec 57-107, which is not
+    reproduced in it. The numbers are also mutually inconsistent (400–500 HB
+    implies roughly 1350–1700 MPa tensile, several times the quoted yield), so
+    they cannot both be a range for one material. Removed. Nothing consumed
+    them; the risk was a future pass quoting a reference card for a property its
+    source never stated.
+1. **"Compare to SAE 1040"**, from the card's Recommendations section. That is
+    a modelling judgment — and specifically the *alternative reading* of
+    WD-X1335 that `updates/wdss1-steel-grade/derivation.md` already records in
+    three places and that `src/arty/fragmentation.py` names in its own comment.
+    Removed from `doc-reference/`, where a @modeler would inherit it as a
+    premise; it survives where a reviewer sees it. This is Phase 2.5d applied to
+    one card.
+
+### 15e. Recorded, not extracted: the dimensioned drawings
+
+`source.pdf` pp.7–8 carry the full finished-shell dimension set, a stated mean
+cavity volume to overflowing of 91 cu. in., and the concentricity tolerances
+(anchors `MEAN VOLUME OF CAVITY`, `TOLERANCE ON CAPACITY`). No current model
+needs shell geometry from this source, and the text layer on those blueprint
+pages is badly corrupted, so extraction is a vision job with real cost and a
+known failure mode. Left out deliberately and noted in the card, so a future
+geometry pass finds it instead of re-searching for it.
+
+### 15f. Effect on the gate
+
+`ordnance-105mm-m1-1940` moves to **re-baselined** (§14e state 1). Phase 2.5a
+is half closed; `explosion-fragment-model` remains. The premise in §14 that
+Tier 1 was blocked on the human held only until the human was asked — and for
+this document the extraction was additionally recoverable from git at
+`69d3362^`, which nobody had checked.
