@@ -1,0 +1,14 @@
+csv:     105mm-m1-casualties.csv
+source:  ../ordnance-1944.md
+anchor:  # 105-MM H.E. SHELL,'Ml
+
+# See 75mm-m48-casualties.invariant for the column definitions and for why the
+# 58 ft-lb energy closure is the only admissible column-identity discriminator
+# on these interleaved two-column scans.
+row:        0.5 * (m_oz / 16 / 32.174) * v_fps**2 == 58 within 5%
+
+monotonic:  r_ft increasing
+monotonic:  N non-increasing
+monotonic:  B non-increasing
+monotonic:  m_oz non-decreasing
+monotonic:  v_fps non-increasing

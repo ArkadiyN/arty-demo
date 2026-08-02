@@ -1,0 +1,17 @@
+csv:     155mm-m107-perforation-1-8in.csv
+source:  ../ordnance-1944.md
+anchor:  # 155-MM N.E. SHELL, M107
+
+# Criterion: PERFORATION OF 1/8-IN. MILD STEEL. No energy closure exists --
+# 1/2 m v^2 runs 248-1146 ft-lb across these rows. Identity is by elimination
+# against 155mm-m107-casualties.csv; see 75mm-m48-perforation-1-8in.invariant for
+# the full admissibility note and why monotonicity is NOT a column-identity test.
+#
+# This column carries one more range step (400 ft) than its casualties partner
+# stops at (600 ft on a coarser grid) -- the pair goes ragged at the tail, so
+# row i of one file is NOT row i of the other beyond r=200 ft.
+monotonic:  r_ft increasing
+monotonic:  N non-increasing
+monotonic:  B non-increasing
+monotonic:  m_oz non-decreasing
+monotonic:  v_fps non-increasing

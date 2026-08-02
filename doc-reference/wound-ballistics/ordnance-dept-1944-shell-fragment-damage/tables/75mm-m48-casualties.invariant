@@ -1,0 +1,24 @@
+csv:     75mm-m48-casualties.csv
+source:  ../ordnance-1944.md
+anchor:  # 75-MM H.E. SHELL, M48
+
+# Columns, as printed in the scan's own header:
+#   r_ft   distance from burst (ft)
+#   N      total number of effective fragments
+#   B      average number of effective fragments per sq. ft.
+#   m_oz   weight of the LIGHTEST effective fragment (oz.)
+#   v_fps  velocity of that lightest effective fragment (f/s)
+#
+# Criterion tabulated: CASUALTIES -- "a casualty is supposed caused by a hit
+# with at least 58 ft.-lb. of energy". Because each row names the *lightest*
+# fragment that still qualifies, that row sits exactly on the threshold, so
+# 1/2 m v^2 must reproduce 58 ft-lb on EVERY row. This is what distinguishes
+# this column from the perforation column it is interleaved with; nothing in
+# the page layout does. See challenges/source-data-audit/ledger.md section 1.
+row:        0.5 * (m_oz / 16 / 32.174) * v_fps**2 == 58 within 5%
+
+monotonic:  r_ft increasing
+monotonic:  N non-increasing
+monotonic:  B non-increasing
+monotonic:  m_oz non-decreasing
+monotonic:  v_fps non-increasing

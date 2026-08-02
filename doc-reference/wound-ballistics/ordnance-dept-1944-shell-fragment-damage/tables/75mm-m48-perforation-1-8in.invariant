@@ -1,0 +1,24 @@
+csv:     75mm-m48-perforation-1-8in.csv
+source:  ../ordnance-1944.md
+anchor:  # 75-MM H.E. SHELL, M48
+
+# Criterion tabulated: PERFORATION OF 1/8-IN. MILD STEEL. Same five columns as
+# the casualties table it is interleaved with (see 75mm-m48-casualties.invariant).
+#
+# ADMISSIBILITY NOTE -- this table has NO energy closure. The source states no
+# numeric perforation threshold, and 1/2 m v^2 on these rows runs 272-829 ft-lb,
+# rising with range, because defeating a fixed plate is not a fixed-energy
+# criterion. Its identity is therefore established by ELIMINATION, not by a
+# closure of its own: the page carries exactly two interleaved tables, the other
+# one closes on 58 ft-lb, so this is the remaining one. That is only sound while
+# both halves of the pair are transcribed together -- do not split them.
+#
+# Consequence: the monotonicity checks below are structural sanity only. They
+# CANNOT distinguish this column from the casualties column (both are monotone
+# in every field), so they must never be cited as a column-identity check --
+# doing exactly that is what inverted three committed scripts.
+monotonic:  r_ft increasing
+monotonic:  N non-increasing
+monotonic:  B non-increasing
+monotonic:  m_oz non-decreasing
+monotonic:  v_fps non-increasing
