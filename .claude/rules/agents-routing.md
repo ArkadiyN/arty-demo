@@ -98,9 +98,21 @@ grew) — re-dispatching fresh roughly halves the run. Output is intrinsic work
 resets `maxTurns` on every message, removing the last turn-count guard.
 Mechanism detail: `.claude/rules/subagent-harness.md`.
 
-**The only `SendMessage` to a modelling agent that is ever allowed** is none
-for workflow progression. A pass that returns with an open question is
-answered by folding the answer into the *next* fresh dispatch's brief.
+**No `SendMessage` for workflow progression, ever.** A pass that returns with
+an open question is answered by folding the answer into the *next* fresh
+dispatch's brief.
+
+**The one exception — salvaging a crashed pass, not advancing a workflow.** A
+pass that hit `maxTurns` *after reaching real results but before writing them
+down* may be resumed **once**, immediately, with a hard-scoped message. That is
+not progression: nothing moves to the next step, the instance is only asked to
+land the artifact its own window already contains. The distinction that makes
+this safe is that Gate 4's economics assume the next pass can be "briefed from
+the durable artifacts" — on a **zero-artifact** return there are none, so a
+fresh dispatch re-pays the whole discovery cost instead of reading a compact
+`derivation.md`. Conditions, and the over-read case where this does *not*
+apply, are in `.claude/rules/subagent-harness.md` — classify before resuming;
+a window full of circling reads is a liability and must be discarded.
 
 ## Model tier per pass
 

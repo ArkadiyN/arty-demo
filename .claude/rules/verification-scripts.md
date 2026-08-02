@@ -54,6 +54,31 @@ in the one staging area or in a `checks/` folder next to its artifact.
     produced, so the script and the claim can be matched back up.
 - **Cited by path from the artifact** it feeds, so the reference survives
     review.
+- **Fast enough to re-run — target under ~30 s.** Retention exists so the next
+    pass *re-runs* the script; a check nobody will wait for is retained in name
+    only. Before running a sweep, estimate its cost: grid points × rows ×
+    inner steps. If that product exceeds ~10⁶, vectorise it or cut the grid.
+
+### The performance trap: numpy as a scalar calculator
+
+The recurring shape is a `numpy` import used for scalar math *inside* a Python
+loop — `np.interp(v / a, MACH, CD)` on one float, per step, per row, per grid
+point. Each such call pays full array-protocol overhead (~µs) to do ~ns of
+arithmetic, so the script runs 100–1000× slower than the same arithmetic
+vectorised, with no change in results.
+
+Fix: march the whole sweep as one array through the same steps. A parameter
+grid whose points take identical, independent steps is one vector operation,
+not N loops. Reach for `np.interp` on a *vector* of Machs, not a scalar.
+
+**This is not hypothetical, and it is not merely slow.** A Phase-4 drag-law
+re-check swept 551 shape factors, re-integrating a 4000-step RK2 ODE per data
+point with two scalar `np.interp` calls per step — ~4×10⁸ numpy round-trips,
+measured at 10.8 ms per integration, **~9 minutes**. Vectorised it is seconds.
+The run consumed most of that pass's wall clock, the pass hit `maxTurns`
+mid-analysis, and it returned **zero artifact bytes** after ~78k tokens. A slow
+check script does not just cost patience — it spends the turn budget of the
+dispatch that runs it.
 
 ## Committing
 

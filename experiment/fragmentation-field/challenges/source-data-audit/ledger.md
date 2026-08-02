@@ -7,15 +7,15 @@ Provenance and verdict record for every artifact that consumes numbers from
 Repairs are **deferred by design** — this ledger is the map that drives the
 redo, not a record of fixes. `src/arty/` is assessed, never changed here.
 
-| Phase                             | State                                             |
-| --------------------------------- | ------------------------------------------------- |
-| 0 — inventory & provenance        | **done** (this document, sections 1–4)            |
-| 1 — re-baseline ordnance-1944     | **done** — six tables transcribed + verified (§5) |
-| 2 — re-baseline Tolch-1938        | **2a–2c done** (§6); 2d card rewrite outstanding  |
-| 3 — downstream verdict per thread | pending (verdict column below unfilled)           |
-| 4 — `src/arty` assessment         | pending                                           |
-| 5 — independent verification      | pending                                           |
-| 6 — surface reconciliation        | pending                                           |
+| Phase                             | State                                                   |
+| --------------------------------- | ------------------------------------------------------- |
+| 0 — inventory & provenance        | **done** (this document, sections 1–4)                  |
+| 1 — re-baseline ordnance-1944     | **done** — six tables transcribed + verified (§5)       |
+| 2 — re-baseline Tolch-1938        | **2a–2c done** (§6); 2d card rewrite outstanding        |
+| 3 — downstream verdict per thread | pending (verdict column below unfilled)                 |
+| 4 — `src/arty` assessment         | **1944 drag law done** (§8); Tolch updates (4b) pending |
+| 5 — independent verification      | pending                                                 |
+| 6 — surface reconciliation        | pending                                                 |
 
 ## 1. The discriminator
 
@@ -377,7 +377,42 @@ lists 42 usable models and `gemma-4-31b-it` answers normally. A stale model ID
 does surface as `404` (`gemini-2.5-flash` is retired for new keys), so at least
 some historical failures were model-availability, not authorisation.
 
-## 8. Remaining work
+## 8. Phase 4 result — the two shipped drag conclusions
+
+Full assessment: [`phase4-drag-law-assessment.md`](phase4-drag-law-assessment.md).
+Evidence: [`checks/drag-law-recheck-corrected-column.py`](checks/drag-law-recheck-corrected-column.py).
+
+That script reproduces the shipped derivation's V2 numbers digit-for-digit when
+run on the old mixed row set, so every difference it reports is the column
+correction and not method drift.
+
+| claim                                                                                                          | verdict        | note                                                                                                                         |
+| -------------------------------------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `C_D = 1.28` / `C_shape = 2.0890`, `src/arty/fragmentation.py`                                                 | **SOUND**      | bar still passes (RMS M>0.7 0.092 → 0.096); parameter is source-anchored to TP-12's *k* = 2600, never fitted to the 1944 set |
+| rejection of Mach-dependent $C_D$ (`updates/mach-dependent-fragment-drag` §5)                                  | **SHIFTED**    | conclusion stands on §5's structural-cost argument; its *accuracy* evidence does not survive                                 |
+| §3c parameter-dependent scripts (`r50-drag-anchor-shift`, `drag-update-demo-impact`, `check5b-drag-spotcheck`) | **not voided** | they consume `C_D·C_shape`, which is unchanged                                                                               |
+
+**No `src/arty/` value changes.** Both required corrections are text: derivation
+§4 V2's cited RMS pair (0.349 / 0.092 over 25 mixed points → 0.405 / 0.096 over
+32 casualty points), and the false "does not beat this constant" claim carried
+in both §5 and the `DragParams` comment. Phase 6 surface edits, not Workflow B.
+
+### 8a. Separate finding — §5's comparison is not reproducible, and never was
+
+Logged apart from the verdict above **because the column error did not cause
+it.** Derivation §5 compares a zero-free-parameter Fig-3 run against a
+one-free-parameter best constant and concludes the Mach law "does not beat"
+the constant. Given equal freedom the Fig-3 law scores 0.201 / 0.034 against
+the constant's 0.250 / 0.047 — it *did* beat it, on the very data §5 cites.
+
+This is a pre-existing methodological defect that this audit surfaced
+incidentally. A reader tracing *what the column inversion broke* must not be
+handed it as one of the casualties; a reviewer re-running §5 must not miss it
+either. On the corrected data the two laws are indistinguishable — every
+margin sits inside the ±10% fidelity bar and inside the digitized Fig-3's own
+±0.02 read uncertainty.
+
+## 9. Remaining work
 
 - **Phase 2d** — rewrite the Tolch `card.md`: drop the wrong "Drag Model
     Relevance" recommendation, move every anchor off bare line numbers, record
@@ -386,6 +421,6 @@ some historical failures were model-availability, not authorisation.
     citable surface after `tables/`. Either re-extract it from `source.pdf` or
     mark it non-citable; any consumer reading numbers out of it is unsafe.
 - **Phase 3** — downstream verdicts (§3, §4 verdict columns).
-- **Phase 4** — `src/arty` assessment (§3c).
+- **Phase 4b** — the two shipped Tolch-1938 updates (§4); the 1944 drag law is settled in §8.
 - **Phase 5** — independent verification of this ledger.
 - **Phase 6** — surface reconciliation (§3d).

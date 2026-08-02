@@ -67,12 +67,51 @@ full pass. Classify first — it is nearly free:
     agent spent its whole budget discovering/reading and never reached the
     write). Denial language = a permission block (see the background-mode
     section). Neither = a genuine crash / API error.
-1. **On turn-exhaustion, re-dispatch fresh — never `SendMessage`-resume**
-    (Gate 4; the failed instance's window is polluted with the over-read
-    anyway). But fix the *cause* in the new brief or it recurs identically:
-    instruct **write-early** — bank a findings ledger while reading (the facts
-    it learns, not a heading skeleton), so the pass records progress before the
-    cap and a continuation reads its own notes instead of re-deriving cold.
+
+1. **Sub-classify the exhaustion — is the dead window an asset or a
+    liability?** This decides the remedy, and it is the one judgment that
+    cannot be skipped.
+
+    - **Over-read exhaustion** (the dominant mode) — mostly `Read`/`grep`,
+        repeated or circling reads, no `Write`, the agent never converged on
+        anything. The window is a **liability**: it is full of the wrong
+        material and an anchored reading of it. **Re-dispatch fresh.**
+    - **Productive exhaustion** — the agent reached real results (it ran the
+        computation, it states a concrete finding) and ran out of clock before
+        writing them up. Often a single long tool call ate the budget. The
+        window is an **asset**: it holds exactly the discovery a fresh instance
+        would have to pay for again. **Resume it once** — see the next item.
+
+1. **On over-read exhaustion, re-dispatch fresh** (Gate 4), and fix the
+    *cause* in the new brief or it recurs identically: instruct **write-early**
+    — bank a findings ledger while reading (the facts it learns, not a heading
+    skeleton), so the pass records progress before the cap and a continuation
+    reads its own notes instead of re-deriving cold.
+
+1. **On productive exhaustion with zero artifact bytes, `SendMessage`-resume
+    is the cheaper move and is permitted** — narrowly, under all four
+    conditions:
+
+    - **No artifact exists.** Fresh dispatch is only cheap because it is
+        "briefed from the durable artifacts"; on a zero-byte return that
+        premise is exactly what failed, so restarting pays the full discovery
+        cost a second time.
+    - **The window is one pass, not an accreted workflow.** ~50–80k from a
+        single pass is a different object from the ~268k five-pass window Gate
+        4 was written from.
+    - **Resume promptly, while the prompt cache is still warm.** Gate 4's
+        "the TTL always lapses" premise is about *human* turnaround between
+        turns; it does not hold when the orchestrator is live and the agent
+        returned minutes ago. Warm, the resend is 0.1×; that is what makes the
+        arithmetic favour resume.
+    - **Scope the message hard** — name the artifact to write, hand it any
+        results it would otherwise recompute (an output file path), and tell it
+        not to re-derive. `SendMessage` resets `maxTurns`, so the turn guard is
+        gone and the instruction is the only bound left.
+
+    **Once.** A resume that again returns zero bytes is the deterministic loop
+    below — escalate, do not resume twice.
+
 1. **Cap re-dispatches at two, and use artifact growth as the loop sensor.** A
     pass that returns with **zero artifact bytes twice** is a deterministic
     read-bound loop, not bad luck — **stop and escalate to the human** with the
