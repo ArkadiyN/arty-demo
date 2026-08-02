@@ -67,9 +67,12 @@ STEELS: dict[str, SteelParams] = {
     # US WW2 "WDSS 1" War Department shell steel, 0.14-0.20 %C, 1.00-1.30 %Mn
     # (Ammunition Series 6, Table 6-1, 17 Feb 1953); band midpoint 0.17 %C.
     # 60mm/81mm mortar and 57mm recoilless bodies -- a ductile, low-carbon grade.
+    # FINDING[blocking]: gamma = 47 and gamma = 65 both interpolate along the rising trend of Mott 1947 p.308's gamma column, and that column does not reproduce from the paper's own stated closure gamma ~ 160 P_2/P_F(1+s_F) -- the formula is flat (spans x1.20) where the printed column rises x3.35; transcription is confirmed against the page at 420 dpi, so the non-closure is in the 1947 paper, and whether the trend is still usable as a calibration series is a modelling question, not a librarian one (affects: src/arty/fragmentation.py, doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.invariant, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md, experiment/fragmentation-field/challenges/source-data-audit/ledger.md; since: 2026-08-02)
     # gamma = 47: local-linear interpolation of the Mott 1947 §3 composition
-    # series (after Koerber & Rohdal 1924) inside the single 0.1 %C (gamma = 42)
+    # series (after Koerber & Rohland 1924) inside the single 0.1 %C (gamma = 42)
     # to 0.25 %C (gamma = 53) segment -- no extrapolation, no slope break.
+    # Series: gurney-equations-fragmentation, tables/section3-gamma-vs-
+    # composition.csv; anchor "Some values of".
     # The band endpoints 0.14/0.20 %C give gamma = 45/49:
     # that is the parameter uncertainty, not separate grades.
     # sigma_f held at 800 MPa and rho at 7850: only R = sigma_f/gamma is
@@ -96,7 +99,6 @@ STEELS: dict[str, SteelParams] = {
 # They are the defaults of the ShellParams.aspect_ratio / .breadth_factor
 # fields below (single source of truth) and are overridable per call.
 
-# FINDING[blocking]: kappa_x below still cites rspa.1947.0042.md:190, a bare line number that rots silently whenever the document is re-extracted; gurney-equations-fragmentation has not been re-baselined and has no tables/*.csv, so this value is not yet admissible per .claude/rules/source-data-fidelity.md (affects: src/arty/fragmentation.py, doc-reference/fragmentation/gurney-equations-fragmentation/card.md, experiment/fragmentation-field/challenges/source-data-audit/ledger.md; since: 2026-08-02)
 # A = l_bar/x_bar, fragment length-to-circumferential-breadth ratio [-].
 # Mott/Grady/Hiroe cross-dataset mean width:length = 1:1.6, i.e. length is the
 # LONG dimension: Felix, Colwill & Harris (2022) define aspect ratio as "a
@@ -111,9 +113,14 @@ _MOTT_ASPECT_RATIO = 1.6
 
 # kappa_x = x_bar/x0, mean circumferential breadth in units of the fracture
 # spacing [-]. Mott's own ruled-line statistic, finding (1): fragment lengths
-# lie mostly in x0..2x0 with average 1.5 x0 (rspa.1947.0042.md:190). Gold
-# restates x0 itself as the mean breadth, i.e. silently sets kappa_x = 1;
-# Mott is the primary source and the only one who measures the mean.
+# "lie between x0 and 2x0, and the average length is about 1.5x0" (Mott 1947
+# p.305, anchor "The fragments have lengths most of which lie"). Gold restates
+# x0 itself as the mean breadth, i.e. silently sets kappa_x = 1; Mott is the
+# primary source and the only one who measures the mean.
+# The 1.5 is confirmed against Mott's own worked example rather than read off
+# a neighbouring sentence: p.306 gives x0 = 1.6/sqrt(gamma) in. and concludes
+# 0.24 in. at gamma ~ 100, and 1.5 * 1.6/sqrt(100) = 0.24 exactly. Verified by
+# challenges/source-data-audit/checks/mott-1947-gamma-and-length-closure.py.
 _MOTT_BREADTH_FACTOR = 1.5
 
 

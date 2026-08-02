@@ -9,7 +9,7 @@ checks. No `src/arty/` edits here.
 
 | # | Equation | Source |
 | --- | --- | --- |
-| (G2) | `x₀ = (2σ_F/ργ′)^{1/2}·r/V`, at the instant of fracture, with `r` the ring radius **at break-up** | Gold 2017 eq. (2), `…conwep/1-s2.0-S221491471730079X-main.md:58-60`; Mott 1947 line after eq. (5), `…gurney-equations-fragmentation/rspa.1947.0042.md:158` |
+| (G2) | `x₀ = (2σ_F/ργ′)^{1/2}·r/V`, at the instant of fracture, with `r` the ring radius **at break-up** | Gold 2017 eq. (2), `…conwep/1-s2.0-S221491471730079X-main.md:58-60`; Mott 1947 line after eq. (5), `…gurney-equations-fragmentation/`, p.304 line after eq. (5), anchor `The length` (verified against the retained scan 2026-08-02: the page reads `x₀ = (2P_F/ργ)^{1/2}·r/v`, agreeing with Gold symbol-for-symbol; the `.md` extraction of this line is corrupt — see that document's `card.md`) |
 | (G4) | fragment idealised as a parallelepiped `l₀ × x₀ × t₀`; `μ = ½αρx₀³`, `α = (l₀/x₀)(t₀/x₀)`; `μ` ≡ **half** the mean fragment mass | Gold eq. (4), lines 70-76, and line 54 |
 | (G6) | `γ ≡ α^{-2/3}γ′` — shape absorbed into a redefined constant | Gold eq. (6), line 78 |
 | (G16) | `μ = √(2/ρ)·(σ_F/γ)^{3/2}·(r/V)³` (algebraically identical to the coded line, `fragmentation.py:211-215`) | Gold eq. (7)≡(16) |
@@ -28,8 +28,8 @@ as-manufactured wall [m]; `t_bu` wall at break-up [m]; `r_mean = ½(r_o+r_i)`,
 Read from source, not the cards. Mott introduces `x₀` as the *half-width of the
 unstressed zone* round a fracture (his eq. (5) preamble), then says only that
 it "is on dimensional grounds obviously proportional to the average fragment
-length" (rspa:160). He then measures the average from his ruled-line Monte
-Carlo and reports **1.5x₀** (rspa:190). Gold restates the same expression but
+length" (Mott 1947 p.304, anchor `The length`). He then measures the average from his ruled-line Monte
+Carlo and reports **1.5x₀** (Mott 1947 p.305 finding (1), anchor `The fragments have lengths most of which lie`). Gold restates the same expression but
 labels it "the average circumferential length of the resulting fragments"
 (conwep:58) — i.e. Gold has silently set `κ_x = 1`, dropping Mott's factor.
 

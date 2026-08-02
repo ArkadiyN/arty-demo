@@ -1,0 +1,5 @@
+material,carbon_pct,reduction_in_area,P_F_kg_per_mm2,P_2_kg_per_mm2,gamma
+iron,0.0,0.83,54,34,20
+steel 0.1C,0.10,0.70,70,42,42
+steel 0.25C,0.25,0.63,80,45,53
+steel 0.45C,0.45,0.57,82,38,67

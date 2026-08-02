@@ -10,16 +10,26 @@ other; eq. (11) reduced to a circular `N = 1/log(NV)`). Root cause was
 `google_timeout_ms` (`src/utils/settings.py`) being too short for the vision
 model's server-side processing budget, causing spurious 504 DEADLINE_EXCEEDED
 responses — fixed by raising `GOOGLE_TIMEOUT_MS` (now 300000 in `.env`). All
-pages were re-ingested with the corrected timeout and are now clean.
+pages were re-ingested with the corrected timeout and **are now clean on the
+§3 table**, but not everywhere — see the residual-defects note below.
 
-**Downstream impact — flagged, not yet fixed:** the composition→γ table on
-p. 308 changed materially versus the previously-cited (garbled) version:
-steel-0.1%C is γ=**42** (was misread as 32), and the row after 0.1%C is
-0.25%C (was misread as 0.2%C). `experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md`
-§2 interpolates the WDSS-1 calibration constant (adopted γ=47) using the old,
-now-known-wrong bracketing points (0.1%C→32, 0.2%C→53). That derivation needs
-re-checking against the corrected table — this is a modeling correctness
-question (Gate 3), not a documentation fix, and hasn't been done here.
+**Downstream impact — RESOLVED 2026-08-02.** The composition→γ table on p. 308
+changed materially versus the previously-cited (garbled) version: steel-0.1%C
+is γ=**42** (was misread as 32), and the row after 0.1%C is 0.25%C (was misread
+as 0.2%C). `experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md`
+§2 had interpolated the WDSS-1 calibration constant on the old, wrong bracketing
+points. It has since been redone: it now brackets 0.1%C→42 and 0.25%C→53, and
+the adopted γ=47 follows from those. Both re-extracted values are confirmed
+against `source.pdf` p.9 at 420 dpi. This paragraph previously read
+"flagged, not yet fixed" and was stale.
+
+**Residual defects in this extraction — do not derive from the equations here.**
+Verified against the retained scan 2026-08-02; the numbered table in §3 is
+faithful, several equations are not. Most consequential: the line after eq. (5)
+should read `x₀ = (2P_F/ργ)^{1/2}·r/v`, and the extraction's `(2P_y/ρv)` drops
+the γ dependence altogether. Full list, with page anchors, in `card.md`
+("Extraction defects found while re-baselining"). Numeric series live in
+`tables/`; read those, not this file.
 
 A theory is given of the break-up of a metal shell of a cylindrical ring-form, to which the lines of fracture perpendicularly to the axis of the shell are predetermined. From the theory the average fragment length is given for the length of the average fragment; this is shown to depend, if certain hypotheses are made, on the radius and velocity of the shell at the moment of break-up, and on the mechanical properties of the metal.
 

@@ -1040,3 +1040,115 @@ Phase 4 (`src/arty` assessment) is **unblocked on its Tier-1 dependency**.
 Phase 3 remains blocked for any thread citing a Tier-2 source (§14a), and
 `mott-fragment-shape-closure` is such a thread: it rests on `kappa_x` from
 `gurney-equations-fragmentation`.
+
+## 17 · Tier-2 re-baseline — `gurney-equations-fragmentation` (Mott 1947)
+
+Scan supplied by the user 2026-08-02 and retained as `source.pdf` (9 pp.,
+gitignored). Pages 304–308 were read at 200–420 dpi. The PDF carries an
+embedded OCR layer of its own, and that layer is poor — so page-fidelity here
+is a *visual* read, not a text-layer string match as it was for the 105 mm BOM.
+
+### 17a · The shipped constant is correct, and closes on the paper's own example
+
+`_MOTT_BREADTH_FACTOR = 1.5` comes from finding (1) on p.305: *"The fragments
+have lengths most of which lie between x₀ and 2x₀, and that the average length
+is about 1·5x₀."* Verbatim on the page.
+
+Better than a page match, it **closes arithmetically**. p.306 states
+x₀ = 1·6/√γ in. for its 3 in. bomb and concludes *"if γ ~ 100, the average
+fragment length is about 0·24 in."* — and 1.5 × 1.6/√100 = 0.24 exactly. So the
+1.5 in finding (1) is demonstrably the same 1.5 Mott used to reach his own
+printed answer, rather than a plausible number read off a neighbouring
+sentence. That is the shape of check this audit was set up to produce:
+`checks/mott-1947-gamma-and-length-closure.py`, C1.
+
+### 17b · The γ column does not close — blocking
+
+p.308 states γ ~ 160 P₂/P_F(1 + s_F) two lines above the table it then
+tabulates, and introduces that table as values *"of P₂, P_F, s_F … deduced
+below"*. Feeding the tabulated columns back through the formula:
+
+| material     | printed γ | s_F = reduction in area | s_F = ln(1/(1−RA)) |
+| ------------ | --------- | ----------------------- | ------------------ |
+| iron         | 20        | 55.0                    | 36.3               |
+| steel 0.1 C  | 42        | 56.5                    | 43.6               |
+| steel 0.25 C | 53        | 55.2                    | 45.1               |
+| steel 0.45 C | 67        | 47.2                    | 40.2               |
+
+Both readings are essentially **flat** — ×1.20 across the four rows — where the
+printed column rises **×3.35**. The implied proportionality constant would have
+to run 58 → 227.
+
+**Every digit was confirmed against the page at 420 dpi.** This is therefore
+not a transcription defect: it is either a fuller derivation Mott did not print
+(he writes "~", and says N "can only be guessed"), or an inconsistency in the
+1947 paper.
+
+It matters because the *rising trend* is precisely what this repo consumes.
+`src/arty/fragmentation.py` carries γ = 47 for WDSS-1, interpolated inside the
+0.1 C → 0.25 C segment, and γ = 65 anchored just under the 0.45 C row. Both
+read that column and nothing else in the table. Whether a series that does not
+reproduce from its own stated formula is still usable as a calibration ladder
+is a **modelling** question, not a librarian one — registered `blocking`
+against `src/arty/fragmentation.py`, for Phase 4.
+
+A second non-closure, consumed by nothing and recorded only for completeness:
+p.308's "average length 0·6 in." for mild steel implies γ = 16, below even the
+iron row.
+
+### 17c · A prior flag was stale in the safe direction
+
+The extraction's own header said `wdss1-steel-grade/derivation.md` still
+interpolated γ on the pre-2026-07-25 bracketing points (0.1 %C → 32, 0.2 %C →
+53). It does not — that derivation was redone and now brackets 0.1 %C → 42 and
+0.25 %C → 53, which is what the page says. The header has been corrected.
+
+Worth naming as a pattern: **a "flagged, not yet fixed" note is a claim with a
+shelf life, and nothing re-checks it.** This one had already been discharged;
+the reverse — a note saying "fixed" when it was not — would have read exactly
+as trustworthy.
+
+### 17d · The extraction is unsafe for equations, and one is materially wrong
+
+The §3 table is faithful. Several equations are not, and one is serious: the
+line after eq. (5) should read **x₀ = (2P_F/ργ)^{1/2}·r/v**; the extraction
+renders it `(2P_y/ρv)^{1/2} r/v`. That drops the **γ** dependence entirely —
+the dependence the whole of §3 exists to quantify, and the one that makes
+p.306's x₀ = 1·6/√γ true.
+
+Nothing derived from the corrupt line: `mott-fragment-shape-closure/ derivation.md` (G2) carries the correct form, having taken it via Gold 2017
+eq. (2), which agrees with the page symbol-for-symbol. **The redundancy caught
+it, not the extraction gate** — the same lesson as §15's BOM cross-table
+corroboration. Four further defects (a `^4` for `^{1/2}`, `x_g` for `x₀`, a
+figure numbered 3 that is 4, a garbled abstract sentence) are listed in the
+new `card.md`; none is consumed.
+
+### 17e · The document had no card
+
+Like `explosion-fragment-model` (§16b), a source feeding **two** shipped
+constants had no `card.md` at all — only a raw extraction. That is now two of
+the two documents in this class. The 2.5c triage should be "cited by shipped
+code with no card", not merely "no `tables/*.csv`"; on this evidence it would
+have found both.
+
+The folder is also misnamed: `gurney-equations-fragmentation` contains no
+Gurney equation. Kept, because eight artifacts cite the path; recorded in the
+card so the next reader is not misled.
+
+### 17f · Anchors repaired
+
+Bare line numbers into `rspa.1947.0042.md` replaced with greppable page
+anchors in `mott-fragment-shape-closure/derivation.md` and `scoping.md`,
+`mott-scale-gap/_scale_verdict_ledger.md`, and
+`wdss1-steel-grade/checks/recompute.py`. `recompute.py` still hand-copies the
+γ series into a literal array — values verified correct, so this is fragility
+not wrongness; marked `deferrable` for the pass that next re-runs it and can
+diff the output.
+
+### 17g · State
+
+`gurney-equations-fragmentation` is **re-baselined**. The remaining Tier-2
+sources — `ammunition-series-6-wdss-specs`, `sandia-sand92-0243`, `aisi-1335` —
+were supplied by the user in the same batch and are next; 2.5b is not yet
+closed. The `fragmentation.py` blocking marker for `kappa_x` is **cleared**,
+replaced by the narrower and more consequential γ-column finding in 17b.

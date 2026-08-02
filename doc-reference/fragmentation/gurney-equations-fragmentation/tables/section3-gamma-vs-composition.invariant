@@ -1,0 +1,62 @@
+csv:     section3-gamma-vs-composition.csv
+source:  ../source.pdf p.9 (journal page 308), the unnumbered table in sect. 3
+anchor:  Some values of
+anchor:  reduction
+anchor:  deduced below from curves given by
+
+# THIS TABLE FEEDS SHIPPED CODE. src/arty/fragmentation.py carries gamma = 47
+# for WDSS-1 (interpolated inside the 0.1 C -> 0.25 C segment) and gamma = 65
+# for the legacy grade (anchored just under the 0.45 C row's 67). Both read the
+# gamma column below, and nothing else in this table.
+#
+# TRANSCRIPTION IS VERIFIED. Every cell was read off source.pdf page 9 at
+# 420 dpi during the Phase-2.5 admissibility gate (ledger sect. 17). This
+# supersedes the pre-2026-07-25 OCR, which had gamma(0.1 C) = 32 and labelled
+# the third row 0.2 C; both are wrong and both reached derivation.md before
+# being corrected.
+#
+# carbon_pct IS DERIVED, NOT TRANSCRIBED. The page labels the rows "iron",
+# "steel 0.1 C", "0.25 C", "0.45 C". The 0.0 on the iron row is this repo's
+# reading of "iron" as nominally carbon-free; the page states no number.
+
+# --- what holds -------------------------------------------------------------
+# Three of the five columns are ordered, which is what catches a row swap or an
+# off-by-one read of the interleaved rows.
+monotonic: carbon_pct increasing
+monotonic: reduction_in_area decreasing
+monotonic: P_F_kg_per_mm2 increasing
+monotonic: gamma increasing
+
+# P_2 is NOT monotonic (34, 42, 45, 38) -- the 0.45 C row turns it over. That is
+# on the page; do not "fix" it.
+total: P_2_kg_per_mm2 == 159 within 0.5
+
+# --- what does NOT hold, and it is the point of this file --------------------
+# The page states its own closure two lines above the table:
+#
+#     gamma ~ 160 P_2 / P_F (1 + s_F)
+#
+# with P_F "the true stress and s_F the plastic strain at fracture" (p. 307,
+# anchor "where P_F is the true stress"). The table tabulates P_2, P_F and a
+# "reduction in area" column, and the sentence introducing it says values "of
+# P_2, P_F, s_F have been deduced below" -- so reduction in area is the
+# tabulated stand-in for s_F.
+#
+# THE COLUMN DOES NOT REPRODUCE. Taking s_F as the reduction in area directly
+# gives 55.0 / 56.5 / 55.2 / 47.2; taking s_F = ln(1/(1-RA)), the true plastic
+# strain, gives 36.3 / 43.6 / 45.1 / 40.2. Both are nearly FLAT, while the
+# printed gamma column rises 20 -> 42 -> 53 -> 67, a factor of 3.35. The
+# implied proportionality constant would have to run 58 -> 227.
+#
+# The rising trend is precisely what this repo consumes -- gamma = 47 is an
+# interpolation ALONG that trend. So the failure is not cosmetic.
+#
+# This is not expressible as a passing check, and it is not a transcription
+# defect: the digits are confirmed against the page. It is either a fuller
+# derivation Mott did not print (he writes "~", and says N "can only be
+# guessed"), or an inconsistency in the 1947 paper. Deciding which is a
+# modelling question, not a librarian one -- registered as a blocking finding
+# against src/arty/fragmentation.py. Residuals are pinned, so that a future
+# re-extraction that moves a digit moves them too, in:
+#   experiment/fragmentation-field/challenges/source-data-audit/checks/
+#     mott-1947-gamma-and-length-closure.py
