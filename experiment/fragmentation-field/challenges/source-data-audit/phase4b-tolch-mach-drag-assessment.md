@@ -17,11 +17,18 @@ Written by the main agent, not a modelling pass — bookkeeping only, no physics
     `RATIO_OBS` 0.557 reproduces at 0.5570).
 1. **Pass 3** — wrote
     [`checks/tolch-count-basis-closure.py`](checks/tolch-count-basis-closure.py),
-    which **found two defects** (both now registered in `ledger.md` §10 and
-    `OPEN-FINDINGS.md`): the side-spray series fails component-sum closure at
-    v=1085 f/s on panels A/B/C, and the pit-test recovered count is 803 in
-    committed artifacts against 779 in the report's own screen table and body
-    text. It did not append to this file before its budget ran out.
+    which **found two defects**: the side-spray series fails component-sum
+    closure at v=1085 f/s on panels A/B/C, and the pit-test recovered count is
+    803 in committed artifacts against 779 in the report's own screen table and
+    body text. It did not append to this file before its budget ran out.
+1. **Side-spray closure resolved by the main agent** (not a modelling pass).
+    The table was never extracted into `tables/`; both scripts held it as a
+    literal typed off the garbled text layer. Re-extracted through the fixed
+    single-page vision path to
+    `tables/side-spray-density.csv` — **all 20 cells close exactly**, so the
+    failure was the transcription, not the source. That finding is closed; the
+    803-vs-779 one remains open in `ledger.md` §10. Both scripts now read the
+    CSV. Details in `ledger.md` §6, "2b, second sitting".
 
 **Diagnosis for whoever picks this up:** this is not a read-bound loop — every
 pass after the first produced real, durable, correct output. The output kept

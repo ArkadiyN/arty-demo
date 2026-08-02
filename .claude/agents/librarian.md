@@ -32,12 +32,16 @@ below are for topic-search dispatches only.
     applies: the table is inadmissible until a closure invariant derived from
     the source's own stated definitions is shown to hold on every row.
     Transcribe the series **once** to
-    `doc-reference/<topic>/<docname>/tables/<table-slug>.csv`, declare the
-    invariant beside it in `<table-slug>.invariant`, and run
+    `doc-reference/<topic>/<docname>/tables/<table-slug>.csv`, record **the
+    invariant your brief supplied** beside it in `<table-slug>.invariant`, and
+    run
     `uv run src/utils/check-table-invariants.py doc-reference/<topic>/<docname>/tables --all`.
-    Report the result in your summary. **A table you could not find an
-    invariant for is not thereby admissible** — say so explicitly so the
-    caller can escalate; do not quietly ship it.
+    Report the result in your summary. **You do not author the invariant** —
+    the dispatcher does (see "Numeric transcription is not a Haiku-tier task"
+    below); you transcribe, record, and verify it. **A table whose brief
+    carried no invariant is not thereby admissible** — quote the source's own
+    definitional sentences for the caller to author one from, say so
+    explicitly, and stop; do not quietly ship it.
     - Two-column scans interleave row-by-row and are the known trap: identify
         each column by an invariant *internal to the table*, never by a field
         you carried into `card.md` yourself. That circularity inverted three

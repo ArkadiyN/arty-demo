@@ -1,0 +1,47 @@
+csv:     side-spray-density.csv
+source:  source.pdf p.39-40 (report pages -17-, -18-); DTIC AD0702233
+anchor:  Number of perforations, penetrations, and dents per unit solid angle of the sidespray.
+anchor:  Total number of hits per unit solid angle in side spray.
+
+# Tolch (1938), BRL Report 126 -- SIDE-spray fragment density per unit solid
+# angle. The spray is averaged over the arc the source tabulates beside each
+# row: 76-111 deg from the shell axis when fired statically, sweeping forward
+# to 36-71 deg at 2130 f/s. `v_fps` is the shell's AVERAGE REMAINING VELOCITY
+# AT BURST (a firing condition), NOT a fragment velocity; v_fps = 0 is the row
+# the source labels "Static". Panels A/B/C/D stand at 15/36/75/120 ft.
+#
+# CLOSURE INVARIANT -- the components table (report p.17) and the totals table
+# (report p.18) are separately typeset, and the source states of the totals
+# that it "shows the total number of hits of the sidespray per unit solid
+# angle". So per (velocity, panel) cell:
+#     perf + penet + dents == total
+# This holds EXACTLY (to the printed 2 d.p., zero residual) on all 20 cells.
+# The check is non-vacuous: neither table is derived from the other in this
+# file, and the totals were read off a different page image.
+#
+# Not transcribed: the P.E.-of-mean column beside each panel, and the source's
+# `a` footnote ("two rounds only") marking the 1450/1685/2130 Panel A and B
+# cells as low-sample. Cells the source prints as a dash -- no data -- are
+# omitted rather than zero-filled, which is why the table has 20 rows and not
+# 24.
+#
+# TRANSCRIPTION HISTORY -- this table was NOT extracted when the base- and
+# nose-spray tables were (audit Phase 2b covered only two of the three spray
+# classes). In the interim it lived as a hand-typed literal inside two check
+# scripts under
+# experiment/fragmentation-field/challenges/source-data-audit/checks/, both
+# typed off the garbled pdftotext layer. Those literals put the v=1085 totals
+# at 4.26 / 3.56 / 1.90, which fails this invariant; the page prints
+# 4.06 / 3.42 / 1.96, which closes. They also recorded Panel D @ 700 f/s
+# penetrations as illegible; the page prints .49. Do not "correct" this file
+# against those scripts or against `../tolch-1938.md` -- both are the
+# corrupted copies. This CSV is read off the page images via the single-page
+# vision path in src/utils/pdf-processor.py.
+#
+# The Panel A -> Panel D perforation ratio consumed by
+# experiment/fragmentation-field/updates/mach-dependent-fragment-drag/ is
+# 0.83 / 1.49 = 0.5570 on the static row, and the source's own stated A->D
+# perforating-density losses (44, 19, 33%, "averaging 32%") reproduce from the
+# perf column at v = 0, 700, 1085 -- an independent cross-check on that column
+# beyond the row-sum invariant below.
+row:  perf + penet + dents - total == 0 within 0.02

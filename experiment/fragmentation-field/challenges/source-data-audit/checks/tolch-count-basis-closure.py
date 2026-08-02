@@ -15,23 +15,33 @@ and adds a cross-surface closure for the side-spray component table against
 the report's separately typeset "Total number of hits ..." table, which the
 earlier script could not do for Panel A (illegible in the component table).
 
-Greppable source anchors (all resolve in tolch-1938.md and in any
-re-extraction; NO bare line numbers):
-  screen table : "Fragments caught oy No. % of Wt. of % of empty"
+Greppable source anchors (all resolve in source.pdf and in any re-extraction;
+NO bare line numbers):
+  screen table : "Fragments caught by following screens:"
   screen counts: "Four rounds were fragmented in sand pit tests"
   narrative    : "In the pit fragmentation tests, an average of"
   item 6       : "total number of fragments issuing from the shell"
   totals table : "Total number of hits per unit solid angle in side spray."
-  components   : "Number of perforations, penetrations, and dents per unit solid angle of the sidcspray."
+  components   : "Number of perforations, penetrations, and dents per unit solid angle of the sidespray."
   stated loss  : "the losses in density of"
   hole areas   : "of all the perforating fragments issuing"
 
-CAVEAT (same as tolch-side-spray-closure.py): neither the side-spray table nor
-the pit screen table has been extracted into
-doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/,
-so the series are held here as literals.  That is the condition this script
-exists to test, not a shortcut -- see the FINDING marker in the assessment.
+Both series are read from tables/*.csv, transcribed once off the page images
+and each carrying its own closure invariant (see the .invariant files).  This
+script previously held them as hand-typed literals off the garbled pdftotext
+layer; that is what put the v=1085 side-spray totals at 4.26 / 3.56 / 1.90
+(the page prints 4.06 / 3.42 / 1.96) and the screen-4 count at "illegible"
+(the page prints 142).
 """
+
+import csv
+import pathlib
+
+ROOT = pathlib.Path(__file__).resolve().parents[5]
+TABLES = (
+    ROOT
+    / "doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables"
+)
 
 LB_G = 453.59237
 fails = 0
@@ -46,33 +56,41 @@ def check(label, got, want, tol):
 
 
 # --- P1. pit-test screen table: which total closes, 779 or 803? -------------
-# anchor "Fragments caught oy No. % of Wt. of % of empty"
-SCREEN_N = {"1": 6, "2": 272, "3": 255, "4": None, "thru 4": 104}  # 4 illegible
-PRINTED_PCT = {"2": 34.9, "thru 4": 13.4}   # % of total no. of fragments
-PRINTED_TOTAL = 779
-PRINTED_WT_LB = 12.708                      # = 95.6 % of empty shell + fuze
+# Read once from tables/pit-screen-recovery.csv (anchor "Fragments caught by
+# following screens:", report page -6-, the four-round average).
+SCREENS = []
+with (TABLES / "pit-screen-recovery.csv").open(encoding="utf-8") as f:
+    for r in csv.DictReader(f):
+        SCREENS.append((r["screen"], int(r["n_frag"]), float(r["pct_no"]),
+                        float(r["wt_lb"])))
+
+PRINTED_TOTAL = 779       # the table's own total row
+PRINTED_WT_LB = 12.708    # = 95.6 % of empty shell + fuze
 
 print("== P1. pit-test count: percent-of-total column discriminates 779 vs 803 ==")
 for cand in (779, 803):
     print(f"  candidate total = {cand}")
-    for k, pct in PRINTED_PCT.items():
-        n = SCREEN_N[k]
-        assert n is not None  # only screen "4" is illegible, and it has no printed %
-        check(f"    screen {k}: {n}/{cand} vs printed %",
+    for name, n, pct, _ in SCREENS:
+        check(f"    screen {name}: {n}/{cand} vs printed %",
               100.0 * n / cand, pct, 0.06)
-# the 803 rows above are EXPECTED to fail; undo their contribution and assert it
-expected_803_failures = 2
+# the 803 rows above are EXPECTED to fail; undo their contribution and assert it.
+# Screens 1 and 4 have small enough shares that the 779-vs-803 gap stays inside
+# the rounding band; screens 2, 3 and "thru 4" do not.
+expected_803_failures = sum(
+    abs(100.0 * n / 803 - pct) > 0.06 for _, n, pct, _ in SCREENS
+)
 fails -= expected_803_failures
 print(f"  (the {expected_803_failures} failures under 803 are the finding, not a defect)")
 
-# Summary item 1's screen list, anchor "Four rounds were fragmented in sand pit tests":
-# "6 on the No. 1 screen, 272 on No. 2, 255 on No. 3, l»l-2 on No. k, and 1(& through N. h"
-# -> screen 4 = 142 ('l»l-2'), through = 104 ('1(&'); its own total glyph is illegible.
-S4 = 142
-print("\n== P2. summary item 1 screen counts sum to the printed total ==")
-check("  6+272+255+142+104", 6 + 272 + 255 + S4 + 104, PRINTED_TOTAL, 0.5)
-check("  screen 4 share 142/779 vs 100-(0.8+34.9+32.7+13.4)",
-      100.0 * S4 / PRINTED_TOTAL, 100.0 - (100.0 * 6 / PRINTED_TOTAL) - 34.9 - 32.7 - 13.4, 0.2)
+print("\n== P2. screen counts sum to the printed total ==")
+# Cross-checked by summary item 1, anchor "Four rounds were fragmented in sand
+# pit tests", which lists the same five counts in prose.
+check("  sum of the five screen counts",
+      sum(n for _, n, _, _ in SCREENS), PRINTED_TOTAL, 0.5)
+check("  sum of the five printed percentages",
+      sum(p for _, _, p, _ in SCREENS), 100.0, 0.15)
+check("  sum of the five screen weights, lb",
+      sum(w for _, _, _, w in SCREENS), PRINTED_WT_LB, 0.005)
 
 print("\n== P3. mean recovered fragment mass under each total ==")
 m_recovered_g = PRINTED_WT_LB * LB_G
@@ -88,45 +106,29 @@ print("\n== P4. item 6 'about 5000 = 700 perf + 900 penet + 3400 dents' ==")
 check("  700+900+3400", 700 + 900 + 3400, 5000, 0.5)
 
 # --- P5. side-spray components vs the separately typeset totals table ------
-# components anchor "...dents per unit solid angle of the sidcspray."
-SIDE = {  # v_fps -> {kind: [A,B,C,D]}
-    0:    {"perf": [1.49, 1.47, 1.18, 0.83],
-           "penet": [0.97, 1.29, 0.47, 0.65],
-           "dents": [2.39, 1.13, 0.18, 0.04]},
-    700:  {"perf": [1.25, 1.29, 0.94, 1.01],
-           "penet": [0.76, 1.23, 0.55, None],
-           "dents": [1.42, 1.01, 0.16, 0.16]},
-    1085: {"perf": [1.53, 1.41, 1.15, 1.02],
-           "penet": [0.75, 1.17, 0.64, 0.75],
-           "dents": [1.78, 0.84, 0.17, 0.30]},
-}
-# totals anchor "Total number of hits per unit solid angle in side spray."
-SIDE_TOTALS = {0: [4.85, 3.89, 1.83, 1.52],
-               700: [3.43, 3.53, 1.65, 1.66],
-               1085: [4.26, 3.56, 1.90, 2.07]}
+# Read once from tables/side-spray-density.csv (extracted off the page images;
+# see side-spray-density.invariant). This script previously held the series as
+# a hand-typed literal off the garbled text layer, whose v=1085 totals of
+# 4.26 / 3.56 / 1.90 failed this check; the page prints 4.06 / 3.42 / 1.96.
+SIDE = {}
+with (TABLES / "side-spray-density.csv").open(encoding="utf-8") as f:
+    for r in csv.DictReader(f):
+        SIDE[(int(r["v_fps"]), r["panel"])] = {
+            k: float(r[k]) for k in ("perf", "penet", "dents", "total")
+        }
 
 print("\n== P5. side-spray components sum to the separately typeset totals ==")
-for v, kinds in SIDE.items():
-    for i, panel in enumerate("ABCD"):
-        vals = [kinds[k][i] for k in ("perf", "penet", "dents")]
-        if any(x is None for x in vals):
-            print(f"  v={v:<5} panel {panel}: component illegible, skipped")
-            continue
-        check(f"  v={v:<5} panel {panel}: sum vs printed total",
-              sum(x for x in vals if x is not None), SIDE_TOTALS[v][i], 0.015)
+for (v, panel), row in sorted(SIDE.items()):
+    check(f"  v={v:<5} panel {panel}: sum vs printed total",
+          row["perf"] + row["penet"] + row["dents"], row["total"], 0.015)
 
 # --- P6. the perf row the update consumes is confirmed independently -------
 print("\n== P6. perf row confirmed by the source's own stated A->D losses ==")
 for v, stated in ((0, 44.0), (700, 19.0), (1085, 33.0)):
-    # The perf rows are fully legible at every velocity (only one `penet` cell
-    # is not), so these indices are floats; assert it rather than let the
-    # Optional from the `dents`/`penet` cells leak into the arithmetic.
-    a, d = SIDE[v]["perf"][0], SIDE[v]["perf"][3]
-    assert a is not None and d is not None
+    a, d = SIDE[(v, "A")]["perf"], SIDE[(v, "D")]["perf"]
     check(f"  v={v:<5} 1 - D/A", 100.0 * (1 - d / a), stated, 0.5)
-a0, d0 = SIDE[0]["perf"][0], SIDE[0]["perf"][3]
-assert a0 is not None and d0 is not None
-check("  RATIO_OBS consumed by the update (static D/A)", d0 / a0, 0.557, 0.001)
+check("  RATIO_OBS consumed by the update (static D/A)",
+      SIDE[(0, "D")]["perf"] / SIDE[(0, "A")]["perf"], 0.557, 0.001)
 
 # --- P7. hole-area floor used in scoping 3d --------------------------------
 # anchor "of all the perforating fragments issuing": 2 % of perforating

@@ -280,6 +280,56 @@ and
 [`tables/nose-spray-density.csv`](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/nose-spray-density.csv),
 each with its `.invariant`; `check-table-invariants.py` reports 0/2 failed.
 
+**2b, second sitting — the SIDE-spray table was missed the first time, and is
+now re-baselined too.** Phase 2b called for one dispatch per spray class; only
+base and nose reached `tables/`. The side spray — the table the
+`mach-dependent-fragment-drag` update actually consumes, via the Panel A→D
+perforation ratio — survived as a hand-typed literal inside two check scripts,
+typed off the garbled `pdftotext` layer. Extracted through the fixed
+single-page vision path (§7) from source.pdf pp.39–40 (report pages -17-, -18-)
+to
+[`tables/side-spray-density.csv`](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/side-spray-density.csv):
+
+| Table      | Cells | Fail | Largest residual |
+| ---------- | ----- | ---- | ---------------- |
+| Side spray | 20    | 0    | 0.00             |
+
+**All 20 cells close exactly**, so the blocking finding that the series fails
+its closure at v = 1085 f/s is **resolved as a transcription error, not a
+source defect.** The literal put that row's totals at 4.26 / 3.56 / 1.90; the
+page prints 4.06 / 3.42 / 1.96 — exactly the component sums. It also recorded
+Panel D @ 700 f/s penetrations as illegible; the page prints 0.49. Same shape
+as the incident this audit exists for, one table over: a series re-typed
+instead of read once.
+
+Three independent cross-checks on the perf column beyond the row sums, all
+passing: the source's own stated A→D perforating losses (44 / 19 / 33 %,
+"averaging 32 %") reproduce at 44.3 / 19.2 / 33.3 %, mean 32.3; its stated
+total-hit loss "about 57 %" reproduces at 56.4 %; and `RATIO_OBS = 0.557`
+reproduces at 0.5570. Both check scripts now read the CSV — no hand-typed
+array remains in either.
+
+**The pit screen table is recorded too, and it sharpens the 803-vs-779
+finding.** Same situation: cited by the update, never extracted, held as a
+literal with the screen-4 count marked illegible. Now at
+[`tables/pit-screen-recovery.csv`](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/pit-screen-recovery.csv)
+off source.pdf p.10 (report page -6-), with the screen-4 count legible at 142.
+Its invariant is four-fold — the counts sum to the printed 779, both
+percentage columns reproduce from the counts and weights against bases the
+source states, and all four column totals close.
+
+That makes the count question decisive rather than suggestive. The earlier
+literal could only test two screen rows against 803; the full table tests
+five, and **four of them fail their printed percentage under 803** (by 1.03,
+0.94, 0.52 and 0.45 pp) while **all five close under 779** (worst residual
+0.05 pp). The finding stands, with stronger evidence.
+
+Shell identity was checked before recording, since the pit table's own heading
+reads "75 mm T3 Shell": the report is titled "FRAGMENTATION EFFECTS OF THE
+75MM H.E. SHELL T3 (M48)" and T3 is the M48's developmental designation, not a
+different projectile. The 105 mm M1 results are "reserved for a separate
+report". No criterion mismatch.
+
 **The earlier speculation is withdrawn.** This ledger previously reasoned that
 nose Panel A static might truly be 1.96, making the static→2130 rise 10.9×
 rather than the card's 1.33×, and noted the ±0.20 quantisation as evidence. The
@@ -414,9 +464,17 @@ margin sits inside the ±10% fidelity bar and inside the digitized Fig-3's own
 
 ## 9. Remaining work
 
+- **Phase 2b is complete as of the second sitting** (§6). All four Tolch
+    tables any consumer cites now sit in `tables/` with a passing invariant:
+    base spray, nose spray, side spray, pit screen recovery. The first sitting
+    covered only two of the three spray classes, and the omission is what let a
+    hand-typed literal stand in for the side-spray series.
 - **Phase 2d** — rewrite the Tolch `card.md`: drop the wrong "Drag Model
     Relevance" recommendation, move every anchor off bare line numbers, record
-    the source PDF's provenance (DTIC AD0702233 + sha256), and link the CSVs.
+    the source PDF's provenance (DTIC AD0702233 + sha256), and link the four
+    CSVs. **Blocked on Phase 8 item 2** (splitting the interpretive half out of
+    `card.md`) — rewriting the card before that split just re-authors the
+    interpretive section in the place the split is meant to empty.
 - **`tolch-1938.md` is a known-corrupted extraction** and is now the *second*
     citable surface after `tables/`. Either re-extract it from `source.pdf` or
     mark it non-citable; any consumer reading numbers out of it is unsafe.
@@ -452,6 +510,4 @@ FINDING\[blocking\]: tolch-1938.md is a known-corrupted vision extraction (page-
 
 FINDING\[deferrable\]: the cumulative fragment-velocity distribution is unresolved — two extractions disagree and one is provably non-monotonic; no better scan surfaced within the one-dispatch cap (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md; since: 2026-08-02)
 
-FINDING\[blocking\]: the SIDE-spray density series fails its component-sum closure at v=1085 f/s on panels A, B and C (4.06 vs 4.26, 3.42 vs 3.56, 1.96 vs 1.90) — it is held as a hand-typed literal in two check scripts because that table was never extracted into tables/, which is the transcription-once rule being violated and is the likely source of the failure (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/, experiment/fragmentation-field/challenges/source-data-audit/checks/tolch-side-spray-closure.py, experiment/fragmentation-field/challenges/source-data-audit/checks/tolch-count-basis-closure.py; since: 2026-08-02)
-
-FINDING\[blocking\]: the pit-test recovered-fragment count is 803 in committed artifacts but the report's own screen table and body text both say 779, which shifts the derived mean fragment mass 6.85 g -> 7.06 g and the update's N/observed band 3.9-5.6x -> 3.75-6.00x (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/scoping.md, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-02)
+FINDING\[blocking\]: the pit-test recovered-fragment count is 803 in committed artifacts but the report's own screen table (now at tables/pit-screen-recovery.csv, where 4 of 5 screen rows fail their printed percentage under 803 and all 5 close under 779) and body text both say 779, which shifts the derived mean fragment mass 6.85 g -> 7.06 g and the update's N/observed band 3.9-5.6x -> 3.75-6.00x (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/scoping.md, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-02)
