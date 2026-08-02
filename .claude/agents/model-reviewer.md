@@ -82,6 +82,15 @@ dated section on re-review), or next to the challenge notebook for
 Workflow A. This is the **only** project file you may write; everything else
 remains read-only. An inline-only verdict does not complete a review pass.
 
+**Turn budget is tight (25 turns) — write early, don't review-then-write.**
+Create `review.md` within the first turn or two and append each finding as you
+establish it, rather than holding them all for a final write-up turn that
+frequently never arrives. A partial `review.md` carrying real findings is a
+successful pass; zero files written because the budget ran out is a failed one,
+even if you had reached the verdict. If a brief also asks you to write early,
+it is restating this — the instruction stands whether or not the brief repeats
+it.
+
 The review (both the file and your returned summary) contains:
 
 - **PASS / PASS-with-limitations / FAIL**

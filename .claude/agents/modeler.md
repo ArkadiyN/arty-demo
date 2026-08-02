@@ -87,6 +87,24 @@ project's main token cost. So:
     (e.g. "drives the P(kill) heatmap; ±30% on lethal radius is acceptable").
     This is the bar @model-reviewer will judge materiality against.
 
+## Turn budget is tight (25 turns) — write early, don't explore-then-write
+
+Create your pass's artifact within the first turn or two and **append findings
+to it as you learn them** — the facts you establish, not a heading skeleton.
+Then keep reading. Do not hold results in your head until a final write-up
+turn; that turn frequently never arrives.
+
+A partial artifact carrying real findings is a **successful pass** — the next
+dispatch reads your notes instead of re-deriving cold. Zero files written
+because the budget ran out mid-analysis is a **failed** one, even if you had
+reached the answer and were "about to" write it. Prefer partial output over
+completeness, every time.
+
+This is the dominant way passes are lost here: one dispatch made 20 consecutive
+read/grep calls, converged on nothing, wrote nothing, and returned ~86k tokens
+of transcript with no artifact. If a brief also asks you to write early, it is
+restating this — the instruction stands whether or not the brief repeats it.
+
 ## Sources: cards navigate, papers are authoritative
 
 - `card.md` extracts are a **navigation aid only** (Haiku-generated) — not

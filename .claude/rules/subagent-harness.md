@@ -82,11 +82,15 @@ full pass. Classify first — it is nearly free:
         window is an **asset**: it holds exactly the discovery a fresh instance
         would have to pay for again. **Resume it once** — see the next item.
 
-1. **On over-read exhaustion, re-dispatch fresh** (Gate 4), and fix the
-    *cause* in the new brief or it recurs identically: instruct **write-early**
-    — bank a findings ledger while reading (the facts it learns, not a heading
-    skeleton), so the pass records progress before the cap and a continuation
-    reads its own notes instead of re-deriving cold.
+1. **On over-read exhaustion, re-dispatch fresh** (Gate 4) and fix the *cause*,
+    which is what the agent was pointed at — a scope too wide to close, or
+    inputs that sent it hunting through sources its own artifacts already
+    record. **Write-early is not the fix to add here**: it is standing
+    behaviour in `librarian.md`, `modeler.md` and `model-reviewer.md`, so a
+    brief that repeats it is redundant and a brief that omits it is not why the
+    pass failed. Narrow the scope instead, and hand over anything the dead pass
+    already discovered (an extracted file, a computed output) so the fresh one
+    does not re-pay for it.
 
 1. **On productive exhaustion with zero artifact bytes, `SendMessage`-resume
     is the cheaper move and is permitted** — narrowly, under all four

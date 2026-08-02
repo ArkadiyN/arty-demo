@@ -421,7 +421,11 @@ margin sits inside the ±10% fidelity bar and inside the digitized Fig-3's own
     citable surface after `tables/`. Either re-extract it from `source.pdf` or
     mark it non-citable; any consumer reading numbers out of it is unsafe.
 - **Phase 3** — downstream verdicts (§3, §4 verdict columns).
-- **Phase 4b** — the two shipped Tolch-1938 updates (§4); the 1944 drag law is settled in §8.
+- **Phase 4b** — the two shipped Tolch-1938 updates (§4); the 1944 drag law is
+    settled in §8. Source-side groundwork is closed and two defects are
+    registered in §10; the verdict layer is outstanding and **escalated** after
+    three dispatches — see `phase4b-tolch-mach-drag-assessment.md`
+    "Dispatch history" before spending a fourth.
 - **Phase 5** — independent verification of this ledger.
 - **Phase 6** — surface reconciliation (§3d).
 
@@ -447,3 +451,7 @@ FINDING\[blocking\]: card.md's "Drag Model Relevance" section recommends the vel
 FINDING\[blocking\]: tolch-1938.md is a known-corrupted vision extraction (page-stacking defect, §7) yet remains a citable surface alongside tables/; it must be re-extracted or marked non-citable (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md; since: 2026-08-02)
 
 FINDING\[deferrable\]: the cumulative fragment-velocity distribution is unresolved — two extractions disagree and one is provably non-monotonic; no better scan surfaced within the one-dispatch cap (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md; since: 2026-08-02)
+
+FINDING\[blocking\]: the SIDE-spray density series fails its component-sum closure at v=1085 f/s on panels A, B and C (4.06 vs 4.26, 3.42 vs 3.56, 1.96 vs 1.90) — it is held as a hand-typed literal in two check scripts because that table was never extracted into tables/, which is the transcription-once rule being violated and is the likely source of the failure (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/, experiment/fragmentation-field/challenges/source-data-audit/checks/tolch-side-spray-closure.py, experiment/fragmentation-field/challenges/source-data-audit/checks/tolch-count-basis-closure.py; since: 2026-08-02)
+
+FINDING\[blocking\]: the pit-test recovered-fragment count is 803 in committed artifacts but the report's own screen table and body text both say 779, which shifts the derived mean fragment mass 6.85 g -> 7.06 g and the update's N/observed band 3.9-5.6x -> 3.75-6.00x (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/scoping.md, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-02)
