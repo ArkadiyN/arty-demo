@@ -387,3 +387,15 @@ Closing this needs either a documented ES-310-to-source criterion mapping or
 an independent source for the 50%-lethality energy threshold itself; neither
 exists in `doc-reference/` today. No shipped parameter depends on this check
 passing — it is a spot-check, not a calibration target.
+
+**Addendum to 14 — Family A's agreement with the 1944 card is the same
+confound, not independent evidence.** Family A's own B(r)-vs-card comparison
+(`challenges/drag-gap-1944/b-vs-range-familyA.md`) numerically passes the
+factor-of-2 band at all 33 tabulated points, but only because it multiplies
+Family B's ~2–5× fragment-count over-prediction against the card's own 58
+ft-lb threshold by Family A's ES-310 curve being ~10× stricter than that same
+threshold — two offsetting, threshold-confounded errors, verified to cancel
+algebraically at every row (review in `challenges/drag-gap-1944/review.md`).
+It must not be read as validating the Family-A kernel, or as closing the
+lethality-criterion split above; the fix is the same one this item already
+names — a threshold-matched Family A variant, not yet built.
