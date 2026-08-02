@@ -11,7 +11,7 @@ redo, not a record of fixes. `src/arty/` is assessed, never changed here.
 | --------------------------------- | ------------------------------------------------- |
 | 0 — inventory & provenance        | **done** (this document, sections 1–4)            |
 | 1 — re-baseline ordnance-1944     | **done** — six tables transcribed + verified (§5) |
-| 2 — re-baseline Tolch-1938        | **partly done** — 2c resolved, 2b blocked (§6)    |
+| 2 — re-baseline Tolch-1938        | **2a–2c done** (§6); 2d card rewrite outstanding  |
 | 3 — downstream verdict per thread | pending (verdict column below unfilled)           |
 | 4 — `src/arty` assessment         | pending                                           |
 | 5 — independent verification      | pending                                           |
@@ -247,26 +247,46 @@ Caveat that must go in the card: these are ***shell*** remaining velocities. The
 quantity is the fraction of base fragments whose charge-imparted velocity
 exceeds the shell velocity cancelling it — burst geometry, **not** fragment drag.
 
-**2b — BLOCKED. The spray tables do not close and must not be transcribed as
-they stand.** The report states the totals were obtained by adding the three
-fragment types ("were added together"), so `total == perf + penet + dents` must
-hold in every (velocity, panel) cell. It fails in **21 of 33** cells:
+**2b — RESOLVED against the original scan. The corrupted copy was
+`tolch-1938.md`, not the source.** The user supplied the original DTIC PDF
+(AD0702233, `sha256:13e110d7…`), now retained in-repo at
+`doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/source.pdf`
+(gitignored blob, provenance recorded in the card).
 
-- Base spray: 8 cells fail. Worst — Panel B @ 2130 f/s sums to 1.12, stated 3.12.
-- Nose spray: 13 cells fail. Worst — **Panel A static sums to 1.96, stated
-    16.09.**
+Read off the page images of report pages 19–22 (PDF pages 41–44), both spray
+tables close **exactly**:
 
-Six of the failures are exactly ±0.20, a quantised signature of single-digit OCR
-errors rather than rounding (three 2-d.p. terms can only round-trip to ±0.015).
+| Table      | Cells | Fail | Largest residual |
+| ---------- | ----- | ---- | ---------------- |
+| Base spray | 17    | 0    | 0.00             |
+| Nose spray | 17    | 0    | 0.01             |
 
-The nose-spray Panel A static cell is **material to the card**, which currently
-reports "Total hits per u.s.a. (Panel A): 16.09 (static) → 21.45 (2,130 f/s)" —
-a modest 1.33× rise. If 1.96 is the true static value the rise is 10.9×, which
-is also what Panel B shows (2.42 → 26.31, 10.9×). The card's nose-spray
-narrative is therefore either mild or dramatic depending on one OCR digit, and
-the pattern favours the dramatic reading. **Not decided here** — deciding it
-needs the original scan, and it is exactly the kind of call the fidelity rule
-forbids making from a degraded extraction.
+Not one cell of genuine disagreement: 33 of 34 sum to the printed 2 d.p. with
+zero residual, the 34th (nose Panel C @ 700 f/s) by 0.01 of rounding. **All 21
+earlier "failures" were OCR defects in `tolch-1938.md`** — roughly 20 of its 54
+component cells are wrong. The worst are not subtle:
+
+| Cell                        | `tolch-1938.md` | Actual page |
+| --------------------------- | --------------- | ----------- |
+| Nose static Panel A, penet. | 0.37            | **3.47**    |
+| Nose static Panel A, dents  | 1.22            | **12.25**   |
+| Base 2130 Panel B, total    | 3.12            | **1.12**    |
+| Nose 700 Panel B, dents     | 2.77            | **7.97**    |
+| Base static Panel A, perf.  | 1.62            | **1.82**    |
+
+Transcribed once to
+[`tables/base-spray-density.csv`](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/base-spray-density.csv)
+and
+[`tables/nose-spray-density.csv`](../../../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/nose-spray-density.csv),
+each with its `.invariant`; `check-table-invariants.py` reports 0/2 failed.
+
+**The earlier speculation is withdrawn.** This ledger previously reasoned that
+nose Panel A static might truly be 1.96, making the static→2130 rise 10.9×
+rather than the card's 1.33×, and noted the ±0.20 quantisation as evidence. The
+page shows **16.09**. The card's 1.33× is correct, and the ±0.20 pattern was
+coincidence in corrupted data — a reminder that a pattern found *inside* a
+failing table is not evidence about the source. Declining to decide it without
+the scan was the right call.
 
 **2d — the card's "Drag Model Relevance" section is confirmed wrong.** The
 source is explicit that "remaining velocity when burst" is the *shell's*
@@ -286,8 +306,12 @@ in that card is a bare line number.
 
 ## 7. Remaining work
 
-- **Phase 2b** — blocked on resolving 21 non-closing cells; needs a better scan
-    of the spray-table pages, not another extraction pass over the same one.
+- **Phase 2d** — rewrite the Tolch `card.md`: drop the wrong "Drag Model
+    Relevance" recommendation, move every anchor off bare line numbers, record
+    the source PDF's provenance (DTIC AD0702233 + sha256), and link the CSVs.
+- **`tolch-1938.md` is a known-corrupted extraction** and is now the *second*
+    citable surface after `tables/`. Either re-extract it from `source.pdf` or
+    mark it non-citable; any consumer reading numbers out of it is unsafe.
 - **Phase 3** — downstream verdicts (§3, §4 verdict columns).
 - **Phase 4** — `src/arty` assessment (§3c).
 - **Phase 5** — independent verification of this ledger.

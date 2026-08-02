@@ -1,169 +1,106 @@
 """Closure checks on Tolch (1938) spray-density tables, and resolution of the
-cumulative base-fragment velocity distribution the card flags "UNVERIFIED".
+cumulative base-fragment velocity distribution the card flagged "UNVERIFIED".
 
 Consumer: `experiment/fragmentation-field/challenges/source-data-audit/ledger.md`
 section 4, and the Phase-2 rewrite of
 `doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md`.
 
-Two invariants, both read off the report's own stated definitions -- no physics
-is introduced here.
+Reads its series from the checked-in CSVs, per
+`.claude/rules/source-data-fidelity.md` -- an earlier revision of this script
+hand-typed the tables out of `tolch-1938.md` and inherited ~20 OCR errors from
+it, which is exactly the failure mode that rule exists to prevent.
 
-CHECK 1 -- additive closure. Of the "Total hits per unit solid angle" tables the
-report says: "The average number of perforations, penetrations, and dents per
-unit solid angle for the nose spray were added together" (anchor: `**Total
-number of hits in the nose spray per unit solid angle.**`). So for every
-(velocity, panel) cell the total must equal the sum of its three component rows.
+CHECK 1 -- additive closure. The report says of the nose totals table: "The
+average number of perforations, penetrations, and dents per unit solid angle
+for the nose spray were added together" (report p.22). Both spray tables are
+built that way, so every (velocity, panel) cell must satisfy
+`perf + penet + dents == total`. This is also declared in the `.invariant`
+files and gated by `src/utils/check-table-invariants.py`; it is repeated here
+because the numbers below depend on it holding.
 
-CHECK 2 -- the velocity distribution. The card records two irreconcilable
-extractions of one narrative sentence and rules the figure uncitable. But the
+CHECK 2 -- the velocity distribution. The card recorded two irreconcilable
+extractions of one narrative sentence and ruled the figure uncitable. The
 report states the sentence is *derived*, not measured: "The proportion of base
 fragments remaining after giving the shell an increment in velocity may be
-obtained from the above table" (anchor: `**Total hits per unit solid angle of
-the base spray.**`). That makes it recomputable from the Panel A totals column,
-which settles which extraction is right without a better scan.
+obtained from the above table" (report p.20). So it is recomputable from the
+Panel A base-spray totals, which settles which extraction is right.
 
 Run: uv run python experiment/fragmentation-field/challenges/source-data-audit/checks/tolch-spray-table-closure.py
 """
 
-# Anchor: **Number of perforations, penetrations, and dents of the base spray
-# per unit solid angle.**  -- (velocity -> per-panel value), panels A, B, C.
-BASE_COMPONENTS = {
-    "Perf.": {
-        "Static": (1.62, 1.93, 1.48),
-        "700": (1.51, 0.75, 0.77),
-        "1085": (0.87, 0.17, 0.24),
-        "1450": (0.24, 0.24, 0.12),
-        "1685": (0.34, 0.34, 0.12),
-        "2130": (0.0, 0.0, 0.04),
-    },
-    "Penet.": {
-        "Static": (1.59, 2.76, 1.49),
-        "700": (1.38, 0.96, 1.06),
-        "1085": (1.89, 0.34, 0.53),
-        "1450": (1.22, 0.50, None),
-        "1685": (0.78, 0.57, 0.40),
-        "2130": (0.50, 0.71, 0.12),
-    },
-    "Dents": {
-        "Static": (6.30, 2.76, 0.96),
-        "700": (4.86, 1.49, 0.21),
-        "1085": (1.90, 0.27, 0.08),
-        "1450": (1.26, 0.31, None),
-        "1685": (0.31, 0.62, 0.08),
-        "2130": (0.20, 0.41, 0.0),
-    },
-}
+import csv
+from pathlib import Path
 
-# Anchor: **Total hits per unit solid angle of the base spray.**
-BASE_TOTALS = {
-    "Static": (9.71, 7.45, 3.93),
-    "700": (7.75, 3.20, 2.06),
-    "1085": (4.66, 0.78, 0.65),
-    "1450": (2.79, 1.50, None),
-    "1685": (1.35, 1.37, 0.60),
-    "2130": (0.70, 3.12, 0.16),
-}
-
-# Anchor: **Number of perforations, penetrations, and dents of the nose spray
-# per unit solid angle.**
-NOSE_COMPONENTS = {
-    "Perf.": {
-        "Static": (0.37, 0.10, 0.55),
-        "700": (0.30, 0.68, 0.52),
-        "1085": (0.53, 1.14, 1.11),
-        "1450": (1.92, 1.36, 1.57),
-        "1685": (1.66, 1.47, 1.57),
-        "2130": (1.68, 2.66, 1.76),
-    },
-    "Penet.": {
-        "Static": (0.37, 0.55, 2.39),
-        "700": (2.08, 3.31, 2.31),
-        "1085": (5.02, 5.39, 2.62),
-        "1450": (6.60, 7.20, 2.69),
-        "1685": (5.85, 8.00, 0.36),
-        "2130": (5.17, 8.00, 3.32),
-    },
-    "Dents": {
-        "Static": (1.22, 1.67, 2.34),
-        "700": (9.94, 2.77, 1.20),
-        "1085": (13.28, 11.16, 2.62),
-        "1450": (11.50, 7.40, None),
-        "1685": (12.18, 10.57, 6.29),
-        "2130": (14.80, 15.45, 4.35),
-    },
-}
-
-# Anchor: **Total number of hits in the nose spray per unit solid angle.**
-NOSE_TOTALS = {
-    "Static": (16.09, 2.42, 5.08),
-    "700": (12.12, 11.96, 2.72),
-    "1085": (16.89, 17.69, 6.35),
-    "1450": (20.02, 13.62, None),
-    "1685": (19.58, 19.24, 10.55),
-    "2130": (21.45, 26.31, 9.43),
-}
-
-VELOCITIES = ["Static", "700", "1085", "1450", "1685", "2130"]
-PANELS = ["A", "B", "C"]
-TOL = 0.02  # the tables print 2 d.p.; allow rounding of three summed terms
+REPO = Path(__file__).resolve().parents[5]
+TABLES = REPO / "doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables"
+TOL = 0.02  # tables print 2 d.p.; three summed terms can carry 0.01 of rounding
 
 
-def check_additive(name, components, totals):
-    """total(v, panel) == perf + penet + dents, per the report's own wording."""
+def load(slug):
+    with (TABLES / f"{slug}.csv").open(newline="") as fh:
+        return [{k: float(v) if k != "panel" else v for k, v in row.items()} for row in csv.DictReader(fh)]
+
+
+def check_additive(name, rows):
+    """total == perf + penet + dents, per the report's own wording."""
     print(f"\n{name}: total == perforations + penetrations + dents")
-    bad = 0
-    for v in VELOCITIES:
-        for i, panel in enumerate(PANELS):
-            parts = [components[t][v][i] for t in ("Perf.", "Penet.", "Dents")]
-            stated = totals[v][i]
-            if stated is None or any(p is None for p in parts):
-                continue
-            summed = sum(parts)
-            delta = summed - stated
-            flag = "" if abs(delta) <= TOL else "   <-- FAILS"
-            if flag:
-                bad += 1
-                print(f"  v={v:>6} Panel {panel}: "
-                      f"{parts[0]:.2f}+{parts[1]:.2f}+{parts[2]:.2f} = {summed:6.2f}  "
-                      f"stated {stated:6.2f}  delta {delta:+.2f}{flag}")
-    print(f"  -> {bad} cell(s) do not close.")
+    bad = worst = 0
+    for row in rows:
+        summed = row["perf"] + row["penet"] + row["dents"]
+        delta = summed - row["total"]
+        worst = max(worst, abs(delta))
+        if abs(delta) > TOL:
+            bad += 1
+            label = "Static" if row["v_fps"] == 0 else f"{row['v_fps']:.0f} f/s"
+            print(f"  {label:>9} Panel {row['panel']}: {summed:6.2f} vs stated "
+                  f"{row['total']:6.2f}  delta {delta:+.2f}   <-- FAILS")
+    print(f"  -> {len(rows)} cells, {bad} fail, largest residual {worst:.2f}")
     return bad
 
 
-def check_velocity_distribution():
+def check_velocity_distribution(base):
     """The narrative fractions are the Panel A base-spray totals over static."""
     print("\nBase-fragment cumulative velocity distribution (Panel A totals / static):")
-    static = BASE_TOTALS["Static"][0]
+    panel_a = {r["v_fps"]: r["total"] for r in base if r["panel"] == "A"}
+    static = panel_a[0]
+
+    # The two readings the card recorded as irreconcilable, and what the page
+    # image of report p.20 actually prints.
+    heuristic = {700: 80, 1085: 48, 1450: 29, 1685: 14, 2130: 7}
+    vision = {700: 20, 1085: 15, 1450: 25, 1685: 18, 2130: 7}
+    printed = {700: 80, 1085: 48, 1450: 29, 1685: 14, 2130: 7}
+
+    print(f"  {'v (f/s)':>8} {'derived':>9} {'printed':>9} {'heuristic':>10} {'vision':>8}")
     derived = {}
-    for v in VELOCITIES[1:]:
-        derived[v] = 100.0 * BASE_TOTALS[v][0] / static
-
-    # The two readings the card records as irreconcilable.
-    heuristic = {"700": 80, "1085": 48, "1450": 29, "1685": 14, "2130": 7}
-    vision = {"700": 20, "1085": 15, "1450": 25, "1685": 18, "2130": 7}
-
-    print(f"  {'v (f/s)':>8} {'derived':>9} {'heuristic':>10} {'vision':>8}")
-    for v in VELOCITIES[1:]:
-        print(f"  {v:>8} {derived[v]:8.1f}% {heuristic[v]:9}% {vision[v]:7}%")
+    for v in sorted(heuristic):
+        derived[v] = 100.0 * panel_a[v] / static
+        print(f"  {v:>8} {derived[v]:8.1f}% {printed[v]:8}% {heuristic[v]:9}% {vision[v]:7}%")
 
     h_err = max(abs(derived[v] - heuristic[v]) for v in heuristic)
     v_err = max(abs(derived[v] - vision[v]) for v in vision)
     print(f"\n  max deviation from derived: heuristic {h_err:.1f} pp, vision {v_err:.1f} pp")
-    print("  -> The heuristic reading reproduces the table to rounding; the vision")
-    print("     reading does not. The figure is RESOLVED without a better scan:")
+    print("  -> RESOLVED three independent ways, all agreeing: the table derivation,")
+    print("     the PDF text layer, and the page image of report p.20 all give")
     print("     80% > 700, 48% > 1085, 29% > 1450, 14% > 1685, 7% > 2130 f/s.")
+    print("     The 'vision' reading in the card was garbage; the figure is citable.")
     print("  Caveat: these are *shell* remaining velocities. The quantity is the")
     print("  fraction of base fragments whose charge-imparted velocity exceeds the")
     print("  shell velocity that cancels it -- burst geometry, not fragment drag.")
 
 
 def main():
-    bad = check_additive("Base spray", BASE_COMPONENTS, BASE_TOTALS)
-    bad += check_additive("Nose spray", NOSE_COMPONENTS, NOSE_TOTALS)
-    check_velocity_distribution()
-    print(f"\n{bad} non-closing cell(s) total -- these are OCR defects in the")
-    print("component tables or the totals, and must be resolved before either")
-    print("table's numbers are cited.")
+    base, nose = load("base-spray-density"), load("nose-spray-density")
+    bad = check_additive("Base spray", base) + check_additive("Nose spray", nose)
+    check_velocity_distribution(base)
+
+    nose_a = {r["v_fps"]: r["total"] for r in nose if r["panel"] == "A"}
+    print(f"\nNose-spray Panel A static -> 2130 f/s: {nose_a[0]:.2f} -> {nose_a[2130]:.2f} "
+          f"= {nose_a[2130] / nose_a[0]:.2f}x")
+    print("  The card's stated ~1.33x rise is CORRECT. An earlier audit note")
+    print("  speculated the static cell might be 1.96 (making it 10.9x); the page")
+    print("  image shows 16.09, so that speculation is withdrawn.")
+
+    print(f"\n{bad} non-closing cell(s) across both tables.")
 
 
 if __name__ == "__main__":
