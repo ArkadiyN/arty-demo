@@ -1,8 +1,17 @@
 """Measure the glyph resolution the vision path actually sees, for the Tolch page
 whose table came back with ~37% of its cells wrong.
 
+*** SUPERSEDED AS A DIAGNOSIS -- retained as the measurement it is. ***
+This script was written to test the hypothesis that dpi=60 was too low to read
+the digits. `vision-provider-probe.py` then tested that hypothesis against the
+live API and REFUTED it: a single page at dpi=60 transcribes 18/18 ground-truth
+cells correctly, on the configured Gemma model. The numbers below are accurate;
+the conclusion drawn from them was not. Raising dpi would not have fixed
+anything -- and combined with page stacking would have made it worse, since a
+taller image is downscaled harder. See the probe for the real cause.
+
 Consumer: `experiment/fragmentation-field/challenges/source-data-audit/ledger.md`
-section 6 (pipeline diagnosis), and the librarian/process-pdf workflow review.
+section 7, and the librarian/process-pdf workflow review.
 
 `src/utils/pdf-processor.py:_render_pages_combined` rasterises at **dpi=60** and
 JPEG-encodes at **quality=70**, then stacks N pages into one tall image. This
@@ -66,14 +75,12 @@ def main():
     print("\nWhat a scanned table actually needs (300 dpi is the OCR convention):")
     high = report(300, 95, 1)
 
-    print(f"\n  -> the shipped combined path gives ~{low:.1f} px per printed digit.")
-    print("     Conventional OCR wants 20-30 px of glyph height; below ~10 px")
-    print("     digit confusion is expected, not exceptional. The single-page")
-    print(f"     path is {mid / low:.1f}x better and the 300 dpi path {high / low:.1f}x.")
-    print("\n  Observed consequence on this exact page (ledger section 6):")
-    print("     3.47 -> 0.37,  12.25 -> 1.22,  7.97 -> 2.77,  1.82 -> 1.62")
-    print("     i.e. dropped leading digits and 3<->0, 8<->6 confusions -- the")
-    print("     signature of insufficient raster resolution, not model reasoning.")
+    print(f"\n  -> the shipped combined path gives ~{low:.1f} px per printed digit,")
+    print(f"     against {mid:.1f} single-page at 150 dpi and {high:.1f} at 300 dpi.")
+    print("\n  CAUTION -- this measurement does NOT explain the failure.")
+    print("  vision-provider-probe.py shows a SINGLE page at dpi=60 transcribes")
+    print("  18/18 cells correctly. ~13.7 px per digit is sufficient. The damage")
+    print("  comes from what happens to a MULTI-PAGE stack, below.")
     # Second, compounding loss. Gemini/Gemma scale an input image to fit within
     # a max tile dimension (~3072 px) before the model sees it, so a very tall
     # combined image loses resolution a second time.

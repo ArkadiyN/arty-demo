@@ -306,33 +306,45 @@ in that card is a bare line number.
 
 ## 7. Why the extraction was wrong — pipeline diagnosis
 
-Evidence: [`checks/vision-raster-resolution.py`](checks/vision-raster-resolution.py)
+Evidence: [`checks/vision-provider-probe.py`](checks/vision-provider-probe.py)
 
-The Tolch table errors are **not** a model-reasoning failure that a better
-prompt or a stronger model would fix. Information is destroyed before the model
-is called.
+The Tolch table errors are **not** a model-reasoning failure, **not** a
+resolution failure, and **not** a consequence of using a free/small model. The
+single cause is `pdf-processor.py:_render_pages_combined` **stacking multiple
+pages into one tall image**, which the API downscales server-side.
 
-`pdf-processor.py:_render_pages_combined` rasterises at **dpi=60**, JPEG
-quality 70, then stacks 8 pages into one image:
+Probed against the live API on the page whose ground truth is now committed —
+the base-spray `Perf.` block, 18 cells:
 
-| path                              | px per printed digit | note                      |
-| --------------------------------- | -------------------- | ------------------------- |
-| combined vision path (as shipped) | ~13.7                | 530 × 6248 px for 8 pages |
-| …after ~3072 px API downscale     | **~6.7**             | effective **30 dpi**      |
-| single-page path (dpi=150)        | ~34.2                | 2.5× better               |
-| OCR convention (dpi=300)          | ~68.4                | 5.0× better               |
+| configuration                      | cells correct |
+| ---------------------------------- | ------------- |
+| single page, dpi 60 (Gemma)        | **18 / 18**   |
+| single page, dpi 200 (Gemma)       | **18 / 18**   |
+| single page, dpi 60 (Gemini Flash) | **18 / 18**   |
+| 3-page stack, dpi 60               | 16 / 18       |
+| **8-page stack, dpi 60 (shipped)** | **5 / 18**    |
 
-Conventional OCR wants 20–30 px of glyph height. At ~6.7 px, `3 ↔ 0` and
-`8 ↔ 6` confusion is the expected outcome. The observed errors match exactly:
-`3.47 → 0.37`, `12.25 → 1.22`, `7.97 → 2.77`, `1.82 → 1.62`.
+**The 8-page stack reproduces the historical error exactly.** It returns `1.62`
+for Static Panel A — the precise wrong value in the committed `tolch-1938.md` —
+and misreads the row label `1685` as `1665`. A reproduction, not an inference.
 
-**Two failure modes, and the second is worse.** Besides misreading digits, the
-extraction **fabricated cells the source leaves blank**. On report p.19 the
-Perf. row at 1450 f/s prints dashes for Panel C — no data. `tolch-1938.md`
-fills it with `.12 / .04`, the *1685* row's Panel C values pulled up a line.
-Likewise 1685 Panel B reads `.34`, which is Panel A's value smeared sideways.
-Row and column smearing under low resolution produces confident, well-formed
-numbers with no marker that they were invented.
+Two hypotheses are therefore **refuted**:
+
+- *"dpi=60 is too low."* It is not. 60 dpi single-page is perfect. Raising dpi
+    fixes nothing, and combined with stacking makes it **worse** — a taller
+    image is downscaled harder. An earlier revision of
+    [`checks/vision-raster-resolution.py`](checks/vision-raster-resolution.py)
+    argued the opposite; it is retained, corrected, as the measurement it is.
+- *"the free Gemma model is too weak."* It is not. `gemma-4-31b-it` matches
+    `gemini-3.5-flash` cell-for-cell at 18/18. The cost-saving design is sound;
+    only the batching parameter is wrong.
+
+**The failure mode is fabrication, not garbling.** The 8-page stack returned a
+smooth, plausible, monotonically-decaying column (`.56, .42, .33`) where the
+source prints `.24, .34, 0`. Likewise `tolch-1938.md` fills the Panel C row at
+1450 f/s — printed as **dashes**, no data — with `.12 / .04`, the 1685 row's
+values pulled up a line. Under-resolution does not make the model refuse; it
+makes it interpolate, confidently, with no marker.
 
 **The extraction-quality gate cannot see any of this, by construction.**
 `scan-extraction-quality.py` is glyph-level — PUA characters, symbol runs,
@@ -345,6 +357,25 @@ is glyph-perfect and passes every heuristic the tool has.
 This is the structural reason the closure invariant is the only real gate:
 **glyph-level checks catch bad OCR, and the vision path does not fail as bad
 OCR — it fails as plausible fiction.**
+
+**Two credential findings, both silent.**
+
+- `.env` exists **only in the primary checkout**. `settings.py` loads it from
+    the repo root, so every worktree resolves *zero* credentials — and
+    `git-flow.md` mandates that all work happen in a worktree. A librarian
+    dispatched the normal way has no keys at all.
+- There is **no `ANTHROPIC_API_KEY`** configured. So the
+    `except → "falling back to Anthropic"` path in `pdf-processor.py:604` does
+    not degrade to an expensive fallback, as this ledger previously suggested —
+    it degrades to a hard `"No AI credentials found"` error. Correct outcome,
+    reached by accident, and it would silently become a real cost the day a key
+    is added. Provider choice must be an explicit setting, not an exception
+    handler.
+
+The reported intermittent `403` was **not reproduced**; the configured key
+lists 42 usable models and `gemma-4-31b-it` answers normally. A stale model ID
+does surface as `404` (`gemini-2.5-flash` is retired for new keys), so at least
+some historical failures were model-availability, not authorisation.
 
 ## 8. Remaining work
 
