@@ -34,6 +34,10 @@ the same vocabulary as `review.md` tags. `affects:` is comma-separated repo
 paths; those paths are what routes the finding to a future dispatch. Close a
 finding by **deleting its marker** — never by editing the register.
 
+The failure this prevents has already happened: a wrong-column defect was
+correctly diagnosed **twice**, deferred both times as "out of scope", and never
+actioned — `.claude/incidents.md#deferred-and-forgotten`.
+
 `OPEN-FINDINGS.md` is generated from these markers and gated by pre-commit;
 `uv run python src/utils/collect-findings.py --help` covers the mechanics.
 Before dispatching @modeler or @model-reviewer, inject the entries matching

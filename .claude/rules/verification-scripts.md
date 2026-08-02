@@ -15,14 +15,11 @@ artifact (`challenges/**`, `updates/**/derivation.md`, `review.md`, a `.qmd`,
 a spec), that script **must be committed**. It is not scratch, not temporary,
 and not "done" once its results are folded in.
 
-**Why.** The next pass on the same question re-runs or re-reads the script
-instead of re-deriving it cold — that reuse is the whole point. A verdict whose
-script is gone is also unauditable: a reader cannot check the number, only
-trust it. This is not hypothetical — nine cited scripts
-(`mott_scale_check.py`, `mott_shape_closure.py`, `tolch-panel-distance-check.py`,
-`bench.py`, the three `wdss1_*_check.py`, `quad_check.py`,
-`verify_familyA_fix.py`) were written, cited by permanent documents, never
-committed, and are permanently lost. Their numbers now survive only as claims.
+**Why.** The next pass re-runs or re-reads the script instead of re-deriving it
+cold — that reuse is the whole point. A verdict whose script is gone is also
+unauditable: a reader can only trust the number. **Nine cited scripts have
+already been lost this way**, and the loss leaves no trace in history:
+`.claude/incidents.md#lost-check-scripts`.
 
 ## Where a script lives
 
@@ -71,14 +68,11 @@ Fix: march the whole sweep as one array through the same steps. A parameter
 grid whose points take identical, independent steps is one vector operation,
 not N loops. Reach for `np.interp` on a *vector* of Machs, not a scalar.
 
-**This is not hypothetical, and it is not merely slow.** A Phase-4 drag-law
-re-check swept 551 shape factors, re-integrating a 4000-step RK2 ODE per data
-point with two scalar `np.interp` calls per step — ~4×10⁸ numpy round-trips,
-measured at 10.8 ms per integration, **~9 minutes**. Vectorised it is seconds.
-The run consumed most of that pass's wall clock, the pass hit `maxTurns`
-mid-analysis, and it returned **zero artifact bytes** after ~78k tokens. A slow
-check script does not just cost patience — it spends the turn budget of the
-dispatch that runs it.
+**It is not merely slow — it spends the turn budget of the dispatch that runs
+it.** One such sweep took **~9 minutes** where the vectorised form takes 2.5 s
+with identical output; the pass hit `maxTurns` mid-analysis and returned zero
+artifact bytes after ~78k tokens:
+`.claude/incidents.md#numpy-scalar-sweep`.
 
 ## Committing
 

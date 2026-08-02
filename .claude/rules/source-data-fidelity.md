@@ -31,28 +31,14 @@ pattern-matching that defeats eyeballing. Typical forms:
 flagged for human review in the dispatch summary. Absence of a check is a
 finding, not a pass.
 
-### Why — the incident this rule is written from
+### Why
 
-The 1944 Ordnance Dept. fragment-damage tables are two-column scans where
-CASUALTIES and PERFORATION OF 1/8-IN. MILD STEEL interleave row-by-row. Three
-committed check scripts (`b-vs-range-{75,105,155}mm.py`) each identified the
-wrong column, and so validated a casualty-lethality model against perforation
-data while feeding it the casualty energy threshold.
-
-Every digit was extracted correctly. The tables settle their own column
-identity in one line — each row lists the lightest *effective* fragment
-`(m, v)`, so `½mv²` must reproduce the caption's stated criterion. It does, to
-within rounding, on every row of the casualties column (57.5–58.2 ft-lb
-against a stated 58 ft-lb) and nowhere in the perforation column (248–1146
-ft-lb, rising with range). One arithmetic identity, applied once, would have
-caught all three.
-
-Instead the column was identified from a **summary field** — `card.md`'s
-stated max range — which had itself been taken from the wrong column. The
-error then propagated into 14 files. Two structural lessons, both encoded
-below: a lossy summary must never be the discriminator for a fact it does not
-guarantee, and a series that three scripts re-type independently gets the same
-transcription error three times.
+Three committed check scripts each identified the wrong column of an
+interleaved two-column scan, validating a casualty model against *perforation*
+data while feeding it the casualty threshold — with **every digit extracted
+correctly**, so the glyph-level scan passed. The error propagated into 14
+files and into shipped `src/arty/` code. One `½mv²` identity, applied once,
+would have caught all three: `.claude/incidents.md#column-inversion`.
 
 ## Anchors are greppable strings, never bare line numbers
 
