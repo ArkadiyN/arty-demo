@@ -18,6 +18,16 @@ description: >-
 - Physical plausibility: does fragment count/velocity/lethal radius
     make sense for the caliber?
 - Source attribution: is everything evidenced by source references?
+- **Criterion match: does the cited data measure the same quantity the model
+    computes?** For every validation against a source table, check that the
+    table's tabulated criterion is the one the model is being scored on — a
+    model computing one threshold compared against a table listing a different
+    one is **Blocking**, however faithful the transcription. Confirm the check
+    reads its series from `tables/<slug>.csv` rather than a hand-typed literal
+    array, and that the table's `.invariant` passes
+    (`uv run src/utils/check-table-invariants.py <path> --all`). This is the
+    second gate in `.claude/rules/source-data-fidelity.md`; the first
+    (transcription fidelity) is @librarian's and is not your scope.
 - Layering: does the `.qmd` contain **no** physics, computation, parameter
     values, or constants? Everything must be imported from `src/arty/` — flag any
     physics that leaked into a notebook cell.

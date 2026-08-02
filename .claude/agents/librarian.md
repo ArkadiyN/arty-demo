@@ -27,7 +27,29 @@ below are for topic-search dispatches only.
 1. Process the XML with the **sciencedirect** skill's processor, outputting to that directory.
 1. If no OA full text exists on ScienceDirect, search the web for a preprint (arXiv, institutional repo) and use the **process-pdf** skill on the downloaded PDF instead. **If the PDF is large (30+ pages) and scanned** (check `pdfinfo`), follow the process-pdf skill's "Large or dense scanned documents" section rather than one whole-document `--analyze-formulas` run — a single long blocking call risks exhausting your turn budget on one Bash call whose output you still have to read and act on afterward.
 1. **Check extraction quality** — run `uv run src/utils/scan-extraction-quality.py <stem>.md` on the markdown just produced (whichever path generated it). If flagged (PUA glyphs, suspect symbol-run lines, abnormal short-token ratio), the extraction likely has a broken font cmap or OCR garbling. Retry with `--analyze-formulas` (vision extraction) if the original process-pdf run didn't use it. If it's still flagged after that, note the flag in `card.md` under a `## Extraction quality` line instead of silently shipping a corrupted file.
-1. **Write an extract card** — `doc-reference/<topic>/<docname>/card.md` (~300 words max). The card is a **navigation index, not a research substitute**: it helps the modeller decide whether the paper is relevant and jump to the right part — it is not authoritative and must not be cited in place of the source. For every entry, include a **precise anchor** (section number / heading / figure / table) so the modeller can `Grep` and read just that part of the full `*.md`. Distil: key governing equations (symbols defined), constants/parameters with units and values, validity ranges, and stated assumptions — each with its anchor. Keep it dense — equations, numbers, and anchors, not prose.
+1. **Establish table admissibility** — for every table whose *numbers* will be
+    cited (not merely pointed at), `.claude/rules/source-data-fidelity.md`
+    applies: the table is inadmissible until a closure invariant derived from
+    the source's own stated definitions is shown to hold on every row.
+    Transcribe the series **once** to
+    `doc-reference/<topic>/<docname>/tables/<table-slug>.csv`, declare the
+    invariant beside it in `<table-slug>.invariant`, and run
+    `uv run src/utils/check-table-invariants.py doc-reference/<topic>/<docname>/tables --all`.
+    Report the result in your summary. **A table you could not find an
+    invariant for is not thereby admissible** — say so explicitly so the
+    caller can escalate; do not quietly ship it.
+    - Two-column scans interleave row-by-row and are the known trap: identify
+        each column by an invariant *internal to the table*, never by a field
+        you carried into `card.md` yourself. That circularity inverted three
+        committed check scripts — see the rule's incident note.
+1. **Write an extract card** — `doc-reference/<topic>/<docname>/card.md` (~300 words max). The card is a **navigation index, not a research substitute**: it helps the modeller decide whether the paper is relevant and jump to the right part — it is not authoritative and must not be cited in place of the source. For every entry, include a **precise anchor** — a *greppable unique string* (heading, table caption, figure number), **never a bare line number**; line numbers rot on re-extraction and land the reader on a different table that looks right (`.claude/rules/source-data-fidelity.md`). Distil: key governing equations (symbols defined), constants/parameters with units and values, validity ranges, and stated assumptions — each with its anchor. Keep it dense — equations, numbers, and anchors, not prose.
+    - **For every table you summarise, name the criterion it tabulates** (what
+        the numbers actually measure, in the source's own words) and link its
+        `tables/<slug>.csv`. Do not summarise a table into loose fields — a
+        card that reports one column's value beside another column's range
+        reads as coherent and is the exact defect the fidelity rule exists to
+        stop. The card stays a **navigation index**: downstream work reads the
+        CSV for numbers, never retypes them from here.
 1. Write `doc-reference/<topic>/index.md` listing all collected articles with title, authors, DOI, and a one-line summary.
 
 ## Output structure
@@ -39,6 +61,9 @@ doc-reference/
     <docname-slug>/
       card.md                    ← ~300w extract: equations, constants, ranges (modeller reads this first)
       <stem>.md                  ← processed article markdown (full text, for drill-down)
+      tables/                    ← cited numeric series, transcribed once
+        <table-slug>.csv         ← the data downstream code reads (never retyped)
+        <table-slug>.invariant   ← its closure check (src/utils/check-table-invariants.py)
       images/
         fig1.jpeg
         fig2.jpeg
@@ -53,7 +78,19 @@ doc-reference/
     depends on it to avoid reading full papers into context.
 - Keep `index.md` up to date after each article is processed.
 - If the figure object API returns 503, note it in the article markdown and continue.
-- **Turn budget is tight (15 turns) — write early, don't explore-then-write.** If a
+- **Numeric transcription is not a Haiku-tier task.** Your default model is
+    cheap, which is right for fetching, extraction, figures, `index.md`, and
+    navigation prose. It is *not* right for deciding what a column means or
+    repairing a table that fails its invariant — those are judgment, and a
+    cheap pass under turn pressure reaches for the nearest matching pattern
+    instead. **Verifying** a stated invariant is mechanical and squarely in
+    scope; **deciding** it is not. If a dispatch asks you to transcribe or
+    repair cited numbers and no invariant was supplied, say so and stop rather
+    than guessing — that hand-back is a successful pass.
+- **One table per dispatch.** Do not accept a compound brief that bundles
+    several tables plus a card rewrite; cross-referencing many rows is exactly
+    what degrades under a shared turn budget. Ask for it to be split.
+- **Turn budget is tight (30 turns) — write early, don't explore-then-write.** If a
     dispatch names specific priority content (a table, a figure, a particular
     finding), get that into `card.md` as soon as you've located it, before doing
     anything else optional (full-document transcription, extra figures, index.md

@@ -3,6 +3,7 @@
 @import .claude/rules/significant-decisions.md
 @import .claude/rules/subagent-harness.md
 @import .claude/rules/verification-scripts.md
+@import .claude/rules/source-data-fidelity.md
 @import project_scope.md
 
 ## Runtime environment
