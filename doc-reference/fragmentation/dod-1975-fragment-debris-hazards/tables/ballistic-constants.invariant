@@ -1,0 +1,39 @@
+csv:     ballistic-constants.csv
+source:  ../source.pdf pp.17-19 = report pages 7-9, section "Ballistic Properties"
+anchor:  660 grains/in.3
+anchor:  supersonic value of 1.28
+anchor:  we find that L1 = 247
+
+# WHY THIS ONE-ROW TABLE EXISTS. Both numbers shipped in src/arty come from
+# this section -- k = 2600 kg/m3 (via C_shape) and C_D = 1.28 -- and each was
+# taken from a DIFFERENT sentence, with no check that the two belong together.
+# They do, and the source itself says so: a third sentence on pdf p.19 states
+# the retardation length they jointly imply, together with the formula. That
+# turns the pair into a closure rather than two isolated quotations.
+#
+# THE SOURCE'S OWN WORDS (all verbatim from the retained scan):
+#   p.17  "for forged steel projectiles and fragmentation bombs the average
+#          value of 660 grains/in.3 (2.60 g/cm3) has been recommended, while
+#          for demolition bombs the value 590 grains/in.3 (2.33 g/cm3) has
+#          been applied"
+#   p.18  "A useful approximation for many applications is to take the drag
+#          coefficient as constant at its supersonic value of 1.28."
+#   p.19  "L = 2(k^2 m)^(1/3) / (C_D rho)" and
+#          "For k = 2.6 g/cm3 and CD = 1.28, we find that L1 = 247 m/kg^(1/3)
+#          in air at standard conditions"
+# With L = L1 * m^(1/3), the formula reduces to L1 = 2 k^(2/3) / (C_D rho).
+#
+# WHY THE TOLERANCE IS 3%, AND WHAT IT DISCRIMINATES. rho is the one input the
+# source does not print; "standard conditions" is taken as the ICAO sea-level
+# value 1.225 kg/m3, which is what every check script in this repo already
+# uses. At that rho the identity gives 241.2 against the stated 247 -- -2.4%,
+# i.e. the source's rho was nearer 1.20. The band is set just wide enough to
+# absorb that and no wider, because the failure this file exists to catch is
+# the ADJACENT VALUE printed in the same sentence: the demolition-bomb
+# k = 2.33 g/cm3 gives 224.2, which is -9.2% and fails. A future pass that
+# picks up the wrong k -- the exact error class that motivated this audit --
+# does not get past this check.
+row:  2 * k_kg_m3**(2.0/3.0) / (c_d * rho_kg_m3) == 247 within 3%
+
+# The plateau value here must be the same one the digitized curve carries.
+row:  c_d == 1.28 within 0.001

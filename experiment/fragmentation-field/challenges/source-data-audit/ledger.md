@@ -556,7 +556,7 @@ extract-once rule does not apply to them — only the anchor rule does.
 
 FINDING\[deferrable\]: shipped code cites DoD-1975 by bare line number (lines 316, 321, 338-339) for \_K_BALLISTIC and C_D; the lines resolve correctly today but rot silently on any re-extraction — replace with greppable strings (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-02)
 
-FINDING\[deferrable\]: four doc-reference documents feed numbers into committed artifacts with no tables/\*.csv and no retained source PDF, so they cannot be re-baselined without re-acquisition; dod-1975 is the priority since its numbers reach src/arty/fragmentation.py (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/, doc-reference/ww2-shells/ammunition-series-6-wdss-specs/, doc-reference/ww2-shells/ammunition-series-6-steel-composition/, doc-reference/azom-steel-grades/aisi-1335/; since: 2026-08-02)
+FINDING\[deferrable\]: three doc-reference documents feed numbers into committed artifacts with no tables/\*.csv and no retained source PDF, so they cannot be re-baselined without re-acquisition (dod-1975 was the fourth and is now closed — scan retained, tables written, see §13) (affects: doc-reference/ww2-shells/ammunition-series-6-wdss-specs/, doc-reference/ww2-shells/ammunition-series-6-steel-composition/, doc-reference/azom-steel-grades/aisi-1335/; since: 2026-08-02)
 
 ## 12. The 1944 source scan, recovered — column identity checked at the page
 
@@ -658,3 +658,102 @@ the form that rotted onto the wrong shell's data in the original incident.
 FINDING\[blocking\]: ordnance-1944 card.md labels all three shell sections with the table number of a neighbouring shell (43→81mm M43A1, 51→105mm M38A1, 59→8in M103; correct are 38/39, 48/49, 56/57) and prints each casualties B value beside the perforation table's range — the exact lossy-summary mechanism that caused the column inversion; quoted numbers are correct, labels are not (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
 
 FINDING\[deferrable\]: ordnance-1944 card.md cites all nine of its anchors as bare line numbers into ordnance-1944.md, the anchor form source-data-fidelity.md forbids; replace with greppable strings when the card is split (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
+
+## 13. The DoD-1975 scan, recovered — the digitized Figure 3 does not match it
+
+The user supplied the original (`10-F-0806_Fragment_and_Debris_Hazards.pdf`,
+42 pp., sha256 `9ff9e66f…`), retained at
+`doc-reference/fragmentation/dod-1975-fragment-debris-hazards/source.pdf`.
+This is the source §11 flagged as the priority re-acquisition, because it is the
+only one of the four un-baselined documents whose numbers reach shipped
+`src/arty/` code.
+
+### 13a. Both shipped constants are confirmed, and now close against a third
+
+`src/arty/fragmentation.py` takes two scalars from this report's "Ballistic
+Properties" section. Read off the retained scan, both are verbatim right:
+
+- **pdf p.17** — "for forged steel projectiles and fragmentation bombs the
+    average value of 660 grains/in.3 (**2.60 g/cm3**) has been recommended,
+    while for demolition bombs the value 590 grains/in.3 (2.33 g/cm3) has been
+    applied". `_K_BALLISTIC` = 2600 kg/m³ is the first of those.
+- **pdf p.18** — "A useful approximation for many applications is to take the
+    drag coefficient as constant at its **supersonic value of 1.28**."
+
+Each had been quoted from a *different sentence*, with nothing tying them
+together. The scan supplies the tie: **pdf p.19** prints the formula
+`L = 2(k²m)^(1/3)/(C_D ρ)` *and* the number it yields — "For k = 2.6 g/cm3 and
+CD = 1.28, we find that L1 = 247 m/kg^(1/3) in air at standard conditions". With
+`L = L₁ m^(1/3)` that reduces to `L₁ = 2 k^(2/3)/(C_D ρ)`, a closure the two
+shipped constants must satisfy jointly. They do: 241.2 against the stated 247,
+−2.4%, the residual being the report's unprinted ρ (247 implies ≈1.196; ICAO
+standard is 1.225).
+
+The discriminating power is the point. Substituting the *demolition-bomb* value
+printed in the same sentence — k = 2.33 g/cm³, exactly the adjacent-value
+confusion this audit exists to catch — gives 224.2, **−9.2%**, four times
+outside the band. Recorded as
+`tables/ballistic-constants.csv` + `.invariant`; the extraction at
+`10-F-0806_Fragment_and_Debris_Hazards.md` was checked against the page for all
+three passages and is faithful.
+
+### 13b. `figure-3-digitized.md` is wrong through the transonic rise — blocking
+
+That file is an eyeballed reading ("curve traced by eye at grid
+intersections"). Its 14-point (Mach, C_D) table was **hand-copied** into
+`updates/mach-dependent-fragment-drag/checks/required-retardation-vs-mach.py:29`
+— a transcribe-once violation — and that check is what **rejected** a
+Mach-dependent drag law in favour of the constant `C_D = 1.28` now shipped.
+So an eyeball reading of a 1975 scan is load-bearing for a shipped modelling
+decision, and until now nothing had compared it back to the page.
+
+It also contradicts `card.md` **in its own folder**: the card says the
+transonic rise runs "from 1.08 to ~1.27" over Mach 0.7–1.0 and peaks near
+Mach 1.5; the table says C_D = 1.14 at Mach 1.0 and peaks at Mach 1.4. Two
+artifacts from one figure, disagreeing by ~0.13.
+
+`checks/dod-1975-figure-3-trace.py` settles it by tracing the curve's black
+stroke off a 300-dpi render, independent of both. Its axis calibration is
+validated on three features read back out of the trace: supersonic plateau
+**1.2801** (the source states 1.28), subsonic plateau **1.0788** (card: ~1.08),
+peak **1.4003 at Mach 1.46** (card: ~1.40 near Mach 1.5). A calibration that
+reproduces all three to 0.001 is not plausibly wrong in the band between them —
+and the card, not the table, is what it confirms.
+
+| Mach | `figure-3-digitized.md` | traced stroke | error      |
+| ---- | ----------------------- | ------------- | ---------- |
+| 1.0  | 1.14                    | 1.222–1.243   | **−0.082** |
+| 1.2  | 1.38                    | 1.347–1.355   | +0.025     |
+| 1.6  | 1.35                    | 1.388–1.394   | −0.038     |
+| 1.8  | 1.33                    | 1.364–1.368   | −0.034     |
+| 2.2  | 1.30                    | 1.320–1.324   | −0.020     |
+
+The nine other points are inside the stroke. The defect is one-directional
+where it matters: the published table **under-states** C_D across Mach 1.0–2.2,
+by 7% at Mach 1.0. It misplaces the whole transonic rise, putting it between
+Mach 1.0 and 1.2 where the page puts it between 0.75 and 1.15, and it peaks
+0.06–0.1 Mach early.
+
+**Why this is blocking, not deferrable.** Mach 0.8–2.2 is precisely the band
+the 1944 arrival velocities populate (2440 f/s → Mach 2.2 at r = 20 ft, down
+through Mach 1 near r ≈ 150 ft). The rejected candidate is a *Mach-dependent*
+law, so the rejection test was fed a curve that is too flat exactly where the
+data lives, and too flat in the direction that weakens the candidate. Whether
+the rejection survives the corrected curve is a modelling question for the
+Phase 3/4 @modeler passes — this ledger records only that the input was wrong
+and in which direction. It compounds, rather than duplicates, the finding at
+§11 that the same comparison mixed casualties and perforation rows.
+
+The corrected curve is recorded at `tables/figure-3-drag-coefficient.csv`
+(140 rows at 0.05 Mach, midpoint plus both stroke edges), emitted by the trace
+script itself rather than typed, with `figure-3-drag-coefficient.invariant`
+pinning the source-stated plateau. `figure-3-digitized.md` is **not** rewritten
+here, per the deferred-repairs scope — it is marked blocking and the trace
+script pins the exact discrepancy, so a partial re-digitization fails rather
+than passing quietly.
+
+The blocking marker for this one lives in `figure-3-digitized.md` itself rather
+than here — a reader who opens that table must see it, which is the whole point
+of `.claude/rules/deferred-findings.md`.
+
+FINDING\[deferrable\]: dod-1975 card.md cites its passages as bare line ranges (L293-L315, L320-L327, L346, L550), the anchor form source-data-fidelity.md forbids; the page numbers are now known (pdf pp.17-19, figure p.33) so the replacement is mechanical (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md; since: 2026-08-02)
