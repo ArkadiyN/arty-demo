@@ -7,15 +7,15 @@ Provenance and verdict record for every artifact that consumes numbers from
 Repairs are **deferred by design** — this ledger is the map that drives the
 redo, not a record of fixes. `src/arty/` is assessed, never changed here.
 
-| Phase                             | State                                                   |
-| --------------------------------- | ------------------------------------------------------- |
-| 0 — inventory & provenance        | **done** (this document, sections 1–4)                  |
-| 1 — re-baseline ordnance-1944     | **done** — six tables transcribed + verified (§5)       |
-| 2 — re-baseline Tolch-1938        | **2a–2c done** (§6); 2d card rewrite outstanding        |
-| 3 — downstream verdict per thread | pending (verdict column below unfilled)                 |
-| 4 — `src/arty` assessment         | **1944 drag law done** (§8); Tolch updates (4b) pending |
-| 5 — independent verification      | pending                                                 |
-| 6 — surface reconciliation        | pending                                                 |
+| Phase                             | State                                                                                       |
+| --------------------------------- | ------------------------------------------------------------------------------------------- |
+| 0 — inventory & provenance        | **done** (this document, sections 1–4)                                                      |
+| 1 — re-baseline ordnance-1944     | **done** — six tables transcribed + verified (§5)                                           |
+| 2 — re-baseline Tolch-1938        | **2a–2c done** (§6, incl. 2b's missed third table); 2d card rewrite blocked on Ph. 8 item 2 |
+| 3 — downstream verdict per thread | pending (verdict column below unfilled)                                                     |
+| 4 — `src/arty` assessment         | **1944 drag law done** (§8); Tolch updates (4b) pending                                     |
+| 5 — independent verification      | pending                                                                                     |
+| 6 — surface reconciliation        | pending                                                                                     |
 
 ## 1. The discriminator
 
@@ -511,3 +511,49 @@ FINDING\[blocking\]: tolch-1938.md is a known-corrupted vision extraction (page-
 FINDING\[deferrable\]: the cumulative fragment-velocity distribution is unresolved — two extractions disagree and one is provably non-monotonic; no better scan surfaced within the one-dispatch cap (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md; since: 2026-08-02)
 
 FINDING\[blocking\]: the pit-test recovered-fragment count is 803 in committed artifacts but the report's own screen table (now at tables/pit-screen-recovery.csv, where 4 of 5 screen rows fail their printed percentage under 803 and all 5 close under 779) and body text both say 779, which shifts the derived mean fragment mass 6.85 g -> 7.06 g and the update's N/observed band 3.9-5.6x -> 3.75-6.00x (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/scoping.md, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-02)
+
+## 11. Sweep of the rest of `doc-reference/` (Phase 8 item 3)
+
+The audit was scoped to two sources on the assumption the other 21 processed
+documents are unaffected. That assumption is now tested, not assumed.
+
+Criterion: a document is exposed if some committed artifact reads *numbers*
+out of it (not merely points at it) and it has no `tables/*.csv` with a passing
+invariant. Four qualify:
+
+| Document                                           | Numbers reach                                            | Source form       |
+| -------------------------------------------------- | -------------------------------------------------------- | ----------------- |
+| `fragmentation/dod-1975-fragment-debris-hazards`   | **`src/arty/fragmentation.py`** + 7 artifacts            | scanned DoD TP-12 |
+| `ww2-shells/ammunition-series-6-wdss-specs`        | `updates/wdss1-steel-grade/` incl. `checks/recompute.py` | printed manual    |
+| `ww2-shells/ammunition-series-6-steel-composition` | `updates/wdss1-steel-grade/` scoping + review            | printed manual    |
+| `azom-steel-grades/aisi-1335`                      | `updates/wdss1-steel-grade/` incl. `checks/recompute.py` | web article       |
+
+`wound-ballistics/aep-55-vol3` is cited only in one `scoping.md` and carries no
+`card.md`; narrative-only, so not exposed. `aisi-1020` and `aisi-1045` are
+uncited.
+
+**None of the four retains its source.** `tolch-1938.../source.pdf` is the only
+PDF in `doc-reference/`. So these tables *cannot* be re-baselined the way the
+Tolch tables just were — the only surviving copy is the extracted markdown,
+which is the artifact whose fidelity is in question. Transcribing a CSV out of
+it would launder an unverified extraction into an apparently-checked one, which
+is worse than leaving it visibly unchecked. **Re-acquisition comes first**;
+that is the finding, and it is why nothing was extracted here.
+
+What the sweep *could* check cheaply, and did: whether the two constants
+DoD-1975 puts into shipped code still read as claimed. `_K_BALLISTIC = 2600.0`
+and `C_D = 1.28` are cited at `10-F-0806_Fragment_and_Debris_Hazards.md` lines
+316 / 321 / 338-339. All three lines currently resolve and say what
+`fragmentation.py` says they say ("the average value of 660 grains/in.3 (2.60
+g/cm3) has been recommended"; "take the drag coefficient as constant at its
+supersonic value of 1.28"). **The numbers are right today.** But they are bare
+line numbers in shipped code — the anchor form
+`.claude/rules/source-data-fidelity.md` forbids, because it fails silently: a
+re-extraction moves them and the reader lands on different text that looks
+right. This is the same rot that moved the Tolch card's anchors ~250 lines
+(§6). Both are scalars quoted from prose, not table cells, so the
+extract-once rule does not apply to them — only the anchor rule does.
+
+FINDING\[deferrable\]: shipped code cites DoD-1975 by bare line number (lines 316, 321, 338-339) for \_K_BALLISTIC and C_D; the lines resolve correctly today but rot silently on any re-extraction — replace with greppable strings (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-02)
+
+FINDING\[deferrable\]: four doc-reference documents feed numbers into committed artifacts with no tables/\*.csv and no retained source PDF, so they cannot be re-baselined without re-acquisition; dod-1975 is the priority since its numbers reach src/arty/fragmentation.py (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/, doc-reference/ww2-shells/ammunition-series-6-wdss-specs/, doc-reference/ww2-shells/ammunition-series-6-steel-composition/, doc-reference/azom-steel-grades/aisi-1335/; since: 2026-08-02)
