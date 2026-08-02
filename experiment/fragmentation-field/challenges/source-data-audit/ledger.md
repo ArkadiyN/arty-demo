@@ -1321,3 +1321,185 @@ defect already registered for `ordnance-1944` and `dod-1975`.
 
 Phase 2.5b is still open: `ammunition-series-6-wdss-specs`,
 `sandia-sand92-0243` and `aisi-1335` remain.
+
+______________________________________________________________________
+
+## 19 · Tier-2 re-baseline — `ammunition-series-6-wdss-specs` (Phase 2.5b)
+
+**Verdict: transcription clean, card materially wrong.** Every digit of the
+composition table survives; the defects are all narrative, and one of them is
+the exact failure mode this audit was opened to catch.
+
+### 19a · The plan mis-tiered it — this is a Tier-1 dependency
+
+The plan lists `ammunition-series-6-wdss-specs` under **2.5b, "sources feeding
+committed check scripts"**. It does more than that: it reaches **shipped
+code**. `src/arty/fragmentation.py:67-68` cites "Ammunition Series 6, Table
+6-1, 17 Feb 1953" for the `0.14-0.20 %C, 1.00-1.30 %Mn` band of the
+`"US WW2 WDSS1"` steel entry, and that band's 0.17 % midpoint is what produces
+the shipped `gamma = 47.0`. By 2.5a's own criterion — "sources reaching shipped
+`src/arty/`" — it belongs in Tier 1, and the gate should have blocked on it.
+
+It was missed because the tiering was built from a grep for source *slugs*, and
+`fragmentation.py` cites this one by **title and table number**, not by
+directory name. That is a general hole in the triage, not a one-off: see 19f.
+
+No shipped number moves as a result — the band is correct — but the gate
+ordering was wrong, and Phase 4 must treat this as a Tier-1 source.
+
+### 19b · The scan, and why it needed no closure invariant
+
+The user-supplied `source.pdf` is DTIC **AD830266** — and the document is not
+what the repo called it. It is *Engineering Design Handbook, Ammunition Series,
+Section 6*, **AMCP 706-249**, HQ U.S. Army Materiel Command, **July 1964**,
+prepared by McGraw-Hill's Technical Writing Service from Picatinny Arsenal
+data. The 17 Feb 1953 date belongs to the *specification*, not the handbook.
+
+The scan carries a clean machine-readable text layer (~2 077 chars/page), which
+changes what admissibility costs here. Table 6-1 is a chemical specification:
+six grades x five elements, every cell an independent policy limit. **It has no
+arithmetic closure invariant** — nothing sums, nothing is monotonic down a
+column, no stated criterion closes on the rows. Under
+`.claude/rules/source-data-fidelity.md` that means "flagged for human review".
+
+It does not need to be, and the reason is worth recording as a general point:
+
+> A closure invariant is a **proxy** for the question "was the right row and
+> column read?" — it is what you use when the only access to the table is a
+> human eye on a raster. When a clean text layer exists, that question can be
+> answered **directly and positionally, cell by cell**, which is strictly
+> stronger than the proxy. A closure catches a misread digit somewhere in a
+> summed column; a positional diff names the cell.
+
+So the table was extracted **by script** from the text layer and diffed against
+the CSV per cell:
+`checks/ammunition-series-6-table-6-1-fidelity.py` (0 failures). The CSV is
+written by that same script's `--emit` mode, so no digit in it was ever typed
+by hand — the rule's "extracted once, not re-typed" clause is satisfied
+mechanically rather than by discipline. The `.invariant` carries the one real
+internal check that exists (the phosphorus ceiling is constant on all six
+rows), plus an explicit statement of why there is nothing else and what
+substitutes.
+
+One transcription subtlety: printed precision is load-bearing in a spec table.
+`0.040 max.` is a three-decimal limit and `0.04` is not the same claim, so the
+CSV stores the page's own strings. The first emit ran the values through `%g`
+and silently coarsened five columns; caught on read-back.
+
+### 19c · The table is correct — including the value flagged twice as suspect
+
+All six rows reproduce cell-for-cell. That **closes a doubt open since the card
+was written**: `ammunition-series-6-wdss-specs.md` flagged WDSS 1's sulfur
+`0.08-0.13 %` as "unusually high; verify against original image" in its
+confidence table, and repeated it as an open action. It is faithful. The
+incidental-elements footnote (Ni 0.25, Cr 0.20, Cu 0.50, Mo 0.06) is also
+faithful — and is *not* the same list as §6-13's post-WWII residuals (Ni 0.35,
+Cr 0.30, Cu 0.25, sum ≤ 0.50), which is an easy conflation the card now warns
+about.
+
+### 19d · The finding: a card that told readers the source lacked what it has
+
+§6-14, one sentence above the table:
+
+> "The other grades cover all calibers from 37-mm to over 155-mm, in which the
+> yield strengths vary from 60,000 psi to 80,000 psi."
+
+The old `card.md` listed **yield strength** and **applicable shell calibers for
+WDSS 3, 5, 6, 7** under a heading reading *"Data Gaps: Mechanical Properties
+Not Specified — the following are NOT stated"*, and marked those four grades
+"(Not specified in source)" in its table. Both claims are false against the
+page. The companion `.md` repeated them in its confidence table ("Not stated;
+pure inference"; "Source is silent") and carried "Clarify WDSS 3, 5, 6, 7
+Applications" as an open research action — for a fact printed in the paragraph
+that introduces the table.
+
+**This is the 2.5d class in its purest form.** Nothing was mis-transcribed. A
+reference card asserted an absence, and the assertion is self-sealing: a
+reader who trusts it has no reason to open the page, so the error cannot be
+found by anyone downstream of the card. It survived at least one prior pass
+that was *specifically looking* for missing mechanical-property data.
+
+It propagated. `_limitations.qmd` §13 (A6) states "Table 6-1 is chemistry-only:
+no yield strength, no heat treatment" — true of the *table*, false of the
+*source* — and on that basis the shipped `sigma_f = 800 MPa` (116 000 psi) has
+never been compared against the 60 000–80 000 psi (414–552 MPa) the source
+gives for artillery-caliber shell steel. Whether it should be is a
+criterion-match question (static yield vs. dynamic fracture stress are
+different quantities) and therefore @model-reviewer's, not this pass's.
+Registered `deferrable` on `card.md`, routed to `_limitations.qmd`,
+`fragmentation.py` and `wdss1-steel-grade/derivation.md`.
+
+A second, smaller one registered as `note`: the shipped identifier
+`"US WW2 WDSS1"` **misdates its own grade**. The handbook titles §6-11 *Steel
+Used Early in World War II* (X-1340) and §6-13 *Steels Used After World War
+II*; WDSS is the 1953 prevailing spec, downstream of both. Applicability is
+already recorded correctly in `_parameters.qmd` (60/81 mm mortar, 57 mm
+recoilless), so no number is misapplied — the name is simply wrong.
+
+### 19e · Source-internal inconsistencies, neither of them ours
+
+Both confirmed against the text layer; neither may be "fixed" in the CSV.
+
+1. **Silicon.** §6-14 says all shell steel is made "silicon 0.15 to 0.30
+    percent". Table 6-1 prints that on five rows and `0.10 max.` on WDSS 1. The
+    prose and the table disagree about WDSS 1.
+1. **X-1340 phosphorus.** §6-11 prints "phosphorus, 0.45 percent maximum",
+    an order of magnitude above table 6-1's 0.040 and almost certainly a typo
+    or scan defect for 0.045. Nothing cites it; flagged so nothing starts.
+
+### 19f · What this adds to Phase 8
+
+**A source can be cited by title instead of by slug, and the triage grep does
+not see it.** 19a's mis-tiering was not a judgment error — the inventory was
+built by grepping directory slugs, and `fragmentation.py` names this source in
+prose. Any future "which sources reach shipped code" sweep must grep **document
+titles and table numbers** as well as slugs, or it will keep under-tiering
+exactly the citations that were written most carefully. Candidate rule text for
+Phase 8, alongside the §18c citation-chain widening.
+
+**`doc-reference/<slug>/<slug>.md` is not reliably an extraction.** This one is
+a model-authored essay — metallurgical theory, σ_y estimates, design rationale
+— with a header calling it a "transcribed excerpt". Its filename and location
+both imply it is the processed source. It now carries a header saying plainly
+that it is not, and pointing at `card.md` and the CSV. The general fix belongs
+with Phase 8 item 2 (split `card.md`): the naming convention needs to
+distinguish *extraction* from *commentary*, because right now nothing does.
+
+### 19g · State
+
+Re-baselined. `tables/table-6-1-chemical-requirements.csv` +
+`.invariant` (1 check, passing; no closure exists and the file says so),
+`card.md` rewritten against the scan with greppable anchors, `<slug>.md`
+annotated with four refutations and three closed actions. Two findings
+registered (one `deferrable`, one `note`).
+`check-table-invariants.py doc-reference/ --all`: **0 / 19 failed**.
+
+Two retained scripts, split along the table/prose line because the two need
+different kinds of check:
+
+- `checks/ammunition-series-6-table-6-1-fidelity.py` — emits **and** verifies
+    the CSV against the text layer, positionally, per cell. 0 failures.
+- `checks/ammunition-series-6-source-locator.py` — resolves the seven anchors
+    the card cites and confirms its six quoted passages appear verbatim. 0
+    failures. This is the greppability guard, not a fidelity proof: prose has no
+    closure invariant, and the defect here was in prose. It replaces three
+    throwaway `_scratch/` probes and reproduces their cited output (page
+    indices, the ~2 077 chars/page density, the accession).
+
+Writing the second one surfaced a small transcription trap worth recording: the
+scan preserves the printed page's **soft hyphens** (`forg- ings`, `per- cent`,
+`open- hearth`), which are indistinguishable from the hard hyphens in `37-mm`
+and `open-hearth`. A quotation check that de-hyphenates only at line ends fixes
+one and breaks the other, so both sides are reduced to a bare character run
+instead. The same trap would silently corrupt any future prose extraction from
+this scan.
+
+One near-miss caught on read-back: the card first quoted the governing spec as
+`MIL-S-10520C (ORD)` when the page prints `(ORO)`. `(ORD)` is certainly what was
+meant, but silently repairing a source is the habit this audit exists to break —
+it is now quoted as printed, with the artifact named.
+
+Tier corrected to **Tier 1**. Phase 4 must treat it as such.
+
+Phase 2.5b remains open: `sandia-sand92-0243` (scan retained, no `card.md` at
+all) and `aisi-1335` (no local copy; azom URL only).
