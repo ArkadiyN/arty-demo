@@ -304,7 +304,49 @@ tables at `tolch-1938.md` lines 553–684. Those lines now hold panel-layout OCR
 garbage; the real tables sit at **813–965**, roughly 250 lines away. Every anchor
 in that card is a bare line number.
 
-## 7. Remaining work
+## 7. Why the extraction was wrong — pipeline diagnosis
+
+Evidence: [`checks/vision-raster-resolution.py`](checks/vision-raster-resolution.py)
+
+The Tolch table errors are **not** a model-reasoning failure that a better
+prompt or a stronger model would fix. Information is destroyed before the model
+is called.
+
+`pdf-processor.py:_render_pages_combined` rasterises at **dpi=60**, JPEG
+quality 70, then stacks 8 pages into one image:
+
+| path                              | px per printed digit | note                      |
+| --------------------------------- | -------------------- | ------------------------- |
+| combined vision path (as shipped) | ~13.7                | 530 × 6248 px for 8 pages |
+| …after ~3072 px API downscale     | **~6.7**             | effective **30 dpi**      |
+| single-page path (dpi=150)        | ~34.2                | 2.5× better               |
+| OCR convention (dpi=300)          | ~68.4                | 5.0× better               |
+
+Conventional OCR wants 20–30 px of glyph height. At ~6.7 px, `3 ↔ 0` and
+`8 ↔ 6` confusion is the expected outcome. The observed errors match exactly:
+`3.47 → 0.37`, `12.25 → 1.22`, `7.97 → 2.77`, `1.82 → 1.62`.
+
+**Two failure modes, and the second is worse.** Besides misreading digits, the
+extraction **fabricated cells the source leaves blank**. On report p.19 the
+Perf. row at 1450 f/s prints dashes for Panel C — no data. `tolch-1938.md`
+fills it with `.12 / .04`, the *1685* row's Panel C values pulled up a line.
+Likewise 1685 Panel B reads `.34`, which is Panel A's value smeared sideways.
+Row and column smearing under low resolution produces confident, well-formed
+numbers with no marker that they were invented.
+
+**The extraction-quality gate cannot see any of this, by construction.**
+`scan-extraction-quality.py` is glyph-level — PUA characters, symbol runs,
+short-token ratio. A vision model under-resolved does not emit garbled glyphs;
+it emits a *clean, correctly-aligned markdown table* containing wrong numbers.
+Running the gate on `tolch-1938.md` flags it — but only for symbol-run noise on
+lines 349/1187/1296/1449, elsewhere in the document. The corrupted table itself
+is glyph-perfect and passes every heuristic the tool has.
+
+This is the structural reason the closure invariant is the only real gate:
+**glyph-level checks catch bad OCR, and the vision path does not fail as bad
+OCR — it fails as plausible fiction.**
+
+## 8. Remaining work
 
 - **Phase 2d** — rewrite the Tolch `card.md`: drop the wrong "Drag Model
     Relevance" recommendation, move every anchor off bare line numbers, record
