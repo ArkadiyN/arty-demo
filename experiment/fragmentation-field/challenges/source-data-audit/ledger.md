@@ -12,9 +12,10 @@ redo, not a record of fixes. `src/arty/` is assessed, never changed here.
 | 0 — inventory & provenance        | **done** (this document, sections 1–4)                                                      |
 | 1 — re-baseline ordnance-1944     | **done** — six tables transcribed + verified (§5)                                           |
 | 2 — re-baseline Tolch-1938        | **2a–2c done** (§6, incl. 2b's missed third table); 2d card rewrite blocked on Ph. 8 item 2 |
-| 3 — downstream verdict per thread | pending (verdict column below unfilled)                                                     |
-| 4 — `src/arty` assessment         | **1944 drag law done** (§8); Tolch updates (4b) pending                                     |
-| 5 — independent verification      | pending                                                                                     |
+| 2.5 — source admissibility gate   | **open — blocks 3, 4, 5** (§14); DoD-1975 done (§13), Tier 1 awaiting originals             |
+| 3 — downstream verdict per thread | **blocked on 2.5** (verdict column below unfilled)                                          |
+| 4 — `src/arty` assessment         | **1944 drag law done** (§8); Tolch updates (4b) **blocked on 2.5a**                         |
+| 5 — independent verification      | **blocked on 2.5 and 3**                                                                    |
 | 6 — surface reconciliation        | pending                                                                                     |
 
 ## 1. The discriminator
@@ -757,3 +758,94 @@ than here — a reader who opens that table must see it, which is the whole poin
 of `.claude/rules/deferred-findings.md`.
 
 FINDING\[deferrable\]: dod-1975 card.md cites its passages as bare line ranges (L293-L315, L320-L327, L346, L550), the anchor form source-data-fidelity.md forbids; the page numbers are now known (pdf pp.17-19, figure p.33) so the replacement is mechanical (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md; since: 2026-08-02)
+
+## 14. Phase 2.5 — the source admissibility gate
+
+Added after §13, because §13 refuted the assumption the audit was scoped on.
+
+This audit was opened on two sources on the premise that the rest of
+`doc-reference/` was unaffected. DoD-1975 was the first other document anyone
+looked at, and it carried a wrong number into shipped code by exactly the
+mechanism of the original incident: a lossy derived artifact
+(`figure-3-digitized.md`, read by eye) treated as ground truth, hand-copied
+into a check script, and never compared back to the page. Three sources, three
+independent defects, three for three. **Twenty documents remain unexamined.**
+
+**The gate.** No @modeler or @model-reviewer pass begins while a source it will
+read is inadmissible. Dispatching the modeler to adjudicate physics on top of
+unverified data reproduces the original failure one level up — it manufactures
+a verdict that *looks* independent and is not. This is the same principle that
+put Phase 7/8 (workflow fixes) ahead of re-running corrupted work, applied to
+the data rather than the tooling.
+
+### 14a. Tiering — what gets a full re-baseline and what gets a sweep
+
+Ranked by how far a wrong number travels. Counts are files citing the document
+by folder name.
+
+| Tier  | Documents                                                                                                                                                                                | Reaches                                      | Treatment                                             |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------------- |
+| **1** | `ordnance-105mm-m1-1940` (`fragmentation.py:36`), `explosion-fragment-model` (`fragmentation.py:101`)                                                                                    | **shipped `src/arty/`**                      | full re-baseline; **blocks Phases 3, 4, 5**           |
+| **2** | `gurney-equations-fragmentation` (1 script, 8 md), `aisi-1335`, `ammunition-series-6-wdss-specs`, `sandia-sand92-0243`                                                                   | committed check scripts → published verdicts | full re-baseline; blocks only the threads citing them |
+| **3** | `fas-es310-damage-criteria`, `fragment-size-distribution-conwep`, `ada462991-fragment-velocity`, `britishartillery-wt-of-fire`                                                           | a rendered `.qmd`, no script                 | 14c/14d sweeps only                                   |
+| **4** | `aep-55-vol3`, `ammunition-series-6-steel-composition`, `aisi-1020`, `aisi-1045`, `cunniff-2014`, `lethality-threshold-critique`, `pmc7295711-bone-fragments`, `m49a2-60mm-mortar-shell` | one narrative mention each                   | 14c/14d sweeps only                                   |
+| —     | `ml-warhead-fragmentation`, `nwc-tp-7124`                                                                                                                                                | uncited                                      | nothing depends on them                               |
+
+**None of Tiers 1–4 has a `tables/*.csv` or a retained scan.** The three
+re-baselined documents (ordnance-1944, Tolch-1938, DoD-1975) are the only ones
+that do — so Tier 1 and Tier 2 need the human to supply originals before
+anything can be checked against a page.
+
+One defect here needed no source to register, and is now marked at
+`src/arty/fragmentation.py`: **two bare line numbers inside shipped code** —
+`1-s2.0-S221491472030502X-main.md:137` for the 1.6 aspect ratio and
+`rspa.1947.0042.md:190` for `kappa_x` — the same class as the DoD anchor
+finding at §11, and pointing into two documents (Tier 1 and Tier 2) that are
+themselves unverified. A line number rots on re-extraction without failing
+loudly; Tolch's own line numbers have already shifted once.
+
+### 14b. Ordering against Phase 7
+
+Where a source needs *re-extraction*, Phase 7 (the pdf-processor fixes) lands
+first — pipeline before data. Verifying a table by hand against a retained
+scan, as §12 and §13 did, carries no such dependency and can proceed now.
+
+### 14c. The eyeball/vision sweep
+
+Promoted here from Phase 8 item 3. It was written as a cheap precaution
+against a hypothetical; §13 makes it a search for a confirmed defect class.
+Triage is mechanical: an `images/` directory, or a markdown table of numbers,
+with no `tables/*.csv` beside it. Each hit is re-baselined or marked
+non-citable — there is no third outcome, and "probably fine" is not one of
+them.
+
+### 14d. Narrative admissibility
+
+Wrong *prose* has cost more here than wrong digits. Tolch's "Drag Model
+Relevance" section recommended a drag anchor that is near-insensitive to drag
+(§6); the correction lived only in agent memory and the card said the wrong
+thing for years. A @modeler dispatched to read that card inherits it as a
+premise before it computes anything.
+
+So: every `card.md` section that tells a reader **what to use the source for**
+is a modelling claim wearing a reference doc's clothes. Each is verified, or
+struck and moved to `derivation.md` where @model-reviewer sees it. That is
+Phase 8 item 2, which this makes urgent rather than tidy.
+
+### 14e. Exit criterion, and why the gate cannot deadlock
+
+Every source cited by a pending Phase-3 thread ends in exactly one of two
+states:
+
+1. **Re-baselined** — `tables/*.csv` plus a passing closure invariant, or an
+    explicit "no closure invariant exists" note flagged for human review, per
+    `.claude/rules/source-data-fidelity.md` ("absence of a check is a finding,
+    not a pass").
+1. **Unverifiable** — no original obtainable. Recorded as such here, **and
+    every claim resting on it marked provisional.**
+
+State 2 is a legitimate outcome. Some of these documents are web pages and
+vendor datasheets that may simply not be re-acquirable, and the audit must not
+stall on one. What the gate forbids is state 2 going *unrecorded*: a modeler
+brief may not cite an unverifiable source as evidence, and a Phase-3 verdict
+resting on one is labelled **provisional**, never **sound**.
