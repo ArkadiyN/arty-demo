@@ -4,6 +4,7 @@
 @import .claude/rules/subagent-harness.md
 @import .claude/rules/verification-scripts.md
 @import .claude/rules/source-data-fidelity.md
+@import .claude/rules/deferred-findings.md
 @import project_scope.md
 
 ## Runtime environment

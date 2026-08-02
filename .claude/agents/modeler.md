@@ -50,6 +50,12 @@ and STOP.
 - *Notebook presentation* → edit the thin `.qmd` to import from `arty` and
     render; follow the **quarto-science** skill.
 
+**Check for open findings on your scope, first turn.** Run
+`uv run python src/utils/collect-findings.py --for <the folder or file your pass touches>`. Anything it returns is a known defect somebody already
+diagnosed and deferred; treat it as an input to this pass, not a discovery to
+re-make. The brief should have pasted these in — this catches the case where it
+didn't. Costs one turn; skipping it can cost the pass.
+
 **All project physics is common and lives in `src/arty/` — never in a `.qmd`.**
 The notebook only imports, calls, and renders. For artifact layout, file paths,
 and how passes sequence, Read `.claude/skills/model-workflow/SKILL.md`.

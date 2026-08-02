@@ -11,6 +11,12 @@ description: >-
 
 ## Review Checklist
 
+**First turn, before reviewing anything:** run
+`uv run python src/utils/collect-findings.py --for <the folder or file under review>`. Each hit is a defect already diagnosed and deferred. A pass that
+left an open `blocking` finding on its own scope untouched — and did not say
+why — is itself a Blocking review finding; that is what "deferred" degrading
+into "forgotten" looks like, and catching it is your job, not the register's.
+
 - Dimensional analysis: do all equations resolve to correct units?
 - Boundary cases: zero range, maximum range, grazing angle
 - Parameter ranges: are constants within literature bounds?
