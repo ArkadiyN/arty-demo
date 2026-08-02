@@ -7,15 +7,15 @@ Provenance and verdict record for every artifact that consumes numbers from
 Repairs are **deferred by design** — this ledger is the map that drives the
 redo, not a record of fixes. `src/arty/` is assessed, never changed here.
 
-| Phase                             | State                                   |
-| --------------------------------- | --------------------------------------- |
-| 0 — inventory & provenance        | **done** (this document, sections 1–4)  |
-| 1 — re-baseline ordnance-1944     | pending                                 |
-| 2 — re-baseline Tolch-1938        | pending                                 |
-| 3 — downstream verdict per thread | pending (verdict column below unfilled) |
-| 4 — `src/arty` assessment         | pending                                 |
-| 5 — independent verification      | pending                                 |
-| 6 — surface reconciliation        | pending                                 |
+| Phase                             | State                                             |
+| --------------------------------- | ------------------------------------------------- |
+| 0 — inventory & provenance        | **done** (this document, sections 1–4)            |
+| 1 — re-baseline ordnance-1944     | **done** — six tables transcribed + verified (§5) |
+| 2 — re-baseline Tolch-1938        | **partly done** — 2c resolved, 2b blocked (§6)    |
+| 3 — downstream verdict per thread | pending (verdict column below unfilled)           |
+| 4 — `src/arty` assessment         | pending                                           |
+| 5 — independent verification      | pending                                           |
+| 6 — surface reconciliation        | pending                                           |
 
 ## 1. The discriminator
 
@@ -180,16 +180,115 @@ Open for Phase 2: the cumulative velocity distribution the card flags
 non-monotonic, no source PDF retained in-repo. Capped at one re-acquisition
 dispatch.
 
-## 5. Open questions carried into Phase 1
+## 5. Phase 1 result — ordnance-1944 re-baselined
 
-- **The 105mm and 155mm casualties columns share identical `(m, v)` pairs** at
-    matching ranges (`.010/2440`, `.014/2060`, `.019/1770`, …), differing only in
-    `N` and `B` and in the last range step (500 vs 600 ft). Physically consistent
-    — both shells list `V0 = 3,500 f/s` and the criterion is a fixed energy, so
-    `m(v)` is shell-independent — but it should be confirmed against the scan
-    rather than assumed, since a cross-copied column would look exactly like
-    this. Their perforation columns coincide the same way.
-- **155mm r=80 ft, casualties `B`** prints as `..0148` (stray leading dot) in the
-    scan. Transcribed as `0.0148`; confirm.
-- **75mm r=40** needs an explicit note in the re-transcription that the pair is
-    in *normal* order, so the invented swap does not get re-applied.
+Six tables now live under
+`doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables/`,
+each with a `.invariant` beside it. `uv run src/utils/check-table-invariants.py doc-reference/ --all` exits 0 — **0 / 6
+failed**, 33 checks over 65 rows.
+
+| table                          | rows | closure                               |
+| ------------------------------ | ---- | ------------------------------------- |
+| `75mm-m48-casualties`          | 10   | 58 ft-lb + 4 monotonic                |
+| `75mm-m48-perforation-1-8in`   | 10   | 4 monotonic (identity by elimination) |
+| `105mm-m1-casualties`          | 11   | 58 ft-lb + 4 monotonic                |
+| `105mm-m1-perforation-1-8in`   | 11   | 4 monotonic                           |
+| `155mm-m107-casualties`        | 11   | 58 ft-lb + 4 monotonic                |
+| `155mm-m107-perforation-1-8in` | 12   | 4 monotonic                           |
+
+Independently verified cell-by-cell against the scan by three separate
+verification passes (one per shell page-block, comparison only — no editing, no
+deciding): **315 cells checked, zero discrepancies.** The three open questions
+carried into Phase 1 all resolved:
+
+- The 105mm and 155mm casualties columns *do* share identical `(m, v)` pairs at
+    matching ranges — confirmed against the scan, not a cross-copy. Both shells
+    list `V0 = 3,500 f/s` and the criterion is a fixed energy, so `m(v)` is
+    shell-independent; only `N`, `B` and the final range step differ.
+- 155mm r=80 ft `B` prints as `..0148` (stray leading dot); `0.0148` confirmed.
+- **75mm r=40 is NOT transposed.** The pair sits in normal first/second order
+    like every other row, and closes at 57.5 ft-lb in first-line position. The
+    swap that `b-vs-range-75mm.py` applies is an artefact of its own inverted
+    column assignment and must not be carried forward.
+
+The perforation tables have **no closure of their own** — the source states no
+numeric perforation threshold, and `½mv²` on those rows runs 272–1146 ft-lb,
+rising with range. Their identity rests on elimination against the casualties
+table, which is only sound while both halves of each pair stay transcribed
+together. Each `.invariant` says so, and says explicitly that the monotonicity
+checks are structural sanity only and can never serve as a column-identity test
+— that misuse is what inverted three committed scripts.
+
+## 6. Phase 2 result — Tolch-1938
+
+Evidence: [`checks/tolch-spray-table-closure.py`](checks/tolch-spray-table-closure.py)
+
+**2c — the "UNVERIFIED, do not cite" figure is RESOLVED, and no re-acquisition
+dispatch was needed.** The card treats the cumulative base-fragment velocity
+distribution as an unreadable *measurement* with two irreconcilable extractions.
+It is not a measurement: the report states it is *derived* — "The proportion of
+base fragments remaining after giving the shell an increment in velocity may be
+obtained from the above table" (anchor: `**Total hits per unit solid angle of the base spray.**`). Recomputing it from the Panel A totals column settles it:
+
+| v (f/s) | derived from table | heuristic reading | vision reading |
+| ------- | ------------------ | ----------------- | -------------- |
+| 700     | 79.8 %             | 80 %              | 20 %           |
+| 1085    | 48.0 %             | 48 %              | 15 %           |
+| 1450    | 28.7 %             | 29 %              | 25 %           |
+| 1685    | 13.9 %             | 14 %              | 18 %           |
+| 2130    | 7.2 %              | 7 %               | 7 %            |
+
+The heuristic reading reproduces the table to 0.3 pp; the vision reading is off
+by up to 59.8 pp. **The heuristic reading is correct** and the figure is
+citable: 80 % > 700, 48 % > 1085, 29 % > 1450, 14 % > 1685, 7 % > 2130 f/s. The
+Phase 2c dispatch budget is unspent.
+
+Caveat that must go in the card: these are ***shell*** remaining velocities. The
+quantity is the fraction of base fragments whose charge-imparted velocity
+exceeds the shell velocity cancelling it — burst geometry, **not** fragment drag.
+
+**2b — BLOCKED. The spray tables do not close and must not be transcribed as
+they stand.** The report states the totals were obtained by adding the three
+fragment types ("were added together"), so `total == perf + penet + dents` must
+hold in every (velocity, panel) cell. It fails in **21 of 33** cells:
+
+- Base spray: 8 cells fail. Worst — Panel B @ 2130 f/s sums to 1.12, stated 3.12.
+- Nose spray: 13 cells fail. Worst — **Panel A static sums to 1.96, stated
+    16.09.**
+
+Six of the failures are exactly ±0.20, a quantised signature of single-digit OCR
+errors rather than rounding (three 2-d.p. terms can only round-trip to ±0.015).
+
+The nose-spray Panel A static cell is **material to the card**, which currently
+reports "Total hits per u.s.a. (Panel A): 16.09 (static) → 21.45 (2,130 f/s)" —
+a modest 1.33× rise. If 1.96 is the true static value the rise is 10.9×, which
+is also what Panel B shows (2.42 → 26.31, 10.9×). The card's nose-spray
+narrative is therefore either mild or dramatic depending on one OCR digit, and
+the pattern favours the dramatic reading. **Not decided here** — deciding it
+needs the original scan, and it is exactly the kind of call the fidelity rule
+forbids making from a degraded extraction.
+
+**2d — the card's "Drag Model Relevance" section is confirmed wrong.** The
+source is explicit that "remaining velocity when burst" is the *shell's*
+velocity, tabulated as a firing condition ("the following table shows the
+conditions under which the rounds were fired… Average remaining velocity when
+burst"). The base-spray density collapse against it is vector addition of shell
+velocity and charge-imparted ejection velocity — burst geometry, near-insensitive
+to fragment drag. The card recommends it as *the* drag calibration anchor. This
+matches the modeler-memory gotcha
+(`gotcha_tolch_remaining_velocity_is_shell_not_fragment`), whose correction never
+reached the card.
+
+**Anchor rot confirmed and worse than recorded.** The card cites the spray
+tables at `tolch-1938.md` lines 553–684. Those lines now hold panel-layout OCR
+garbage; the real tables sit at **813–965**, roughly 250 lines away. Every anchor
+in that card is a bare line number.
+
+## 7. Remaining work
+
+- **Phase 2b** — blocked on resolving 21 non-closing cells; needs a better scan
+    of the spray-table pages, not another extraction pass over the same one.
+- **Phase 3** — downstream verdicts (§3, §4 verdict columns).
+- **Phase 4** — `src/arty` assessment (§3c).
+- **Phase 5** — independent verification of this ledger.
+- **Phase 6** — surface reconciliation (§3d).
