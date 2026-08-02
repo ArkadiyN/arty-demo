@@ -26,7 +26,8 @@ FINDING[blocking]: 105mm B read off the perforation column (affects: experiment/
 ```
 
 It must be **one line** — a wrapped marker does not parse, and the collector
-fails the commit rather than silently dropping it.
+fails the commit rather than silently dropping it. Leave the brackets alone if a
+formatter escapes them to `FINDING\[blocking\]`; the collector reads either form.
 
 `blocking` (above) · `deferrable` (real, can wait) · `note` (worth knowing) —
 the same vocabulary as `review.md` tags. `affects:` is comma-separated repo

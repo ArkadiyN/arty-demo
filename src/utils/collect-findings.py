@@ -46,16 +46,28 @@ SELF = {Path("src/utils/collect-findings.py"), Path("OPEN-FINDINGS.md")}
 
 STALE_DAYS = 30
 
+# The `\\?` before each bracket is not defensive padding: mdformat rewrites
+# `FINDING[blocking]:` to `FINDING\[blocking\]:` in every .md it touches, which
+# silently zeroed this register the first time it ran. A marker must survive any
+# formatter that has an opinion about brackets.
 MARKER = re.compile(
-    r"FINDING\[(?P<sev>blocking|deferrable|note)\]:\s*"
+    r"FINDING\\?\[(?P<sev>blocking|deferrable|note)\\?\]:\s*"
     r"(?P<text>.+?)\s*"
     r"\(affects:\s*(?P<affects>[^;)]+);\s*since:\s*(?P<since>\d{4}-\d{2}-\d{2})\s*\)"
 )
 # Anything that opens a marker but does not parse — reported rather than skipped,
 # so a typo cannot silently drop a finding out of the register.
-LOOSE = re.compile(r"FINDING\[")
+LOOSE = re.compile(r"FINDING\\?\[")
 
 SEVERITIES = ("blocking", "deferrable", "note")
+
+# Same reason as the `\\?` above — a formatter may have escaped `*`, `_` or `[`
+# inside the text or the paths. Normalise so the register reads as written.
+ESCAPED = re.compile(r"\\([*_\[\]`~])")
+
+
+def unescape(text: str) -> str:
+    return ESCAPED.sub(r"\1", text)
 
 
 @dataclass(frozen=True)
@@ -97,9 +109,11 @@ def scan(root: Path) -> tuple[list[Finding], list[str]]:
                     findings.append(
                         Finding(
                             severity=match["sev"],
-                            text=match["text"].strip(),
+                            text=unescape(match["text"].strip()),
                             affects=tuple(
-                                a.strip() for a in match["affects"].split(",") if a.strip()
+                                unescape(a.strip())
+                                for a in match["affects"].split(",")
+                                if a.strip()
                             ),
                             since=datetime.date.fromisoformat(match["since"]),
                             source=str(rel),
