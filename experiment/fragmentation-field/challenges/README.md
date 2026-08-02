@@ -13,11 +13,11 @@ Layout inside a thread:
 
 ## Threads
 
-| Thread                                      | Question                                                                                         | Status                                                             |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| [`drag-gap-1944/`](drag-gap-1944/README.md) | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Open** — gap confirmed, single-constant drag rejected as the fix |
-| [`mott-scale-gap/`](mott-scale-gap/)        | Is `mott_params` an order of magnitude too small?                                                | **Resolved** → `updates/mott-fragment-shape-closure/`              |
-| [`gravity-ke/`](gravity-ke/gravity.qmd)     | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)             |
+| Thread                                      | Question                                                                                         | Status                                                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| [`drag-gap-1944/`](drag-gap-1944/README.md) | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Closed** → `updates/mach-dependent-fragment-drag/`; residual sits at the geometric ceiling, not chased further |
+| [`mott-scale-gap/`](mott-scale-gap/)        | Is `mott_params` an order of magnitude too small?                                                | **Resolved** → `updates/mott-fragment-shape-closure/`                                                            |
+| [`gravity-ke/`](gravity-ke/gravity.qmd)     | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                           |
 
 ## `mott-scale-gap/`
 
