@@ -1,7 +1,24 @@
 csv:     75mm-m48-casualties.csv
-source:  ../ordnance-1944.md
+source:  ../source.pdf p.84 = report page 70 (LEFT table of the pair)
+anchor:  TABLE 38
+anchor:  CASUALTIES
+anchor:  INITIAL FRAGMENT VELOCITY 3,120 F/S
 anchor:  # 75-MM H.E. SHELL, M48
 
+# VERIFIED AGAINST THE PAGE IMAGE, 2026-08-02. All 50 cells of this table were
+# read off a 200-dpi render of source.pdf p.84 and match this CSV exactly.
+# Column identity is no longer inferred -- the page prints "TABLE 38 /
+# CASUALTIES" directly above this table, in the left half of the page.
+# Re-checkable without vision by
+# experiment/fragmentation-field/challenges/source-data-audit/checks/
+# ordnance-1944-page-geometry.py, which splits the page by word x-coordinate
+# and asserts these values are printed on the CASUALTIES side.
+#
+# The last `anchor:` is into ../ordnance-1944.md, the merged vision extraction.
+# That file is a DERIVED COPY: it flattens the two side-by-side tables into a
+# linear reading order, discarding the geometry that distinguishes them. When
+# they disagree, source.pdf wins.
+#
 # Columns, as printed in the scan's own header:
 #   r_ft   distance from burst (ft)
 #   N      total number of effective fragments

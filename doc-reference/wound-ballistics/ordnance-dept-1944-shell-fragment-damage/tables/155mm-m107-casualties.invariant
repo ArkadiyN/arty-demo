@@ -1,13 +1,35 @@
 csv:     155mm-m107-casualties.csv
-source:  ../ordnance-1944.md
+source:  ../source.pdf p.93 = report page 79 (LEFT table of the pair)
+anchor:  TABLE 56
+anchor:  CASUALTIES
+anchor:  INITIAL FRAGMENT VELOCITY 3,500 F/S
 anchor:  # 155-MM N.E. SHELL, M107
 
-# See 75mm-m48-casualties.invariant for the column definitions and for why the
-# 58 ft-lb energy closure is the only admissible column-identity discriminator
-# on these interleaved two-column scans.
+# VERIFIED AGAINST THE PAGE IMAGE, 2026-08-02. All 55 cells were read off a
+# 200-dpi render of source.pdf p.93 and match this CSV exactly; the caption
+# "TABLE 56 / CASUALTIES" is printed above this table in the left half of the
+# page. See 75mm-m48-casualties.invariant for the shared provenance note.
 #
-# Note: the scan prints B at r=80 ft as "..0148" (stray leading dot);
-# transcribed as 0.0148, which is what the B monotonicity requires.
+# See 75mm-m48-casualties.invariant for the column definitions; identity is now
+# checked directly from the page geometry by
+# checks/ordnance-1944-page-geometry.py, not only by the 58 ft-lb closure.
+#
+# Note: the scan's TEXT LAYER renders B at r=80 ft as "..0148" (stray leading
+# dot). The page image prints 0.0148 plainly -- confirmed at 200 dpi -- which is
+# also what the B monotonicity requires.
+#
+# CROSS-SHELL CLOSURE and the two rows where it breaks: this shell shares
+# INITIAL FRAGMENT VELOCITY 3,500 F/S with the 105 mm M1, so (m, v) should
+# agree at equal range. It does on 8 of 10 shared ranges. At r = 300 ft this
+# table prints 0.161 oz / 598 f/s against the 105 mm's 0.166 / 598, and at
+# r = 400 ft 0.233 / 505 against 0.232 / 507. Both were re-read at 500 dpi and
+# both transcriptions are faithful -- the divergence is the source's own.
+#
+# The r=300 row is the weakest energy closure in the six-table set: 0.161 oz at
+# 598 f/s gives 55.9 ft-lb, -3.6% from the stated 58, against -0.6% for the
+# 105 mm's reading of the same range. It passes the 5% band below, but a
+# consumer weighting rows by how well they close should know this one is the
+# outlier, and that the 105 mm value is the better-closing of the pair.
 row:        0.5 * (m_oz / 16 / 32.174) * v_fps**2 == 58 within 5%
 
 monotonic:  r_ft increasing

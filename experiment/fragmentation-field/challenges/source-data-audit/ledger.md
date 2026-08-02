@@ -557,3 +557,104 @@ extract-once rule does not apply to them — only the anchor rule does.
 FINDING\[deferrable\]: shipped code cites DoD-1975 by bare line number (lines 316, 321, 338-339) for \_K_BALLISTIC and C_D; the lines resolve correctly today but rot silently on any re-extraction — replace with greppable strings (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-02)
 
 FINDING\[deferrable\]: four doc-reference documents feed numbers into committed artifacts with no tables/\*.csv and no retained source PDF, so they cannot be re-baselined without re-acquisition; dod-1975 is the priority since its numbers reach src/arty/fragmentation.py (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/, doc-reference/ww2-shells/ammunition-series-6-wdss-specs/, doc-reference/ww2-shells/ammunition-series-6-steel-composition/, doc-reference/azom-steel-grades/aisi-1335/; since: 2026-08-02)
+
+## 12. The 1944 source scan, recovered — column identity checked at the page
+
+The user supplied the original scan (`p4013coll8_2373.pdf`, 105 pp.,
+sha256 `bd97d4ee…`), retained at
+`doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/source.pdf`
+(gitignored blob, per `.gitignore doc-reference/**/*.pdf`, same convention as
+Tolch). The three shells sit on pdf pages 84 / 89 / 93 = report pages 70 / 75 /
+79\.
+
+This closes the largest open gap in the audit. Phase 1 (§5) re-baselined the six
+tables off the **merged markdown** `ordnance-1944.md` — an artifact in which the
+two side-by-side tables have already been flattened into a linear reading order,
+i.e. one that no longer carries the geometry distinguishing them. Column
+identity there rested on the 58 ft-lb energy closure plus elimination for its
+partner. Sound, but indirect, and it could not confirm the one thing the
+incident turned on: *which half of the page a value is actually printed on.*
+
+### 12a. Result — the Phase 1 re-baseline is confirmed, cell for cell
+
+All three pages render cleanly at 200 dpi and were read directly. **All 322
+cells across the six CSVs reproduce the page images exactly.** No correction of
+any kind was needed. Column identity is unambiguous and no longer inferred: each
+page prints `TABLE nn / CASUALTIES` above the left table and
+`TABLE nn+1 / PERFORATION OF 1/8 IN. MILD STEEL` above the right one.
+
+[`checks/ordnance-1944-page-geometry.py`](checks/ordnance-1944-page-geometry.py)
+makes this re-checkable **without vision** and without trusting reading order:
+it splits each page by the x-coordinate of every word and asserts that every
+discriminating value in a CSV is physically printed on the half whose caption
+names its criterion. Zero cells appear on the wrong half; 97–100% of
+discriminating cells are found on their own half, the shortfall being OCR
+damage in the text layer, not disagreement. Runtime 0.17 s.
+
+The six `.invariant` files now carry `source: ../source.pdf p.NN` and greppable
+`TABLE nn` / caption anchors in place of the pointer to the derived markdown.
+
+### 12b. A closure the page images made available
+
+The 105 mm M1 and 155 mm M107 share `INITIAL FRAGMENT VELOCITY 3,500 F/S`, and
+`(m, v)` — the lightest fragment still meeting the criterion at range `r` — is a
+single-fragment ballistics result independent of shell size. So the two shells'
+tables, typeset four pages apart, should print the same `(m, v)` at the same
+range. **They do**, on all 11 shared perforation ranges and 8 of 10 shared
+casualties ranges. The 75 mm (3,120 f/s) correctly differs from both.
+
+The two exceptions are the source's own, not ours. At r = 300 ft the 105 mm
+prints `0.166 oz / 598 f/s` against the 155 mm's `0.161 / 598`; at r = 400 ft,
+`0.232 / 507` against `0.233 / 505`. Both were re-read at **500 dpi** and both
+transcriptions are faithful. The 155 mm r=300 row is the weakest energy closure
+in the whole six-table set — 55.9 ft-lb, −3.6% from the stated 58, against −0.6%
+for the 105 mm reading of the same range. Both pass the 5% band. A consumer
+weighting rows by closure quality should prefer the 105 mm value there. The
+divergence is pinned in the check rather than smoothed over, so a future
+re-extraction that "fixes" one to match the other fails instead of passing.
+
+### 12c. Blocking — `card.md` still carries the defect that caused the incident
+
+Verifying against the scan exposed that **`card.md` was never rewritten** (the
+Phase 1 card step, §5, did the CSVs but not the card). It still carries both
+halves of the original failure mechanism, now confirmed against the original
+pages rather than inferred:
+
+**Every table number in it names a different shell.** Each page of this report
+holds one shell's `(casualties, perforation-1/8)` pair, and consecutive pages
+are consecutive shells — so a wrong table number lands on an identically
+formatted table for another projectile, which is exactly why it survived:
+
+| `card.md` heading                   | That table actually is                | The card's numbers are really from |
+| ----------------------------------- | ------------------------------------- | ---------------------------------- |
+| `Table 43: 75-mm H.E. Shell, M48`   | 81 mm M43A1, V₀ 3,930 f/s (p.86)      | Tables 38/39 (p.84)                |
+| `Table 51: 105-mm H.E. Shell, M1`   | 105 mm **M38A1**, V₀ 3,320 f/s (p.90) | Tables 48/49 (p.89)                |
+| `Table 59: 155-mm H.E. Shell, M107` | 8 in. M103, V₀ 2,500 f/s (p.94)       | Tables 56/57 (p.93)                |
+
+The 105 mm case is the nastiest: Table 51 is a *different 105 mm shell*, so the
+label is wrong in a way that reads as right.
+
+**And its `Distance Range` field is the other table's range.** For each shell
+the card prints a casualties `B` value beside a range taken from the
+*perforation* table — 75 mm "20–225 ft" (casualties runs to 400), 105 mm
+"20–300 ft" (casualties runs to 500), 155 mm "20–400 ft" (casualties runs to
+600). This is verbatim the mechanism the audit was opened on: one column's value
+beside another column's range, in a lossy summary that a check script then used
+as the column-identity discriminator.
+
+The card's *quoted numbers* are all correct for the shells it means (B = 0.213 /
+0.231 / 0.291 at 20 ft; V₀ 3,120 / 3,500 / 3,500). The labels around them are
+not. Consistent with this audit's deferred-repairs scope the card is **not
+rewritten here**, but per `.claude/rules/deferred-findings.md` a published
+artifact known to carry wrong labels cannot be closed by deferral — it is marked
+**blocking** and surfaced. The corrections above are exact and verified, so the
+rewrite (which Phase 8 item 2 will do anyway, when it splits the card into
+mechanical-inventory and interpretive halves) is mechanical.
+
+Its nine anchors are also all bare line numbers (`ordnance-1944.md#L261`,
+`#L340-L369`, …) — the form `.claude/rules/source-data-fidelity.md` forbids, and
+the form that rotted onto the wrong shell's data in the original incident.
+
+FINDING\[blocking\]: ordnance-1944 card.md labels all three shell sections with the table number of a neighbouring shell (43→81mm M43A1, 51→105mm M38A1, 59→8in M103; correct are 38/39, 48/49, 56/57) and prints each casualties B value beside the perforation table's range — the exact lossy-summary mechanism that caused the column inversion; quoted numbers are correct, labels are not (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
+
+FINDING\[deferrable\]: ordnance-1944 card.md cites all nine of its anchors as bare line numbers into ordnance-1944.md, the anchor form source-data-fidelity.md forbids; replace with greppable strings when the card is split (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
