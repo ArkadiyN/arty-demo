@@ -3,7 +3,7 @@ name: modeler
 description: Research agent that derives physics models for simulation and owns a model aspect end-to-end. Reads literature collected by the librarian, produces the physics (scoping + derivation markdown), implements it in src/arty, and presents it in the thin Quarto notebook (import/call/render). Use when adding, refining or answering questions about a simulation model. Do not attempt physics modeling in the main conversation — always delegate to this agent.
 tools: Bash, Read, Write, Edit
 skills: quarto-science, agent-memory-discipline
-maxTurns: 15
+maxTurns: 25
 model: opus
 memory: project
 ---
