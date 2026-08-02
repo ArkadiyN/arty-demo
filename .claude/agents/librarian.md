@@ -50,6 +50,7 @@ below are for topic-search dispatches only.
         reads as coherent and is the exact defect the fidelity rule exists to
         stop. The card stays a **navigation index**: downstream work reads the
         CSV for numbers, never retypes them from here.
+    - **For any data table: name every column, with units — not just the one or two you illustrate with a sample value.** A card that lists "sample value: B=0.213" for a table that also has N, m, v columns silently hides the rest from every future reader, because downstream passes trust the card and don't re-open the raw source. One illustrated row is fine; an incomplete column list is not — that gap is invisible until someone re-reads the raw OCR text months later and finds data that was there the whole time.
 1. Write `doc-reference/<topic>/index.md` listing all collected articles with title, authors, DOI, and a one-line summary.
 
 ## Output structure
