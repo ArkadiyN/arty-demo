@@ -3030,3 +3030,95 @@ motivated constant, to a purely empirical cross-dataset regularity, licensed by
 the framework's *silence* on length rather than by a theory. That strengthens the
 ±5 % sensitivity note rather than weakening it, since a measured spread becomes
 the whole of the evidence instead of a perturbation on a theory.
+
+## 31 · Phase 3 — `mott-scale-gap`, and the re-scope the executed phases force
+
+### 31a · `mott-scale-gap` — the localisation survives its own justification being replaced
+
+Verdict: `challenges/mott-scale-gap/rebaseline-verdict.md`. Three claims ruled.
+
+| Claim (thread artifact)                                                                            | Verdict                        |
+| -------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `_scale_verdict_ledger.md` §1 — gap real, γ/σ_f **not** the cause, localised to the mass closure   | **sound**, magnitudes re-sized |
+| `_shape_closure_check.md` — verdict **NO**, the cube closure is the author's, not the literature's | **sound**, strengthened        |
+| `challenges/README.md` — thread published as "Resolved"                                            | **wrong word**, restated       |
+
+The interesting one is the first, and it is a **pattern worth naming**: the
+ledger justified γ = 65 by reading Mott's 0.45 %C row — precisely the row §30
+indicts — yet the conclusion stands, because the exclusion argument never used
+the row. It used the *width* of the admissible γ box (≈1.5–2× on μ). The
+rebaseline's move, γ′ 65 → 47, is 1.63× on μ, inside the bound the ledger had
+already priced. An argument built on a bracket rather than on a point value
+survives the point value being wrong.
+
+Magnitudes do move, and the ledger's §3 table is superseded: μ 0.235 → 0.382 g,
+N₀ 12 256 → ≈7 540, residual gap 4–15× → ≈2.5–9×, required shape factor α ≈ 4 →
+≈2.5. The strongest evidence is untouched by any of it — the *screening-immune*
+heavy-fragment deficit (N(>6 g) = 78 model vs 278 observed, 100× short above
+34 g) is a **crossover**, and a γ move is a pure rescale of μ, which cannot
+remove a crossover.
+
+### 31b · The status word, and what the pass could not rule
+
+The pass correctly declined to rule whether the α correction had shipped —
+its brief forbade reading `src/arty/` — and made the status word conditional
+instead. Resolved here: `src/arty/fragmentation.py:320-323` computes
+`alpha = shell.aspect_ratio * shell.breadth_factor**2 * t_bu / x0` and applies
+`gamma = alpha**(-2/3) * shell.steel.gamma`, i.e. Gold 2017 eq. (6) with α
+carried, not set to 1. So the index now reads **"Fix landed — revalidation
+open"**, not "Resolved" and not "correction open". Still open either way:
+`_shape_closure_check.md` §5's predicted x₀ ≈ 3.9 mm sitting ~3× below Tolch's
+recovered breadth (which α cannot absorb), and `_scale_verdict_ledger.md` §4's
+unquantified break-up velocity.
+
+**A conditional verdict is the right output from a scope-limited pass.** The
+pass was told not to read `src/arty/`; it did not read it, and it did not guess
+either — it enumerated both branches and named the fact that selects between
+them. That cost one grep to close.
+
+### 31c · Re-scope — what the executed phases do to the phases still pending
+
+The plan's ordering exists so that executed steps can re-aim the ones behind
+them. Two executed results re-aim Phase 3's drag thread and Phase 4, in
+**opposite directions**, and the distinction between them is the whole point.
+
+**What the b-vs-range re-baseline did NOT invalidate.** The published FAIL is
+void and Family B passes (`b-vs-range-rebaseline.md`), so the *gap* that
+`updates/mach-dependent-fragment-drag` was spawned to close does not exist. But
+that update never calibrated against `B(r)`. It calibrated against **velocity
+decay**, using the tables' own `v_fps`/`m_oz` columns — and the re-baseline pass
+spot-checked those and found `initial-conditions-155mm-decay.py`'s triples
+match the genuine casualties CSV. **That chain's premise is independent of the
+column swap and survives it.** Phase 4's originally-planned question — "does
+`C_D = 1.28` survive once the velocity-decay comparison uses the casualties
+column?" — is therefore largely already answered: it was never on the wrong
+column, with one exception below.
+
+**What remains live, and is not affected by the reversal at all.** Two
+independent defects still bear on the drag rejection:
+
+1. **DoD-1975 `figure-3-digitized.md`** under-states $C_D$ by up to 0.082
+    across Mach 1.0–2.2 (§13b) — eyeballed off a scan, never compared to the
+    page, and it is the array that **rejected** the Mach-dependent law
+    `src/arty` still ships against. It errs in the direction that *weakened the
+    rejected candidate*, so it is a defect that could only have produced a false
+    rejection, never a false acceptance.
+1. **`drag-coefficient-calibration.py`'s 105mm triple** is an exact match to
+    `105mm-m1-perforation-1-8in.csv` — the same column swap, recurring in a
+    script the re-baseline pass was not asked to re-run. Registered blocking at
+    `b-vs-range-rebaseline.md`. The 75mm and 155mm triples in that same script
+    read the correct column, so this is one row of three, not a whole-script
+    inversion.
+
+**The re-aimed questions.** Phase 3's `mach-dependent-fragment-drag` thread no
+longer asks "does the drag-gap conclusion survive the column correction?" — the
+gap is gone and the conclusion was never built on the swapped column. It asks
+instead: *the motivation for this update is void, and its rejection of a
+Mach-dependent law was decided against an under-stated $C_D$ curve — what
+survives?* Phase 4 correspondingly drops the casualties-column question and
+keeps the DoD-1975 one, plus the 105mm row.
+
+**Direction of travel is opposite in the two cases, which is why they must not
+be merged into one pass.** The b-vs-range reversal *removes* a reason to change
+the drag model; the DoD-1975 defect *adds* one. A single pass asked to weigh
+both at once will net them against each other; two passes will not.

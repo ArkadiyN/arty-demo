@@ -13,13 +13,27 @@ Layout inside a thread:
 
 ## Threads
 
-| Thread                                      | Question                                                                                         | Status                                                                                                           |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| [`drag-gap-1944/`](drag-gap-1944/README.md) | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Closed** → `updates/mach-dependent-fragment-drag/`; residual sits at the geometric ceiling, not chased further |
-| [`mott-scale-gap/`](mott-scale-gap/)        | Is `mott_params` an order of magnitude too small?                                                | **Resolved** → `updates/mott-fragment-shape-closure/`                                                            |
-| [`gravity-ke/`](gravity-ke/gravity.qmd)     | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                           |
+| Thread                                      | Question                                                                                         | Status                                                                                                                                                          |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`drag-gap-1944/`](drag-gap-1944/README.md) | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Re-baselined — headline FAIL void; drag re-adjudication open.** See [`drag-gap-1944/b-vs-range-rebaseline.md`](drag-gap-1944/b-vs-range-rebaseline.md)        |
+| [`mott-scale-gap/`](mott-scale-gap/)        | Is `mott_params` an order of magnitude too small?                                                | **Fix landed — revalidation open** → `updates/mott-fragment-shape-closure/`; see [`mott-scale-gap/rebaseline-verdict.md`](mott-scale-gap/rebaseline-verdict.md) |
+| [`gravity-ke/`](gravity-ke/gravity.qmd)     | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                                                                          |
 
-FINDING\[blocking\]: the Threads table above publishes "Closed — residual sits at the geometric ceiling" for drag-gap-1944, but that closure rests on the b-vs-range checks that read the perforation column while applying the 58 ft-lb casualty criterion; this index is the surface a reader lands on first and it asserts a settled verdict on inverted evidence — it must be restated as provisional until the Phase 3 re-run rules (affects: experiment/fragmentation-field/challenges/README.md, experiment/fragmentation-field/challenges/drag-gap-1944/README.md, experiment/fragmentation-field/\_validation.qmd; since: 2026-08-03)
+**`drag-gap-1944` status detail.** The Phase-3 re-run has ruled. The published
+"FAIL — over-predicts by 7–34×, growing with range" is **void**: all three
+scripts compared the model against the mild-steel-perforation column while
+applying the 58 ft-lb casualty criterion (digit-for-digit match to
+`*-perforation-1-8in.csv`, wrong r-grid included). Against the genuine
+closure-checked casualties columns, Family B **passes** the factor-of-2
+criterion at 8/10, 9/11 and 11/11 ranges, and the residual *inverts* — over at
+short range, under at long, not a one-directional miss. The "systematic
+Family B calibration issue" explanation dies with its premise. What is **not**
+settled: the drag chain spawned from that void gap
+(`updates/mach-dependent-fragment-drag/`) has not yet been re-adjudicated, and
+its velocity-decay evidence is independent of this defect — so this thread is
+re-baselined, not closed.
+
+FINDING\[blocking\]: drag-gap-1944/README.md and \_validation.qmd still publish the void "Closed — residual sits at the geometric ceiling" verdict, whose premise the Phase 3 re-run has now overturned (challenges/drag-gap-1944/b-vs-range-rebaseline.md); the index above has been restated, these two surfaces have not (affects: experiment/fragmentation-field/challenges/drag-gap-1944/README.md, experiment/fragmentation-field/\_validation.qmd; since: 2026-08-03)
 
 ## `mott-scale-gap/`
 
@@ -28,6 +42,17 @@ Three working notes, run in order:
 - [`mott-scale-gap/_params_provenance_note.md`](mott-scale-gap/_params_provenance_note.md) — what `mott_params` is and where its values came from
 - [`mott-scale-gap/_scale_verdict_ledger.md`](mott-scale-gap/_scale_verdict_ledger.md) — the gap is real; γ/σ_f is *not* the cause; localises it to the mass closure
 - [`mott-scale-gap/_shape_closure_check.md`](mott-scale-gap/_shape_closure_check.md) — verdict **NO**: the cube closure is the model author's simplification, not the cited literature's
+
+**Status detail.** The scale gap is confirmed real and localised to the cube
+mass closure (α = 1 imposed where Gold 2017 eq. (4) requires
+α = (l₀/x₀)(t₀/x₀)); γ/σ_f is excluded as the cause. The α closure has since
+landed in `src/arty/fragmentation.py`, so this is not "correction open" — but
+it is not resolved either: `_shape_closure_check.md` §5 leaves predicted
+x₀ ≈ 3.9 mm about 3× below Tolch's recovered breadth, which α cannot absorb,
+and `_scale_verdict_ledger.md` §4 leaves break-up velocity unquantified and the
+constant B of Mott's engineering closed form blocked on @librarian. All
+magnitudes in the two notes are superseded by the γ′ = 47 rebaseline —
+`updates/mott-fragment-shape-closure/rebaseline-verdict.md`.
 
 No `checks/` directory: the scripts behind these notes
 (`mott_scale_check.py`, `mott_shape_closure.py`) were written before the
