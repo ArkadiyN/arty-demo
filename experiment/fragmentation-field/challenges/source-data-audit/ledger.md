@@ -3122,3 +3122,75 @@ keeps the DoD-1975 one, plus the 105mm row.
 be merged into one pass.** The b-vs-range reversal *removes* a reason to change
 the drag model; the DoD-1975 defect *adds* one. A single pass asked to weigh
 both at once will net them against each other; two passes will not.
+
+## 32 · Phase 3 — `count-gap-1938`: the verdict stands, one inference does not
+
+Verdict: `challenges/count-gap-1938/rebaseline-verdict.md`. Of 20 published
+claims: **12 sound, 7 shifted, 1 void.** Retained script:
+`challenges/count-gap-1938/checks/count-chain-rebaseline.py` (~2 s, reads every
+Tolch series from the CSVs, nothing hand-typed).
+
+### 32a · Three transcription corrections, all in the same direction
+
+| Quantity                  | Published | Re-baselined | Effect                               |
+| ------------------------- | --------: | -----------: | ------------------------------------ |
+| Pit-recovered count       |       803 |      **779** | every `N/803` figure ×1.031 (+3.1 %) |
+| Mean recovered mass       |    6.85 g |   **7.40 g** | gap vs 2μ widens 4.3× → 4.66×        |
+| Tolch's two-totals spread |      15 % |     **11 %** | the two totals agree *better*        |
+
+All three move the model's over-count **up**, and none moves a row across the
+factor-of-2 band. 6.85 g is not reproducible from the table on *either* count
+basis, so it was never a 803-vs-779 artefact — it was simply wrong.
+
+A fourth observation the pass made in passing is sharper than any of them:
+**recovered metal (5764.3 g) exceeds the model's whole case mass (5755.2 g)**.
+On a model-mass basis the pit accounts for 100.2 % of the case, so any
+matched-mass comparison is degenerate at the tail — the Tolch-metal basis
+(13.29 lb = 6028 g) is the only admissible denominator.
+
+### 32b · The void one, and why it was already broken
+
+§2 Fact 2 inferred that the residual sits in the perforating *fraction*, **not
+the population**. The pass built a **threshold-free** test — match cumulative
+*mass fraction* between model and pit instead of imposing a mass cut — and the
+model still over-counts **2.15–2.70×** on the Tolch-metal basis. A residual
+that survives deleting the threshold entirely is by definition not "not the
+population".
+
+Note this was **not** a re-baseline casualty. §2's own closing paragraph three
+lines below already asserted a "genuine count-chain excess" — a population
+term. The inference contradicted its own section before any number moved. The
+re-baseline is what made someone build the test that settles it.
+
+**Independently verified by the main agent** before commit, because a void
+verdict deserves its own arithmetic: at the finest screen φ = 5764.3/6028 =
+0.9562 inverts through φ(u) = ½(u²+2u+2)e^(−u) to u ≈ 0.775, giving
+m\* = μu² = 0.793 × 0.60 = 0.48 g and N = 3627·e^(−0.775) = 1671, against the
+script's printed 0.48 g / 1672 / 2.15×. The corollary f = 1/√ratio reproduces
+all four printed velocity fractions (0.609 / 0.682 / 0.760 / 0.917). It closes.
+
+### 32c · What the pass added that the thread did not have
+
+The threshold-free route turns out to **measure μ directly**. At matched mass
+fraction φ, u is fixed, so the model/Tolch count ratio is exactly ∝ 1/μ ∝ V₀² —
+no threshold, no drag, no spray geometry in it. That hands sub-candidate C2 its
+own parameter: f = 1/√ratio = **0.61–0.92**, which brackets the thread's assumed
+f ≈ 0.85–0.9 *from below*.
+
+And the spread of that bracket is set almost entirely by C4 (fuze/base mass
+bookkeeping) — the coarsest screen is 6 pieces carrying **15.4 %** of recovered
+metal against the model's 3.3 % deduction, and dropping it moves the
+threshold-free residual 2.15× → 1.19×. C4 was published as "bounded at 5–10 %,
+dismissed as a driver, note only". The dismissal *as a driver* survives; the
+bound and the priority do not. **C4 now gates C2** — a reordering the thread
+does not state.
+
+### 32d · A pattern across §31 and §32 worth naming
+
+Both threads survived, and in both the conclusion outlived the specific
+justification published for it — `mott-scale-gap` because its argument used a
+bracket rather than a point value, `count-gap-1938` because its headline never
+depended on the pit count that moved. **The re-baseline's yield here is not
+overturned verdicts; it is the tests that were built to check them.** Neither
+the threshold-free spectrum route nor the μ-measurement corollary existed before
+someone had to re-justify a claim they already believed.
