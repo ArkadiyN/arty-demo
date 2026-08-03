@@ -19,6 +19,8 @@ Layout inside a thread:
 | [`mott-scale-gap/`](mott-scale-gap/)        | Is `mott_params` an order of magnitude too small?                                                | **Resolved** → `updates/mott-fragment-shape-closure/`                                                            |
 | [`gravity-ke/`](gravity-ke/gravity.qmd)     | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                           |
 
+FINDING\[blocking\]: the Threads table above publishes "Closed — residual sits at the geometric ceiling" for drag-gap-1944, but that closure rests on the b-vs-range checks that read the perforation column while applying the 58 ft-lb casualty criterion; this index is the surface a reader lands on first and it asserts a settled verdict on inverted evidence — it must be restated as provisional until the Phase 3 re-run rules (affects: experiment/fragmentation-field/challenges/README.md, experiment/fragmentation-field/challenges/drag-gap-1944/README.md, experiment/fragmentation-field/\_validation.qmd; since: 2026-08-03)
+
 ## `mott-scale-gap/`
 
 Three working notes, run in order:

@@ -8,6 +8,9 @@ reimplemented in the notebook.
 HE artillery shells (M/C = 4–8) produce Gurney velocities of 900–1 400 m/s
 (Carlucci & Jacobson, *Ballistics: Theory and Design*, Table 5-1).
 
+<!-- FINDING[deferrable]: Check 1 asserts against a 900-1400 m/s bracket attributed to Carlucci & Jacobson Table 5-1, but that source is not in doc-reference/ at all — so a rendered PASS on this surface rests on a bracket nobody can check against a page; collect the source or downgrade the assert to a reported comparison (affects: experiment/fragmentation-field/_validation.qmd, doc-reference/; since: 2026-08-03) -->
+
+
 ```{python}
 print("Gurney velocity vs. M/C:")
 for mc in [4.0, 5.0, 5.6, 6.0, 7.0, 8.0]:
@@ -125,6 +128,9 @@ drag constants were anchored to
 §5) — so it is not re-banded to match the model. Note the same source's extraction
 renders "1/8 oz" as "~28 grams"; 1/8 oz is **3.54 g** (28 g is a full ounce), and the
 oz figure is taken as authoritative.
+
+<!-- FINDING[deferrable]: Check 5b asserts against the britishartillery-wt-of-fire 58 ft-lb datum, but that document has no card.md, no tables/*.csv and no closure invariant — only a bare .md that this very paragraph records as mis-rendering "1/8 oz" as "~28 grams"; it was never covered by the 18-card sweep and is a source-data-fidelity gap under an assert (affects: experiment/fragmentation-field/_validation.qmd, doc-reference/wound-ballistics/britishartillery-wt-of-fire/; since: 2026-08-03) -->
+
 
 The datum is a *statement about lethality*, so reading it requires a lethality
 criterion, and the same source supplies two that differ by 11.6×: 5 ft-lb (6.8 J,

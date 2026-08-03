@@ -745,7 +745,7 @@ Its seven anchors are also all bare line numbers (`ordnance-1944.md#L261`,
 `#L340-L369`, …) — the form `.claude/rules/source-data-fidelity.md` forbids, and
 the form that rotted onto the wrong shell's data in the original incident.
 
-FINDING\[blocking\]: ordnance-1944 card.md labels all three shell sections with the table number of a neighbouring shell (43→81mm M43A1, 51→105mm M38A1, 59→8in M103; correct are 38/39, 48/49, 56/57) and prints each casualties B value beside the perforation table's range — the exact lossy-summary mechanism that caused the column inversion; quoted numbers are correct, labels are not (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
+FINDING\[blocking\]: ordnance-1944 card.md labels all three shell sections with the table number of a neighbouring shell (43→81mm M43A1, 51→105mm M38A1, 59→8in M103; correct are 38/39, 48/49, 56/57) and prints each casualties B value beside the perforation table's range — the exact lossy-summary mechanism that caused the column inversion; quoted numbers are correct, labels are not, and experiment/fragmentation-field/\_validation.qmd Check 7 repeats the wrong set "Tables 43/51/59" on a rendered reader-facing surface (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md, experiment/fragmentation-field/\_validation.qmd; since: 2026-08-02)
 
 FINDING\[deferrable\]: ordnance-1944 card.md cites all seven of its anchors as bare line numbers into ordnance-1944.md, the anchor form source-data-fidelity.md forbids; replace with greppable strings when the card is split (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
 
@@ -2775,3 +2775,75 @@ poor one for the inference anyone would draw from an empty register: the
 reviews were not silent, their findings simply had no route out of the
 document. The marker convention is what changes that going forward; this pass
 is the one-time catch-up for everything written before it.
+
+## 28 · Phase 6 — the two unswept reader-facing surfaces
+
+Phase 6 lists stale claims on published surfaces; it does not repair them. Of
+the four surfaces it names, `_limitations.qmd` and `_parameters.qmd` had already
+been swept incidentally — the audit kept landing on them, and eight register
+entries name them between them. `_validation.qmd` (183 lines) and
+`challenges/README.md` (34) had **zero** entries and had never been read against
+the audit's findings. This section is that reading. The rendered
+`fragmentation-field.html` is absent from the worktree, so that bullet of the
+plan is moot until someone re-renders.
+
+The distinction from §27 matters: §27 asked whether a *reviewer* flagged
+something that never routed. This asks whether a *published claim* still asserts
+something the audit has since falsified. Nobody flagged these — they went stale
+underneath, which is exactly why no marker existed to find.
+
+### 28a · `_validation.qmd` — four stale or unsupported claims
+
+| where              | claim                                                                  | status                                                                                                                                                                                                                                                        |
+| ------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Check 7 (L175)     | "1944 US Ordnance Dept. casualty tables (**Tables 43/51/59**)"         | **stale** — 43/51/59 are a neighbouring shell's numbers throughout (correct: 38/39, 48/49, 56/57). The existing blocking marker was extended to name this surface rather than opening a second one.                                                           |
+| Check 7 (L176–181) | "**Verdict: FAIL** … Family B over-predicts $B(r)$ by roughly 7–34×"   | **verdict-pending** — the comparison read the perforation column while applying the 58 ft-lb casualty criterion. Both the multiplier and the FAIL rest on it. Phase 3 rules.                                                                                  |
+| Check 6 (L97–100)  | `E_ref = 79.0` J, "a convenient reference point"                       | **note** — ES-310's "79 J threshold" section is not on the source page (registered blocking). The check disclaims it in-line as "not the model threshold", so nothing numeric rests on it; the surface merely echoes a number whose provenance is fabricated. |
+| Check 3 (L48–56)   | Gold (2017) "γ = 50, cube closure" band, and the shape-closure numbers | **verdict-pending** — touches the registered Gold 2017 findings (eq. 17 vs eq. 1 factor-2, the secondhand Mott attribution). Belongs to the `mott-fragment-shape-closure` Phase 3 pass, not to this sweep.                                                    |
+
+### 28b · `_validation.qmd` — two asserted checks with no admissible source
+
+Both are new. Neither was reachable from the source inventory, because the
+inventory was built by grepping the two audited sources and these cite neither.
+
+- **Check 1 asserts against a source that is not in `doc-reference/` at all.**
+    The 900–1 400 m/s Gurney bracket is attributed to *Carlucci & Jacobson,
+    Ballistics: Theory and Design*, Table 5-1. `grep -rli carlucci doc-reference/`
+    returns nothing. The check ends in `assert in_bracket`, so a rendered PASS on
+    a reader-facing surface rests on a bracket that cannot be checked against any
+    page this repo holds.
+- **Check 5b asserts against a document with no card, no CSV and a known
+    extraction defect.** `doc-reference/wound-ballistics/britishartillery-wt-of-fire/`
+    contains exactly one file — the bare `.md`. No `card.md`, so it was never in
+    the 18-card sweep; no `tables/`, so its 58 ft-lb datum is read off prose; no
+    closure invariant. The surface *itself* documents the extraction defect —
+    "the same source's extraction renders '1/8 oz' as '~28 grams'" — and then
+    asserts against that source anyway.
+
+The pattern worth naming: both slipped through because an audit scoped by
+*source* cannot see a claim whose source was never collected. The absence is the
+defect, and only a sweep of the surface finds it.
+
+### 28c · `challenges/README.md` — the index publishes a settled verdict on inverted evidence
+
+One row, and it is the first thing a reader meets:
+
+> `drag-gap-1944/` — **Closed** → `updates/mach-dependent-fragment-drag/`;
+> residual sits at the geometric ceiling, not chased further
+
+That closure is commit `b6a1730`, which rests on the b-vs-range checks that read
+the perforation column. An index asserting **Closed** and "not chased further" on
+that evidence is a published claim of settledness, so it is marked `blocking`
+rather than deferrable — a reader is being told the question is answered. The
+`mott-scale-gap` row's **Resolved** is verdict-pending on the same Phase 3 pass
+that covers Gold 2017.
+
+The file's closing paragraph — the two lost `mott-scale-gap` scripts — is
+accurate, already recorded, and left alone.
+
+### 28d · What Phase 6 cannot close yet
+
+Everything above is either registered or verdict-pending. The verdict-pending
+rows need Phase 3, which is now running: a claim like "Closed at the geometric
+ceiling" goes stale only once the re-run rules on it, and writing that half now
+would mean guessing the verdict the pass exists to produce.
