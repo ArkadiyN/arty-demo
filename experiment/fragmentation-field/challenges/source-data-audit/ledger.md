@@ -2587,3 +2587,104 @@ FINDING\[deferrable\]: ordnance-1944.md is a flattened two-up scan whose "TABLE 
 FINDING\[note\]: three pre-audit cards carry interpretive sections asserting what the source does not state — aisi-1045 bolds a provenance guess that it is "likely the source of the 45000 psi baseline figure", ammunition-series-6-steel-composition lists elongation and hardness targets it marks "not stated in source", and dod-1975 adds a "Use:" recommendation and a "presumably ~0-Mach 7" range beyond what its closed ballistic constants cover; all three are uncited today so they gate nothing, and all three sit in the seven cards lacking a provenance section, which is the case for splitting card.md in Phase 8 item 2 (affects: doc-reference/azom-steel-grades/aisi-1045/card.md, doc-reference/ww2-shells/ammunition-series-6-steel-composition/card.md, doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md; since: 2026-08-03)
 
 FINDING\[deferrable\]: the m49a2-60mm-mortar-shell document work was never finished, so its card.md is mid-work state and must not be treated as adjudicated — its "Design Intent and Context" section speculates on the body-shell material ("Likely ductile-steel", "most probable"); exposure is low and bounded — the shell is a recently added catalog entry with no model physics derived from it (user, 2026-08-03), it appears downstream only as one row in mott-fragment-shape-closure's cross-shell sweep, and updates/wdss1-steel-grade/derivation.md A6 sources the composition to Ammunition Series 6 Table 6-1 instead, explicitly declining the drawing; Phase 2.5d issued no verdict on the card and none should be inferred (affects: doc-reference/ww2-shells/m49a2-60mm-mortar-shell/card.md, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md; since: 2026-08-03)
+
+______________________________________________________________________
+
+## 26 · Phase 8 — the workflow fixes
+
+Phase 8 was written as six items. Three of them (1, 3, 5) were already done —
+each was fixed mid-audit, at the moment it bit, which is worth noting because
+it is the pattern that makes the remaining three what they are: **nothing
+forced them.** Items 2, 4 and 6 cost nothing to skip in any single pass, so
+every single pass skipped them.
+
+### 26a · What the audit added to the phase
+
+Six additions, each from a defect this audit measured rather than anticipated:
+
+| from | addition                                                                           | landed in                          |
+| :--- | :--------------------------------------------------------------------------------- | :--------------------------------- |
+| §18a | an anchor that straddles a line break is not greppable                             | fidelity rule, `librarian.md`      |
+| §18c | provenance gate — a claim attributed to a primary is checked, or marked secondhand | fidelity rule, `model-reviewer.md` |
+| §19f | consumer sweeps must grep titles and table numbers, not only slugs                 | fidelity rule                      |
+| §19f | `<slug>.md` is not reliably an extraction                                          | fidelity rule                      |
+| §20g | invariant DSL had no cross-row handler                                             | `check-table-invariants.py`        |
+| §24a | algebraic substitution is a fifth closure form                                     | fidelity rule                      |
+| §25d | an anchor is verified when it is **written**                                       | fidelity rule, `librarian.md`      |
+
+### 26b · The DSL gains `tiling:` and `by <group>`
+
+§20g recorded that Tables II and X of MIL-S-10520D carry genuine closures the
+DSL could not express — bracket tiling, and monotonicity within a group rather
+than down a column — so both had to live in a check script. Both are now
+directives:
+
+```
+tiling:     projectile_size_class yield_lo_psi yield_hi_psi
+monotonic:  coupon_diam_in decreasing by projectile_size_class
+```
+
+`table-10-coupon-selection.invariant` declares them, which takes the sweep from
+27 tables to 28. Negative-tested by swapping two rows inside one size class:
+tiling reports the resulting overlap *and* the gap it opens two rows later, and
+the grouped monotonic reports the diameter reversal. Before this, that
+perturbation was invisible to `--all` and caught only by a bespoke script.
+
+Grouping is by **consecutive run**, not by key — a group whose rows are not
+contiguous is itself the misassignment being looked for, so it must fail rather
+than be silently gathered. A blank bracket bound is reported as *unchecked*
+rather than passed, per the rule's "absence of a check is a finding".
+
+### 26c · Item 2 — the convention lands, the migration does not
+
+The `card.md` split is written as a **rule**, in the fidelity rule and in
+`librarian.md`: a card states what the source says, and a section telling a
+reader what to *use* it for belongs in `derivation.md` where @model-reviewer
+sees it. @model-reviewer gains the matching check.
+
+**The 18 existing cards are not migrated.** That is a repair, and this audit
+defers repairs; it is registered below rather than done. What changes today is
+that the next card written cannot legitimately reintroduce the defect, and a
+reviewer now has standing to reject one that does.
+
+The safe shape is worth stating because one card already has it:
+`explosion-fragment-model`'s Applicability section states its transfer
+question, names it as a criterion-match question, and **refers** it — an
+interpretive section ending in a referral rather than a recommendation.
+
+### 26d · The rule grew, then was cut back
+
+`source-data-fidelity.md` went 97 → 220 lines before being compressed to 189.
+It is imported into every session, and it was becoming the largest rule by 40%
+while `.claude/incidents.md` — the file that exists precisely to hold this
+material and is *not* loaded — stayed at 130 lines.
+
+The evidence moved there as four sections (`fabricated-anchors`,
+`card-as-modelling-claim`, `secondhand-attribution`, `laundered-glyphs`),
+leaving one-line consequences and links in the rule. This is CLAUDE.md's own
+stated convention and the pass had been quietly violating it: writing the
+evidence inline reads as thorough and costs every future session context for
+material almost none of them need.
+
+`fabricated-anchors` also records §25f — the near-miss where a mechanical check
+run against the convenient artifact instead of the source nearly retracted a
+correct blocking finding. That belongs in the incident file, not only in this
+ledger, because it is the argument for the rule and not merely a note about
+this pass.
+
+### 26e · Item 6 — the scanner now says what it cannot see
+
+`scan-extraction-quality.py` had **no module docstring at all**, and its
+`--help` described what it flags without saying what a pass does not mean. Both
+now carry it, so the disclaimer reaches someone reading the tool rather than
+only someone reading the rule. Two limits are named concretely: the flagged
+range is PUA-only and misses C0-mapped glyphs, and a vision-reconstructed `.md`
+has been laundered before the scanner sees it.
+
+### 26f · Status
+
+Items 1, 3, 5 were already closed. Items 2 (convention), 4 and 6 are closed
+here, with 2's migration registered as deferred. All six audit additions are
+landed. `check-table-invariants.py doc-reference/ --all`: **0 / 28 failed**.
+
+FINDING\[deferrable\]: the card.md split is now a rule but the 18 existing cards are not migrated — four carry interpretive sections asserting what their source does not say, and none of the seven pre-audit cards has a provenance section; the convention binds new cards only until this migration runs (affects: doc-reference/, .claude/rules/source-data-fidelity.md; since: 2026-08-03)

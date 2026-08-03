@@ -34,6 +34,20 @@ into "forgotten" looks like, and catching it is your job, not the register's.
     (`uv run src/utils/check-table-invariants.py <path> --all`). This is the
     second gate in `.claude/rules/source-data-fidelity.md`; the first
     (transcription fidelity) is @librarian's and is not your scope.
+- **Provenance: does the primary say what it is cited as saying?** The third
+    gate in that rule, and also yours. Where an artifact attributes a claim to
+    a source *through* another source — "Gold (2017), following Mott (1943),
+    takes the breadth:length ratio as constant" — either check the primary or
+    require the artifact to mark the claim **secondhand**. Nothing else catches
+    this: the citing paper's extraction is clean, its digits are correct, and
+    its own closure invariants pass. One source checked this way was
+    contradicted by its primary on one claim of three and unsupported on
+    another.
+- **Interpretive claims must not live in `doc-reference/`.** If a derivation or
+    notebook rests on a `card.md` section telling the reader what to *use* a
+    source for, that claim has bypassed review by sitting in a reference file —
+    flag it and require it to move into `derivation.md`, where you see it. The
+    card states what the source says.
 - Layering: does the `.qmd` contain **no** physics, computation, parameter
     values, or constants? Everything must be imported from `src/arty/` — flag any
     physics that leaked into a notebook cell.

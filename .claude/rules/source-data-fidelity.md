@@ -7,7 +7,11 @@ check script, a `derivation.md`, a `card.md`, a `.qmd`, a spec.
 Extraction-quality scanning (`src/utils/scan-extraction-quality.py`) is a
 **glyph-level** gate: PUA characters, symbol runs, short-token ratios. It
 cannot see the failure this rule exists to prevent — every digit extracted
-perfectly, assigned to the wrong row, column, or table.
+perfectly, assigned to the wrong row, column, or table. **A green scan is not
+admissibility.** It certifies strictly less on a vision-reconstructed document
+than on a transcribed one, and says nothing about which you hold: it reported
+0 flags on a paper whose exponent signs are unreadable on every available
+surface (`.claude/incidents.md#laundered-glyphs`).
 
 ## Invariant — a source table is inadmissible until it closes
 
@@ -23,13 +27,32 @@ pattern-matching that defeats eyeballing. Typical forms:
 - **The source's stated criterion closes numerically.** A table whose caption
     defines a threshold, and whose rows carry the quantities entering it,
     must reproduce that threshold on every row.
-- **Declared monotonicity holds** down each column.
+- **Declared monotonicity holds** down each column — or, in a table of
+    bracketed limits, within each *group*.
 - **A stated total equals the sum** of its parts.
 - **Independently-tabulated columns agree** where they overlap.
+- **Bracketed limits tile.** Where a source prints ranges as "Over X to Y,
+    incl.", consecutive brackets must share an endpoint — that is what makes
+    the table total over its stated domain. A gap is a value the table does not
+    cover, an overlap is two answers for one value, and either is what a row
+    read one step out of position looks like.
+- **A stated equation is the substitution its source says it is.** Where a
+    paper derives eq. (6) by substituting eq. (2) into eq. (4), doing that
+    algebra *is* the closure. Reach for this when the quantity is an equation
+    rather than a table — and note it is the only form that survives a document
+    whose glyphs are unreliable, because it never reads the disputed character.
+
+The first five are mechanical enough to delegate; the last is algebra and is
+not.
 
 **A table with no closure invariant is not thereby admissible** — it is
 flagged for human review in the dispatch summary. Absence of a check is a
 finding, not a pass.
+
+`monotonic: <col> <dir> by <group>` and `tiling: <group> <lo> <hi>` express the
+bracketed forms directly (`check-table-invariants.py --help`). A closure the
+DSL cannot express goes in a check script under the document's `checks/`,
+retained per `.claude/rules/verification-scripts.md` — never left unstated.
 
 ### Why
 
@@ -46,10 +69,25 @@ Every citation into a processed source names a **stable, unique string** that
 `grep` will find — a heading, a table caption, a figure number. Line numbers
 may accompany an anchor as a convenience; they may never be the only anchor.
 
-Line numbers rot silently whenever a document is re-extracted, and a rotted
-anchor does not fail loudly — it lands the reader on a *different* table that
-looks like the right one. All three anchors in the incident above pointed at
-the wrong shell's data by the time they were used.
+**Run the `grep` when you write the anchor**, and confirm what it returns is
+what the citation claims. This is the cheap half of the rule and the half that
+was never being done: all 20 bare line-number anchors in two cards fail at
+their own birth commits, against sources of unchanged length — they never
+pointed at their claimed content, and checking all twenty costs 0.3 s. Rot is
+the failure the greppable-string rule prevents; **fabrication is the one that
+actually occurred**, and only verifying at authoring catches it.
+
+Two ways a greppable anchor still fails, both silent:
+
+- **A string that straddles a newline is not greppable**, and nothing about
+    the file looks wrong. Prefer anchors short enough to sit on one line, and
+    check longer quotations against the surface as *stored*, not as rendered.
+- **A `TABLE n` line is only an anchor if the extraction kept it attached to
+    its own rows.** In a flattened two-up scan it is page furniture. Confirm
+    the heading governs the data beneath it, or anchor on the section title
+    instead.
+
+Evidence for all three: `.claude/incidents.md#fabricated-anchors`.
 
 ## Numbers are extracted once, not re-typed
 
@@ -59,6 +97,7 @@ into a checked-in data file next to its processed source:
 ```
 doc-reference/<topic>/<docname>/
   card.md
+  source.pdf                  ← the blob that was processed, kept (gitignored)
   <stem>.md
   tables/
     <table-slug>.csv          ← the series, extracted once
@@ -70,6 +109,19 @@ literal array is reintroducing the failure mode — three independent
 transcriptions of one table produced three copies of one error precisely
 because each was typed fresh.
 
+**Keep `source.pdf`.** It is gitignored (`doc-reference/**/*.pdf`), so it costs
+the repo nothing, and it is what makes "go back to the page" possible at all —
+without it a table that fails its closure can only be re-argued, not re-read.
+Cite scanned tables by **PDF page and printed page** alongside the greppable
+anchor: a processed `.md` can be re-extracted and shift, the PDF's pagination
+cannot.
+
+**`<stem>.md` is not reliably an extraction.** Its filename and location imply
+it is the processed source; one such file opened with a header calling itself a
+"transcribed excerpt" while containing estimated yield strengths and design
+rationale found nowhere on the page. Confirm any `doc-reference/` markdown says
+what it is before treating it as the source.
+
 Run the check with:
 
 ```
@@ -80,9 +132,34 @@ Retention of these files follows `.claude/rules/verification-scripts.md` —
 a `tables/` directory is a permanent artifact, committed with the document
 that cites it.
 
+## A card states what the source says, not what to use it for
+
+`card.md` is a **reference document**, read by @modeler as a premise and
+reviewed by nobody. A section telling a reader what a source is *good for* —
+which calibration to anchor on it, which of its curves to prefer — is a
+modelling claim wearing a reference doc's clothes. It belongs in
+`derivation.md`, where @model-reviewer sees it.
+
+Where a card must characterise its source, the safe shape ends in a
+**referral**, not a recommendation: state the transfer question, name it as a
+criterion-match question, and route it. Hedging inside a card ("presumably",
+"not stated in source") is the right instinct in the wrong file — the hedge is
+visible to whoever reads the card and invisible to whoever reads the artifact
+citing it.
+
+The mechanical half of a card — every table, verbatim caption, greppable
+anchor, all columns with units, row count, CSV link, provenance — carries no
+such risk and is safe for a cheap model to write.
+
+Cost of getting this wrong: a card recommended, as *the* drag calibration
+anchor, the one axis in its report that is near-insensitive to drag, and said
+so for years with the correction stranded in agent memory. Every interpretive
+defect found in a sweep of 18 cards sat in the 7 that lack a provenance
+section: `.claude/incidents.md#card-as-modelling-claim`.
+
 ## Who checks what
 
-Two gates, neither judgment-heavy, both mechanical:
+Three gates, none judgment-heavy, all mechanical:
 
 - **Transcription fidelity** — *is this faithful to the page?* Owned by
     @librarian, discharged by the closure invariant above. Verifying a stated
@@ -94,3 +171,19 @@ Two gates, neither judgment-heavy, both mechanical:
     literature-agreement mandate. A model computing one criterion validated
     against a table tabulating a different one is a Blocking finding, however
     faithful the transcription.
+- **Provenance** — *does the primary say what it is cited as saying?* Also
+    @model-reviewer. A claim attributed to a primary is checked against that
+    primary, or **marked secondhand** in the citing artifact. Nothing else in
+    this rule can catch it: the citing paper's extraction is clean, its digits
+    are right, its own closures pass, and the error is entirely in what it says
+    another paper says. One source checked this way was contradicted by its
+    primary on one claim of three and unsupported on another
+    (`.claude/incidents.md#secondhand-attribution`).
+
+### Finding a source's consumers: grep titles, not just slugs
+
+Any sweep asking "which sources reach shipped code" must grep **document titles
+and table numbers** as well as directory slugs. A carefully written citation
+names the document in prose — *Ammunition Series 6* Table 6-1 — so a slug-only
+grep systematically under-tiers exactly the citations written most carefully.
+That miss left a Tier-1 source sitting in Tier 2 through most of an audit.

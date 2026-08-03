@@ -46,6 +46,14 @@ below are for topic-search dispatches only.
         each column by an invariant *internal to the table*, never by a field
         you carried into `card.md` yourself. That circularity inverted three
         committed check scripts — see the rule's incident note.
+    - Tables of **bracketed limits** (calibre classes, velocity bands,
+        thickness ranges) carry a closure the whole-column directives miss: the
+        brackets must tile within each group, and any ordering restarts at each
+        group. Express these with `tiling: <group> <lo> <hi>` and
+        `monotonic: <col> <dir> by <group>` rather than leaving them unstated —
+        tiling is precisely the check that catches a row read one step out of
+        position, which is otherwise invisible because every single value is
+        plausible.
 1. **Write an extract card** — `doc-reference/<topic>/<docname>/card.md` (~300 words max). The card is a **navigation index, not a research substitute**: it helps the modeller decide whether the paper is relevant and jump to the right part — it is not authoritative and must not be cited in place of the source. For every entry, include a **precise anchor** — a *greppable unique string* (heading, table caption, figure number), **never a bare line number**; line numbers rot on re-extraction and land the reader on a different table that looks right (`.claude/rules/source-data-fidelity.md`). Distil: key governing equations (symbols defined), constants/parameters with units and values, validity ranges, and stated assumptions — each with its anchor. Keep it dense — equations, numbers, and anchors, not prose.
     - **For every table you summarise, name the criterion it tabulates** (what
         the numbers actually measure, in the source's own words) and link its
@@ -55,6 +63,26 @@ below are for topic-search dispatches only.
         stop. The card stays a **navigation index**: downstream work reads the
         CSV for numbers, never retypes them from here.
     - **For any data table: name every column, with units — not just the one or two you illustrate with a sample value.** A card that lists "sample value: B=0.213" for a table that also has N, m, v columns silently hides the rest from every future reader, because downstream passes trust the card and don't re-open the raw source. One illustrated row is fine; an incomplete column list is not — that gap is invisible until someone re-reads the raw OCR text months later and finds data that was there the whole time.
+    - **Verify every anchor before you write it down.** Run the `grep`, confirm
+        it returns, and confirm what it returns is the content your entry
+        claims. Do not skip this because the anchor "obviously" points where you
+        mean — 20 of 20 anchors in two cards were wrong from the day they were
+        written, against sources that never changed. Watch two traps: a quoted
+        phrase that **wraps across a newline** is not greppable however correct
+        it looks, and a `TABLE n` line is only an anchor if the extraction kept
+        it attached to its own rows (in a flattened two-up scan it is page
+        furniture — anchor on the section or shell title instead).
+    - **Write what the source says, never what to use it for.** No section
+        recommending which of the source's data to calibrate on, which curve to
+        prefer, or what the numbers imply for a model. That is a modelling claim,
+        it belongs in a `derivation.md` where @model-reviewer sees it, and in a
+        card it is reviewed by nobody — one such section sent a drag calibration
+        at the least drag-sensitive number in its report and stood for years. If
+        you find yourself hedging ("presumably", "likely", "not stated in
+        source"), that is the signal: the sentence does not belong in the card.
+        Where the transfer question genuinely matters, **state it and refer it**
+        — "whether this criterion matches the model's is a criterion-match
+        question for @model-reviewer" — rather than answering it.
 1. **Retain the source blob.** Copy the PDF you processed to
     `doc-reference/<topic>/<docname>/source.pdf` and leave it there. It is
     gitignored (`doc-reference/**/*.pdf`), so it costs the repo nothing but

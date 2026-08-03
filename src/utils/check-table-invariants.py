@@ -30,7 +30,24 @@ Directives:
     row:        <expr> == <value> within <tol>[%]   evaluated per row
     monotonic:  <column> increasing | decreasing
                          | non-increasing | non-decreasing
+                         [by <group-column>]        restart per group
     total:      <column> == <value> within <tol>[%]  sum over all rows
+    tiling:     <group-column> <lo-column> <hi-column>
+
+`tiling` and `by` exist for **bracketed-limit tables** — calibre classes,
+velocity bands, thickness ranges — where the closure is not down the whole
+column but within one group of consecutive brackets:
+
+    tiling:     projectile_size_class yield_lo_psi yield_hi_psi
+    monotonic:  coupon_diam_in non-increasing by projectile_size_class
+
+Tiling asserts that row *i*'s upper bound equals row *i+1*'s lower bound inside
+each group. When the source states brackets as "Over X to Y, incl.", sharing an
+endpoint is not a formatting convention — it is what makes the table total over
+its stated domain. A gap is a value the table does not cover; an overlap is two
+contradictory answers for one value; and either is what a row read one step out
+of position looks like. A blank bound (an open-ended first bracket) is reported
+as unchecked rather than silently passed.
 """
 
 import argparse
@@ -43,8 +60,10 @@ from pathlib import Path
 _ROW_RE = re.compile(r"^(?P<expr>.+?)\s*==\s*(?P<target>\S+)\s+within\s+(?P<tol>\S+)$")
 _TOTAL_RE = _ROW_RE
 _MONO_RE = re.compile(
-    r"^(?P<col>\w+)\s+(?P<dir>increasing|decreasing|non-increasing|non-decreasing)$"
+    r"^(?P<col>\w+)\s+(?P<dir>increasing|decreasing|non-increasing|non-decreasing)"
+    r"(?:\s+by\s+(?P<group>\w+))?$"
 )
+_TILING_RE = re.compile(r"^(?P<group>\w+)\s+(?P<lo>\w+)\s+(?P<hi>\w+)$")
 
 _SAFE_NS = {k: getattr(math, k) for k in ("sqrt", "exp", "log", "log10", "sin", "cos", "tan", "pi", "e")}
 _SAFE_NS["abs"] = abs
@@ -80,7 +99,7 @@ def parse_spec(path):
         key, body = (s.strip() for s in line.split(":", 1))
         if key in ("csv", "source", "anchor"):
             meta[key] = body
-        elif key in ("row", "total", "monotonic"):
+        elif key in ("row", "total", "monotonic", "tiling"):
             checks.append((key, body, lineno))
         else:
             raise SpecError(f"{path}:{lineno}: unknown directive {key!r}")
@@ -146,25 +165,95 @@ def check_total(body, rows, ns):
     return []
 
 
+def group_runs(rows, group_col):
+    """Split rows into consecutive runs sharing a value of `group_col`.
+
+    Runs, not a dict of all rows with equal keys: a bracketed table's groups are
+    printed contiguously, and a group whose rows are *not* contiguous is itself
+    the row-misassignment this rule is looking for. Yields (name, [(idx, row)]).
+    """
+    runs, current, name = [], [], object()
+    for i, row in enumerate(rows):
+        key = row.get(group_col)
+        if key != name:
+            if current:
+                runs.append((name, current))
+            current, name = [], key
+        current.append((i, row))
+    if current:
+        runs.append((name, current))
+    return runs
+
+
 def check_monotonic(body, rows, _ns):
-    """Ordering: <column> increasing|decreasing|non-increasing|non-decreasing."""
+    """Ordering: <column> <direction> [by <group-column>].
+
+    With `by`, the ordering must hold inside each group and is not asserted
+    across a group boundary — the shape of a table whose column restarts per
+    calibre class, velocity band, or thickness range.
+    """
     m = _MONO_RE.match(body)
     if not m:
         raise SpecError(f"malformed monotonic check: {body!r}")
-    col, direction = m["col"], m["dir"]
+    col, direction, group_col = m["col"], m["dir"], m["group"]
     ok = _COMPARATORS[direction]
+    if group_col and not any(group_col in r for r in rows):
+        raise SpecError(f"monotonic: no such group column {group_col!r}")
+    runs = group_runs(rows, group_col) if group_col else [(None, list(enumerate(rows)))]
+
     failures = []
-    for i in range(len(rows) - 1):
-        a, b = rows[i].get(col), rows[i + 1].get(col)
-        if not isinstance(a, float) or not isinstance(b, float):
-            failures.append((i, f"column {col!r} missing or non-numeric"))
-            break
-        if not ok(a, b):
-            failures.append((i + 1, f"{col}: {a:g} -> {b:g} is not {direction}"))
+    for name, run in runs:
+        where = f" in {name!r}" if group_col else ""
+        for (i, ra), (j, rb) in zip(run, run[1:]):
+            a, b = ra.get(col), rb.get(col)
+            if not isinstance(a, float) or not isinstance(b, float):
+                failures.append((i, f"column {col!r} missing or non-numeric{where}"))
+                break
+            if not ok(a, b):
+                failures.append((j, f"{col}: {a:g} -> {b:g} is not {direction}{where}"))
     return failures
 
 
-_HANDLERS = {"row": check_row, "total": check_total, "monotonic": check_monotonic}
+def check_tiling(body, rows, _ns):
+    """Bracket tiling: <group-column> <lo-column> <hi-column>.
+
+    Inside each group, row i's upper bound must equal row i+1's lower bound. A
+    gap leaves a value the table does not cover; an overlap gives two answers
+    for one value. A blank bound (an open-ended first or last bracket, as the
+    source prints it) is reported as unchecked, never silently passed.
+    """
+    m = _TILING_RE.match(body)
+    if not m:
+        raise SpecError(f"malformed tiling check: {body!r}")
+    group_col, lo_col, hi_col = m["group"], m["lo"], m["hi"]
+    for col in (group_col, lo_col, hi_col):
+        if not any(col in r for r in rows):
+            raise SpecError(f"tiling: no such column {col!r}")
+
+    failures = []
+    for name, run in group_runs(rows, group_col):
+        for (i, ra), (j, rb) in zip(run, run[1:]):
+            hi, next_lo = ra.get(hi_col), rb.get(lo_col)
+            if not isinstance(hi, float) or not isinstance(next_lo, float):
+                failures.append(
+                    (j, f"bracket bound blank in {name!r} — tiling unchecked here")
+                )
+                continue
+            if hi != next_lo:
+                kind = "gap" if next_lo > hi else "overlap"
+                failures.append(
+                    (j, f"{name!r}: bracket ends at {hi:g}, next starts at "
+                        f"{next_lo:g} — {kind}")
+                )
+    return failures
+
+
+_HANDLERS = {
+    "row": check_row,
+    "total": check_total,
+    "monotonic": check_monotonic,
+    "tiling": check_tiling,
+}
 
 
 def check_spec(spec_path):
