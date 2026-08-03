@@ -741,13 +741,13 @@ artifact known to carry wrong labels cannot be closed by deferral — it is mark
 rewrite (which Phase 8 item 2 will do anyway, when it splits the card into
 mechanical-inventory and interpretive halves) is mechanical.
 
-Its nine anchors are also all bare line numbers (`ordnance-1944.md#L261`,
+Its seven anchors are also all bare line numbers (`ordnance-1944.md#L261`,
 `#L340-L369`, …) — the form `.claude/rules/source-data-fidelity.md` forbids, and
 the form that rotted onto the wrong shell's data in the original incident.
 
 FINDING\[blocking\]: ordnance-1944 card.md labels all three shell sections with the table number of a neighbouring shell (43→81mm M43A1, 51→105mm M38A1, 59→8in M103; correct are 38/39, 48/49, 56/57) and prints each casualties B value beside the perforation table's range — the exact lossy-summary mechanism that caused the column inversion; quoted numbers are correct, labels are not (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
 
-FINDING\[deferrable\]: ordnance-1944 card.md cites all nine of its anchors as bare line numbers into ordnance-1944.md, the anchor form source-data-fidelity.md forbids; replace with greppable strings when the card is split (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
+FINDING\[deferrable\]: ordnance-1944 card.md cites all seven of its anchors as bare line numbers into ordnance-1944.md, the anchor form source-data-fidelity.md forbids; replace with greppable strings when the card is split (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
 
 ## 13. The DoD-1975 scan, recovered — the digitized Figure 3 does not match it
 
@@ -2403,3 +2403,187 @@ FINDING\[note\]: the closure that admits Gold 2017 is algebraic, not tabular —
 FINDING\[deferrable\]: scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that (affects: src/utils/scan-extraction-quality.py, .claude/rules/source-data-fidelity.md, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
 
 FINDING\[deferrable\]: \_limitations.qmd tells readers to treat posture-resolved hit counts as provisional "until the references are collected", naming AEP-55 Vol. 3 — but the retained scan shows Vol. 3 is an armoured-vehicle IED test standard assessing occupants with ATDs, so it can never supply a man-silhouette presented area and the caveat as written can never be discharged; the correct disclosure is scoping.md's, that 0.85 m² is an engineering convention (affects: experiment/fragmentation-field/\_limitations.qmd, doc-reference/wound-ballistics/aep-55-vol3/card.md; since: 2026-08-03)
+
+## 25 · Phase 2.5d — narrative admissibility: what a card tells you to *do*
+
+The plan's premise: a `card.md` section that tells a reader what to use a
+source **for** is a modelling claim wearing a reference doc's clothes, and a
+@modeler dispatched to read that card inherits it as a premise. Tolch's "Drag
+Model Relevance" is the proven case (§6) — it recommended a drag anchor that is
+near-insensitive to drag, and the correction lived only in agent memory.
+
+Every `card.md` in `doc-reference/` was swept. Script:
+`checks/card-anchor-claim-verification.py` (0.3 s).
+
+### 25a · The split is structural, and it is not about the documents
+
+Eleven of eighteen cards carry a "Provenance of this card" / "Why this document
+is here" section. All eleven were written or rewritten by **this audit**. The
+seven that do not are the pre-audit cards: `aisi-1020`, `aisi-1045`,
+`dod-1975`, `m49a2`, `ammunition-series-6-steel-composition`, `ordnance-1944`,
+`tolch-1938`.
+
+**Every interpretive defect found in this sweep sits in those seven.** That is
+worth stating plainly because it says the fix is a *format*, not vigilance: a
+card that has to answer "why does this section exist and who checked it" does
+not accumulate unsourced recommendations, and a card with no such slot does.
+This is the empirical case for Phase 8 item 2, which until now rested on one
+example.
+
+The good pattern already exists and should be copied rather than invented.
+`explosion-fragment-model`'s **Applicability** section states the transfer
+question, names it as a criterion-match question, and routes it to
+@model-reviewer — an interpretive section that ends in a *referral* instead of
+a recommendation. `mott-linfoot` and `gurney` do the same in "Why this document
+is here" / "The facts this document supplies", both anchored and both explicit
+about what the source does **not** contain.
+
+### 25b · Four sections assert something the source does not say
+
+| card                                    | section                   | what it asserts                                                                                                                                                                              | exposure                                                             |
+| :-------------------------------------- | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------- |
+| `aisi-1045`                             | Applications & Notes      | "**This is likely the source of the '45000 psi' baseline figure in the catalog.**" — a provenance *guess*, bolded, with no hedge in the asserted sentence                                    | uncited outside this ledger                                          |
+| `ammunition-series-6-steel-composition` | Material Property Targets | three targets, of which two are not the source's: "Elongation: ~10–20% typical for normalized 1035–1045 equivalent" and "Hardness: ~400–500 HB (normalized state; **not stated in source**)" | uncited                                                              |
+| `dod-1975`                              | Applicability & Caveats   | a "**Use:**" recommendation, plus "figure **presumably** covers ~0–Mach 7"                                                                                                                   | cited; numeric content already closed                                |
+| `m49a2`                                 | Design Intent and Context | "Likely ductile-steel", "most probable" — self-flagged as not confirmed                                                                                                                      | a catalog entry in `src/arty/shells.py`; no model result rests on it |
+
+Two of these self-flag their own weakness ("not stated in source",
+"presumably"), which is the correct instinct landing in the wrong file: the
+hedge is visible to someone reading the card and invisible to anyone reading
+the artifact that cites it.
+
+`dod-1975` is the mildest case and shows where the line falls. Its *numbers* —
+$C_D = 1.28$, $L_1 = 247$ — are already closed by
+`tables/ballistic-constants.invariant`, which reproduces the decay recipe from
+the source's own definitions and is set just tight enough to reject the
+adjacent demolition-bomb $k$. What is unverified is only the surrounding advice.
+Closure covers the arithmetic; it does not cover the sentence recommending what
+to do with it.
+
+### 25c · `m49a2` — unfinished, and low-exposure
+
+`m49a2` is the only one of the four whose speculation touches shipped code, so
+its downstream use was traced. The trace is favourable as far as it goes:
+`updates/wdss1-steel-grade/derivation.md` (A6) sources the WDSS-1 grade and
+composition to *Ammunition Series 6* **Table 6-1** (17 Feb 1953) — "a direct
+transcription of the chemistry of record, and the authority for this entry" —
+and explicitly downgrades the drawing to corroboration only, on the stated
+ground that its material callout "is not legible in the held OCR". The card's
+guess was available and was declined.
+
+**That is not a verdict on the card, and this pass does not issue one.** The
+m49a2 document work was never finished (user, 2026-08-03), so its card is an
+incomplete artifact: the "Design Intent and Context" speculation and the
+"Critical Data Gap" section are mid-work state, not a closed position, and
+nothing here should be read as signing them off.
+
+What bounds the exposure is *what the shell is*: a recently added catalog
+entry, one `ShellParams` row among several, with **no model physics derived
+from it** (user, 2026-08-03). It appears downstream only as one row in
+`mott-fragment-shape-closure`'s cross-shell sweep — a consumer of the catalog,
+not a claim resting on this document. So the unfinished card is **deferrable**,
+not blocking: nothing published would have to be retracted if its speculation
+turned out wrong, and the one number it might have supplied is already sourced
+elsewhere.
+
+One residue to carry into the finish — the derivation attributes "WDSS 1/2 are
+the 60 mm mortar-body grades" to the drawing, which the card says is not
+confirmed by visible drawing text.
+
+### 25d · The anchors were never right — 20 of 20, in both cards, at birth
+
+`.claude/rules/source-data-fidelity.md` forbids bare line numbers and gives one
+reason: they **rot** when a document is re-extracted. Both remaining cards use
+them exclusively — ordnance 7, Tolch 13 — so the sweep tested the claim.
+
+The rule's mechanism is not what happened. Re-running each card's anchors
+against the revision that *introduced* it (following renames — Tolch was moved
+from `tolch-1944-…`, and a rename-blind check silently compares a file to
+itself):
+
+| card            | anchors | failing today | failing at birth | source length then → now |
+| :-------------- | ------: | ------------: | ---------------: | -----------------------: |
+| `ordnance-1944` |       7 |             7 |                7 |              1466 → 1466 |
+| `tolch-1938`    |      13 |            13 |               13 |              1715 → 1715 |
+
+Neither source changed length between its birth commit and today, and every
+anchor missed in both. The clearest single case: the Tolch card cites
+**"9.71 (static) … [table, lines 617–627]"**, and `9.71` has been on **line
+900** since the file entered the repo.
+
+**These were not decayed. They were fabricated** — twenty plausibly-formatted
+line ranges written alongside the files they point into, none ever checked. No
+re-extraction discipline would have caught this, because there was nothing to
+decay from, and the greppable-anchor remedy addresses only the failure that did
+not occur here. What catches fabrication is *verifying an anchor when it is
+written*, which costs 0.3 s for all twenty.
+
+### 25e · Why the labels are wrong too: the `.md`'s `TABLE n` lines are page furniture
+
+§12 records as **blocking** that the ordnance card labels its three shell
+sections with a neighbouring shell's table number (43/51/59; correct 38/39,
+48/49, 56/57). That finding is confirmed at the page — scan pp. 84 / 89 / 93
+show **75 mm HE SHELL, M48 → TABLE 38/39**, **105 mm M1 → TABLE 48/49**,
+**155 mm M107 → TABLE 56/57**, with the casualties first rows matching the
+committed CSVs cell for cell. This pass adds the *cause*.
+
+The 1944 report prints two tables side by side under one shell title.
+Extraction flattens that page into one column and does not keep a heading with
+its own table: both page headings emit together, above data belonging to only
+one of them. Locating each shell's CSV first row in the `.md` and asking which
+`TABLE n` heading last preceded it:
+
+| shell (as printed)    | data at | `.md` implies | page says |
+| :-------------------- | ------: | ------------: | --------: |
+| 75 mm HE SHELL, M48   |    L392 |      TABLE 43 |  TABLE 38 |
+| 105 mm HE SHELL, M1   |    L738 |      TABLE 51 |  TABLE 48 |
+| 155 mm HE SHELL, M107 |    L885 |      TABLE 59 |  TABLE 56 |
+
+The middle column is **exactly** what the card asserts, for all three shells.
+The card was not guessing — it was reading the nearest preceding heading in the
+flattened file, which is a reasonable thing to do and is wrong here.
+
+This disqualifies the obvious remedy. The natural reading of §12's companion
+finding — "replace the bare line numbers with greppable strings" — invites
+`TABLE 43` as the replacement anchor, which would encode the same artifact in a
+form that greps successfully and therefore looks verified. **`ordnance-1944.md`
+cannot support table-level citation at all.** The usable anchor is the shell
+title (`# 75-MM H.E. SHELL, M48`, L381) — and it must be *checked* rather than
+assumed, because OCR damaged one of the three: the 155 mm title reads
+`# 155-MM N.E. SHELL, M107`.
+
+### 25f · A correction to this pass's own first reading
+
+This section's first conclusion was that the card's table labels were **right**
+and §12's blocking finding was misdiagnosed. That was wrong, and it was wrong
+by the same mechanism the section documents: the check trusted "nearest
+preceding `TABLE n`" in the flattened `.md`, which is precisely the inference
+that produced the bad labels in the first place. The scan settled it against
+that reading.
+
+Recorded rather than quietly fixed, because the near-miss is the point. A
+plausible mechanical check, run against the convenient artifact instead of the
+source, reproduced the original defect and returned a confident verdict that
+would have *retracted a correct blocking finding*. The check is only sound
+because §12 had recovered the scan; had it not, this pass would have closed a
+real defect as a false alarm. That is a sharper argument for retaining source
+scans than "go back to the page" as a slogan.
+
+### 25g · Status
+
+Phase 2.5d is **closed**. All four flagged interpretive sections are registered
+and none gates a published claim: three are uncited, and `m49a2`'s sits on a
+new catalog entry whose one number of interest is sourced elsewhere (§25c). The
+`m49a2` document work itself remains unfinished and is carried as deferrable —
+it is a shell to finish, not a defect to retract.
+
+The two anchor findings below supersede nothing — §12's blocking label finding
+stands as written and is now confirmed at the page with its cause identified.
+
+FINDING\[deferrable\]: all 20 bare line-number anchors in the ordnance-1944 and tolch-1938 cards fail to resolve to the content they claim, and failed identically at each card's birth commit against sources of unchanged length (1466 and 1715 lines) — e.g. the Tolch card cites 9.71 at "lines 617-627" and 9.71 has always been at line 900; these were fabricated at authoring, not rotted, so the greppable-anchor remedy in source-data-fidelity.md addresses a failure mode that did not occur here and the rule should also require an anchor to be verified when written (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md, doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md, .claude/rules/source-data-fidelity.md, .claude/agents/librarian.md; since: 2026-08-03)
+
+FINDING\[deferrable\]: ordnance-1944.md is a flattened two-up scan whose "TABLE n" heading lines do not belong to the data printed beneath them — the nearest preceding heading implies TABLE 43/51/59 for the three shells where the page says 38/39, 48/49, 56/57 — so the file cannot support table-level citation and any repair of the card's anchors must use the shell title line, not a TABLE number, checking it greps because OCR damaged the 155 mm title to "N.E. SHELL" (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md, doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/ordnance-1944.md; since: 2026-08-03)
+
+FINDING\[note\]: three pre-audit cards carry interpretive sections asserting what the source does not state — aisi-1045 bolds a provenance guess that it is "likely the source of the 45000 psi baseline figure", ammunition-series-6-steel-composition lists elongation and hardness targets it marks "not stated in source", and dod-1975 adds a "Use:" recommendation and a "presumably ~0-Mach 7" range beyond what its closed ballistic constants cover; all three are uncited today so they gate nothing, and all three sit in the seven cards lacking a provenance section, which is the case for splitting card.md in Phase 8 item 2 (affects: doc-reference/azom-steel-grades/aisi-1045/card.md, doc-reference/ww2-shells/ammunition-series-6-steel-composition/card.md, doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md; since: 2026-08-03)
+
+FINDING\[deferrable\]: the m49a2-60mm-mortar-shell document work was never finished, so its card.md is mid-work state and must not be treated as adjudicated — its "Design Intent and Context" section speculates on the body-shell material ("Likely ductile-steel", "most probable"); exposure is low and bounded — the shell is a recently added catalog entry with no model physics derived from it (user, 2026-08-03), it appears downstream only as one row in mott-fragment-shape-closure's cross-shell sweep, and updates/wdss1-steel-grade/derivation.md A6 sources the composition to Ammunition Series 6 Table 6-1 instead, explicitly declining the drawing; Phase 2.5d issued no verdict on the card and none should be inferred (affects: doc-reference/ww2-shells/m49a2-60mm-mortar-shell/card.md, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md; since: 2026-08-03)
