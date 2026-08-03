@@ -81,16 +81,46 @@ def designators(doc_dir):
     return found
 
 
+def author_years(doc_dir):
+    """"Surname 2017" / "Surname (2017)" aliases, from the front matter.
+
+    The second half of the §19f lesson, found the same way as the first: after
+    the designator fix, this sweep still reported Gold 2017 as reaching zero
+    shipped files while `src/arty/fragmentation.py` cites it four times -- as
+    "Gold 2017", which is neither a slug nor a report number. Journal articles
+    are cited author-year; only reports are cited by designator.
+    """
+    heads = [md.read_text(encoding="utf-8", errors="replace")[:600]
+             for md in doc_dir.glob("*.md") if md.name != "card.md"]
+    if not heads:
+        return set()
+    head = "\n".join(heads)
+    years = set(re.findall(r"\b(19\d{2}|20\d{2})\b", head))
+    surnames = set()
+    for line in head.splitlines():
+        m = re.match(r"\**\s*authors?\s*:?\**\s*:?\s*(.+)", line.strip(), re.I)
+        if not m:
+            continue
+        for person in re.split(r",|;|\band\b|&", m.group(1)):
+            tokens = re.findall(r"[A-Z][A-Za-z'-]{2,}", person)
+            if tokens:
+                surnames.add(tokens[-1])
+    return {f"{s} {y}" for s in surnames for y in years} | \
+           {f"{s} ({y})" for s in surnames for y in years}
+
+
 def citations(doc_dir):
     """Repo paths outside doc-reference/ that name this document, deduped.
 
     Searches the full slug pair (topic/docname), the leaf slug, each
-    processed-source stem, and every report designator -- because none of them
-    alone is reliable, and a false "uncited" is the expensive error here.
+    processed-source stem, every report designator, and every author-year pair
+    -- because none of them alone is reliable, and a false "uncited" is the
+    expensive error here.
     """
     keys = {f"{doc_dir.parent.name}/{doc_dir.name}", doc_dir.name}
     keys |= {p.stem for p in doc_dir.glob("*.md") if p.name != "card.md"}
     keys |= designators(doc_dir)
+    keys |= author_years(doc_dir)
     hits = set()
     for key in keys:
         if len(key) < 6:                     # too short to be a distinctive key

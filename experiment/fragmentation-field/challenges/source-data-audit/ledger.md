@@ -2177,14 +2177,229 @@ already in the repo. Registered, and it belongs to Phase 6.
 documents.** ES-310 re-baselined: `card.md` written (there was none), two CSVs,
 two `.invariant` files, one retained script. `check-table-invariants.py doc-reference/ --all` → **0 / 26 tables failed**.
 
-Gold 2017 (`fragment-size-distribution-conwep`) is the one remaining Phase-3
-blocker with real numeric exposure; `ammunition-series-6-steel-composition`
-remains open from §11. Neither has a card.
+**Superseded by §24.** Gold 2017 (`fragment-size-distribution-conwep`) was the
+one remaining Phase-3 blocker with real numeric exposure — closed in §24a once
+the user supplied the scan. `ammunition-series-6-steel-composition` remains open
+from §11; it is uncited, so it gates nothing.
 
 FINDING\[blocking\]: ES-310's "Implications for 79 J Threshold" section, Key Findings bullet 1 and Summary "79–80 J" clause are not on the source page — it never mentions 79 J or 80 J — so a repo argument is published as a DoD/Navy claim (affects: doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md, experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-03)
 
-FINDING\[blocking\]: Gold 2017 (doc-reference/fragmentation/fragment-size-distribution-conwep) supplies the equations implemented in src/arty/fragmentation.py mott_params, yet has no card, no closure, no retained scan, and every citation into it is a bare line number (affects: experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/scoping.md, experiment/fragmentation-field/challenges/mott-scale-gap/\_shape_closure_check.md, src/arty/fragmentation.py; since: 2026-08-03)
+*(The Gold 2017 blocking finding registered here — no card, no closure, no
+retained scan, bare-line-number citations — is closed by §24a; its marker is
+deleted per `.claude/rules/deferred-findings.md`. The bare-line-number half
+survives as a live deferrable finding on
+`updates/mott-fragment-shape-closure/derivation.md:21`.)*
 
 FINDING\[deferrable\]: \_limitations.qmd tells readers Cunniff (2014) and AEP-55 Vol. 3 are not present in doc-reference/, but both are collected; the correct claim is that neither carries a quotable man-silhouette scalar (affects: experiment/fragmentation-field/\_limitations.qmd, experiment/fragmentation-field/updates/target-area-profile/derivation.md, experiment/fragmentation-field/updates/familyA-false-safe-zone/scoping.md; since: 2026-08-03)
 
 FINDING\[note\]: pk_given_hit interpolates ES-310's three anchors in log10(E), a scheme the source never states; at the one point the page works it gives 0.817 against a stated 0.8, where linear-in-E gives 0.767 — agreement on a single point, not a derivation (affects: src/arty/fragmentation.py, doc-reference/wound-ballistics/fas-es310-damage-criteria/card.md; since: 2026-08-03)
+
+______________________________________________________________________
+
+## 24 · The two blockers close — Gold 2017 and AEP-55 Vol. 3
+
+Both scans were supplied by the user on 2026-08-03, in response to §23i naming
+them as the outstanding gaps. Both turned out to have clean text layers on
+every page, which changes the instrument: as with `sandia-sand92-0243` (§22),
+the question "was the right line read?" is answered by *printing the line*, not
+by inventing a closure around it. Only one of the two needed more than that,
+and it needed it for a reason worth recording.
+
+### 24a · Gold 2017 — the closure had to be algebra, because no surface carries the sign
+
+`fragment-size-distribution-conwep` (the slug is misleading; this is Gold 2017,
+*Defence Technology* 13(4) 300–309) supplies no data series. What it supplies is
+the PAFRAG-Mott equation chain implemented in `fragmentation.py:mott_params`
+and `zones.py:_zone_mott_mu`. So the fidelity question is not *was the right
+cell read* but **was the right formula read**.
+
+Everything turns on one character. Eq. (6) is `γ = α^{-2/3} γ′`, and **the
+entire content of that equation is the sign**. Take it wrong and μ is off by a
+factor of **α²** — 14× to 32× across the break-up velocities this model runs at
+— in the direction that makes fragments smaller and more numerous. Two surfaces
+could in principle settle it, and neither does:
+
+- **The committed `.md`'s equations are reconstructed, not transcribed.** They
+    are LaTeX; the raw text layer contains no LaTeX at all. So the minus in
+    `\alpha^{-2/3}` is a **vision model's reading** — the same pipeline Phase 7
+    of this audit caught inventing values in table cells. It is the reading
+    under test, so it cannot also be the evidence.
+- **The raw text layer cannot arbitrate.** It has a clean text layer on all 10
+    pages, but it encodes the minus as the unmapped control character `\x04`,
+    which it *also* uses for hyphens: `a\x042=3g0` is eq. (6), and
+    `the Q\x04angle` is prose "Θ-angle". The same byte, two meanings. Being
+    non-printable it is dropped by any printable-character filter, silently
+    yielding `α^{2/3}` — the wrong-sign reading, with no glyph-level trace.
+
+**And the extraction-quality gate cannot see any of it, twice over.**
+`scan-extraction-quality.py` flags Private Use Area glyphs (U+E000–F8FF). This
+font maps its unmapped glyphs into the **C0 control range** instead — 61 in the
+text layer, 0 PUA — so the detector's range misses every one. It also runs on
+the `.md`, which the vision pass has already laundered to zero control
+characters. It reports `0 / 2 file(s) flagged` here.
+
+That is a second structural blind spot in that gate, and it is *not* the same
+as the column-inversion one. There the gate saw clean glyphs that happened to
+be the wrong cell. Here the reconstruction step **removes the evidence** before
+the gate runs: the ambiguity exists only in a surface the gate never inspects.
+A green scan on a vision-reconstructed document therefore certifies less than a
+green scan on a transcribed one, and nothing currently records that difference
+(Phase 8 item 6).
+
+An earlier revision of this section, the card, and the check script all
+asserted the simpler and wrong story — "the text layer drops minus signs, so
+`α^{-2/3}` and `α^{+2/3}` extract identically". They do not extract identically
+(the plus maps to `þ`); the minus is present but unreadable. The verdict is
+unchanged because it never rested on that claim, but the correction is recorded
+rather than quietly applied: the sharper reading is what exposes the
+`scan-extraction-quality.py` consequence, which the wrong one hid.
+
+**The source closes it itself.** Eq. (5) is *stated* to be eq. (2) substituted
+into eq. (4), and only one exponent makes that substitution true. Solved
+numerically at five values of α, the exponent comes back **−2/3 exactly**,
+every time. That is a closure invariant in the sense
+`.claude/rules/source-data-fidelity.md` means — arithmetic internal to the
+source, from the source's own stated relations, with a pass/fail answer. It
+just closes a formula rather than a table, which is a shape the rule's four
+listed forms do not cover and probably should (Phase 8).
+
+Verified, all in `checks/gold-2017-equation-provenance.py` (~0.3 s):
+
+| Check                                                                 | Result                                                                                  |
+| :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| 9 greppable anchors, unique in the extraction and located on the scan | pass, pp. 301–306                                                                       |
+| exponent on α required by (2)→(4)→(5)                                 | −2/3, at 5 values of α                                                                  |
+| the `.md` reconstruction carries `\alpha^{-2/3}` in both (5) and (6)  | pass — the vision reading agrees with the algebra, which is what promotes it to checked |
+| eq. (7) ≡ eq. (16)                                                    | identical to 4 × 10⁻¹⁶ over 7 parameter sets                                            |
+| shipped `mott_params` composition vs eq. (4) in one step              | equal to 2 × 10⁻¹⁶ at three V₀                                                          |
+
+**Verdict on the shipped code: admissible.** The three-step composition
+(eq. 2 → eq. 6 → eq. 16) reproduces eq. (4) evaluated directly, which it can do
+only if `alpha ** (-2.0/3.0)` carries the sign the algebra demands. `zones.py`
+uses the identical form.
+
+### 24b · Gold 2017 contradicts itself on N₀, and `src/arty` takes the right side
+
+Eq. (1): `N₀ = M/2μ`. Eq. (17): `N₀ⱼ = mⱼ/μⱼ`. These differ by exactly 2.
+
+Eq. (1) is the self-consistent one — μ is defined two sentences earlier as
+**half** the average fragment mass, so total mass over μ counts half-fragments.
+`mott_params` uses `M/(2μ)`. At M1 geometry and V₀ = 1000 m/s the two readings
+give 3 959 vs 7 918 fragments.
+
+There is nothing to repair. It is recorded because the failure mode here is
+*forward*: a future pass that reads eq. (17) off the page and "corrects" the
+code to match would double every fragment count, and would be able to cite the
+paper for it.
+
+### 24c · Gold 2017 — what is not certified
+
+- **γ = 50 is the shape-absorbed γ of eq. (6), not γ′.** Gold never states α for
+    Charge A, so his 50 cannot be back-converted to a γ′. `_validation.qmd:48`
+    already reads it correctly — as an un-shape-corrected value, i.e. the cube
+    limit α = 1 where γ = γ′ — and declines to score the model against the
+    resulting band. **That reading is sound**; the risk is a future pass
+    treating 50 as a `SteelParams.gamma`.
+- **Figures 1–11 are curves and none is digitized anywhere in this repo.** That
+    is the finding for this document's `images/` directory: not that the figures
+    were checked, but that nothing rests on them. Any future digitization is a
+    fresh job with its own closure — §13b (DoD-1975 Figure 3) is what happens
+    when that is done by eye.
+- **Nothing about the multi-region model** (eqs. 18–26). The repo uses the
+    one-region chain only.
+- Table 1 (Charge B recovery, 2 rows) is transcribed to
+    `tables/table-1-charge-b-recovery.csv` with the source's own `N/N*`
+    normalisation as its closure. **It is cited nowhere**; it exists so the
+    document stops reading as "carries numbers, no CSV" and so a future
+    consumer reads a file instead of re-typing prose.
+
+### 24d · AEP-55 Vol. 3 — the citation was misdirected, not merely uncollected
+
+The scan settles §23h decisively, and turns it from a bookkeeping error into a
+substantive one. AEP-55 (C) Vol. 3 (Part I) is
+*Procedures for Evaluating the Protection Level of Armoured Vehicles — IED
+Threat*: a **vehicle test standard**. Occupant survivability is assessed by
+firing at instrumented **ATDs** (anthropomorphic test devices) and reading
+injury-assessment reference values off transducers. A man-silhouette presented
+area is not a quantity such a document would ever state, because nothing in its
+method uses one.
+
+Searched over all 106 pages for
+
+```
+presented area|projected area|silhouette|man-target|standing man|
+prone man|frontal area|exposed area|body area
+```
+
+— **0 hits** (`checks/aep-55-vol3-scope-check.py`, ~0.2 s).
+
+So the two disagreeing surfaces resolve as:
+
+- **`pkill-poisson-field/scoping.md:75-81` is correct** — both documents are
+    collected, neither carries a quotable scalar, 0.85 m² remains an engineering
+    convention.
+- **`_limitations.qmd:238-242` is stale twice.** It says the references are "not
+    present in `doc-reference/`" (both are), and it tells readers to treat
+    posture-resolved hit counts as ±25 % estimates "until the references are
+    collected" — an instruction that can never be discharged, because collecting
+    AEP-55 Vol. 3 cannot supply posture box-body dimensions. §23h registered
+    this as a bookkeeping slip; it is worse than that, and it belongs to Phase 6.
+
+**The trap in this document.** It contains exactly two square-metre figures: a
+`2 × 2 m²` test bed, and `A = 0.082 m²` on p.85 — the effective area of the
+Annex E lumped-parameter **thorax model** (Figure E7), sitting beside a mass, a
+spring constant and a lung gas volume. It is a blast-lung chest-wall area, not a
+presented area. It is in the right units, within a factor of ~10 of the 0.85 m²
+the repo wants, and in the one document the repo names as canonical for that
+number. Named on the card so it is not picked up.
+
+### 24e · §19f a third time — the sweep still could not see Gold 2017
+
+Re-running the sweep after writing the card, it reported
+`fragment-size-distribution-conwep` as reaching **0 shipped files** — while
+`fragmentation.py` and `zones.py` cite it four times between them. The
+designator fix of §23a does not help: journal articles are cited **author-year**
+("Gold 2017"), and only reports are cited by designator ("ES-310",
+"SAND92-0243"). Same lesson, third distinct spelling, and again found only
+because the document had been read closely enough to know the answer in advance.
+
+Fixed by deriving `Surname YYYY` / `Surname (YYYY)` keys from the extraction's
+front matter (`author_years()`). The effect is not confined to Gold:
+
+| document                            | cited before → after | shipped before → after |
+| :---------------------------------- | -------------------: | ---------------------: |
+| `fragment-size-distribution-conwep` |               8 → 23 |                  0 → 2 |
+| `mil-s-10520d-projectile-steel`     |              64 → 67 |                  8 → 9 |
+| `mott-linfoot-1943-…`               |                3 → 4 |                  0 → 0 |
+
+**The standing conclusion from this is about the instrument, not the
+documents.** Three times now, an exposure sweep has under-reported precisely
+the most carefully written citations — the ones that name a source the way a
+human would rather than by directory slug. Any future "is this source cited?"
+answer produced by grepping one key form should be treated as a lower bound.
+
+### 24f · Status — Phase 2.5c is closed
+
+`checks/doc-reference-admissibility-sweep.py` after this pass: 25 documents,
+10 carrying unchecked numbers, 7 of those cited, and **0 reaching `src/` or
+`app/`**. Both Phase-3 blockers named in §23i are discharged.
+`ammunition-series-6-steel-composition` remains open from §11 — it is uncited,
+so it gates nothing.
+
+`aep-55-vol3` still reads as "unchecked" in the sweep, correctly and
+permanently: its extraction carries markdown tables and no CSV, because none of
+those tables is cited and none is transcribed. That is the "explicit
+non-citable mark" outcome the sweep offers, and the card carries it.
+
+Phase 3 is unblocked for `mott-fragment-shape-closure` and `mott-scale-gap`,
+with one carried caveat: their citations into Gold 2017 are still bare line
+numbers (registered on `mott-fragment-shape-closure/derivation.md:21`), and the
+anchors that replace them are now tabulated on the card.
+
+FINDING\[note\]: Gold 2017 eq. (17) (N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a factor of 2; src/arty follows eq. (1), which is the self-consistent reading since mu is defined as HALF the average fragment mass, and a future pass that "corrects" the code toward eq. (17) would double every fragment count with a citation to back it (affects: src/arty/fragmentation.py, src/arty/zones.py, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
+
+FINDING\[note\]: the closure that admits Gold 2017 is algebraic, not tabular — the committed .md's equations are vision-reconstructed LaTeX and the raw text layer encodes the minus as a non-printable char it also uses for hyphens, so neither surface settles eq. (6)'s alpha^(-2/3) and only substituting eq. (2) into eq. (4) fixes the sign; .claude/rules/source-data-fidelity.md lists four forms of closure invariant and none of them covers "an equation the source states is a substitution of two others", which is worth adding in Phase 8 (affects: .claude/rules/source-data-fidelity.md, experiment/fragmentation-field/challenges/source-data-audit/ledger.md; since: 2026-08-03)
+
+FINDING\[deferrable\]: scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that (affects: src/utils/scan-extraction-quality.py, .claude/rules/source-data-fidelity.md, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
+
+FINDING\[deferrable\]: \_limitations.qmd tells readers to treat posture-resolved hit counts as provisional "until the references are collected", naming AEP-55 Vol. 3 — but the retained scan shows Vol. 3 is an armoured-vehicle IED test standard assessing occupants with ATDs, so it can never supply a man-silhouette presented area and the caveat as written can never be discharged; the correct disclosure is scoping.md's, that 0.85 m² is an engineering convention (affects: experiment/fragmentation-field/\_limitations.qmd, doc-reference/wound-ballistics/aep-55-vol3/card.md; since: 2026-08-03)
