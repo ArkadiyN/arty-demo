@@ -18,11 +18,22 @@ form .claude/rules/source-data-fidelity.md asks for.
       (1); C1 shows that 1.5 is the same 1.5 Mott used to get his own printed
       answer, rather than a number read off an adjacent sentence.
 
-  C2  THE GAMMA COLUMN (fails).  p.308 states gamma ~ 160 P_2/P_F(1+s_F) and
-      then tabulates P_2, P_F and reduction in area against gamma for four
-      materials.  The formula does not reproduce the column under either
-      reading of s_F -- see the printout.  Digits are confirmed against the
-      page at 420 dpi, so this is not a transcription defect.
+  C2  THE GAMMA COLUMN (fails under the two readings tested here -- but see
+      the note below, which supersedes the conclusion, not the numbers).
+      p.308 states gamma ~ 160 P_2/P_F(1+s_F) and then tabulates P_2, P_F and
+      reduction in area against gamma for four materials.  The formula does
+      not reproduce the column under either reading of s_F tested here -- see
+      the printout.  Digits are confirmed against the page at 420 dpi, so this
+      is not a transcription defect.
+
+      SUPERSEDED IN PART, 2026-08-03.  The residuals C2 prints are correct for
+      the two readings it tests, and are kept.  What does not survive is the
+      generalisation: a third reading, s_F = RA/(1-RA) (engineering fracture
+      strain at constant volume), reproduces three of the four rows to within
+      3.2 %, and the non-closure localises to the 0.45 %C row alone.  See
+      experiment/fragmentation-field/updates/mott-fragment-shape-closure/
+      checks/mott-1947-gamma-column-strain-reading.py and that update's
+      rebaseline-verdict.md sect. 1.
 
   C3  MILD-STEEL LENGTH (fails).  p.308: "For mild steel, then, according to
       the formulae of sect. 2, a bomb of the design suggested there would give

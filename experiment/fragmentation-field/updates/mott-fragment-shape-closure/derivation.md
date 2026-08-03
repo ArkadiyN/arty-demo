@@ -210,6 +210,8 @@ independent corroboration that `α` is the right size. The 60 mm falls to
 `γ` = 14, below Gold's range, consistent with §5.5's finding that it is past
 the thin-case regime.
 
+FINDING[deferrable]: the "lands inside Gold's own published 20–50 range" sentence above rests on `γ′` = 65, whose Mott 1947 anchor is the one row of four that fails the paper's own closure (registered blocking at src/arty/fragmentation.py); at the rebaselined `γ′` ≈ 55 the three gun shells read 24.9 / 20.0 / 18.7, so the 155 mm drops just below Gold's 20 floor and the 105 mm sits on it — the corroboration is directional, not tight, and should stop being written as a clean "lands inside"; it is a soft cross-check rather than a PASS criterion, so no verdict moves (affects: experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, src/arty/fragmentation.py; since: 2026-08-03)
+
 **Nominal FAIL against scoping §7 check 4 as written**, and against
 `tests/test_fragmentation.py::test_mott_fragment_count_in_pafrag_range[_all_grades]`:
 `N(>0.5 g)` now falls **below** the 3 000–8 000 band (2 213 at M1 geometry).

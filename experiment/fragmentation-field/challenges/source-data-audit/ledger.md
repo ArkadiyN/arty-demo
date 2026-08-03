@@ -2919,3 +2919,114 @@ than transcribed, and an `## Admissibility` section stating the unverifiable
 verdict and its one live consumer. No `tables/*.csv` was written — the only
 table with a closure structure fails it, and transcribing it would propagate a
 broken series.
+
+## 30 · Phase 3 — `mott-fragment-shape-closure`, and a finding that partly reverses
+
+The second Phase-3 thread to rule. Unlike b-vs-range, this one **overturns the
+audit's own blocking finding**, and it is worth recording why the finding was
+wrong, because the error is instructive.
+
+Verdict: `experiment/fragmentation-field/updates/mott-fragment-shape-closure/rebaseline-verdict.md`.
+Evidence: `.../checks/mott-1947-gamma-column-strain-reading.py` (0.06 s, reads
+the CSV).
+
+### 30a · The column closes — on three rows of four
+
+The blocking finding said Mott 1947 p.308's γ column "does not reproduce from
+the paper's own stated closure … the formula is flat (spans ×1.20) where the
+printed column rises ×3.35". That was true of the two readings of `s_F` that had
+been tried, and the finding generalised it to the closure itself.
+
+The page tabulates **reduction in area**, not `s_F`, so how RA maps to the strain
+factor is a free choice the page never fixes — and the choice decides the
+answer. Reading `s_F` as the engineering fracture strain at constant volume,
+`RA/(1−RA)`:
+
+| row     | computed | printed |    residual |
+| ------- | -------: | ------: | ----------: |
+| iron    |     20.6 |      20 |      +3.2 % |
+| 0.1 %C  |     41.1 |      42 |      −2.0 % |
+| 0.25 %C |     52.9 |      53 |      −0.3 % |
+| 0.45 %C |     55.9 |      67 | **−16.5 %** |
+
+Three consecutive rows to ≤3.2 % on a formula with no free parameter is not
+coincidence. The column **is** computed from the tabulated `P_2`, `P_F` and RA.
+Verified here independently of the pass that produced it: the four residuals
+were hand-computed off `section3-gamma-vs-composition.csv` before the script was
+run, and match to the digit.
+
+The 0.45 %C row is then indicted twice more, on evidence that does not depend on
+that fit at all: its tabulated `P_2` = 38 breaks the column's own monotone rise
+(34, 42, 45, **38**), and `P_2` = 45.5 — a monotone continuation — reproduces the
+printed 67 exactly; and the paper's own stated length law *rises* at 0.45 %C
+where the printed column requires it to fall.
+
+### 30b · The generalisable lesson
+
+**A closure failure localises where a table may be trusted; it does not condemn
+the table.** The correct response to one failing row of four is a per-row
+verdict — use the rows that close, refuse the row that does not — which is how
+`.claude/rules/source-data-fidelity.md` already reads its monotonicity and
+tiling forms (per *group*, not per table). The finding as written skipped that
+step and went straight to "the series is unsupported".
+
+Second lesson, narrower: **"no closure exists" and "no closure I tried worked"
+are different claims**, and only the first is a finding. Two readings had been
+swept; a third closed. §29a records the mirror-image error on the same day — a
+pass concluding "no closure invariant exists" on a table that states its total
+one line above its parts. Both are the same mistake in opposite directions, and
+both are why the rule flags an absent closure for human review rather than
+letting it pass.
+
+### 30c · Verdicts
+
+| claim                                     | verdict     | why                                                                                                                                                                                                                                                   |
+| ----------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `γ′` = 47, "US WW2 WDSS1" (shipped)       | **sound**   | interpolated *inside* the 0.1→0.25 %C segment, both endpoints closing; recomputing and re-interpolating gives 46.6 vs shipped 47.1, a 1 % shift, inside its own declared 45–49 band                                                                   |
+| `γ′` = 65, "WW2 US HE Shell" (shipped)    | **shifted** | anchored "just under" the one row that fails, with no bracketing row above it; at the recomputed anchor the 0.355 %C interpolation drops 60.4 → 54.5 and the shipped 65 sits *above the entire recomputed series*, inverting its stated justification |
+| the shape closure itself (§§1–5, 7.1–7.5) | **sound**   | γ′-independent by construction — nothing in §§1–5 reads the γ column; it enters only through registry values used to *evaluate* the validation tables                                                                                                 |
+| anything                                  | **void**    | nothing                                                                                                                                                                                                                                               |
+
+On the shape closure's own validation tables, every *fidelity* check either
+holds or improves at a rebaselined `γ′` (the 75 mm `μ` miss against Tolch closes
+from 1.20× under the floor to 1.03×; §7.5 Option C ratios move toward 1). The
+one claim that weakens is a soft cross-check, registered deferrable in
+`derivation.md` §7.4.
+
+### 30d · What changed in place, and what did not
+
+`src/arty/` is **assessed, not changed** — the audit's standing constraint. The
+γ′ = 65 re-anchor is a `wdss1-steel-grade` registry question, and only `σ_F/γ′`
+is identifiable, so it must be argued as a `σ_F/γ′` move. Registered blocking
+against `fragmentation.py`; not fixed here.
+
+Two committed artifacts *were* corrected, because both asserted the now-falsified
+generalisation and both are read as premises by a later pass:
+
+- `section3-gamma-vs-composition.invariant` — its "what does NOT hold" section
+    stated the closure fails under any reading. Rewritten to the three-row
+    closure, the localised 0.45 %C defect, and the consumer rule (bracketed rows
+    are sourced; on-or-above the failing row is a working value).
+- `checks/mott-1947-gamma-and-length-closure.py` — its C2 residuals are correct
+    for the two readings it tests and are kept; the docstring's generalisation to
+    "either reading of `s_F`" is marked superseded in part.
+
+The γ = 47 marker in `fragmentation.py` was replaced by a note recording that it
+was re-checked and is sound — a closed finding leaves the register by deleting
+its marker, and the sound half of this one is now closed.
+
+### 30e · Secondary — the Gold 2017 "Mott (1943)" attribution
+
+Recorded, not applied (the marker stays open until `derivation.md` is edited).
+Of the three elements Gold routes through "Mott (1943)": the parallelepiped
+idealisation **survives**; the mean cross-sectional area `∝ (r/V)²` is **Mott
+1947, not 1943**; and `A ≡ l̄/x̄` constant across shells is **not primary-backed**
+— Mott & Linfoot disclaim a theory of fragment length twice.
+
+The *value* `A` = 1.6 is unaffected: it was never Gold's, it is Felix 2022
+Table 4 (§16), already cited correctly. What changes is the **status** of
+assumption A9.2 — from a caliber-independence assumption on a theoretically
+motivated constant, to a purely empirical cross-dataset regularity, licensed by
+the framework's *silence* on length rather than by a theory. That strengthens the
+±5 % sensitivity note rather than weakening it, since a measured spread becomes
+the whole of the evidence instead of a perturbation on a theory.

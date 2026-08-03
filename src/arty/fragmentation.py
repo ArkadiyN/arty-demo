@@ -58,6 +58,7 @@ STEELS: dict[str, SteelParams] = {
     # sect. 7.4. Neither number is a fit -- gamma was never tuned to either band.)
     # Only R = sigma_f/gamma is observable (see mott_params); the split is a
     # reporting convention. Provenance: updates/wdss1-steel-grade/derivation.md.
+    # FINDING[blocking]: gamma = 65 below is justified above as sitting just under Mott 1947 p.308's 0.45 %C row (gamma = 67), but that is the one row of four that fails the paper's own closure -- reading s_F as the engineering fracture strain RA/(1-RA), gamma ~ 160 P_2/P_F(1+s_F) reproduces the iron/0.1C/0.25C rows to within 3.2 % and gives 55.9 for the 0.45 %C row against the printed 67, whose tabulated P_2 = 38 also breaks the column's own monotone rise (45.5 would reproduce it) and which contradicts the paper's own stated length law; at the recomputed anchor the 0.355 %C interpolation drops 60.4 -> 54.5, so the shipped 65 sits ABOVE the entire recomputed series and its stated justification is inverted -- verdict SHIFTED not void (the grade ordering 47 < gamma'(0.355 %C) survives both readings) with downstream exposure in experiment/fragmentation-field/updates/mott-fragment-shape-closure/rebaseline-verdict.md sect. 3.2, and only sigma_f/gamma is identifiable so any re-anchor must be argued as a sigma_f/gamma move (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.invariant; since: 2026-08-03)
     "WW2 US HE Shell": SteelParams(
         name="WW2 US HE Shell",
         rho=7850.0,
@@ -67,7 +68,11 @@ STEELS: dict[str, SteelParams] = {
     # US WW2 "WDSS 1" War Department shell steel, 0.14-0.20 %C, 1.00-1.30 %Mn
     # (Ammunition Series 6, Table 6-1, 17 Feb 1953); band midpoint 0.17 %C.
     # 60mm/81mm mortar and 57mm recoilless bodies -- a ductile, low-carbon grade.
-    # FINDING[blocking]: gamma = 47 and gamma = 65 both interpolate along the rising trend of Mott 1947 p.308's gamma column, and that column does not reproduce from the paper's own stated closure gamma ~ 160 P_2/P_F(1+s_F) -- the formula is flat (spans x1.20) where the printed column rises x3.35; transcription is confirmed against the page at 420 dpi, so the non-closure is in the 1947 paper, and whether the trend is still usable as a calibration series is a modelling question, not a librarian one (affects: src/arty/fragmentation.py, doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.invariant, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md, experiment/fragmentation-field/challenges/source-data-audit/ledger.md; since: 2026-08-02)
+    # gamma = 47 was re-checked against the Mott 1947 closure on 2026-08-03 and
+    # is SOUND: both bracketing rows reproduce the paper's own formula to within
+    # 2 %, and re-interpolating the recomputed column gives 46.6 vs the shipped
+    # 47.1 -- a 1 % shift, well inside the 45-49 band below. See
+    # updates/mott-fragment-shape-closure/rebaseline-verdict.md sect. 3.1.
     # gamma = 47: local-linear interpolation of the Mott 1947 §3 composition
     # series (after Koerber & Rohland 1924) inside the single 0.1 %C (gamma = 42)
     # to 0.25 %C (gamma = 53) segment -- no extrapolation, no slope break.
