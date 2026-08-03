@@ -5,10 +5,62 @@ import re
 import time
 import base64
 import argparse
+import threading
+import concurrent.futures
 import fitz  # PyMuPDF
 import anthropic
 from PIL import Image, ImageDraw
 from settings import ENV_PATHS, Settings
+
+# A vision run takes minutes and is almost always redirected to a log, which is
+# exactly when Python switches stdout from line- to block-buffered: nothing
+# reaches the file until 8 KB accumulates or the process exits. A long run then
+# looks identical to a hung one, and the operator's only recourse is to wait it
+# out. Line-buffer unconditionally so the log is readable while it is being
+# written. Cheap -- these are a few dozen lines per run, not a hot loop.
+for _stream in (sys.stdout, sys.stderr):
+    # `reconfigure` is a TextIOWrapper method, and sys.stdout is only typed as
+    # TextIO -- under a redirect it is a TextIOWrapper, but a test harness may
+    # substitute a StringIO. Buffering is a nicety, not a requirement, so skip
+    # it rather than fail the run over it.
+    if isinstance(_stream, io.TextIOWrapper):
+        _stream.reconfigure(line_buffering=True)
+
+_RUN_STARTED = time.monotonic()
+_PRINT_LOCK = threading.Lock()
+
+
+def _progress(message):
+    """Print a wall-clocked, elapsed-stamped progress line.
+
+    Every long-running step goes through this rather than bare `print`, because
+    the two questions asked of a stalled run are "how far did it get?" and "how
+    long has it been sitting there?", and a bare line answers neither. The
+    stamps are what let a reader of the finished log tell a slow call from a
+    hung one after the fact, without having been watching.
+
+    Locked because vision chunks run concurrently: without it, two workers
+    finishing together interleave mid-line and the log stops being parseable
+    exactly when it is busiest. Each line already names its page range, so
+    out-of-order lines are still readable -- interleaved characters are not.
+    """
+    elapsed = time.monotonic() - _RUN_STARTED
+    with _PRINT_LOCK:
+        print(f"[{time.strftime('%H:%M:%S')} +{elapsed:6.1f}s] {message}")
+
+
+def _page_range_label(pages):
+    """'p41' / 'pp39-40' / 'pp10,39-41' -- 1-based, matching --pages syntax."""
+    nums = sorted(p.number + 1 for p in pages)
+    parts, start, prev = [], nums[0], nums[0]
+    for n in nums[1:] + [None]:
+        if n != prev + 1:
+            parts.append(str(start) if start == prev else f"{start}-{prev}")
+            start = n
+        prev = n
+    joined = ",".join(parts)
+    return f"p{joined}" if len(nums) == 1 else f"pp{joined}"
+
 
 _DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5"
 # Anthropic SDK strips the leading "/" from paths and appends to base_url.path,
@@ -452,6 +504,59 @@ class _EmptyVisionResponse(Exception):
 # for a document with tables, and a document's tables are not known in advance.
 _DEFAULT_VISION_CHUNK_SIZE = 1
 
+# Chunks in flight at once.
+#
+# Chunk size is pinned at 1 for correctness (above), which turns a document into
+# one request per page -- and a request costs ~145 s of pure waiting on the free
+# Gemma tier, measured. Serially that is ~17 min for 7 pages and over two hours
+# for a 56-page report, essentially all of it idle. The requests are independent
+# (each carries its own image and its own prompt, and results are reassembled by
+# index), so the only reason to serialize them is quota.
+#
+# The quota is 30 requests/minute, which the pacing gate below enforces directly;
+# the worker count is a second, blunter bound on how much is outstanding at once.
+# 8 is deliberately well under 30: at ~145 s/request the gate never binds at this
+# width (8 requests per 145 s is ~3.3/min), so the width is doing the work and
+# the gate is there for the case where responses come back fast.
+_DEFAULT_VISION_CONCURRENCY = 8
+
+# Google's free-tier limit for the Gemma models this pipeline defaults to.
+_GOOGLE_RPM_LIMIT = 30
+
+# PyMuPDF is not thread-safe across concurrent access to one document, and every
+# worker renders its own pages from the shared `fitz.Document`. Rendering is
+# local and fast (~0.1 s/page) next to a ~145 s API call, so serializing it costs
+# nothing measurable while the part that actually takes the time runs wide.
+_RENDER_LOCK = threading.Lock()
+
+
+class _RateLimiter:
+    """Sliding-window request pacer -- at most `per_minute` starts in any 60 s.
+
+    Retries and halved sub-chunks go through the same gate as first attempts,
+    because the quota counts requests, not chunks. A limiter that only saw the
+    happy path would let a retry storm breach the quota precisely when the API
+    is already unhappy.
+    """
+
+    def __init__(self, per_minute):
+        self._per_minute = per_minute
+        self._starts = []
+        self._lock = threading.Lock()
+
+    def acquire(self):
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                self._starts = [t for t in self._starts if now - t < 60.0]
+                if len(self._starts) < self._per_minute:
+                    self._starts.append(now)
+                    return
+                wait_s = 60.0 - (now - self._starts[0]) + 0.05
+            _progress(f"  rate limit: {self._per_minute}/min reached, "
+                      f"holding {wait_s:.1f}s")
+            time.sleep(wait_s)
+
 
 def _bounded_chunk_size(pages, requested):
     """Clamp `requested` so the stacked image never exceeds _MAX_COMBINED_PX.
@@ -473,7 +578,7 @@ def _bounded_chunk_size(pages, requested):
     return min(requested, allowed)
 
 
-def _extract_doc_via_vision_google_chunk(pages, client, model):
+def _extract_doc_via_vision_google_chunk(pages, client, model, limiter=None):
     """Send one batch of pages as a combined image to Google; return per-page (md, has_figure).
 
     pages: ordered list of fitz.Page objects (the image-based pages only).
@@ -496,17 +601,27 @@ def _extract_doc_via_vision_google_chunk(pages, client, model):
     that killed a whole document: a 14-page MIL-S-10520D run died on a single
     ReadTimeout after transcribing most of it, discarding every completed
     chunk.
+
+    Runs on a worker thread. `limiter`, if given, gates every request start
+    (including retries and halved sub-chunks) against the provider's RPM quota;
+    rendering takes `_RENDER_LOCK` because PyMuPDF is not thread-safe.
     """
     import httpx
     from google.genai import types, errors
 
     n = len(pages)
-    combined_bytes = _render_pages_combined(pages)
+    with _RENDER_LOCK:
+        combined_bytes = _render_pages_combined(pages)
+        label = _page_range_label(pages)
     prompt = _DOC_VISION_PROMPT.format(n=n)
 
-    print(f"  Sending {n} pages as combined image to Google ({model})...")
+    _progress(f"  {label}: sending {n} page(s), "
+              f"{len(combined_bytes) / 1024:.0f} KiB jpeg -> Google ({model})")
     max_attempts = 3
     for attempt in range(1, max_attempts + 1):
+        if limiter is not None:
+            limiter.acquire()
+        call_started = time.monotonic()
         try:
             response = client.models.generate_content(
                 model=model,
@@ -521,52 +636,91 @@ def _extract_doc_via_vision_google_chunk(pages, client, model):
                 # response.text then comes back None with no exception raised.
                 # Retrying is usually enough to get a real answer.
                 raise _EmptyVisionResponse("no text part returned")
-            return _parse_page_vision_response(response.text, n)
+            parsed = _parse_page_vision_response(response.text, n)
+            _progress(f"  {label}: returned {len(response.text):,} chars in "
+                      f"{time.monotonic() - call_started:.1f}s (attempt {attempt})")
+            return parsed
         except (errors.ServerError, _EmptyVisionResponse, httpx.TimeoutException) as e:
+            waited = time.monotonic() - call_started
             if attempt == max_attempts:
                 if n > 1:
                     mid = n // 2
-                    print(f"  Still failing after {max_attempts} attempts at {n} pages "
-                          f"({e}); splitting into {mid}+{n - mid} pages and retrying smaller "
-                          "instead of repeating the same request")
-                    return (_extract_doc_via_vision_google_chunk(pages[:mid], client, model)
-                            + _extract_doc_via_vision_google_chunk(pages[mid:], client, model))
+                    _progress(f"  {label}: still failing after {max_attempts} attempts at "
+                              f"{n} pages ({type(e).__name__}: {e}); splitting into "
+                              f"{mid}+{n - mid} pages and retrying smaller instead of "
+                              "repeating the same request")
+                    return (_extract_doc_via_vision_google_chunk(pages[:mid], client, model, limiter)
+                            + _extract_doc_via_vision_google_chunk(pages[mid:], client, model, limiter))
                 raise
             wait_s = 2 ** attempt
-            print(f"  Google vision call failed ({e}); retrying in {wait_s}s "
-                  f"(attempt {attempt}/{max_attempts})...")
+            _progress(f"  {label}: attempt {attempt}/{max_attempts} failed after "
+                      f"{waited:.1f}s ({type(e).__name__}: {e}); retrying in {wait_s}s")
             time.sleep(wait_s)
 
 
-def _extract_doc_via_vision_google(pages, client, model, chunk_size=_DEFAULT_VISION_CHUNK_SIZE):
+def _extract_doc_via_vision_google(pages, client, model, chunk_size=_DEFAULT_VISION_CHUNK_SIZE,
+                                   concurrency=_DEFAULT_VISION_CONCURRENCY):
     """Send all pages to Google in batches of chunk_size; return per-page (md, has_figure).
 
     pages: ordered list of fitz.Page objects (the image-based pages only).
-    Chunking keeps each request well within the API timeout and the 30
-    req/min quota (an 8-page chunk needs no artificial pacing), and confines
-    the output-budget failure mode to one chunk instead of the whole
-    document. Results are concatenated in input order, so callers see the
-    same shape as a single combined call.
+    Chunking confines the output-budget failure mode to one chunk instead of
+    the whole document. Results are reassembled in input order, so callers see
+    the same shape as a single combined call regardless of completion order.
 
-    A chunk that still fails after its internal retries does NOT abort the
-    whole document: its pages come back as `None` (instead of an (md, has_figure)
-    tuple) so the caller's already-succeeded chunks are still returned, and
-    `generate_markdown`'s existing per-page Anthropic fallback (for pages
-    "missing" from the Google vision_map) picks up the `None` pages the same
-    way it already picks up pages Google never attempted.
+    Chunks are sent **concurrently** (`concurrency` at a time, paced to
+    `_GOOGLE_RPM_LIMIT`). Each request is independent, and at the measured
+    ~145 s per page essentially all of that is idle waiting, so the serial loop
+    this replaces spent a 56-page document's whole runtime -- hours -- blocked
+    on a socket. Ordering is by index, not completion, so a document's pages
+    cannot be transposed by a slow chunk finishing late.
+
+    A chunk that survives neither its retries nor the halving is a hard
+    failure. It used to be swallowed into `None` pages for a cross-provider
+    fallback to pick up; with no fallback, swallowing it would mean silently
+    emitting heuristic text for those pages, which is the class of quiet
+    degradation this pipeline is being hardened against. Abort and name the
+    pages instead -- and, since siblings are in flight, cancel what has not
+    started rather than letting the run keep spending quota on a document that
+    is already going to fail.
     """
     chunk_size = _bounded_chunk_size(pages, chunk_size)
-    results = []
-    for start in range(0, len(pages), chunk_size):
-        chunk = pages[start:start + chunk_size]
-        # A chunk that survives neither its retries nor the halving above is a
-        # hard failure. It used to be swallowed into `None` pages for the
-        # cross-provider fallback to pick up; with no fallback, swallowing it
-        # would mean silently emitting heuristic text for those pages, which is
-        # the class of quiet degradation this pipeline is being hardened
-        # against. Abort and name the pages instead.
-        results.extend(_extract_doc_via_vision_google_chunk(chunk, client, model))
-    return results
+    chunks = [pages[s:s + chunk_size] for s in range(0, len(pages), chunk_size)]
+    workers = max(1, min(concurrency, len(chunks)))
+    limiter = _RateLimiter(_GOOGLE_RPM_LIMIT)
+    _progress(f"Vision extraction: {len(pages)} page(s) in {len(chunks)} chunk(s) "
+              f"of {chunk_size} ({_page_range_label(pages)}); {workers} in flight, "
+              f"paced to {_GOOGLE_RPM_LIMIT} req/min")
+
+    done = 0
+    results = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = {
+            pool.submit(_extract_doc_via_vision_google_chunk, chunk, client, model, limiter): i
+            for i, chunk in enumerate(chunks)
+        }
+        try:
+            for future in concurrent.futures.as_completed(futures):
+                i = futures[future]
+                results[i] = future.result()
+                done += 1
+                _progress(f"chunk {done}/{len(chunks)} complete "
+                          f"({_page_range_label(chunks[i])})")
+        except BaseException:
+            for f in futures:
+                f.cancel()
+            raise
+
+    # Keyed by index and reassembled in index order, never completion order --
+    # a slow chunk finishing late must not transpose a document's pages. Every
+    # index is present or the loop above raised, so a missing one is a bug in
+    # this function rather than a failed transcription; say so instead of
+    # silently emitting a short document.
+    missing = [i for i in range(len(chunks)) if i not in results]
+    if missing:
+        raise RuntimeError(
+            f"vision extraction lost chunk(s) {missing} of {len(chunks)} without "
+            "raising — refusing to emit a partial document")
+    return [page_result for i in range(len(chunks)) for page_result in results[i]]
 
 
 # ---------------------------------------------------------------------------
@@ -733,7 +887,8 @@ def _page_to_markdown_heuristic(page, bbox_to_name):
 
 def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False,
                         vision_chunk_size=_DEFAULT_VISION_CHUNK_SIZE,
-                        screenshot_pages=False, provider=None):
+                        screenshot_pages=False, provider=None,
+                        vision_concurrency=_DEFAULT_VISION_CONCURRENCY):
     provider = provider or Settings().vision_provider
     doc = fitz.open(pdf_path)
     images_dir = os.path.join(output_dir, "images")
@@ -764,6 +919,7 @@ def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False,
             results = _extract_doc_via_vision_google(
                 [p for _, p in image_pages], client, model,
                 chunk_size=vision_chunk_size,
+                concurrency=vision_concurrency,
             ) if image_pages else []
             figure_flags = [(idx, page, results[j][1])
                             for j, (idx, page) in enumerate(image_pages)]
@@ -792,6 +948,7 @@ def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False,
 
 def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
                        vision_chunk_size=_DEFAULT_VISION_CHUNK_SIZE, pages=None,
+                       vision_concurrency=_DEFAULT_VISION_CONCURRENCY,
                        provider=None):
     """pages: optional 1-indexed page spec (e.g. "40-44") to process only a
     subset — for re-extracting specific pages (garbled tables, broken cmap)
@@ -856,6 +1013,7 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
                 results = _extract_doc_via_vision_google(
                     [doc[i] for i in image_page_indices], client, model,
                     chunk_size=vision_chunk_size,
+                    concurrency=vision_concurrency,
                 )
                 vision_map = dict(zip(image_page_indices, results))
             else:
@@ -939,6 +1097,17 @@ def main():
         )
     )
     parser.add_argument(
+        "--vision-concurrency", type=int, default=_DEFAULT_VISION_CONCURRENCY,
+        help=(
+            "Vision requests in flight at once "
+            f"(default: {_DEFAULT_VISION_CONCURRENCY}). Requests are independent and "
+            "each spends ~145 s waiting on the API, so this is what decides a "
+            "document's wall clock; results are reassembled by page index, never by "
+            f"completion order. Starts are paced to {_GOOGLE_RPM_LIMIT} req/min "
+            "regardless. Set 1 to serialize, e.g. when debugging a single page."
+        )
+    )
+    parser.add_argument(
         "--pages",
         help=(
             "Restrict --markdown to a 1-indexed page subset, e.g. '40-44' or "
@@ -967,11 +1136,13 @@ def main():
     if args.markdown:
         generate_markdown(args.pdf, output_dir, analyze_formulas=args.analyze_formulas,
                            vision_chunk_size=args.vision_chunk_size, pages=args.pages,
+                           vision_concurrency=args.vision_concurrency,
                            provider=args.provider)
     else:
         extract_pdf_images(args.pdf, output_dir, analyze_formulas=args.analyze_formulas,
                             vision_chunk_size=args.vision_chunk_size,
                             screenshot_pages=args.screenshot_pages,
+                            vision_concurrency=args.vision_concurrency,
                             provider=args.provider)
 
 

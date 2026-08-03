@@ -86,10 +86,33 @@ def main():
         nonblank = sum(1 for i in range(n) if doc[i].get_text().strip())
         print(
             f"\n'appears scanned' guard:\n"
-            f"  pages with ANY text (the old test):            {nonblank}/{n}\n"
-            f"  pages under {MIN_TEXT_CHARS_PER_PAGE} chars (the new test):    {thin}/{n}\n"
-            "  The old test saw a full text layer on a document that has none."
+            f"  pages with ANY text (the old test):         {nonblank}/{n}\n"
+            f"  pages under {MIN_TEXT_CHARS_PER_PAGE} chars (the new test):  {thin}/{n}"
         )
+
+        # The verdict has to be computed, not asserted: this probe is the
+        # Phase 2.5c triage tool and gets pointed at documents that are fine.
+        # A hardcoded "the old test saw a text layer that isn't there" line
+        # would be a false alarm on every scan that genuinely has one.
+        if thin == n:
+            print("  -> no real text layer at all; the old truthiness test saw one anyway")
+        elif thin:
+            print(f"  -> {thin} page(s) carry a stamp rather than content")
+        else:
+            print("  -> every page carries a real text layer")
+
+        if after > before:
+            print(
+                f"\n  -> the coverage fix rescues {after - before} page(s) this "
+                "document would have lost to its text layer"
+            )
+        elif after == n:
+            print("\n  -> all pages route to vision either way; coverage fix is a no-op here")
+        else:
+            print(
+                f"\n  WARNING: {n - after} page(s) still do NOT route to vision. "
+                "If any of them carry tables, their content will be missing."
+            )
         return 0 if after == n else 1
 
 

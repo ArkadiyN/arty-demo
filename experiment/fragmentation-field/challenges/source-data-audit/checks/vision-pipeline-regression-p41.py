@@ -10,9 +10,24 @@ post-fix configuration) and scores its base-spray component cells against
 `doc-reference/.../tables/base-spray-density.csv`, which was transcribed off
 the page images and closes on the independently-printed totals table.
 
+The post-fix extraction it was run against is retained beside it as
+`fixtures/tolch-p41-post-fix-extraction.md`, so the regression re-runs offline.
+Re-extracting costs ~145 s of API time for this one page and is only needed
+when the pipeline itself changes.
+
 Usage:
-    uv run python src/utils/pdf-processor.py <source.pdf> -m -f --pages 41 -o <dir>
-    uv run python experiment/_scratch/vision-pipeline-regression-p41.py <dir>/source-p41.md
+    # against the retained fixture (default, offline)
+    uv run python experiment/fragmentation-field/challenges/source-data-audit/checks/vision-pipeline-regression-p41.py
+
+    # against a fresh extraction, after changing the vision path
+    uv run python src/utils/pdf-processor.py <source.pdf> -m -f --pages 41
+    uv run python experiment/fragmentation-field/challenges/source-data-audit/checks/vision-pipeline-regression-p41.py <dir>/source-p41.md
+
+Exit code is 1 if any cell disagrees with the CSV, including a cell the model
+flagged `?` rather than guessed. A `?` is the pipeline working as intended --
+the Phase 7 item-5 change asked for an explicit unreadable marker precisely
+because the old failure mode was *invented* values in cells the source leaves
+unclear -- so read the breakdown, not just the exit code.
 """
 import csv
 import pathlib
@@ -22,6 +37,7 @@ import sys
 REPO = pathlib.Path(__file__).resolve().parents[5]
 CSV = (REPO / "doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation"
              / "tables/base-spray-density.csv")
+FIXTURE = pathlib.Path(__file__).resolve().parent / "fixtures/tolch-p41-post-fix-extraction.md"
 
 # Page 41 prints Panels A/B/C only; Panel D lives on the facing page.
 PANELS = ("A", "B", "C")

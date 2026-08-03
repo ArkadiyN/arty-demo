@@ -1,0 +1,7 @@
+item,parameter,lo,hi,unit,note_as_printed
+a,initial fragment velocity,2000,14000,ft/sec,"2,000 to 14,000 ft/sec at 2000 interval"
+c,density,2.77,16.6,g/cc,"materials are tantalum, steel and aluminum (item b)"
+d,launch angle,0,45,degrees,
+e,drag coefficient,1.0,1.71,-,"the range spanned by THIS report's computed data"
+f,effective thickness factor Sf,0,0.5,-,
+g,shape factor Re,0,1.0,-,

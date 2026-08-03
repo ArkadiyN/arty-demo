@@ -428,6 +428,83 @@ lists 42 usable models and `gemma-4-31b-it` answers normally. A stale model ID
 does surface as `404` (`gemini-2.5-flash` is retired for new keys), so at least
 some historical failures were model-availability, not authorisation.
 
+### 7a. Phase 7 item 6 — the fixed pipeline reproduces the known-good CSV
+
+Evidence:
+[`checks/vision-pipeline-regression-p41.py`](checks/vision-pipeline-regression-p41.py),
+input retained at `checks/fixtures/tolch-p41-post-fix-extraction.md`.
+
+This is the plan's stated regression test, and it passes. Page 41 re-extracted
+through the fixed path (`--pages 41`, chunk size 1) and scored against
+`tables/base-spray-density.csv`:
+
+| pass                                | result                                 |
+| ----------------------------------- | -------------------------------------- |
+| shipped 8-page stack (§7, historic) | **5 / 18** cells on the `Perf.` block  |
+| fixed path, full 51-cell table      | **49 correct, 1 wrong, 1 flagged `?`** |
+
+Three things worth separating, because only the first is the regression:
+
+1. **The transcription is right.** 49 of 51 cells match the CSV that was
+    transcribed off the page images and closes on the independently-printed
+    totals table.
+1. **The one unread cell is marked, not invented.** The extraction emitted `?`
+    for (1685 f/s, Panel A, Dents) rather than a plausible number. That is
+    Phase 7 item 5 working as designed, and it is the *specific* historic
+    failure — §7 above records the old path filling a dashed row with the next
+    row's values, confidently and unmarked. A `?` is a cell a human can go
+    check; a fabricated `.12` is not.
+1. **The closure adjudicated the single disagreement, against the extraction.**
+    On (Static, Panel A, Perf.) the extraction gives 1.62 and the CSV 1.82. The
+    page's own printed total for that row is 9.71; the CSV's three components
+    sum to 9.71 and the extraction's to 9.51. The CSV closes, so the extraction
+    is wrong there — decided by arithmetic internal to the source, not by
+    preferring the older artifact. Note *which* value the fixed path still gets
+    wrong: `1.62` is the exact wrong number the 8-page stack produced and that
+    reached `tolch-1938.md`. Single-page extraction is much better, not
+    infallible, and the closure is what remains load-bearing.
+
+`uv run src/utils/check-table-invariants.py doc-reference/ --all` → **0 / 24
+tables failed**, up from 21 tables as §21–22 added three.
+
+### 7b. Serial extraction was costing hours of pure idle — chunks now run concurrently
+
+Evidence:
+[`checks/vision-concurrency-ordering.py`](checks/vision-concurrency-ordering.py)
+
+The instrumentation added for §7's diagnosis answered a question that had been
+guessed at for several passes: a single page costs **~145 s**, essentially all
+of it blocked on the API. Chunk size is pinned at 1 for correctness, so a
+document is one request per page — which made a 7-page block ~17 min and would
+make the 56-page Sandia report over two hours, with the CPU idle throughout.
+
+The requests are independent, so they now run 8 in flight, paced to the 30
+req/min free-tier quota. Measured on the same 7-page Tolch block:
+**3 min 11 s against ~17 min serial, 5.4×**, and the per-page transcription is
+*identical* — re-scoring page 41 out of the concurrent run reproduces 49/51
+with the same single wrong cell and the same flagged `?`.
+
+**The risk this introduces is exactly this audit's defect class, so it is
+tested directly.** Chunks no longer complete in the order they were sent: the
+live run completed p44, p42, p45, p43, p41, p40, p39 — near-exactly reversed.
+Reassembling on completion order would transpose a document's pages, producing
+perfectly-extracted numbers under the wrong page — "every digit correct, wrong
+row" (§1), reintroduced by a performance fix rather than by an extractor.
+
+Two independent checks that it does not:
+
+- `checks/vision-concurrency-ordering.py` stubs the API and makes the earliest
+    chunk sleep longest, so completion order is the deliberate reverse of input
+    order; output must still be in input order. It also asserts the pacer
+    admits 30 starts and holds the 31st. Retries and halved sub-chunks pass
+    through the same pacer, since the quota counts requests, not chunks.
+- The live 7-page output carries the report's own printed page numbers, which
+    come out **17, 18, 19, 20, 21, 23** — strictly increasing, from a run whose
+    completions were reversed.
+
+Rendering stays serialized under a lock: PyMuPDF is not thread-safe across one
+document, and at ~0.1 s/page against a ~145 s call it costs nothing to give up.
+
 ## 8. Phase 4 result — the two shipped drag conclusions
 
 Full assessment: [`phase4-drag-law-assessment.md`](phase4-drag-law-assessment.md).
@@ -522,24 +599,36 @@ Criterion: a document is exposed if some committed artifact reads *numbers*
 out of it (not merely points at it) and it has no `tables/*.csv` with a passing
 invariant. Four qualify:
 
-| Document                                           | Numbers reach                                            | Source form       |
-| -------------------------------------------------- | -------------------------------------------------------- | ----------------- |
-| `fragmentation/dod-1975-fragment-debris-hazards`   | **`src/arty/fragmentation.py`** + 7 artifacts            | scanned DoD TP-12 |
-| `ww2-shells/ammunition-series-6-wdss-specs`        | `updates/wdss1-steel-grade/` incl. `checks/recompute.py` | printed manual    |
-| `ww2-shells/ammunition-series-6-steel-composition` | `updates/wdss1-steel-grade/` scoping + review            | printed manual    |
-| `azom-steel-grades/aisi-1335`                      | `updates/wdss1-steel-grade/` incl. `checks/recompute.py` | web article       |
+| Document                                           | Numbers reach                                            | Source form       | Since resolved         |
+| -------------------------------------------------- | -------------------------------------------------------- | ----------------- | ---------------------- |
+| `fragmentation/dod-1975-fragment-debris-hazards`   | **`src/arty/fragmentation.py`** + 7 artifacts            | scanned DoD TP-12 | §13 — scan re-acquired |
+| `ww2-shells/ammunition-series-6-wdss-specs`        | `updates/wdss1-steel-grade/` incl. `checks/recompute.py` | printed manual    | §19 — scan re-acquired |
+| `ww2-shells/ammunition-series-6-steel-composition` | `updates/wdss1-steel-grade/` scoping + review            | printed manual    | **open**               |
+| `azom-steel-grades/aisi-1335`                      | `updates/wdss1-steel-grade/` incl. `checks/recompute.py` | web article       | §21 — no scan needed   |
 
 `wound-ballistics/aep-55-vol3` is cited only in one `scoping.md` and carries no
 `card.md`; narrative-only, so not exposed. `aisi-1020` and `aisi-1045` are
 uncited.
 
 **None of the four retains its source.** `tolch-1938.../source.pdf` is the only
-PDF in `doc-reference/`. So these tables *cannot* be re-baselined the way the
-Tolch tables just were — the only surviving copy is the extracted markdown,
-which is the artifact whose fidelity is in question. Transcribing a CSV out of
-it would launder an unverified extraction into an apparently-checked one, which
-is worse than leaving it visibly unchecked. **Re-acquisition comes first**;
-that is the finding, and it is why nothing was extracted here.
+PDF in `doc-reference/`.
+
+> **Three of the four have since closed, and one of them shows this section's
+> reasoning was too narrow.** Two closed the expected way — the user supplied
+> the scan (§13, §19). `aisi-1335` closed with **no scan at all** (§21): its
+> source is a live web page, so it is re-fetchable rather than lost, and its
+> composition table carries an arithmetic closure (Fe is stated as "balance",
+> so each Fe bound is the complement of the opposite-extreme sum of the other
+> five elements) that is checkable without seeing a page. Neither route was
+> considered below. The inference "no retained scan → cannot be re-baselined"
+> is therefore **not sound in general**; it holds only for a document that is
+> both unobtainable *and* carries no internal closure. Test both before
+> recording a document unverifiable. So these tables *cannot* be re-baselined the way the
+> Tolch tables just were — the only surviving copy is the extracted markdown,
+> which is the artifact whose fidelity is in question. Transcribing a CSV out of
+> it would launder an unverified extraction into an apparently-checked one, which
+> is worse than leaving it visibly unchecked. **Re-acquisition comes first**;
+> that is the finding, and it is why nothing was extracted here.
 
 What the sweep *could* check cheaply, and did: whether the two constants
 DoD-1975 puts into shipped code still read as claimed. `_K_BALLISTIC = 2600.0`
@@ -557,7 +646,7 @@ extract-once rule does not apply to them — only the anchor rule does.
 
 FINDING\[deferrable\]: shipped code cites DoD-1975 by bare line number (lines 316, 321, 338-339) for \_K_BALLISTIC and C_D; the lines resolve correctly today but rot silently on any re-extraction — replace with greppable strings (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-02)
 
-FINDING\[deferrable\]: three doc-reference documents feed numbers into committed artifacts with no tables/\*.csv and no retained source PDF, so they cannot be re-baselined without re-acquisition (dod-1975 was the fourth and is now closed — scan retained, tables written, see §13) (affects: doc-reference/ww2-shells/ammunition-series-6-wdss-specs/, doc-reference/ww2-shells/ammunition-series-6-steel-composition/, doc-reference/azom-steel-grades/aisi-1335/; since: 2026-08-02)
+FINDING\[deferrable\]: one doc-reference document feeds numbers into committed artifacts with no tables/\*.csv and no retained source PDF, so it cannot be re-baselined without re-acquisition (dod-1975 closed in §13 by re-acquisition, ammunition-series-6-wdss-specs in §19, aisi-1335 in §21 — the last of these needed no scan at all, its source is a live page and its table carries an arithmetic closure) (affects: doc-reference/ww2-shells/ammunition-series-6-steel-composition/; since: 2026-08-02)
 
 ## 12. The 1944 source scan, recovered — column identity checked at the page
 
@@ -1681,3 +1770,202 @@ Re-baselined. `card.md`, four CSVs, one `.invariant`, three retained scripts
 fix is committed with them, since this document is its regression case.
 
 Phase 2.5b still open on `sandia-sand92-0243` and `aisi-1335`.
+
+______________________________________________________________________
+
+## 21 · Tier-2 re-baseline — `aisi-1335` (Phase 2.5b)
+
+### 21a · What it feeds, and the two questions that are not the same one
+
+One number: **0.33–0.38 %C**, reaching `_parameters.qmd` as the composition of
+`WW2 US HE Shell` via the identification **WD-X1335 ≈ AISI 1335**.
+
+Those are two separable claims, and conflating them is what left this document
+looking unverifiable for longer than it was:
+
+- *Is the transcription faithful to the page?* — **yes**, settled below.
+- *Is AISI 1335 the right steel for WD-X1335?* — **not settled by this
+    document, and it never can be.** The page carries no War Department
+    nomenclature of any kind.
+
+The gap is already recorded downstream as limitation 13 and as finding F5 in
+`updates/wdss1-steel-grade/review.md`. Nothing here closes it, and nothing here
+was expected to.
+
+### 21b · The closure — iron as the balance element
+
+This document was on the "cannot be re-baselined without re-acquisition" list
+(§11 finding) on the reasoning that it has no retained PDF. That reasoning was
+wrong twice over: the source is a **live web page**, so it can simply be
+re-fetched; and the composition table carries a genuine arithmetic closure that
+needs no page at all.
+
+AZoM computes iron as the balance, which is the source's own construction rule.
+So each Fe bound is the complement of the **opposite-extreme** sum of every
+other element — Fe sits at its minimum when the alloying additions are all at
+their maxima, and vice versa. Both legs pass:
+
+| Leg                                          |     Sum | Target |
+| :------------------------------------------- | ------: | -----: |
+| `fe_lo + c_hi + mn_hi + si_hi + s_hi + p_hi` | 100.005 |    100 |
+| `fe_hi + c_lo + mn_lo + si_lo + s_lo + p_lo` | 100.000 |    100 |
+
+It crosses both columns and all six elements at once, so a value landing on the
+wrong element, or on the wrong bound of the right element, breaks it. That is
+the shape the column-inversion incident would have needed.
+
+`tables/chemical-composition.csv` + `.invariant`; passes.
+
+### 21c · Independent re-fetch, and two divergences recorded not repaired
+
+The live page was re-fetched 2026-08-02 and reproduces every cell of the
+composition table and every property value. Two divergences from
+`aisi-1335.md`, neither of them a wrong number:
+
+- **Row order was silently changed.** The page prints Fe, Mn, C, Si, S, P; the
+    extraction rewrote them C, Fe, Mn, Si, P, S. Every element↔value pairing
+    survived, but no anchor into that file may depend on row position — which
+    is why the card anchors on the column labels instead.
+- **Trailing zeros dropped.** The page prints carbon 0.330/0.380; the
+    extraction has 0.33/0.38. The CSV carries the as-printed form.
+
+Confirmed absent from the page, so any downstream use must cite elsewhere:
+**yield strength and tensile strength appear nowhere on it.**
+
+### 21d · Method note — a fetch summary is not a transcription
+
+The first re-fetch returned a complete-looking property list that silently
+omitted `Hardness, Rockwell C: 15`, and that omission was briefly read as a
+disagreement with `aisi-1335.md`. A second, narrowly-targeted fetch confirmed
+the value *is* on the page.
+
+**An omission in a summarising fetch is not evidence of absence.** Phase 2.5c
+leans on re-fetches to triage the remaining documents, so this bounds what one
+of them proves: a fetch can confirm a value present, and cannot establish one
+absent unless asked about that value by name.
+
+### 21e · Status
+
+Re-baselined. `card.md` rewritten, one CSV, one `.invariant`, no script needed
+(the closure is expressible in the DSL). The §11 finding must drop `aisi-1335`
+from its list.
+
+______________________________________________________________________
+
+## 22 · Tier-2 re-baseline — `sandia-sand92-0243` (Phase 2.5b)
+
+### 22a · A clean text layer, so the check is the page itself
+
+56/56 pages carry real text, 0 fall under the thin-page threshold
+(`checks/vision-gating-probe.py`). No vision extraction is involved and none of
+the §7 pipeline failure modes apply. As established in §19, a clean text layer
+**beats** a closure: it answers "was the right line read?" directly.
+
+Three arithmetic closures are declared anyway, and all pass
+(`tables/site-and-material-constants.invariant`):
+
+1. **The density span closes on the materials.** §9 item (c) gives
+    2.77–16.6 g/cc; the appendix `Conditions:` blocks give aluminium 2.77, steel
+    7.86, tantalum 16.6. The span is exactly the min and max — two
+    independently-printed places in the document.
+1. **Air density closes on the stated atmosphere.** The appendices' 0.000957
+    g/cc is within **0.15 %** of the dry-air ideal-gas value for the 12.06 psia
+    and 30 °C those same appendices state.
+1. **The velocity bounds close across units.** The Introduction prints them in
+    both ft/sec and mm/µs; the two printings agree to the printed precision.
+    Swapping the two ends moves the residual from 0.04 to 7.4.
+
+**The drag-coefficient row has no closure available anywhere in the document** —
+flagged for human review per the rule, since absence of a check is a finding.
+22b and 22c are why none exists.
+
+### 22b · The page states two ranges, and the repo cites the weaker one
+
+Page 18 (§9, *Discussion and Conclusions*) carries both, twenty lines apart:
+
+| Where                     | Statement                                               |
+| :------------------------ | :------------------------------------------------------ |
+| parameter-range list, (e) | "Drag coefficient: **1.0 to 1.71**"                     |
+| prose, three ¶ later      | "The drag coefficient can vary between **1.2 and 1.7**" |
+
+Item (e) is the range **spanned by this report's own computed trajectory
+data**. The prose is a general statement about tumbling plate/disk fragments.
+
+Every citation in this repo uses 1.2–1.7 — a faithful quotation of the prose
+sentence. But `checks/drag-coefficient-calibration.py` labels 1.2 as
+"SAND92-0243 low", and the report's own data floor is **1.0**.
+
+This is the audit's own defect class in a new form. Not a mis-transcribed digit
+and not a wrong column: a number taken from the **wrong sentence on the right
+page**, where a different sentence on the same page gives a different range for
+the same symbol. A closure invariant would not have caught it, and neither
+would a glyph-level scan. What caught it was reading the page around the
+citation instead of the cited line alone — the same move that caught §12.
+
+**Direction, for Phase 3/4 to settle:** the thread argues the model's $C_D$ sits
+far below the literature. A floor of 1.0 rather than 1.2 narrows that gap
+without closing it — 0.585 is still well under 1.0. Expect *shifted*, not
+*void*.
+
+### 22c · The report has the range but not the dependence
+
+Every citation in this repo says "1.2–1.7, **velocity-dependent**". The report
+states the velocity dependence exists and never gives its form. Its own
+analyses take `Drag coefficient = variable (Ref. 1)` in the `Conditions:`
+blocks of Appendices A, B and C, and Ref. 1 is:
+
+> Vigil, *"Explosively Driven Missile Trajectory Parameters for Various
+> Fragment Materials and Velocities,"* Sandia National Laboratories,
+> **SAND91-0277**, June 1991.
+
+**SAND91-0277 is not held.** So the functional form is cited but not sourced —
+structurally the same as MIL-S-10520D delegating its mechanical properties to
+the projectile drawing (§20c). Both were found the same way: by asking what the
+cited document *itself* says, rather than treating a card's summary as the
+source.
+
+The asterisk in "a function of initial fragment velocity\*" has **no footnote
+text**. Checked against raw block order rather than reading-order extraction —
+a footnote lost to reading order would still appear as a block; the only block
+below the marker is the page number.
+
+### 22d · Criterion match — open, and not this ledger's to close
+
+Recorded for @model-reviewer, whose mandate it is. Sandia's $C_d$ is defined
+for "tumbling (assumed), plate or disk like irregular fragments" and enters the
+range calculation only as a product with the shape factor $R_e$ and the
+effective thickness factor $S_f$:
+
+```
+K = 0.262(Rhop)Sf/[Cd(Rhoa)(Re + 1)]        (9)
+```
+
+Whether a bare $C_D$ in `src/arty` is the same quantity is exactly the
+criterion-match check. The report also warns its data "may not give accurate
+results for more regular shapes like spheres or cubes."
+
+### 22e · Two source irregularities, recorded not repaired
+
+- **Appendix D cites the wrong equation for $C_d$.** A–C say
+    `variable (Ref. 1)`; D says `variable (Equation 12)`. Equation 12 as printed
+    is `R = Vb2/(K)(g)`, the range parameter, not a drag coefficient.
+- **`K` carries two meanings.** The List of Symbols has "K Fluid flow
+    parameter, plate or disk, 0.93"; equations (8)–(9) have
+    `K = 0.262(Rhop)Sf/[Cd(Rhoa)(Re + 1)]`, a dimensional ballistic
+    coefficient. Anyone reimplementing must not carry 0.93 into equation (9).
+
+### 22f · Status
+
+Re-baselined. `card.md` written (there was none), two CSVs, two `.invariant`
+files, one retained script (`checks/sandia-cd-provenance.py`, which prints all
+of 22b–22e off the page). Findings registered below.
+
+**Phase 2.5b is closed** — `gurney-equations-fragmentation` (§17),
+`ammunition-series-6-wdss-specs` (§19), `aisi-1335` (§21) and
+`sandia-sand92-0243` (§22) are all re-baselined.
+
+FINDING\[blocking\]: SAND92-0243 is cited as "C_D 1.2-1.7" and 1.2 is used as its low end, but that is the report's general prose sentence; its parameter-range list on the same page gives the span of its own computed data as 1.0 to 1.71, so the cited floor is 0.2 high (affects: experiment/fragmentation-field/challenges/drag-gap-1944/checks/drag-coefficient-calibration.py, experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md, experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range.qmd, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md, experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-02)
+
+FINDING\[deferrable\]: SAND92-0243 is cited for a velocity-DEPENDENT C_D but states no functional form; its own analyses take "Drag coefficient = variable (Ref. 1)" and Ref. 1 is SAND91-0277, which is not held, so the dependence is cited but unsourced (affects: experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, doc-reference/ww2-shells/sandia-sand92-0243/card.md; since: 2026-08-02)
+
+FINDING\[note\]: SAND92-0243's C_D is defined for tumbling plate/disk fragments and enters its range formula only as a product with the shape factor Re and thickness factor Sf, never alone; whether a bare C_D in src/arty measures the same quantity is an open criterion-match question for @model-reviewer (affects: src/arty/fragmentation.py, doc-reference/ww2-shells/sandia-sand92-0243/card.md; since: 2026-08-02)
