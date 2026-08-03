@@ -13,11 +13,12 @@ Layout inside a thread:
 
 ## Threads
 
-| Thread                                      | Question                                                                                         | Status                                                                                                                                                          |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`drag-gap-1944/`](drag-gap-1944/README.md) | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Re-baselined — headline FAIL void; drag re-adjudication open.** See [`drag-gap-1944/b-vs-range-rebaseline.md`](drag-gap-1944/b-vs-range-rebaseline.md)        |
-| [`mott-scale-gap/`](mott-scale-gap/)        | Is `mott_params` an order of magnitude too small?                                                | **Fix landed — revalidation open** → `updates/mott-fragment-shape-closure/`; see [`mott-scale-gap/rebaseline-verdict.md`](mott-scale-gap/rebaseline-verdict.md) |
-| [`gravity-ke/`](gravity-ke/gravity.qmd)     | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                                                                          |
+| Thread                                             | Question                                                                                         | Status                                                                                                                                                          |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`drag-gap-1944/`](drag-gap-1944/README.md)        | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Re-baselined — headline FAIL void; drag re-adjudication open.** See [`drag-gap-1944/b-vs-range-rebaseline.md`](drag-gap-1944/b-vs-range-rebaseline.md)        |
+| [`mott-scale-gap/`](mott-scale-gap/)               | Is `mott_params` an order of magnitude too small?                                                | **Fix landed — revalidation open** → `updates/mott-fragment-shape-closure/`; see [`mott-scale-gap/rebaseline-verdict.md`](mott-scale-gap/rebaseline-verdict.md) |
+| [`count-gap-1938/`](count-gap-1938/count-chain.md) | Why is Tolch 1938's absolute perforating-fragment count over-predicted 4–6×?                     | **Re-baselined — verdict stands, one inference void.** See [`count-gap-1938/rebaseline-verdict.md`](count-gap-1938/rebaseline-verdict.md)                       |
+| [`gravity-ke/`](gravity-ke/gravity.qmd)            | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                                                                          |
 
 **`drag-gap-1944` status detail.** The Phase-3 re-run has ruled. The published
 "FAIL — over-predicts by 7–34×, growing with range" is **void**: all three
@@ -34,6 +35,19 @@ its velocity-decay evidence is independent of this defect — so this thread is
 re-baselined, not closed.
 
 FINDING\[blocking\]: drag-gap-1944/README.md and \_validation.qmd still publish the void "Closed — residual sits at the geometric ceiling" verdict, whose premise the Phase 3 re-run has now overturned (challenges/drag-gap-1944/b-vs-range-rebaseline.md); the index above has been restated, these two surfaces have not (affects: experiment/fragmentation-field/challenges/drag-gap-1944/README.md, experiment/fragmentation-field/\_validation.qmd; since: 2026-08-03)
+
+**`count-gap-1938` status detail.** Re-baselined against the extracted-once
+Tolch series: the scoping verdict survives. The pit-recovered count is **779,
+not 803** — every $N/803$ figure in `count-chain.md` moves up 3.1 %, and the
+mean recovered fragment mass is 7.40 g, not 6.85 g. No PASS/FAIL row changes
+side. One inference is **void**: §2's "the residual is in the perforating
+fraction, *not the population*" — a threshold-free cumulative-spectrum test
+finds the model over-counting 1.2–2.7× with the threshold removed entirely.
+The decomposition restates as ~2.1× threshold-fit artefact × ~1.9× genuine
+count-chain excess. C1 (a sourced perforation threshold, blocked on
+@librarian) remains the recommended first move; C4 (fuze/base mass
+bookkeeping, 15.4 % of recovered metal against a 3.3 % model deduction) is
+promoted from "note only" and now gates C2.
 
 ## `mott-scale-gap/`
 
