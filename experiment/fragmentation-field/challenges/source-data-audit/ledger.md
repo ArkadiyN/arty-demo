@@ -2688,3 +2688,90 @@ here, with 2's migration registered as deferred. All six audit additions are
 landed. `check-table-invariants.py doc-reference/ --all`: **0 / 28 failed**.
 
 FINDING\[deferrable\]: the card.md split is now a rule but the 18 existing cards are not migrated — four carry interpretive sections asserting what their source does not say, and none of the seven pre-audit cards has a provenance section; the convention binds new cards only until this migration runs (affects: doc-reference/, .claude/rules/source-data-fidelity.md; since: 2026-08-03)
+
+## 27 · Findings backfill — is any modelling pass sitting on a blocked item?
+
+The register (`OPEN-FINDINGS.md`) is generated from in-file markers, and
+markers only exist where someone wrote one. Every finding in it so far was
+raised **by this audit**. The reviews that predate the register — twelve
+`review.md` files, going back to 2026-06-20 — tagged their findings
+Blocking / Deferrable / Note in prose and never emitted a marker, so none of
+them routes to a future dispatch. This pass reads all twelve and asks the
+narrow question the user posed: **is a modeller working on top of something
+that is actually blocked?**
+
+### 27a · Method, and the Gate-3 line
+
+Closure was judged on **whether a record of closure exists** — a later review
+pass, a change-log entry, a logged limitation, a test that now exists, a code
+comment naming the fix — never on whether the physics is right. Reading
+`src/arty/` to adjudicate a correctness question is `agents-routing.md` Gate 3
+and belongs to @modeler; confirming that a named guard, test, or wording is
+*present* is navigation and is not. Where no record exists, the item is
+registered open and routes to a dispatch rather than being adjudicated here.
+
+### 27b · Result — no pass is blocked
+
+**One FAIL verdict exists in the whole history**
+(`familyA-false-safe-zone/review.md:3`, the `z_rep = z_lo` boxed fix), and it
+is closed: the re-review at line 303 reads "Blocking finding — resolved,
+verified independently", having reimplemented the correction rather than
+reading the modeller's. Every other verdict across the twelve files is PASS or
+PASS-with-limitations — which `model-reviewer.md` defines as terminal, closed
+by logging the limitation, not by a re-review.
+
+So the answer to the question is **no**: nothing in the modelling backlog rests
+on an unresolved Blocking review finding. The twelve blocking entries now in
+the register are all *source-data* findings raised by this audit, and those are
+exactly what Phase 2.5 gates.
+
+### 27c · Per-finding disposition
+
+| review                                                                                                              | line     | tag           | disposition                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------- | -------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `familyA-false-safe-zone`                                                                                           | 55       | Blocking      | closed — re-review line 303, independently verified                                                                                                                                      |
+|                                                                                                                     | 142, 166 | Deferrable    | closed — "both addressed" (line 323)                                                                                                                                                     |
+|                                                                                                                     | 446      | Deferrable    | closed — `tests/test_familyA_false_safe_zone.py:241` now exists                                                                                                                          |
+|                                                                                                                     | 471      | Note          | closed — `zones.py:547` carries the harmonisation comment                                                                                                                                |
+| `pkill-poisson-field`                                                                                               | 266      | Deferrable    | closed — `derivation.md` §4.7 names the review as the citable artifact                                                                                                                   |
+| `field-builder-performance`                                                                                         | 46       | Deferrable    | closed in code — vectorised bounds guard at `zones.py:850`, `fragmentation.py:994`                                                                                                       |
+| `target-height-intercept`                                                                                           | 84       | Deferrable    | closed — `derivation.md:251/261/420` carry the corrected "λ diverges as ~1/r" wording                                                                                                    |
+| `drag-gap-1944`                                                                                                     | 70       | Deferrable    | closed — `b-vs-range.qmd:55` and `b-vs-range.md:66` now state `E_LETH_DEFAULT` = 1000 J and the 58 ft-lb value as an explicit override                                                   |
+|                                                                                                                     | 267      | Deferrable    | closed — `_limitations.qmd:397` carries the cancellation-not-validation reading                                                                                                          |
+| `legacy-field-shell-axis-fix`                                                                                       | 82       | Deferrable    | closed by supersession — `_shell_axis` was renamed `_forward_shell_axis`; the tests import the new name                                                                                  |
+|                                                                                                                     | 123      | Deferrable    | closed — `test_familyA_false_safe_zone.py:381` is the point-vs-vec equivalence test the finding asked for                                                                                |
+| `frag-field-3d-geometry`                                                                                            | 151      | deferred list | CRH-6.0 and $R_{50}$-recalibration entries are in `_limitations.qmd:226/243`; the $\mu^z$ unit check and the $\gamma$ notation collision are derivation-internal with no rendered output |
+| `target-area-profile`                                                                                               | 86       | Deferrable    | **open — marker written**                                                                                                                                                                |
+|                                                                                                                     | 131      | Deferrable    | **open — marker written**                                                                                                                                                                |
+| `wdss1-steel-grade`, `mach-dependent-fragment-drag`, `mott-fragment-shape-closure`, `lethal-fragment-density-field` | —        | —             | all verdicts PASS / PASS-with-limitations; their live defects are already registered by this audit (γ-column, Gold-2017 secondhand attribution, bare-line anchors)                       |
+
+### 27d · The two that were open
+
+Both sit in `target-area-profile`, and both are documentation-scope, not wrong
+numbers:
+
+- **The disclosed error bound does not cover the exposed range.** §4.1.2's note
+    keeps a $\sin\Theta$ factor "to match the §6.5 belt-Jacobian notation" and
+    bounds the resulting deviation at "< 3.5 %" — correctly, *for the
+    $\delta \le 15°$ it states*. The deviation is $1/\sin(90° - \delta) - 1$,
+    which reaches ~15.5 % at $\delta = 30°$, and 30° is what the app's
+    belt half-angle slider exposes (`app/sensitivity.py:131`). A bound stated
+    for a narrower range than the surface it governs reads as a bound.
+- **The aspect's own required validation was never built.** `scoping.md` §4.3
+    and `derivation.md` §7 item 7 both specify a $\gamma$-sweep of $A_p$ plus a
+    ground-vs-airburst hit-count ratio; only the $\gamma = 0$ and
+    $\gamma = \pi/2$ endpoints exist. The derivation already carries a
+    **Status (open, logged 2026-07-19)** paragraph saying so — which is the
+    better half of the fix, since a reader of the derivation sees it — but with
+    no marker it never reaches the register and never routes to a pass. That
+    gap between "documented in the affected file" and "routed to a dispatch" is
+    precisely what `.claude/rules/deferred-findings.md` exists to close.
+
+### 27e · What the backfill says about the register
+
+The twelve pre-register reviews produced **two** live findings between them,
+and both are presentational. That is a good result for the modelling work and a
+poor one for the inference anyone would draw from an empty register: the
+reviews were not silent, their findings simply had no route out of the
+document. The marker convention is what changes that going forward; this pass
+is the one-time catch-up for everything written before it.

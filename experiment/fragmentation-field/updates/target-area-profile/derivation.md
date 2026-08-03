@@ -230,6 +230,8 @@ $$
 > from the pure P3 form (without $\sin\Theta$) is < 3.5 %. The two forms are
 > equivalent at $\Theta = 90°$.
 
+FINDING[deferrable]: the "< 3.5 %" bound above holds only for the δ ≤ 15° it is stated for — the deviation is 1/sin(90°−δ) − 1, which reaches ~15.5 % at δ = 30°, the maximum the app's belt half-angle slider exposes (app/sensitivity.py:131); either bound the slider or restate the error over the full exposed range (affects: experiment/fragmentation-field/updates/target-area-profile/derivation.md, app/sensitivity.py, experiment/fragmentation-field/_limitations.qmd; since: 2026-08-03)
+
 This is the direct replacement for the old $g$ in eq. (20).
 
 #### 4.1.3 Replacement of eq. (22)
@@ -438,5 +440,7 @@ against `compute_frag_field_3d` ($R_{50}$(standing)=28 m vs
 $R_{50}$(prone)=14 m at $h_b$=0.5 m, crossing to 12 m vs 18 m at
 $h_b$=20 m) and confirmed the physics is correct even though the notebook
 does not show it. Remains open for a future presentation pass.
+
+FINDING[deferrable]: the aspect's own required validation — the γ-sweep of A_p for standing and prone, and the ground-burst vs airburst hit-count ratio (item 7 above) — is still absent from the notebook; only the γ=0 and γ=π/2 endpoints exist, so the posture crossover the aspect exists to produce is nowhere shown to a reader (affects: experiment/fragmentation-field/updates/target-area-profile/derivation.md, experiment/fragmentation-field/_four-zone-3d.qmd; since: 2026-08-03)
 
 No changes to drag, Mott, Gurney, or $P_{k|\text{hit}}$ are required.
