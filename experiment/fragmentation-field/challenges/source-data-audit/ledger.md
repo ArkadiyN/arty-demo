@@ -1969,3 +1969,222 @@ FINDING\[blocking\]: SAND92-0243 is cited as "C_D 1.2-1.7" and 1.2 is used as it
 FINDING\[deferrable\]: SAND92-0243 is cited for a velocity-DEPENDENT C_D but states no functional form; its own analyses take "Drag coefficient = variable (Ref. 1)" and Ref. 1 is SAND91-0277, which is not held, so the dependence is cited but unsourced (affects: experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, doc-reference/ww2-shells/sandia-sand92-0243/card.md; since: 2026-08-02)
 
 FINDING\[note\]: SAND92-0243's C_D is defined for tumbling plate/disk fragments and enters its range formula only as a product with the shape factor Re and thickness factor Sf, never alone; whether a bare C_D in src/arty measures the same quantity is an open criterion-match question for @model-reviewer (affects: src/arty/fragmentation.py, doc-reference/ww2-shells/sandia-sand92-0243/card.md; since: 2026-08-02)
+
+______________________________________________________________________
+
+## 23 · Phase 2.5c — the `doc-reference/` admissibility sweep
+
+Phase 2.5c asks a mechanical question of all 25 collected documents: which
+carry numbers read by eye or by the vision extractor and never checked against
+the page, and — the part the plan added after DoD-1975 — *who reads them*. An
+uncited document with unchecked numbers is a latent problem; one whose numbers
+reach `src/arty/` is a live one.
+
+Tool: `checks/doc-reference-admissibility-sweep.py`. Triage is the plan's — an
+`images/` directory or a markdown table of numbers, with no `tables/*.csv`
+beside it. Exposure is a grep across `experiment/`, `src/` and `app/`,
+deliberately over-broad, with this audit's own bookkeeping excluded (it names
+every document it sweeps, so counting it would mark all 25 "cited" and destroy
+the signal).
+
+### 23a · The sweep's first answer was wrong, in exactly the way §19f predicted
+
+The first revision grepped directory slugs and processed-source filenames. It
+reported `wound-ballistics/fas-es310-damage-criteria` as reaching **zero**
+shipped files.
+
+That was false. `src/arty/fragmentation.py` cites the source as
+`ES-310 (FAS/Navy 1998)` — the report designator, never the slug. §19f recorded
+this failure mode as a *hypothesis* about `ammunition-series-6-wdss-specs`; here
+it recurred inside the tool written after it, which is the useful part: the
+lesson had been written down and still did not survive contact.
+
+The fix is mechanical and now lives in the script — a `DESIGNATOR` regex
+(letters-then-digits as printed on a cover: `ES310`, `SAND92-0243`,
+`MIL-S-10520D`, `AD-A462991`) harvested from the directory name and front
+matter, searched with and without its hyphen because the two surfaces disagree
+("ES310" in the title, "ES-310" in the code).
+
+| ES-310 exposure  | slug grep | + designator grep |
+| :--------------- | --------: | ----------------: |
+| citing artifacts |         8 |                30 |
+| shipped files    |         0 |                 4 |
+
+**A slug-only sweep under-tiers precisely the most carefully written
+citations** — the ones that name the report rather than the file path.
+
+### 23b · The sweep's finding: the widest-footprint unverified source in the repo
+
+`wound-ballistics/fas-es310-damage-criteria` — 30 citing artifacts, four of
+them shipped (`src/arty/fragmentation.py`, `src/arty/plots.py`,
+`src/arty/zones.py`, `app/sensitivity.py`), plus eight `.qmd` partials
+including `_limitations.qmd` and the top-level source table in
+`fragmentation-field.qmd`.
+
+It had **no card, no `tables/`, no closure invariant and no retained scan.**
+Its three anchors are hardcoded at `fragmentation.py:271-272`, and its 1 kJ
+anchor is the default binary lethal-KE threshold at `fragmentation.py:544`.
+
+No prior pass had looked at it. The plan's Tier-1 list (§2.5a) named two
+documents; this was a third, and it was found only because the sweep counted
+exposure rather than trusting the tiering.
+
+### 23c · Re-baselined — and the closure had to come from outside the table
+
+Source is a live FAS page, so like `aisi-1335` (§21) it needs no scan.
+Re-fetched 2026-08-03 in three targeted passes.
+
+**Table 3 as printed** (`tables/table-3-fragmentation-damage-criteria.csv`) is
+a 3×3 matrix, fragment energy in kJ:
+
+| Target          | Light (Pk = 0.1) | Moderate (Pk = 0.5) | Heavy (Pk = 0.9) |
+| :-------------- | ---------------: | ------------------: | ---------------: |
+| Personnel       |              0.1 |                   1 |                4 |
+| Aircraft        |                4 |                  10 |               20 |
+| Armored vehicle |               10 |                 500 |             1000 |
+
+**Table 3 has no internal closure.** Nine independent criteria, no arithmetic
+linking them — a plausible wrong cell reads exactly like a right one. Per the
+rule that is recorded as a finding, not waved through, and the ordering
+relations that *do* exist are labelled ordering checks in the `.invariant`
+rather than dressed up as closures.
+
+**The closure is elsewhere on the page.** The page works a hand-grenade example
+numerically, and to do so must read a Pk|hit off Table 3 at 3000 J. Only one
+row can supply the 0.8 it takes:
+
+```
+target            linear in E  linear in logE   verdict
+personnel               0.767           0.817   MATCHES the page
+aircraft                0.000           0.000   cannot produce 0.8
+armored vehicle         0.000           0.000   cannot produce 0.8
+```
+
+3000 J sits *below* the aircraft row's own light-damage floor of 4 kJ, so
+neither other row comes near. **The example identifies the personnel row
+uniquely** — the row-inversion defence, available only because the page states
+a criterion in one place and exercises it in another.
+
+The example also closes on its own terms
+(`tables/worked-example-hand-grenade.invariant`): the page's stated hit model
+`Nhits = A(N₀/4πR²)` reproduces both printed Nhits values (residuals 0.021 and
+0.037 against printed roundings of "4" and "0.6"; transposing the two ranges
+gives residuals of 3.4 and 3.3), and its two-branch aggregation rule reproduces
+both printed Pk values.
+
+Script: `checks/es310-worked-example-closure.py`. It reads both CSVs and checks
+`_PK_E` / `_PK_VAL` against the CSV rather than a retyped array.
+
+### 23d · Verdict on the shipped constants — admissible, with one limit
+
+**`fragmentation.py:271-272` is faithful.** 100 J / 1 kJ / 4 kJ at
+Pk|hit 0.1 / 0.5 / 0.9 are this page's personnel row, verified against the CSV
+by script. So is the 1 kJ default at line 544, and so is the multi-hit formula
+cited in `_limitations.qmd`.
+
+**What is *not* certified is the interpolation between anchors.** The page
+states no functional form. `pk_given_hit` interpolates in log₁₀E; the page's
+prose reasons linearly in E. At the one point the page works, log₁₀E gives
+0.817 and linear-in-E gives 0.767 against a stated 0.8 — the shipped scheme
+sits closer, on a single point, which is agreement and not derivation. Any
+claim turning on the *shape* of Pk|hit between anchors rests on a choice this
+document does not make. Registered as a note.
+
+### 23e · What the extraction added that the page does not say
+
+Every *number* this repo consumes is faithful. The divergences are structural
+and narrative — none visible to a glyph-level scan.
+
+1. **The "Personnel Damage Criteria Table" is not a table on the page.** It is
+    Table 3's personnel row transposed into three rows, the aircraft and
+    armored-vehicle rows silently dropped, and a "Caliber Reference" column
+    welded on from prose elsewhere. Values right; the *object* is a
+    construction, and a reader citing it would never find the aircraft row
+    beside it.
+1. **The caliber references drift.** Page: ".22 long bullet" → extraction:
+    ".22 Long Rifle equivalent", a cartridge designation the page never uses.
+    Page: "sufficient to penetrate body armor", "7.62 full metal jacket or
+    .30-06 armor piercing bullet" → extraction: "Armor-penetrating level".
+1. **The velocity-decay figure is re-derived, not quoted.** Page: kinetic
+    energy "down to 10% of its original value". Extraction: "~1/9 of muzzle
+    value" — the square of the stated 1/3 velocity ratio, i.e. 11.1%. The
+    extractor's arithmetic presented as the source's number.
+1. **The worked example is transcribed lossily** — both answers kept,
+    `A = 1 m²` and `Pk|hit = 0.8` dropped. Those are the two numbers that make
+    it closable at all. This is the ordnance-1944 failure in miniature: a
+    summary that keeps the conclusion and discards the fields identifying what
+    it was computed from. Had they been kept, §23c would have been available to
+    any earlier pass.
+1. **The page never mentions 79 J or 80 J** — confirmed by targeted re-fetch.
+    See next.
+
+### 23f · A whole argument attributed to a source that does not make it
+
+`fas-es310-damage-criteria.md` carries a section "Implications for 79 J
+Threshold", a Key Findings bullet leading "not 79–80 J", and a Summary clause
+about "making the 79–80 J fixed threshold appear conservative". **None of it is
+on the page.** It is a comparison between this source and a threshold used
+elsewhere in the repo, written into the reference document as though the DoD
+had made it.
+
+The comparison may be correct — this ledger does not adjudicate it. What is
+wrong is its *location*. A @modeler or @model-reviewer reading this card
+inherits it as a premise instead of reviewing it as an argument. That is the
+Tolch "Drag Model Relevance" defect exactly (Phase 2.5d), and it confirms 2.5d
+is chasing a real class rather than a suspected one: **two of two sources
+examined for interpretive contamination had it.**
+
+Note it is load-bearing downstream — `_limitations.qmd` §374-396 turns on the
+same ES-310-vs-78.6 J criterion mismatch — so relocating it must not mean
+losing it.
+
+### 23g · The remaining seven, adjudicated
+
+After ES-310 closed, the sweep reads: **25 documents, 11 carrying unchecked
+numbers, 7 cited, and — the number that matters — 0 reaching `src/` or `app/`.**
+ES-310 was the last unchecked source with a path into shipped code.
+
+| Document                                                            | Cited by                                                                      | Numbers taken?                                                                        | Outcome                                                                                                                            |
+| :------------------------------------------------------------------ | :---------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------- |
+| `fragmentation/fragment-size-distribution-conwep` (= **Gold 2017**) | `mott-fragment-shape-closure` ×3, `mott-scale-gap`, `fragmentation-field.qmd` | **yes — equations (2)/(4)/(6)/(7)≡(16)**, which `fragmentation.py:309-318` implements | **BLOCKS Phase 3.** Needs a card with greppable anchors. Every citation is a bare line number (`:58-60`, `lines 70-76`, `line 78`) |
+| `wound-ballistics/aep-55-vol3`                                      | `_limitations.qmd`, 4 update docs                                             | **no** — cited only for what it does *not* contain                                    | Non-citable-for-numbers; no re-baseline needed. But see the stale-claim finding below                                              |
+| `wound-ballistics/cunniff-2014`                                     | `pkill-poisson-field/scoping.md`                                              | **no** — same shape as AEP-55                                                         | Non-citable-for-numbers                                                                                                            |
+| `fragmentation/ada462991-fragment-velocity` (Gold 2007)             | `fragmentation-field.qmd`, `target-area-profile/scoping.md`                   | source-table entry + narrative; 4 images, no CSV                                      | Deferrable — no Phase-3 thread reads it                                                                                            |
+| `ww2-shells/ammunition-series-6-steel-composition`                  | `wdss1-steel-grade` ×2                                                        | yes (3 rows)                                                                          | Still open from §11 — the one §11 document that has not closed                                                                     |
+| `wound-ballistics/britishartillery-wt-of-fire`                      | `_validation.qmd`                                                             | yes (4 rows) — reaches a **published surface**                                        | Deferrable; live web page, so re-fetchable like §21                                                                                |
+| `wound-ballistics/lethality-threshold-critique` (Fackler 1987)      | `target-area-profile/scoping.md`                                              | yes (3 rows)                                                                          | Deferrable; live web page                                                                                                          |
+
+**Latent, uncited, no artifact rests on them today** — recorded, not
+re-baselined: `azom-steel-grades/aisi-1020`, `azom-steel-grades/aisi-1045`,
+`fragmentation/ml-warhead-fragmentation` (54 images), `ww2-shells/nwc-tp-7124`.
+If any is ever cited, it enters the gate first.
+
+### 23h · A contradiction between surfaces, found in passing
+
+`_limitations.qmd:239-240` states that Cunniff (2014) and AEP-55 Vol. 3 "are
+**not** present in `doc-reference/`". Both directories exist and have for some
+time. `pkill-poisson-field/scoping.md:75-81` has the correct account — both
+*are* collected, and neither carries a quotable man-silhouette scalar, which is
+a different and weaker claim than absence.
+
+The `0.85 m²` convention is unaffected either way; what is affected is a reader
+of the published limitations page being told to go find two documents that are
+already in the repo. Registered, and it belongs to Phase 6.
+
+### 23i · Status
+
+**Phase 2.5c is closed for the shipped-code question and open for two
+documents.** ES-310 re-baselined: `card.md` written (there was none), two CSVs,
+two `.invariant` files, one retained script. `check-table-invariants.py doc-reference/ --all` → **0 / 26 tables failed**.
+
+Gold 2017 (`fragment-size-distribution-conwep`) is the one remaining Phase-3
+blocker with real numeric exposure; `ammunition-series-6-steel-composition`
+remains open from §11. Neither has a card.
+
+FINDING\[blocking\]: ES-310's "Implications for 79 J Threshold" section, Key Findings bullet 1 and Summary "79–80 J" clause are not on the source page — it never mentions 79 J or 80 J — so a repo argument is published as a DoD/Navy claim (affects: doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md, experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-03)
+
+FINDING\[blocking\]: Gold 2017 (doc-reference/fragmentation/fragment-size-distribution-conwep) supplies the equations implemented in src/arty/fragmentation.py mott_params, yet has no card, no closure, no retained scan, and every citation into it is a bare line number (affects: experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/scoping.md, experiment/fragmentation-field/challenges/mott-scale-gap/\_shape_closure_check.md, src/arty/fragmentation.py; since: 2026-08-03)
+
+FINDING\[deferrable\]: \_limitations.qmd tells readers Cunniff (2014) and AEP-55 Vol. 3 are not present in doc-reference/, but both are collected; the correct claim is that neither carries a quotable man-silhouette scalar (affects: experiment/fragmentation-field/\_limitations.qmd, experiment/fragmentation-field/updates/target-area-profile/derivation.md, experiment/fragmentation-field/updates/familyA-false-safe-zone/scoping.md; since: 2026-08-03)
+
+FINDING\[note\]: pk_given_hit interpolates ES-310's three anchors in log10(E), a scheme the source never states; at the one point the page works it gives 0.817 against a stated 0.8, where linear-in-E gives 0.767 — agreement on a single point, not a derivation (affects: src/arty/fragmentation.py, doc-reference/wound-ballistics/fas-es310-damage-criteria/card.md; since: 2026-08-03)
