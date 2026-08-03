@@ -2847,3 +2847,75 @@ Everything above is either registered or verdict-pending. The verdict-pending
 rows need Phase 3, which is now running: a claim like "Closed at the geometric
 ceiling" goes stale only once the re-run rules on it, and writing that half now
 would mean guessing the verdict the pass exists to produce.
+
+## 29 · `britishartillery-wt-of-fire` — the source under Check 5b's assert
+
+Phase 6 §28b flagged this document as asserted-against but never collected. The
+@librarian pass that followed carded it. The result is worse than the flag
+assumed, and it is the audit's first source to terminate in the **unverifiable**
+state that `.claude/rules/source-data-fidelity.md` provides for.
+
+### 29a · Verdict: unverifiable, and internally broken twice
+
+The primary — **AORG Report No. 179**, "Lethal and Material Effects of Gunfire
+and Bombing on Land Targets" (20 March 1944), updated by No. 234 — did not
+surface in web search or public archives, and no `source.pdf` is retained. The
+only available surface is a secondary web summary
+(britishartillery.co.uk, Nigel F Evans). So there is no page to go back to, and
+the two defects below cannot be adjudicated — only recorded.
+
+**Defect 1 — the mass conversion.** The source reads "a fragment of 1/8 oz
+(~28 grams)". 1/8 oz is 3.54 g; 28 g is a full ounce. `_validation.qmd` already
+caught this one and takes the oz figure as authoritative, which is the right
+call but an *unchecked* one — nothing available says which figure is the typo.
+
+**Defect 2 — a stated total that does not sum, and the librarian missed it.**
+Under the anchor `### Example Fragmentation Pattern (25-pdr)`, four disjoint
+mass bands spanning `<1/25 oz to >2 oz` are given against a stated total:
+
+| Band             | Count      |
+| ---------------- | ---------- |
+| >2 oz            | \<19       |
+| 1/4–2 oz         | ~300       |
+| 1/25–1/4 oz      | ~600       |
+| \<1/25 oz        | >1,122     |
+| **Sum**          | **>2,041** |
+| **Stated total** | **~1,140** |
+
+Off by ~1.8×; the dust band alone nearly equals the whole. This is the "a
+stated total equals the sum of its parts" invariant, and the table fails it.
+
+The pass returned "No CSV-worthy table suitable for closure invariant —
+empirical aggregates lacking … stated totals," on a table that states its total
+on the line above the bands. That is the miss the rule anticipates: a claim that
+**no closure invariant exists is a finding flagged for human review, not a
+pass**. The mechanical half is safe for a cheap model; *concluding there is
+nothing to check* is not mechanical, and this is the evidence.
+
+### 29b · What it does to Check 5b
+
+Check 5b consumes two numbers — 3.5 g and 58 ft-lb (78.6 J) — and hard-`assert`s
+that retained KE at 61 m lands within a factor of 2 of the second. Neither
+number is shown to be wrong: 3.5 g is the correct conversion of the oz figure,
+and the 58 ft-lb criterion sits in a different section from either defect.
+
+**So this is not a void verdict — it is a provisional one.** What fails is the
+surface's framing. `_validation.qmd` calls the datum "*independent*" and renders
+a PASS from an `assert`, which publishes a degree of checkedness the source
+cannot support. Registered blocking, at `_validation.qmd` Check 5b: downgrade
+the assert to a reported comparison, or obtain AORG 179.
+
+The distinction matters for the redo. Phase 3's b-vs-range result voids a
+verdict because the *data* was wrong. This one leaves the numbers standing and
+removes their warrant — a different repair, and a cheaper one.
+
+### 29c · What was fixed in place
+
+`card.md` was rewritten from the librarian's draft: both defects recorded under
+`## Known Defects` (Defect 2 newly found here), all seven bare line-number
+anchors replaced with greppable strings and each one `grep`-verified against the
+stored `.md` at authoring, the fragment-count table marked not-citable rather
+than transcribed, and an `## Admissibility` section stating the unverifiable
+verdict and its one live consumer. No `tables/*.csv` was written — the only
+table with a closure structure fails it, and transcribing it would propagate a
+broken series.

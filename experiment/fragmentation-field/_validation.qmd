@@ -129,7 +129,7 @@ drag constants were anchored to
 renders "1/8 oz" as "~28 grams"; 1/8 oz is **3.54 g** (28 g is a full ounce), and the
 oz figure is taken as authoritative.
 
-<!-- FINDING[deferrable]: Check 5b asserts against the britishartillery-wt-of-fire 58 ft-lb datum, but that document has no card.md, no tables/*.csv and no closure invariant — only a bare .md that this very paragraph records as mis-rendering "1/8 oz" as "~28 grams"; it was never covered by the 18-card sweep and is a source-data-fidelity gap under an assert (affects: experiment/fragmentation-field/_validation.qmd, doc-reference/wound-ballistics/britishartillery-wt-of-fire/; since: 2026-08-03) -->
+<!-- FINDING[blocking]: Check 5b hard-asserts a rendered PASS against the britishartillery-wt-of-fire 3.5 g / 58 ft-lb datum and calls it an "independent" corroboration, but that source is now recorded UNVERIFIABLE (doc-reference/wound-ballistics/britishartillery-wt-of-fire/card.md, Admissibility) — the primary AORG Report 179 was not obtainable, no source.pdf is retained, and the only available surface carries two internal arithmetic failures: the "1/8 oz (~28 grams)" conversion this paragraph already flags, and a 25-pdr fragment-count table whose four disjoint bands sum to >2041 against its own stated total of ~1140; the two values Check 5b actually consumes are not shown to be wrong, so this is not a void verdict, but the surface publishes checkedness it does not have and the assert must be downgraded to a reported comparison or the primary obtained (affects: experiment/fragmentation-field/_validation.qmd, doc-reference/wound-ballistics/britishartillery-wt-of-fire/card.md; since: 2026-08-03) -->
 
 
 The datum is a *statement about lethality*, so reading it requires a lethality
