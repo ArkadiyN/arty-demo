@@ -1503,3 +1503,181 @@ Tier corrected to **Tier 1**. Phase 4 must treat it as such.
 
 Phase 2.5b remains open: `sandia-sand92-0243` (scan retained, no `card.md` at
 all) and `aisi-1335` (no local copy; azom URL only).
+
+## 20 · `mil-s-10520d-projectile-steel` — the governing spec, one revision late
+
+**Verdict: admissible, and it confirms the shipped WDSS1 band belongs to the
+revision that is actually cited.** The lead it was acquired to chase — per-grade
+yield strength from the governing specification — is a **dead end for a reason
+worth recording**, and the acquisition incidentally exposed the worst
+extraction-pipeline defect found so far (20d).
+
+The user supplied `MIL-S-10520D.pdf` after §19 closed on `(ORO)`/`(ORD)`. It is
+revision **D**, not the **C** that AMCP 706-249 §6-14 cites.
+
+### 20a · What the cover page settles
+
+`MIL-S-10520D(MU)`, 27 August 1975, **"SUPERSEDING MIL-S-10520C(ORD), 17
+February 1953"** — and §6-14 dates table 6-1 "as of 17 February 1953". Same
+day, same table. Three §19 loose ends close on that one line:
+
+- Table 6-1 **is** MIL-S-10520C's Table I, not a handbook paraphrase of it.
+- `(ORO)` is **confirmed** a scan artifact for `(ORD)`, no longer inferred.
+- WDSS grades 1–7 are MIL-S-10520 grades 1–7; the missing grade 4 is real in
+    both documents.
+
+### 20b · The revision gap, and what the cross-document diff actually shows
+
+D is direct evidence about **D** and only presumptive about **C**. Treating a
+later revision as the cited one is the same species of error as reading the
+wrong column, so the gap is carried rather than assumed away.
+
+`checks/mil-s-10520d-closures.py` diffs all 30 cells of D's Table I against
+§19's C-era `table-6-1-chemical-requirements.csv`:
+
+- **26 of 30 cells identical**, plus the four-element incidental-elements
+    footnote word for word. Grades 2, 3, 5, 6, 7 are unchanged between revisions.
+- **All 4 disagreements are in grade 1.** C-era: C 0.14–0.20, Mn 1.00–1.30,
+    S 0.08–0.13, Si 0.10 max. D: C 0.20 max, Mn 0.90 max, S 0.050 max, Si 0.20
+    max. A high-Mn, high-S free-machining grade replaced by a plain low-carbon
+    one — a **grade redefinition**, not a digit slip.
+
+**Consequence for `src/arty/fragmentation.py`: none, and that is the finding.**
+The shipped `"US WW2 WDSS1"` band (0.14–0.20 %C → 0.17 % midpoint → `gamma = 47.0`) is the **1953** grade 1, which is the revision AMCP cites. Correct as
+shipped; it must **not** be "updated" toward D. Phase 4 inherits this as
+settled.
+
+This is also the first use in this audit of **cross-document agreement as a
+closure**. Two independent transcriptions, from two independently-acquired
+scans, of the same table: a row or column misassignment would have to be
+replicated identically by two readers of two different rasters. For a table
+with no arithmetic closure and no text layer, this is the strongest check
+available — stronger than either reading alone.
+
+### 20c · The lead does not deliver, and the reason generalises
+
+**MIL-S-10520 states no mechanical properties of its own.** §3.7.1 requires the
+steel to be demonstrated capable of meeting "the physical properties specified
+on the **drawing of the projectile** for which the steel is intended"; §4.5.3
+defines yield strength against a **specified** value supplied elsewhere. The
+spec governs *chemistry and process*; the *numbers* live on the drawing.
+
+So AMCP §6-14's 60,000–80,000 psi is the **handbook's own summary**, not a spec
+value it quotes. Any future pass tempted to "go to the governing specification"
+for a mechanical property of a US WW2 shell should read this section first.
+
+Two indirect corroborations of §6-14 do fall out, and both are independent of
+it:
+
+- **The mortar/artillery grade split is real.** §3.7.2(b) exempts grades 1 and
+    2 from the heat-treat demonstration; §4.5.1 selects coupons "from each heat of
+    grades **3, 5, 6, and 7**."
+- **The yield envelope.** Table X brackets span **60,000–85,000 psi** over
+    37 mm to over-155 mm. §6-14 says 60,000–80,000 psi over the same caliber
+    span — lower bound exact, upper plausibly extended 1953 → 1975. This
+    corroborates the very number §19 recorded the source as not stating.
+
+### 20d · The extraction pipeline failed silently on this document — Phase 7 item 7
+
+Routing this scan through `pdf-processor.py` — instead of hand-reading rasters,
+which is what I had started doing — was what caught it. The first run produced
+**14 copies of an everyspec watermark, 66 lines, exit 0, "Done."**
+
+Two gates failed at once, in the same direction:
+
+- `_page_is_image_based` required **one** image rect covering >50 % of the page.
+    This scan stores each page as **43–58 horizontal strips**, largest 3.4 %. So
+    1 of 14 pages routed to vision.
+- `_assert_not_scanned` tested `bool(text.strip())`. The 41-character watermark
+    is truthy on every page, so a document with **no text layer at all** (588
+    chars across 14 pages) presented as fully text-based.
+
+`--analyze-formulas` was passed and did not help: it forces the *vision path*,
+not vision *on a given page*, and the per-page heuristic still routed 13 pages
+to their watermark. **The memory note `project_pdf_processor.md` ("scanned PDFs
+need `--analyze-formulas`") is therefore insufficient as written.**
+
+Fix: sum coverage over all rects, and count characters instead of testing
+truthiness; plus a routing line printed every run, and a warning naming any page
+that was *not* routed to vision yet carries under 100 characters. Routing on
+this document went **1/14 → 14/14**. Probe: `checks/vision-gating-probe.py`
+(takes any PDF — it doubles as the Phase 2.5c triage tool).
+
+**Severity relative to Phase 7 items 1–5.** Those produced *wrong numbers*, and
+a wrong number is at least visible to a closure check. This produced **no
+content while reporting success** — nothing to check, and a `source.md` that
+looks like a short document rather than a failed one.
+
+A second defect surfaced on the re-run: a single `httpx.ReadTimeout` killed the
+whole 14-page document after most of it had transcribed, because the retry
+handler caught `errors.ServerError` and empty responses but not client-side
+timeouts. A local timeout is the same deadline as a server 504 seen from the
+other end, so it now retries-then-halves identically (item 8).
+
+**And a third, in my own tooling rather than the pipeline:** the first run was
+piped through `tail -30`, so the task notification reported **exit code 0** on a
+run that died in a traceback. Pipelines mask exit status; a background
+extraction must not be piped.
+
+### 20e · Tables, closures, and one irregularity left as printed
+
+Four CSVs under `doc-reference/ww2-shells/mil-s-10520d-projectile-steel/tables/`.
+Tables III–IX and XI are dimensional tolerances, carry no physics, and are not
+transcribed.
+
+| Table                            | Closure                                                                          | Result                      |
+| :------------------------------- | :------------------------------------------------------------------------------- | :-------------------------- |
+| I — Chemical Requirements        | cross-document diff vs table 6-1 (20b); P/S column-identity sums in `.invariant` | 26/30 identical, 4 expected |
+| II — Product-Analysis Variations | bracket tiling; over-max == under-min where both printed                         | 6 symmetric, 2 one-sided    |
+| X — coupon selection             | bracket tiling; coupon diameter non-increasing as yield rises                    | pass, 3 classes             |
+| X — hold times                   | `.invariant`: diameter increasing, both times non-decreasing                     | pass                        |
+
+`check-table-invariants.py` on the new `tables/`: **0 / 2 failed**; the closures
+script: **0 failures**.
+
+**Irregularity, recorded not repaired:** Table X's "Over 105mm to 155mm, incl."
+class opens with a bare **`65,000`** where the other two classes print a range.
+By analogy with the over-155 mm row it should read "60,000 to 65,000, incl.";
+as printed, that caliber has no bracket below 65,000. **Both independent
+readings show the bare value**, which is what makes it the source's own
+irregularity rather than a misread — and is exactly the kind of thing a reader
+"tidying up" a table would silently normalise away.
+
+### 20f · Why this document's admissibility rests on three legs
+
+`.claude/rules/source-data-fidelity.md` assumes a closure invariant is
+available. §19 showed a clean text layer beats one (a positional diff names the
+cell). This document has **neither**: no text layer, and a composition table
+with no arithmetic. So admissibility is three independent legs that agree:
+
+1. **Direct read** of 300-dpi renders (`checks/mil-s-10520d-page-render.py`).
+1. **Vision extraction** through the *fixed* pipeline, producing `source.md`.
+1. **Cross-document agreement** with AMCP table 6-1 (20b).
+
+Legs 1 and 2 agree **cell-for-cell** on Tables I, II and X — including the
+inconsistently-dropped leading zeros (`.65` beside `0.60`) and the bare
+`65,000`. That the two readers reproduce the same *anomalies*, not just the same
+values, is what makes the agreement evidence rather than two readers smoothing
+the same page the same way.
+
+### 20g · Method note for Phase 8 — the invariant DSL has no cross-row handler
+
+Tables II and X carry genuine closures that `check-table-invariants.py` cannot
+express: bracket **tiling** (row *i*'s upper bound == row *i+1*'s lower bound,
+within a group) and monotonicity **within a group** rather than down the whole
+column. The DSL has exactly three handlers — per-row expression, whole-column
+sum, adjacent-row monotonic — so both had to go into a check script.
+
+This is not a one-off: any table of bracketed limits (calibre classes, velocity
+bands, thickness ranges) has the same shape, and tiling is precisely the check
+that catches a row read out of step. Phase 8 candidate: a `tiling:` directive
+and a `group:` qualifier on `monotonic:`.
+
+### 20h · Status
+
+Re-baselined. `card.md`, four CSVs, one `.invariant`, three retained scripts
+(`mil-s-10520d-closures.py`, `mil-s-10520d-page-render.py`,
+`vision-gating-probe.py`); `experiment/_scratch/` back to empty. The pipeline
+fix is committed with them, since this document is its regression case.
+
+Phase 2.5b still open on `sandia-sand92-0243` and `aisi-1335`.

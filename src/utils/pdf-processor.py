@@ -253,34 +253,70 @@ def _parse_page_spec(spec, n_pages):
     return sorted(pages)
 
 
-def _assert_not_scanned(doc):
-    """Raise if the PDF has no text layer (scanned image-only document)."""
-    scanned = 0
-    for page_num in range(len(doc)):
-        page = doc[page_num]
-        if bool(page.get_text().strip()):
-            continue
-        page_area = page.rect.width * page.rect.height
-        for img_info in page.get_images(full=True):
-            for rect in page.get_image_rects(img_info[0]):
-                if (rect.width * rect.height) / page_area > 0.5:
-                    scanned += 1
-                    break
+# Fraction of a page's area that must be covered by embedded images before the
+# page counts as image-based (its content is in the raster, not the text layer).
+IMAGE_PAGE_COVERAGE = 0.5
+
+# Characters per page below which a text layer is a stamp, not content.  A
+# vendor watermark ("Downloaded from https://www.everyspec.com") is 41.
+MIN_TEXT_CHARS_PER_PAGE = 100
+
+
+def _image_coverage(page):
+    """Fraction of the page area covered by embedded images, summed over rects.
+
+    Summed, not tested one rect at a time: a scan is not always stored as one
+    full-page image.  MIL-S-10520D stores each page as 43-58 horizontal strips,
+    none larger than 3.5% of the page, so a per-rect ">50%" test called every
+    content page text-based and routed 1 of 14 pages to vision -- see
+    _assert_not_scanned for the other half of that failure.
+
+    Overlapping rects would be double-counted; the result is clamped to 1.0.
+    """
+    page_area = page.rect.width * page.rect.height
+    if not page_area:
+        return 0.0
+    total = sum(
+        rect.width * rect.height
+        for img_info in page.get_images(full=True)
+        for rect in page.get_image_rects(img_info[0])
+    )
+    return min(total / page_area, 1.0)
+
+
+def _assert_not_scanned(doc, analyze_formulas=False):
+    """Raise if the PDF is a scan and no vision pass is configured to read it.
+
+    Skipped entirely under --analyze-formulas: reading a scan is precisely what
+    that path is for, so refusing there would reject the documents it exists to
+    handle.
+
+    The text test is a character COUNT, not `bool(text.strip())`.  A stamped
+    watermark puts a few dozen characters on every page of an image-only scan,
+    which is enough to make `bool()` true on all of them -- combined with the
+    per-rect coverage test this let a 14-page specification extract to 14 copies
+    of its watermark and exit 0 reporting success.
+    """
+    if analyze_formulas:
+        return
+    scanned = sum(
+        1
+        for page_num in range(len(doc))
+        if len(doc[page_num].get_text().strip()) < MIN_TEXT_CHARS_PER_PAGE
+        and _image_coverage(doc[page_num]) > IMAGE_PAGE_COVERAGE
+    )
     if scanned / len(doc) > 0.3:
         raise SystemExit(
-            f"Error: PDF appears to be scanned ({scanned}/{len(doc)} pages have no text "
-            "layer). Run OCR before processing."
+            f"Error: PDF appears to be scanned ({scanned}/{len(doc)} pages carry "
+            f"under {MIN_TEXT_CHARS_PER_PAGE} characters of text over an embedded "
+            "image). Re-run with --analyze-formulas to read it with vision, or OCR "
+            "it first."
         )
 
 
 def _page_is_image_based(page):
-    """True when the page stores its content as a full-page embedded image."""
-    page_area = page.rect.width * page.rect.height
-    for img_info in page.get_images(full=True):
-        for rect in page.get_image_rects(img_info[0]):
-            if (rect.width * rect.height) / page_area > 0.5:
-                return True
-    return False
+    """True when the page's content is carried by embedded images, not text."""
+    return _image_coverage(page) > IMAGE_PAGE_COVERAGE
 
 
 def _render_page_jpeg(page, dpi=150):
@@ -450,7 +486,18 @@ def _extract_doc_via_vision_google_chunk(pages, client, model):
     half and retry each half fresh (smaller combined image, less to
     transcribe, comfortably faster) instead of giving up or resending the
     same oversized request a 4th time.
+
+    `httpx.TimeoutException` is caught alongside the server errors because it
+    is that same deadline seen from the client end: the SDK's own
+    `timeout=GOOGLE_TIMEOUT_MS` firing before the server replies. Whether the
+    deadline is enforced by the server (504) or locally (ReadTimeout) is an
+    accident of which side gives up first, so the remedy has to be the same —
+    retry, then halve. Leaving it uncaught made it the one transient failure
+    that killed a whole document: a 14-page MIL-S-10520D run died on a single
+    ReadTimeout after transcribing most of it, discarding every completed
+    chunk.
     """
+    import httpx
     from google.genai import types, errors
 
     n = len(pages)
@@ -475,7 +522,7 @@ def _extract_doc_via_vision_google_chunk(pages, client, model):
                 # Retrying is usually enough to get a real answer.
                 raise _EmptyVisionResponse("no text part returned")
             return _parse_page_vision_response(response.text, n)
-        except (errors.ServerError, _EmptyVisionResponse) as e:
+        except (errors.ServerError, _EmptyVisionResponse, httpx.TimeoutException) as e:
             if attempt == max_attempts:
                 if n > 1:
                     mid = n // 2
@@ -691,7 +738,7 @@ def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False,
     doc = fitz.open(pdf_path)
     images_dir = os.path.join(output_dir, "images")
     print(f"Opened PDF: {pdf_path} ({len(doc)} pages)")
-    _assert_not_scanned(doc)
+    _assert_not_scanned(doc, analyze_formulas or screenshot_pages)
 
     if screenshot_pages:
         os.makedirs(images_dir, exist_ok=True)
@@ -755,7 +802,7 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
     doc = fitz.open(pdf_path)
     images_dir = os.path.join(output_dir, "images")
     print(f"Opened PDF: {pdf_path} ({len(doc)} pages)")
-    _assert_not_scanned(doc)
+    _assert_not_scanned(doc, analyze_formulas)
 
     page_range = _parse_page_spec(pages, len(doc)) if pages else list(range(len(doc)))
 
@@ -778,6 +825,29 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
     vision_map = {}
     if analyze_formulas:
         image_page_indices = [i for i in page_range if _page_is_image_based(doc[i])]
+
+        # Say how many pages vision will actually read.  Without this the
+        # routing decision is invisible, and a document whose pages all fall
+        # through to a junk text layer finishes with "Done." and exit 0 --
+        # which is how MIL-S-10520D extracted to 14 copies of its watermark.
+        print(
+            f"Vision routing: {len(image_page_indices)}/{len(page_range)} pages "
+            "are image-based and will be read by vision; the rest use their "
+            "embedded text layer."
+        )
+        if len(image_page_indices) < len(page_range):
+            thin = [
+                i + 1
+                for i in page_range
+                if i not in image_page_indices
+                and len(doc[i].get_text().strip()) < MIN_TEXT_CHARS_PER_PAGE
+            ]
+            if thin:
+                print(
+                    f"  WARNING: pages {thin} were NOT routed to vision yet carry "
+                    f"under {MIN_TEXT_CHARS_PER_PAGE} characters of text. Their "
+                    "content will be missing from the output."
+                )
 
         if image_page_indices:
             kind, client, model = _get_vision_client(provider)

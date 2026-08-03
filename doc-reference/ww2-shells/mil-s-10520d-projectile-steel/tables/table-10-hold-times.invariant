@@ -1,0 +1,12 @@
+csv:     table-10-hold-times.csv
+source:  ../source.md
+anchor:  TABLE X. Size and heat treatment of test coupons
+
+# The source's own stated logic: the hold times are indexed by coupon diameter,
+# and a thicker section cannot soak through in less time than a thinner one.
+# So both time columns must be non-decreasing as diameter increases.  This is
+# what catches a row shift between the diameter column and either time column
+# -- the failure mode that put a 1-in coupon's 1-1/4 hr against a 3-in coupon.
+monotonic:  coupon_diam_in increasing
+monotonic:  austenitizing_hr non-decreasing
+monotonic:  tempering_hr non-decreasing
