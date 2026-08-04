@@ -199,8 +199,16 @@ def c_shape_from_ballistic_density(k: float, rho_steel: float) -> float:
 @dataclass(frozen=True)
 class DragParams:
     # TP-12 line 338-339: "take the drag coefficient as constant at its
-    # supersonic value of 1.28". The Mach dependence of its Fig. 3 does not
-    # beat this constant on the 1944 Ordnance velocity-decay data (derivation §5).
+    # supersonic value of 1.28". Its Fig. 3 is *not* flat -- C_D runs 1.08 at
+    # M = 0 through a ~1.40 transonic peak to the 1.28 plateau -- and that
+    # variation is deliberately not modelled: a Mach-dependent C_D(M) would
+    # replace the closed-form lambda below with a per-fragment ODE march, for a
+    # difference that stays inside the model's stated arrival-velocity fidelity
+    # bar. Architectural cost, not lack of evidence -- see _limitations.qmd #15.
+    # (The earlier claim here, that C_D(M) "does not beat this constant on the
+    # 1944 Ordnance velocity-decay data", is withdrawn: it was scored on the
+    # wrong column and gave the constant a free parameter the curve did not
+    # have -- updates/mach-dependent-fragment-drag/README.md.)
     C_D: float = 1.28
     # Presented area per unit (m/rho_steel)^(2/3), derived from the DoD
     # ballistic density via eq. (4) above -- 2.0890 at k = 2.60 g/cm³,

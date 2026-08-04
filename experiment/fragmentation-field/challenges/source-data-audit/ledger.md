@@ -576,8 +576,6 @@ They are recorded *here*, not in the affected files, because this audit's scope
 forbids editing `src/arty/` and the downstream artifacts — `affects:` does the
 routing, so a marker never has to sit in a file the pass may not touch.
 
-FINDING\[blocking\]: Fig-3 Mach drag is claimed not to beat the constant C_D on the 1944 data; false on both old and corrected columns, and the comparison gave the constant a free parameter the Fig-3 run did not have — the derivation.md leg is discharged (§5 withdrawn 2026-08-03), the shipped src/arty leg is not (affects: src/arty/fragmentation.py; since: 2026-08-02)
-
 FINDING\[blocking\]: B-vs-range check scripts read the perforation-of-1/8-in-mild-steel column while applying the 58 ft-lb casualty criterion, and hand-type the series instead of reading tables/\*.csv (affects: experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-75mm.py, experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-105mm.py, experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-155mm.py, experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-familyA.py, experiment/fragmentation-field/challenges/drag-gap-1944/checks/drag-coefficient-calibration.py; since: 2026-08-02)
 
 FINDING\[blocking\]: card.md's "Drag Model Relevance" section recommends the velocity-sweep density collapse as the drag calibration anchor, but that axis is the shell's velocity at burst — a burst-geometry observable, near-insensitive to fragment drag (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md; since: 2026-08-02)
@@ -3375,8 +3373,6 @@ whole thread started. Note the audit plan cited this comment as
 `fragmentation.py:184`; it has since moved to `:201-203`, which is the bare
 line-number anchor rot `source-data-fidelity.md` exists to prevent, occurring
 inside the audit's own planning document.
-
-FINDING\[blocking\]: src/arty/fragmentation.py:201-203 justifies the shipped C_D=1.28 with "The Mach dependence of its Fig. 3 does not beat this constant on the 1944 Ordnance velocity-decay data", which ledger 34a rules void — given equal scale freedom the Mach law beats it on both columns and both bands; the constant itself is sound (C10) so only the stated reason must be replaced, with the immateriality argument (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-03)
 
 ______________________________________________________________________
 
