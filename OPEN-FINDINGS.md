@@ -34,7 +34,7 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - raised: 2026-08-03 (1d) in `experiment/fragmentation-field/_validation.qmd:133`
 - **drag-gap-1944/README.md and _validation.qmd still publish the void "Closed — residual sits at the geometric ceiling" verdict, whose premise the Phase 3 re-run has now overturned (challenges/drag-gap-1944/b-vs-range-rebaseline.md); the index above has been restated, these two surfaces have not**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/README.md`, `experiment/fragmentation-field/_validation.qmd`
-    - raised: 2026-08-03 (1d) in `experiment/fragmentation-field/challenges/README.md:42`
+    - raised: 2026-08-03 (1d) in `experiment/fragmentation-field/challenges/README.md:43`
 - **this document publishes the pit-recovered count as 803 (true value 779, +3.1% on every N/803 figure), the mean recovered fragment mass as 6.85 g (true 7.40 g), and the two-totals spread as 15% (true 11%); §2 Fact 2's "not the population" inference is void — verdicts and replacement numbers in challenges/count-gap-1938/rebaseline-verdict.md**
     - affects: `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md`, `experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-decomposition.py`, `experiment/fragmentation-field/challenges/README.md`
     - raised: 2026-08-03 (1d) in `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:10`
