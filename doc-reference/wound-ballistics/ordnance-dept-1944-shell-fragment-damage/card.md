@@ -6,7 +6,7 @@
 
 ## Definition: B (Effective Hits per Square Foot)
 
-**Anchor:** [Line 261](ordnance-1944.md#L261)
+**Anchor:** `number B of effective hits per sq. ft.` ([ordnance-1944.md:288](ordnance-1944.md#L288), 1 hit) — sentence defining B, matching this section's equation. PDF page 78, printed "Page 64".
 
 $$B = \text{average number of effective hits per sq. ft. of target area at distance } r \text{ from burst}$$
 
@@ -20,7 +20,7 @@ $$B = \text{average number of effective hits per sq. ft. of target area at dista
 
 ## Damage Type Definitions
 
-**Anchor:** [Lines 271–276](ordnance-1944.md#L271-L276)
+**Anchor:** `A casualty is supposed caused by a hit with at least 58 ft.-lb. of energy.` ([ordnance-1944.md:309](ordnance-1944.md#L309), 1 hit) — casualty and perforation-type definitions. PDF page 78, printed "Page 64".
 
 - **Casualty:** Hit with ≥58 ft-lb kinetic energy (incapacitation, not necessarily fatal)
 - **Perforation 1/8-in. mild steel:** Effective against aircraft on ground
@@ -29,9 +29,20 @@ $$B = \text{average number of effective hits per sq. ft. of target area at dista
 
 ## Key Reference Shells (Project Match)
 
+**Table numbers here are the ones printed on the page, and they will not grep.**
+`ordnance-1944.md` is a flattened two-up scan that renumbers these same three
+table-pairs 43/44, 51/52 and 59/60, and prints those `TABLE nn` lines detached
+from the rows they label — under the 75-mm heading, for instance, the extraction
+shows `TABLE 44` and `TABLE 43`. Grepping `TABLE 38` against the extraction
+returns nothing useful, and grepping `TABLE 43` returns a different shell's
+identity than the printed page gives. The printed numbering (38/39, 48/49,
+56/57) is verified against the retained `source.pdf` by
+`experiment/fragmentation-field/challenges/source-data-audit/checks/ordnance-1944-page-geometry.py`.
+**Anchor on the shell-title headings below, never on a `TABLE nn` line.**
+
 ### Tables 38–39: 75-mm H.E. Shell, M48
 
-**Anchor:** [Lines 340–369](ordnance-1944.md#L340-L369)
+**Anchor:** `# 75-MM H.E. SHELL, M48` ([ordnance-1944.md:381](ordnance-1944.md#L381), 1 hit) — heading governs the TABLE 38/39 casualties/perforation data beneath it (row r=20 casualties: `1,070 .213 .014 2,060`, matching this card). PDF page 84, printed "Page 70".
 
 - **Initial Fragment Velocity:** 3,120 f/s
 - **Damage Parameter Table:** Casualties and 1/8-in. mild steel perforation
@@ -41,7 +52,7 @@ $$B = \text{average number of effective hits per sq. ft. of target area at dista
 
 ### Tables 48–49: 105-mm H.E. Shell, M1
 
-**Anchor:** [Lines 676–709](ordnance-1944.md#L676-L709)
+**Anchor:** `# 105-MM H.E. SHELL,'Ml` ([ordnance-1944.md:725](ordnance-1944.md#L725), 1 hit; OCR-mangled, quoted exactly as stored) — heading governs the TABLE 48/49 casualties/perforation data beneath it (row r=20 casualties: `1,160 .231 .010 2,440`, matching this card). PDF page 89, printed "Page 75".
 
 - **Initial Fragment Velocity:** 3,500 f/s
 - **Damage Parameter Table:** Casualties and 1/8-in. mild steel perforation
@@ -51,7 +62,7 @@ $$B = \text{average number of effective hits per sq. ft. of target area at dista
 
 ### Tables 56–57: 155-mm H.E. Shell, M107
 
-**Anchor:** [Lines 817–849](ordnance-1944.md#L817-L849)
+**Anchor:** `# 155-MM N.E. SHELL, M107` ([ordnance-1944.md:874](ordnance-1944.md#L874), 1 hit; OCR-mangled "H.E." → "N.E.", quoted exactly as stored) — heading governs the TABLE 56/57 casualties/perforation data beneath it (row r=20 casualties: `1,460 .291 .010 2,440`, matching this card). PDF page 93, printed "Page 79".
 
 - **Initial Fragment Velocity:** 3,500 f/s
 - **Damage Parameter Table:** Casualties and 1/8-in. mild steel perforation
@@ -61,7 +72,7 @@ $$B = \text{average number of effective hits per sq. ft. of target area at dista
 
 ## Fragment Damage Patterns
 
-**Anchor:** [Lines 263–270](ordnance-1944.md#L263-L270)
+**Anchor:** `### 2. DAMAGE PATTERNS` ([ordnance-1944.md:291](ordnance-1944.md#L291), 1 hit) — heading governs the shading/density-interpretation text quoted below it in this card. PDF page 78, printed "Page 64".
 
 The document includes 60+ damage-pattern figures (Figures 67 onward) showing fragment distribution for individual shells. Patterns vary with:
 
@@ -136,9 +147,37 @@ Figure 125 — Perforation of 1/8-in. mild steel, height of burst 30 ft / 60 ft
 
 ## Data Sources
 
-**Anchor:** [Lines 273–276](ordnance-1944.md#L273-L276)
+**Anchor:** `### 5. THE SOURCES OF DATA` ([ordnance-1944.md:307](ordnance-1944.md#L307), 1 hit) — the source's own section heading for this material.
 
-Fragment velocity, retardation, shape, mass, and angular distribution measured at Army and Navy proving grounds; penetration data from controlled tests on steel targets; casualty thresholds from ballistic-medical studies (58 ft-lb minimum energy for incapacitation).
+**This section's body is displaced by the two-up flattening.** Its one sentence
+sits at `ordnance-1944.md:310`, wedged between the two halves of a sentence
+belonging to the preceding section ("…the most effective damage varies from
+that with" / "-in. perforation to 38-in. perforation…"), which reads correctly
+with line 310 removed. The heading at 307 and the body at 310 are three lines
+apart but do not read as continuous text; anchor on the heading.
+
+What the source states, in its own words (`ordnance-1944.md:310`): the damage
+tables and patterns are derived "from measurements of fragment velocity,
+retardation, shape, and penetration, and the mass and angular distribution of
+fragments as made at the various Army and Navy proving grounds and
+laboratories."
+
+The source does **not** state where the 58 ft-lb casualty threshold came from —
+it gives the threshold as a definition ("A casualty is supposed caused by a hit
+with at least 58 ft.-lb. of energy", `ordnance-1944.md:309`) and attributes it
+to nothing. An earlier version of this card credited it to "ballistic-medical
+studies" and described the penetration data as "controlled tests on steel
+targets"; neither phrase nor its substance is in the source, and both have been
+struck.
+
+**Do not use `source.pdf`'s text layer to establish that something is absent
+from this document.** The layer covers the tabular pages but not these prose
+pages: `pdftotext` extracts ~186 k characters and finds `SHELL` 149×,
+`FRAGMENT` 206× and `Ordnance` 22×, yet returns **zero** hits for
+`SOURCES OF DATA`, `retardation`, `Army`, `Navy` and `proving` — all of which
+are demonstrably on the page above. A full-text search of the PDF returning
+nothing is not evidence of absence here; check the extraction, or the page
+image.
 
 ______________________________________________________________________
 

@@ -743,9 +743,11 @@ Its seven anchors are also all bare line numbers (`ordnance-1944.md#L261`,
 `#L340-L369`, …) — the form `.claude/rules/source-data-fidelity.md` forbids, and
 the form that rotted onto the wrong shell's data in the original incident.
 
-FINDING\[blocking\]: ordnance-1944 card.md labels all three shell sections with the table number of a neighbouring shell (43→81mm M43A1, 51→105mm M38A1, 59→8in M103; correct are 38/39, 48/49, 56/57) and prints each casualties B value beside the perforation table's range — the exact lossy-summary mechanism that caused the column inversion; quoted numbers are correct, labels are not, and experiment/fragmentation-field/\_validation.qmd Check 7 repeats the wrong set "Tables 43/51/59" on a rendered reader-facing surface (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md, experiment/fragmentation-field/\_validation.qmd; since: 2026-08-02)
+The card leg of the mislabelling was closed in `71963fc` — the three shell sections now carry the printed numbers 38/39, 48/49 and 56/57, and the card warns that the extraction renumbers them 43/44, 51/52, 59/60 and that a `TABLE nn` line is not a citable anchor there. The rendered surface still repeats the wrong set:
 
-FINDING\[deferrable\]: ordnance-1944 card.md cites all seven of its anchors as bare line numbers into ordnance-1944.md, the anchor form source-data-fidelity.md forbids; replace with greppable strings when the card is split (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-08-02)
+FINDING\[blocking\]: experiment/fragmentation-field/\_validation.qmd Check 7 labels the three ordnance-1944 shell tables "Tables 43/51/59" on a rendered reader-facing surface, but those are the flattened extraction's renumbering and each points at a neighbouring shell (43 is 81mm M43A1, 51 is 105mm M38A1, 59 is 8in M103); the printed and geometry-verified numbers are 38/39, 48/49, 56/57 (affects: experiment/fragmentation-field/\_validation.qmd; since: 2026-08-02)
+
+All seven of the card's bare line-number anchors were replaced with verified greppable strings in the same pass — three shell-title headings (including the OCR-damaged `# 105-MM H.E. SHELL,'Ml` and `# 155-MM N.E. SHELL, M107`, quoted as stored) and four section/definition strings, each grepped at authoring and confirmed to return exactly one hit at the claimed content.
 
 ## 13. The DoD-1975 scan, recovered — the digitized Figure 3 does not match it
 
@@ -2578,9 +2580,25 @@ it is a shell to finish, not a defect to retract.
 The two anchor findings below supersede nothing — §12's blocking label finding
 stands as written and is now confirmed at the page with its cause identified.
 
-FINDING\[deferrable\]: all 20 bare line-number anchors in the ordnance-1944 and tolch-1938 cards fail to resolve to the content they claim, and failed identically at each card's birth commit against sources of unchanged length (1466 and 1715 lines) — e.g. the Tolch card cites 9.71 at "lines 617-627" and 9.71 has always been at line 900; these were fabricated at authoring, not rotted, so the greppable-anchor remedy in source-data-fidelity.md addresses a failure mode that did not occur here and the rule should also require an anchor to be verified when written (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md, doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md, .claude/rules/source-data-fidelity.md, .claude/agents/librarian.md; since: 2026-08-03)
+**Both anchor findings are closed.** All four of the first one's legs are
+discharged: the Tolch card was re-anchored in `bab141a` and the ordnance card
+in the pass recorded at §12 above — seven bare line numbers replaced by
+greppable strings, each grepped at authoring and confirmed to return exactly
+one hit at the claimed content — while the rule leg was already landed on both
+surfaces. `.claude/rules/source-data-fidelity.md` now carries "**Run the
+`grep` when you write the anchor**", stating that rot is the failure the
+greppable-string rule prevents and fabrication is the one that actually
+occurred; `.claude/agents/librarian.md:66` carries the same requirement as a
+standing instruction, including the newline-straddling and `TABLE n` traps.
 
-FINDING\[deferrable\]: ordnance-1944.md is a flattened two-up scan whose "TABLE n" heading lines do not belong to the data printed beneath them — the nearest preceding heading implies TABLE 43/51/59 for the three shells where the page says 38/39, 48/49, 56/57 — so the file cannot support table-level citation and any repair of the card's anchors must use the shell title line, not a TABLE number, checking it greps because OCR damaged the 155 mm title to "N.E. SHELL" (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md, doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/ordnance-1944.md; since: 2026-08-03)
+The second closes on the ordnance card's repair: its three shell sections now
+anchor on the shell-title headings (`# 75-MM H.E. SHELL, M48`,
+`# 105-MM H.E. SHELL,'Ml`, `# 155-MM N.E. SHELL, M107` — the last two quoted
+with their OCR damage intact, because the corrected spellings grep to nothing),
+and the card warns above them that a `TABLE nn` line is not a citable anchor in
+this extraction. The reader-warning gap on the *other* surfaces — the
+`.invariant` files and the table-number check script — is registered separately
+at §35b below and is not closed by this.
 
 The dod-1975 leg was closed in `bab141a` — the "Use:" recommendation and the "presumably ~0–Mach 7" range are gone, replaced by the two weapon-class-specific shape factors the source does state plus a referral, and that card now has a provenance section. Two cards still carry the defect:
 
@@ -3446,6 +3464,15 @@ is the rule's own case — *"a `TABLE n` line is only an anchor if the extractio
 kept it attached to its own rows"* — with the twist that here the **PDF** is
 right and the derived copy is the liar.
 
+**Half of that warning has since landed.** The card repair (§12) put it on the
+surface a reader actually reaches: `card.md` now states above its three shell
+sections that the printed numbers will not grep, that the extraction renumbers
+them 43/44, 51/52, 59/60, and that the shell-title heading is the only citable
+anchor there. The finding below stays open, unchanged in scope, because it was
+never about the card — the six `.invariant` files and
+`checks/ordnance-1944-table-number-anchors.py` still carry bare `TABLE nn`
+anchors with nothing beside them saying which surface they are true against.
+
 ### 35c · A shipped case mass resting on a placeholder
 
 Independent of any re-baseline, the refutation pass found that
@@ -3498,6 +3525,24 @@ verification side: **every ruling that survived Phase 5 unchanged was one that
 rested on an identity or a closure, and every ruling Phase 5 moved was one that
 rested on a search returning nothing.** Absence-of-evidence is the audit's
 weakest instrument, and it is the one it reached for most cheaply.
+
+A concrete instance surfaced on 2026-08-03, with a mechanism worth recording
+because it is silent and reproducible. A librarian pass, asked to anchor the
+ordnance-1944 card's "Data Sources" section, searched the retained
+`source.pdf` full text for `Army`, `Navy`, `proving ground`, `laborator`,
+`retardation` and `angular distribution`, got **zero hits on all six**, and
+concluded the passage "is not present anywhere in the retained scan" — a
+fabricated-content verdict on a committed card. It is in the document: it is
+the body of the source's own `### 5. THE SOURCES OF DATA`, displaced by the
+two-up flattening into the middle of the preceding section's sentence. The
+search was sound; the corpus was not. `pdftotext` extracts ~186 k characters
+from this PDF and resolves `SHELL` 149×, `FRAGMENT` 206× and `Ordnance` 22×,
+so the layer looks healthy — but it covers the tabular pages and **not** the
+prose pages, and nothing about the extraction advertises the gap. A
+plausibility check on the layer's overall size or on a few known-present words
+does not detect it.
+
+FINDING\[note\]: source.pdf's text layer covers this document's tabular pages but not its prose pages - pdftotext extracts ~186k chars and resolves SHELL 149x, FRAGMENT 206x, Ordnance 22x while returning zero for SOURCES OF DATA, retardation, Army, Navy and proving, all demonstrably on the page - so a full-text PDF search returning nothing is not evidence of absence for this source and has already produced one false fabricated-content verdict; check ordnance-1944.md or the page image instead (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md, doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/ordnance-1944.md, .claude/rules/source-data-fidelity.md; since: 2026-08-03)
 
 FINDING\[blocking\]: src/arty/shells.py:58-60 gives 75mm M48 mass_deductions=0.200 kg as a self-declared placeholder, but Tolch 1938's own weight row (tolch-1938.md:232, closing exactly as 12.50-1.56+2.35=13.29 lb) states the M39 P.D. fuze at 2.35 lb = 1066 g; shipped case metal is therefore 5755 g against the source's 4962 g, ~16% high, and N0 = M_case/2mu carries it into every fragment count (affects: src/arty/shells.py, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/source-data-audit/checks/tolch-case-mass-basis.py; since: 2026-08-03)
 
