@@ -47,15 +47,7 @@ not.
 
 **A table with no closure invariant is not thereby admissible** — it is
 flagged for human review in the dispatch summary. Absence of a check is a
-finding, not a pass. And *"no closure I tried worked"* is not *"no closure
-exists"*: one pass swept two readings of a table and reported no closure
-available, where a third closed; another reported none on a table stating its
-total one line above its parts.
-
-**A failing closure localises a table; it does not condemn it.** The verdict is
-per row or per group — use the rows that close, refuse the rows that do not —
-which is already how the monotonic and tiling forms read. One failing row of
-four is not an unsupported series.
+finding, not a pass.
 
 `monotonic: <col> <dir> by <group>` and `tiling: <group> <lo> <hi>` express the
 bracketed forms directly (`check-table-invariants.py --help`). A closure the
@@ -64,12 +56,10 @@ retained per `.claude/rules/verification-scripts.md` — never left unstated.
 
 ### Why
 
-Three committed check scripts each identified the wrong column of an
-interleaved two-column scan, validating a casualty model against *perforation*
-data while feeding it the casualty threshold — with **every digit extracted
-correctly**, so the glyph-level scan passed. The error propagated into 14
-files and into shipped `src/arty/` code. One `½mv²` identity, applied once,
-would have caught all three: `.claude/incidents.md#column-inversion`.
+Three committed check scripts read the wrong column of an interleaved
+two-column scan — every digit correct, so the glyph-level scan passed — and the
+error reached shipped `src/arty/` code. One `½mv²` identity would have caught
+all three: `.claude/incidents.md#column-inversion`.
 
 ## A search returning nothing is not evidence of absence
 
@@ -103,12 +93,10 @@ Every citation into a processed source names a **stable, unique string** that
 may accompany an anchor as a convenience; they may never be the only anchor.
 
 **Run the `grep` when you write the anchor**, and confirm what it returns is
-what the citation claims. This is the cheap half of the rule and the half that
-was never being done: all 20 bare line-number anchors in two cards fail at
-their own birth commits, against sources of unchanged length — they never
-pointed at their claimed content, and checking all twenty costs 0.3 s. Rot is
-the failure the greppable-string rule prevents; **fabrication is the one that
-actually occurred**, and only verifying at authoring catches it.
+what the citation claims. Rot is what the greppable-string rule prevents;
+**fabrication is what actually occurred** — 20 of 20 bare anchors in two cards
+were wrong at their own birth commits — and only verifying at authoring catches
+that.
 
 Two ways a greppable anchor still fails, both silent:
 
@@ -142,12 +130,9 @@ literal array is reintroducing the failure mode — three independent
 transcriptions of one table produced three copies of one error precisely
 because each was typed fresh.
 
-**Keep `source.pdf`.** It is gitignored (`doc-reference/**/*.pdf`), so it costs
-the repo nothing, and it is what makes "go back to the page" possible at all —
-without it a table that fails its closure can only be re-argued, not re-read.
-Cite scanned tables by **PDF page and printed page** alongside the greppable
-anchor: a processed `.md` can be re-extracted and shift, the PDF's pagination
-cannot.
+**Keep `source.pdf`.** Cite scanned tables by **PDF page and printed page**
+alongside the greppable anchor: a processed `.md` can be re-extracted and
+shift, the PDF's pagination cannot.
 
 **`<stem>.md` is not reliably an extraction.** Its filename and location imply
 it is the processed source; one such file opened with a header calling itself a

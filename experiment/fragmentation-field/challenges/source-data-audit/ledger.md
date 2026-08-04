@@ -2787,13 +2787,13 @@ Phase 8 was written from defects the audit had measured by the time it opened.
 Four more accumulated behind it, in the executed Phase 3/5 passes and the card
 migration, and none of them was a variant of anything above.
 
-| from       | addition                                                            | landed in                     |
-| :--------- | :------------------------------------------------------------------ | :---------------------------- |
-| §35e, §21d | a search returning nothing is not evidence of absence               | fidelity rule, `librarian.md` |
-| §34a       | comparison protocol — were the candidates given equal freedom?      | `model-reviewer.md`           |
-| §33c       | the dispatcher re-tiers a subagent's findings on return             | `deferred-findings.md`        |
-| §17e       | consumer triage keys on "no card", not "no CSV"                     | fidelity rule                 |
-| §30b, §29a | a failing closure localises a table; "none I tried" ≠ "none exists" | fidelity rule                 |
+| from       | addition                                                       | landed in                     |
+| :--------- | :------------------------------------------------------------- | :---------------------------- |
+| §35e, §21d | a search returning nothing is not evidence of absence          | fidelity rule, `librarian.md` |
+| §34a       | comparison protocol — were the candidates given equal freedom? | `model-reviewer.md`           |
+| §33c       | the dispatcher re-tiers a subagent's findings on return        | `deferred-findings.md`        |
+| §17e       | consumer triage keys on "no card", not "no CSV"                | fidelity rule                 |
+| §30b, §29a | *not landed* — see below                                       | —                             |
 
 Evidence for the first three moved to `.claude/incidents.md`
 (`absent-from-a-copy`, `unequal-comparison`, `capped-severity`) per §26d — the
@@ -2819,6 +2819,17 @@ checklist was pointed at it.
 The third is not about physics at all: forbidding `src/arty/` is what kept the
 §33 pass to nine turns, and it is exactly what made a blocking finding look
 deferrable. The remedy is on the dispatcher, not in a wider brief.
+
+**§30b was drafted into the rule and then withdrawn**, which is worth recording
+because the objection generalises. "Use the rows that close, refuse the rows
+that do not" is unsafe as written: a failing row usually indicates a *shift*,
+and the mechanism that breaks one row breaks its neighbours **silently** — the
+surviving rows are not thereby verified, they are merely not yet caught. Nor is
+`.invariant` per-group behaviour an argument for it: those groups are declared
+by the source's own structure, not carved out after a failure. What remains
+once the unsafe part is removed — a failing closure is a finding for a human —
+the rule already says one paragraph earlier. §30b stands as a ledger
+observation about how *this* table was adjudicated; it is not a rule.
 
 ## 27 · Findings backfill — is any modelling pass sitting on a blocked item?
 
