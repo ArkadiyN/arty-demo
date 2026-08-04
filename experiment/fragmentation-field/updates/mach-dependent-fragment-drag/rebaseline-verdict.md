@@ -95,8 +95,6 @@ tabulated *k* range: the lowest tabulated *k* (demolition bombs, 590 gr/in³ =
 2.33 g/cm³, scoping §2) gives $C_{shape}$ = 2.248, combined 2.877, which is
 **7.6%** above 2.674. Number survives, justification does not.
 
-FINDING[note]: derivation.md L3 states the C_shape headroom bound as geometric ("denser than a steel cube") when the bound is inverted — C_shape has no geometric ceiling; the ~10% figure is empirical, from DoD's lowest tabulated k = 2.33 g/cm3 (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-03)
-
 ---
 
 ### The core math — untouched by either shock (C2, C3, C4, C5, C6, C9)
@@ -162,7 +160,7 @@ harder mild-steel-perforation threshold while the model ran the 58 ft-lb
 casualty criterion. This is the criterion-match failure named in
 `.claude/rules/source-data-fidelity.md`, not merely a transcription slip.
 
-FINDING[blocking]: the 25-point Ordnance velocity set behind derivation.md V2 and scoping.md §3a is mixed-column — the 105mm series is a digit-for-digit match to 105mm-m1-perforation-1-8in.csv, and the 75mm series uses 3 of 10 available casualties rows (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/scoping.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/checks/required-retardation-vs-mach.py; since: 2026-08-03)
+FINDING[note]: the mixed-column 25-point Ordnance velocity set is discharged in the documents — derivation.md §4 V2 now publishes the per-column re-run and §5 is withdrawn — but checks/required-retardation-vs-mach.py still carries the mixed array as a hard-coded literal; it is retained as the record of what was run, so read it as a record and never as a live series (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/checks/required-retardation-vs-mach.py; since: 2026-08-03)
 
 **C7 — shifted; the PASS survives, on either column separately, but narrowly.**
 Re-run cleanly per column (`checks/mach-law-rebaseline.py`):

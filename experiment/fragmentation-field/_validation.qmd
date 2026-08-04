@@ -125,7 +125,8 @@ probability of lethality at 200 feet (61 m)** when striking vital organs. This i
 *independent* datum — it is not part of the 1944 US Ordnance velocity-decay set the
 drag constants were anchored to
 ([`updates/mach-dependent-fragment-drag/derivation.md`](updates/mach-dependent-fragment-drag/derivation.md)
-§5) — so it is not re-banded to match the model. Note the same source's extraction
+§4 V2 — the anchor half of that update, which remains live) — so it is not
+re-banded to match the model. Note the same source's extraction
 renders "1/8 oz" as "~28 grams"; 1/8 oz is **3.54 g** (28 g is a full ounce), and the
 oz figure is taken as authoritative.
 

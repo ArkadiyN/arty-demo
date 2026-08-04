@@ -1,5 +1,25 @@
 # Scoping — fragment aerodynamic drag (`retardation_coeff`)
 
+> ## ⚠ PARTIALLY RETIRED — 2026-08-03
+>
+> **Withdrawn and not to be cited:** §1 (the problem statement — its 7–34×
+> *B(r)* motive is void, C1), §3a-2 and §4 Option 3's *stated reason* for
+> rejecting a Mach-dependent law (C11), and §3d's use of the mixed-column
+> velocity set. The Headline paragraph immediately below carries both defects:
+> "Mach dependence … buys essentially nothing" is **false on the corrected
+> data**, where it buys ~20–25% of RMS at equal parameter cost.
+>
+> **Still live:** §2 (the DoD-1975 literature audit), the geometric-envelope
+> argument, and §5's recommendation to adopt the ballistic-density anchor —
+> which is what shipped. The Headline's *other* claim, that the real defect was
+> a constant outside the physically admissible envelope, survives every shock
+> and is now the load-bearing leg of the whole update.
+>
+> The decision not to model $C_D(M)$ stands on architectural cost, not
+> accuracy; it is published as limitation **15** in `_limitations.qmd`. See
+> `derivation.md`'s banner for the full section-by-section split and
+> `rebaseline-verdict.md` for the 15-claim register.
+
 **Aspect.** The fragment retardation law in `src/arty/fragmentation.py`:
 `DragParams` (`C_D`, `C_shape`) and `retardation_coeff`, which returns the
 exponential decay rate λ in `v(s) = V0 · exp(−λ s)`.

@@ -29,10 +29,15 @@ closure-checked casualties columns, Family B **passes** the factor-of-2
 criterion at 8/10, 9/11 and 11/11 ranges, and the residual *inverts* — over at
 short range, under at long, not a one-directional miss. The "systematic
 Family B calibration issue" explanation dies with its premise. What is **not**
-settled: the drag chain spawned from that void gap
-(`updates/mach-dependent-fragment-drag/`) has not yet been re-adjudicated, and
-its velocity-decay evidence is independent of this defect — so this thread is
-re-baselined, not closed.
+settled: the drag chain spawned from that void gap has now been re-adjudicated
+and the update **closed and half-retired** — its ballistic-density anchor
+(the shipped $C_D$ = 1.28, $C_\text{shape}$ = 2.0890) survives every shock,
+while its Mach-dependence adjudication is withdrawn, because the comparison
+that rejected a $C_D(M)$ law was scored on the same wrong column and gave the
+constant a free parameter the curve did not have
+(`updates/mach-dependent-fragment-drag/README.md`). The decision not to model
+speed-dependent drag stands on architectural cost and is published as
+limitation 15. This thread is re-baselined, not closed.
 
 FINDING\[blocking\]: drag-gap-1944/README.md and \_validation.qmd still publish the void "Closed — residual sits at the geometric ceiling" verdict, whose premise the Phase 3 re-run has now overturned (challenges/drag-gap-1944/b-vs-range-rebaseline.md); the index above has been restated, these two surfaces have not (affects: experiment/fragmentation-field/challenges/drag-gap-1944/README.md, experiment/fragmentation-field/\_validation.qmd; since: 2026-08-03)
 

@@ -1,5 +1,40 @@
 # Derivation — fragment retardation anchored to the DoD-1975 ballistic density
 
+> ## ⚠ PARTIALLY RETIRED — 2026-08-03
+>
+> **The Mach-dependence half of this update is withdrawn and must not be
+> cited. The ballistic-density anchor half remains live.**
+>
+> Ruled by `rebaseline-verdict.md` (15 claims: 8 sound, 4 shifted, 3 void) and
+> verified in `challenges/source-data-audit/review-void-rulings.md`. The split:
+>
+> | Status | Sections | What it covers |
+> | --- | --- | --- |
+> | **LIVE** | §1–§4, §6, §8 | Identity (4) $C_\text{shape} = (\rho_\text{steel}/k)^{2/3}$, the geometric-admissibility argument, $C_D$ = 1.28 / $C_\text{shape}$ = 2.0890, and the implementation spec. This is the cited source of `src/arty/fragmentation.py:165` and change-log v0.9.0. |
+> | **WITHDRAWN** | §5, §7 L3 | The rejection of a Mach-dependent $C_D(M)$ *on accuracy grounds*, and the $B(r)$ residual framing. |
+>
+> **Why the anchor survives.** C4 (0.585 is *geometrically impossible* — it
+> implies a fragment 3.2× denser than steel presenting less area than an
+> equal-mass sphere) is pure geometry plus identity (4). It consumes no velocity
+> data, no $B(r)$, no $C_D(M)$ curve and no $V_0$, so neither shock reaches it.
+> C5 was *confirmed* by the corrected Figure-3 CSV, which reproduces the
+> source's own 1.08 / 1.40 / 1.28 to three digits.
+>
+> **Why the Mach half is withdrawn.** The comparison that rejected it was not
+> like-for-like — it gave the constant a fitted parameter and the Fig-3 curve
+> none — and it was scored on a 25-point set that was ~44% wrong-column. Given
+> both laws the same single scale freedom on the corrected data, the Mach law
+> **wins** by ~20–25% RMS on both columns.
+>
+> **The decision not to model $C_D(M)$ still stands** — on architectural cost at
+> an immaterial accuracy difference, not on accuracy. That restatement now lives
+> where readers see it, as limitation **15** in `_limitations.qmd`; this folder
+> is not the place to look it up.
+>
+> No new work is planned here. Do not re-open this folder to repair §5 — if the
+> Mach law is ever revisited it needs a fresh `updates/<slug>/` change scoped
+> against the corrected `figure-3-drag-coefficient.csv`.
+
 **Aspect.** `DragParams` (`C_D`, `C_shape`) and `retardation_coeff` in
 `src/arty/fragmentation.py` — the exponential decay rate λ in
 `v(s) = V₀·exp(−λs)`.
@@ -136,6 +171,25 @@ fidelity bar. For contrast the current constant gives $L_1$ = **1102**, i.e.
 
 ### V2 — Ordnance velocity decay (scoping §5 (ii)) — PASS
 
+> **CORRECTED 2026-08-03 (C7 — shifted, the PASS survives).** The 25-point set
+> below is **mixed-column**: the 105mm series is a digit-for-digit match to
+> `105mm-m1-perforation-1-8in.csv`, and the 75mm series used 3 of the 10
+> available casualties rows. Re-run cleanly per column
+> (`checks/mach-law-rebaseline.py`), the numbers that stand are:
+>
+> | Combined $C_D C_{shape}$ | casualties, all (n=32) | casualties, M > 0.7 (n=21) | perforation, all = M > 0.7 (n=33) |
+> | --- | --- | --- | --- |
+> | 0.585 (pre-update) | 0.967 | 0.755 (≈ 2.1× error) | 0.679 |
+> | **2.674 (adopted)** | 0.405 | **0.096** (10.1%) | **0.098** (10.3%) |
+> | published (mixed set, below) | 0.349 | 0.092 | — |
+>
+> The ≤ 0.10 bar passes on **each column separately** rather than on a mixture
+> — stronger in kind, weaker in margin (4% under the bar, not 8%). The
+> conclusion is unchanged: 0.585 fails by ~2× in the lethal band, 2.674 lands
+> inside ±10%. Caveat carried from `rebaseline-verdict.md`: $V_0$ is unverified
+> and a 10% $V_0$ error is comparable to the entire 0.096 RMS, so this margin is
+> not established as robust. The table below is left as published.
+
 RMS of $\ln(v_{model}/v_{source})$ over the 25-point 1944 Ordnance set
 (75mm M48 / 105mm M1 / 155mm M107, source-tabulated m(r), v(r)):
 
@@ -166,6 +220,20 @@ the right direction and magnitude for `challenges/drag-gap-1944/`, but see
 limitation L3.
 
 ## 5. Why no Mach dependence (recorded, so it is not re-opened)
+
+> **WITHDRAWN 2026-08-03 — this section's reasoning is void (C11). Do not cite
+> it.** Every numeric claim below is computed from the superseded
+> `figure-3-digitized.md` curve and from a velocity set that was ~44%
+> wrong-column. On the corrected inputs, with one free scale each, the Fig-3
+> $C_D(M)$ law **beats** the best-fit constant on both columns and in both
+> bands — casualties M > 0.7: 0.052 (5.3%) vs 0.069 (7.1%); perforation: 0.036
+> vs 0.045. Even with *no* fitted parameter it ties the fitted constant. The
+> section's conclusion — do not implement a Mach-dependent law — survives, but
+> the whole of its stated reason does not. The surviving reason is
+> architectural cost at an immaterial accuracy difference; it is published as
+> limitation **15** in `_limitations.qmd` and derived in `rebaseline-verdict.md`
+> (C11, C12). The section is kept unedited below as the record of what was
+> argued, not as a live claim.
 
 Rejected in scoping §4 Option 3 on evidence, not convenience: the digitized
 Fig-3 $C_D(M)$ curve integrated along each trajectory scores RMS 0.259 / 0.072
@@ -228,7 +296,18 @@ threshold, so this is outside the fidelity bar. Leading untested candidate: the
 source's tabulated m(r) at long range is set by *its own* lethality criterion
 and may not be a clean ballistic observable.
 
-**L3 — This change does not close `challenges/drag-gap-1944/`.** It delivers a
+**L3 — WITHDRAWN 2026-08-03 (C15).** The 7–34× *B(r)* over-prediction this
+limitation is written against is **void**: it was the model's 58 ft-lb casualty
+criterion compared against the mild-steel-perforation column
+(`challenges/drag-gap-1944/b-vs-range-rebaseline.md`). Against the genuine
+casualties columns Family B passes 8/10, 9/11 and 11/11, and the residual
+*inverts* sign with range — so there is no growing-with-range gap left for this
+limitation to decline to close. The ~10% headroom figure survives but its
+justification does not: `C_shape` has no geometric ceiling (a sliver has
+arbitrarily small *k*); the bound is empirical, from DoD's lowest tabulated
+*k* = 2.33 g/cm³, which gives 7.6% above 2.674. Kept below as written.
+
+**L3 (as published — void) — This change does not close `challenges/drag-gap-1944/`.** It delivers a
 ~3× far-field reduction against a 7–34× *B(r)* over-prediction that grows with
 range. The residual must be attributed elsewhere (count chain, spray/belt
 geometry, or the *B(r)* reduction itself), not to further drag increases —
