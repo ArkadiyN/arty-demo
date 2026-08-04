@@ -34,6 +34,17 @@ into "forgotten" looks like, and catching it is your job, not the register's.
     (`uv run src/utils/check-table-invariants.py <path> --all`). This is the
     second gate in `.claude/rules/source-data-fidelity.md`; the first
     (transcription fidelity) is @librarian's and is not your scope.
+- **Comparison protocol: were the candidates given equal freedom?** Where a
+    derivation rejects one model in favour of another, check what each side was
+    allowed to fit. A law evaluated at its *derived* parameters, scored against
+    a rival **fitted to the very data doing the scoring**, is not a comparison,
+    and a conclusion drawn from one is **Blocking** however clean the data is.
+    Check too that the scored dataset is the one the conclusion names. This is
+    not criterion match: there the data is wrong for the question, here the data
+    is right and the protocol decides the answer. One such comparison voided the
+    stated reason for a shipped rejection, and outweighed the wrong-number defect
+    registered against that same conclusion by roughly nine to one
+    (`.claude/incidents.md#unequal-comparison`).
 - **Provenance: does the primary say what it is cited as saying?** The third
     gate in that rule, and also yours. Where an artifact attributes a claim to
     a source *through* another source — "Gold (2017), following Mott (1943),

@@ -72,6 +72,16 @@ below are for topic-search dispatches only.
         it looks, and a `TABLE n` line is only an anchor if the extraction kept
         it attached to its own rows (in a flattened two-up scan it is page
         furniture — anchor on the section or shell title instead).
+    - **Never report a source as *not saying* something.** You searched a
+        surface, so name the surface: "not found in `<file>`" — never "the source
+        does not say it". The derived surfaces routinely lack what the page
+        carries: a PDF text layer that covers the tabular pages and not the prose
+        ones, an extraction that renders a quoted sentence as a summary bullet, a
+        summarising re-fetch that drops a property. Each looks healthy. Two
+        **correct** committed cards were reported as carrying fabricated content
+        this way on a single day. If a null result is about to become a finding,
+        open the retained `source.pdf` or the page image first, and say which one
+        you read (`.claude/rules/source-data-fidelity.md`).
     - **Write what the source says, never what to use it for.** No section
         recommending which of the source's data to calibrate on, which curve to
         prefer, or what the numbers imply for a model. That is a modelling claim,

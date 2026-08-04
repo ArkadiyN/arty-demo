@@ -2778,7 +2778,47 @@ Items 1, 3, 5 were already closed. Items 2 (convention), 4 and 6 are closed
 here, with 2's migration registered as deferred. All six audit additions are
 landed. `check-table-invariants.py doc-reference/ --all`: **0 / 28 failed**.
 
-FINDING\[deferrable\]: the card.md split is now a rule but the 18 existing cards are not migrated — four carry interpretive sections asserting what their source does not say, and none of the seven pre-audit cards has a provenance section; the convention binds new cards only until this migration runs (affects: doc-reference/, .claude/rules/source-data-fidelity.md; since: 2026-08-03)
+The migration this section registered as deferred **ran on 2026-08-03** and its
+finding is closed — see §25h for the six repaired cards and the four commits.
+
+### 26g · A second round, from the passes that ran after Phase 8 closed
+
+Phase 8 was written from defects the audit had measured by the time it opened.
+Four more accumulated behind it, in the executed Phase 3/5 passes and the card
+migration, and none of them was a variant of anything above.
+
+| from       | addition                                                            | landed in                     |
+| :--------- | :------------------------------------------------------------------ | :---------------------------- |
+| §35e, §21d | a search returning nothing is not evidence of absence               | fidelity rule, `librarian.md` |
+| §34a       | comparison protocol — were the candidates given equal freedom?      | `model-reviewer.md`           |
+| §33c       | the dispatcher re-tiers a subagent's findings on return             | `deferred-findings.md`        |
+| §17e       | consumer triage keys on "no card", not "no CSV"                     | fidelity rule                 |
+| §30b, §29a | a failing closure localises a table; "none I tried" ≠ "none exists" | fidelity rule                 |
+
+Evidence for the first three moved to `.claude/incidents.md`
+(`absent-from-a-copy`, `unequal-comparison`, `capped-severity`) per §26d — the
+rule text carries one-line consequences and a link, not the argument.
+
+**The first is the one that matters, and §35e had already measured it before
+anyone thought to write it down**: every ruling that survived independent
+verification rested on an identity or a closure, and every ruling that was
+overturned rested on a search returning nothing. The card migration then
+produced three more instances in a single day, on three unrelated surfaces —
+a PDF text layer, an extraction `.md`, and a summarising web re-fetch — two of
+which reached a **false fabrication verdict against a correct committed card**.
+Every other defect class this audit found had a rule by the time it closed;
+this one, the cheapest check the workflow owns and its least reliable, had a
+ledger paragraph.
+
+The second is the audit's sharpest lesson about its own priorities. The wrong
+*number* in the drag rejection (§13b) was registered as a finding months
+before; it accounts for ~10 % of the reversal. The wrong *comparison protocol*
+accounted for the rest and had no finding at all, because nothing in the review
+checklist was pointed at it.
+
+The third is not about physics at all: forbidding `src/arty/` is what kept the
+§33 pass to nine turns, and it is exactly what made a blocking finding look
+deferrable. The remedy is on the dispatcher, not in a wider brief.
 
 ## 27 · Findings backfill — is any modelling pass sitting on a blocked item?
 

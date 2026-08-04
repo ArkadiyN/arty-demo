@@ -47,7 +47,15 @@ not.
 
 **A table with no closure invariant is not thereby admissible** — it is
 flagged for human review in the dispatch summary. Absence of a check is a
-finding, not a pass.
+finding, not a pass. And *"no closure I tried worked"* is not *"no closure
+exists"*: one pass swept two readings of a table and reported no closure
+available, where a third closed; another reported none on a table stating its
+total one line above its parts.
+
+**A failing closure localises a table; it does not condemn it.** The verdict is
+per row or per group — use the rows that close, refuse the rows that do not —
+which is already how the monotonic and tiling forms read. One failing row of
+four is not an unsupported series.
 
 `monotonic: <col> <dir> by <group>` and `tiling: <group> <lo> <hi>` express the
 bracketed forms directly (`check-table-invariants.py --help`). A closure the
@@ -62,6 +70,31 @@ data while feeding it the casualty threshold — with **every digit extracted
 correctly**, so the glyph-level scan passed. The error propagated into 14
 files and into shipped `src/arty/` code. One `½mv²` identity, applied once,
 would have caught all three: `.claude/incidents.md#column-inversion`.
+
+## A search returning nothing is not evidence of absence
+
+Every gate in this rule is a **positive** check — a closure that holds, an
+anchor that resolves, a digit that matches — and that is not incidental. Across
+one audit, every ruling that survived independent verification rested on an
+identity or a closure; **every ruling it overturned rested on a search
+returning nothing.**
+
+A null result over a **derived** surface — an extraction `.md`, a PDF text
+layer, a summarising web re-fetch — bounds that surface and nothing else.
+
+- **Report the surface, never the source.** "Not found in `<file>`" is a
+    result. "The source does not say it" is a conclusion that surface cannot
+    support; only the page settles absence.
+- **A null result does not become a finding on its own.** Before writing that
+    an artifact fabricated, invented, or misquoted something, read the page —
+    the retained `source.pdf`, or the image.
+- **A summarising fetch can confirm a value present and cannot establish one
+    absent**, unless it was asked about that value by name.
+
+The gap is invisible from the derived side: a layer missing your passage still
+looks healthy on a character count and on known-present words. Three surfaces,
+three mechanisms, one day — two of them reaching a false fabrication verdict
+against a *correct* committed card: `.claude/incidents.md#absent-from-a-copy`.
 
 ## Anchors are greppable strings, never bare line numbers
 
@@ -187,3 +220,12 @@ and table numbers** as well as directory slugs. A carefully written citation
 names the document in prose — *Ammunition Series 6* Table 6-1 — so a slug-only
 grep systematically under-tiers exactly the citations written most carefully.
 That miss left a Tier-1 source sitting in Tier 2 through most of an audit.
+
+### Triage on "no card", not on "no CSV"
+
+A sweep for un-re-baselined sources keys naturally on a missing
+`tables/*.csv`. Both documents found feeding a shipped constant turned out to
+have **no `card.md` at all** — a raw extraction and nothing else — so each
+scored as an ordinary gap rather than as the worst case in the set. Sweep first
+for *cited by shipped code and carrying no card*: it is the smallest set, the
+highest-exposure one, and not a subset of the missing-CSV one.

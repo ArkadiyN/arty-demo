@@ -38,6 +38,20 @@ The failure this prevents has already happened: a wrong-column defect was
 correctly diagnosed **twice**, deferred both times as "out of scope", and never
 actioned — `.claude/incidents.md#deferred-and-forgotten`.
 
+## The dispatcher re-tiers a subagent's findings on return
+
+**A scope restriction that makes a pass cheap also caps the severity that pass
+can assign.** An agent forbidden `src/arty/` sees two working documents
+disagreeing and tags it `deferrable` — correctly, on the evidence it was
+allowed. From outside, the same contradiction is a shipped velocity resting on
+a rationale that may be wrong, which is `blocking` and the human's call.
+
+The fix is not a wider brief; the restriction is what kept that pass to nine
+turns and it was right. **On return, re-read any `deferrable` or `note` whose
+`affects:` paths lie inside the restriction the brief imposed, and follow those
+paths outward.** It costs one `grep` for whatever cites the artifact named —
+`.claude/incidents.md#capped-severity`.
+
 `OPEN-FINDINGS.md` is generated from these markers and gated by pre-commit;
 `uv run python src/utils/collect-findings.py --help` covers the mechanics.
 Before dispatching @modeler or @model-reviewer, inject the entries matching

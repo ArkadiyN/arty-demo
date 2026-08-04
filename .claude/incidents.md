@@ -221,3 +221,84 @@ vision-reconstructed document than on a transcribed one, and nothing in the
 output says which you are holding. Gold's eq. (6) `α^(-2/3)` is settled only by
 substituting eq. (2) into eq. (4) — algebra that never reads the disputed
 character. That is why the rule lists substitution as a closure form.
+
+## absent-from-a-copy
+
+*Behind:* `source-data-fidelity.md`, "A search returning nothing is not
+evidence of absence"; `librarian.md` card step.
+
+The pattern was measured before it was named. Of the rulings an independent
+verification pass examined, **every one that survived rested on an identity or
+a closure, and every one it overturned rested on a search returning nothing.**
+Three instances, three surfaces, all on 2026-08-03:
+
+1. **A PDF text layer covering the tabular pages and not the prose pages.** A
+    pass searched `ordnance-dept-1944`'s retained `source.pdf` for `Army`,
+    `Navy`, `proving ground`, `laborator`, `retardation` and
+    `angular distribution`, got **zero hits on all six**, and concluded the
+    card's "Data Sources" passage "is not present anywhere in the retained
+    scan" — a fabricated-content verdict on a correct committed card. The
+    passage is the body of the source's own `### 5. THE SOURCES OF DATA`,
+    displaced by two-up flattening. `pdftotext` pulls ~186 k characters from
+    that PDF and resolves `SHELL` 149×, `FRAGMENT` 206×, `Ordnance` 22× — so
+    neither a size check nor a spot-check of known-present words detects the
+    gap.
+1. **An extraction that dropped a sentence the page carries verbatim.** A pass
+    found the Mn-hardening quote absent from
+    `ammunition-series-6-steel-composition.md` (0 hits for "amount by which
+    0.01", 0 for "100 to 500") and downgraded a genuine verbatim quote in the
+    card to "paraphrase, not a quote". The sentence is on PDF page 11; the
+    extraction renders it only as a summary bullet with an en-dash.
+1. **A summarising web re-fetch.** `aisi-1335`'s first re-fetch returned a
+    complete-looking property list that silently omitted
+    `Hardness, Rockwell C: 15`, briefly read as a disagreement with the stored
+    extraction. A second fetch asking for that value by name confirmed it is on
+    the page.
+
+Two of the three produced a **false fabrication verdict against a correct
+committed artifact**, and in both the search itself was sound — only the corpus
+was not. This is the cheapest check the workflow has and its least reliable, in
+exactly that order.
+
+## unequal-comparison
+
+*Behind:* `model-reviewer.md`, "Comparison protocol".
+
+A Mach-dependent fragment drag law was rejected because it "buys nothing" over
+a constant $C_D$. It had been scored at its **derived** $k$ = 2600 — zero
+fitted parameters — against a constant **fitted to the very data doing the
+scoring**. Given both laws the same single scale parameter, the Mach law wins
+on both columns and in both velocity bands, a consistent 20–25 % reduction in
+RMS log-residual; in the lethal band the Mach law with *no* fitted parameter
+(0.068) already ties the best *fitted* constant (0.069).
+
+Two things make this worth a rule. First, the dataset it was scored on was
+~44 % wrong-column, and preferentially so — all 33 perforation rows sit in the
+band the verdict leaned on, against 21 of 32 casualties rows. Second, and the
+actual lesson: the wrong *number* in that chain (a digitized figure understating
+$C_D$) had been registered as a finding months earlier and accounts for only
+~10 % of the reversal. The wrong *comparison protocol* accounted for the rest
+and had no finding at all, because nothing in the review checklist was pointed
+at it.
+
+The decision survived on other grounds — both laws sit inside the ±10 %
+fidelity bar, so architectural cost carries it alone — but the published reason
+was void.
+
+## capped-severity
+
+*Behind:* `deferred-findings.md`, "The dispatcher re-tiers".
+
+A re-baseline pass on `frag-field-3d-geometry` was briefed to stay inside the
+update folder and not read `src/arty/`. It found a contradiction between the Q1
+rationale and a velocity derivation, and tagged it `deferrable` — from inside
+that folder it reads as two working documents disagreeing.
+
+`src/arty/zones.py:14` names that `derivation.md` as its source, and
+`zones.py:384-385` computes the velocities, shipped as v0.3.0 and rendered in
+the notebook. So either the rationale is wrong or a shipped velocity is, and
+which is unknown — `blocking`, and the human's call.
+
+The restriction was correct: it is what kept the pass to nine turns. Widening
+the brief would have bought the right tier at the cost of the cheapness that
+made the pass worth running. Re-tiering on return costs one `grep`.
