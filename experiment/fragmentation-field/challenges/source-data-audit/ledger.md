@@ -3194,3 +3194,188 @@ depended on the pit count that moved. **The re-baseline's yield here is not
 overturned verdicts; it is the tests that were built to check them.** Neither
 the threshold-free spectrum route nor the μ-measurement corollary existed before
 someone had to re-justify a claim they already believed.
+
+______________________________________________________________________
+
+## 33 · Phase 3 — `frag-field-3d-geometry`: a citation that was load-bearing
+
+Verdict file: `updates/frag-field-3d-geometry/rebaseline-verdict.md`.
+**3 claim-groups sound, 0 shifted, 1 void.** The sound majority is the expected
+outcome and was *shown* rather than asserted — zone mass partitioning, the Q2
+base-plate evidence, and the Q3/Q4/presented-area/Mott-Gurney bundle each
+consume no re-baselined series. Notably the Q2 base-plate argument already
+quoted **15.4 %** of recovered metal on Screen 1, which is what the corrected
+`pit-screen-recovery.csv` says, so it needed no adjustment at all.
+
+### 33a · The void one is a provenance defect, not a transcription defect
+
+`scoping.md:65-66` (restated at `:290`, `derivation.md:358`, `:379`) credits
+BRL Report 126 — Tolch 1938 — with nose-spray perforating fragments
+"averaging 2740 ft/s". That figure is nowhere in Tolch. It traces to
+`doc-reference/ww2-shells/nwc-tp-7124/index.md:260`, a **1990** Naval Weapons
+Center report, where **1070–2740 f/s** is a *measured range* of fragment
+velocity. Three things are wrong at once: the number, its framing (an
+"average" where the source states a range), and its attributed source — which
+is a 52-year error in provenance.
+
+This is the class of defect the fidelity rule says nothing else catches:
+*"the citing paper's extraction is clean, its digits are right, its own
+closures pass, and the error is entirely in what it says another paper says."*
+No closure invariant on any Tolch table would ever have found it, because the
+number was never in a Tolch table. Only checking the claim against the named
+primary does — and here the check is a single `grep` that returns nothing.
+
+**It is also the first defect in this audit found by mining a dead pass.** The
+first `frag-field-3d-geometry` dispatch exhausted at 15 tool uses with zero
+artifact bytes — textbook over-read, and under the harness rule its window is a
+liability to be discarded. Discarding the *window* is not the same as
+discarding what it *found*: reading its transcript before dropping it surfaced
+this lead, and handing the lead to the fresh dispatch is most of why the
+re-run landed a 7.9 KB verdict in 9 tool uses. Worth generalising — an
+over-read window is a bad thing to resume and a cheap thing to read.
+
+### 33b · What the citation was doing there
+
+The important part is not that a citation was wrong; it is what it was
+holding up. `derivation.md` §6's M1 numerical example computes
+$V_0^\text{cylinder} = 1578$ m/s against $V_0^\text{ogive} = 578$ m/s — the
+*opposite* of what the scoping's own Q1 rationale predicted ("ogive $C/M$
+higher → higher ogive $V_0$"). The BRL-126 attribution was the "range-panel
+artefact" paragraph that reconciled the two. Strike the citation and the
+reconciliation goes with it, so the contradiction is left **unexplained rather
+than merely uncited**.
+
+The Q1 recommendation itself (Option A, cylinder Gurney per zone) survives: it
+rests independently on the CRH radial-impulse geometry argument at
+`scoping.md:87-90`, which cites no re-baselined source. What must be struck or
+re-attributed are the corroboration bullets and the whole §6/§7 velocity
+narrative.
+
+### 33c · Why the compounding note was escalated to `blocking`
+
+The pass tagged the contradiction `deferrable` — correct on the evidence it was
+allowed, since its brief forbade `src/arty/` and from inside the update folder
+this reads as two working documents disagreeing. It is not confined to them.
+`src/arty/zones.py:14` names this `derivation.md` as its source and
+`zones.py:384-385` computes `V0_ogive` and `V0_cyl` via `_zone_gurney`, shipped
+as v0.3.0 in `_change-log.qmd` and rendered by `_four-zone-3d.qmd`. So either
+the Q1 rationale is wrong or a velocity in shipped code is, and **which is not
+known**. `.claude/rules/deferred-findings.md` reserves that call to the human.
+
+Two general lessons, both about scope rather than about drag or geometry:
+
+1. **A scope restriction that makes a pass cheap also caps the severity it can
+    assign.** Forbidding `src/arty/` is what kept this dispatch to 9 turns, and
+    it is precisely what made a blocking finding look deferrable. The
+    restriction was still right — the fix is for the dispatcher to re-tier
+    findings on return, which costs one `grep`, not to widen the brief.
+1. **The audit keeps finding that its own instrument is the yield.** §32
+    recorded that the re-baseline's value was the tests built to re-check
+    believed claims; here it is that a routine "does this update consume a
+    corrected series?" question, answered honestly per claim, turned up a
+    misattribution nobody was looking for.
+
+______________________________________________________________________
+
+## 34 · Phase 3 — `mach-dependent-fragment-drag`: the rejection was not a fair fight
+
+Verdict file: `updates/mach-dependent-fragment-drag/rebaseline-verdict.md`;
+evidence `updates/mach-dependent-fragment-drag/checks/mach-law-rebaseline.py`
+(4.5 s, reads both columns from the closure-checked CSVs and parses the
+superseded eyeballed curve from its own markdown rather than retyping it).
+**15 claims: 8 sound, 4 shifted, 3 void.**
+
+### 34a · The comparison that decided it had one free parameter on one side
+
+This is the finding, and it is not about drag. The Mach-dependent law was
+evaluated at the *derived* $k$ = 2600 — **zero fitted parameters** — against a
+constant **fitted to the very data being scored**. Scored that way the constant
+wins, and "Mach dependence buys nothing" followed. Give both laws the same one
+scale parameter and the Mach law wins on **both** columns and in **both** bands:
+
+| Comparison                | Mach law | best-fit constant |
+| ------------------------- | -------- | ----------------- |
+| casualties, all points    | 0.199    | 0.247             |
+| casualties, arrival M>0.7 | 0.052    | 0.069             |
+| perforation, all points   | 0.036    | 0.045             |
+
+A consistent ~20–25 % reduction in RMS log-residual. Sharper still: on the
+casualties column in the lethal band the Mach law with **no** fitted parameter
+(0.068) already ties the best *fitted* constant (0.069). C11 — the stated
+reason for the rejection — is **void**.
+
+**Shock B is the smaller half.** The corrected Fig-3 curve accounts for only
+~10 % of the reversal; the unequal-parameter framing accounts for the rest.
+Worth stating plainly, because the DoD-1975 digitization defect is the one that
+was already registered as a finding, and it turns out to be the lesser cause.
+A wrong number got a finding; a wrong *comparison protocol* got none, and was
+the dominant term.
+
+### 34b · The dataset was mixed, and mixed in the worst possible direction
+
+Not "the wrong column" — **both**. 105mm digit-for-digit from
+`105mm-m1-perforation-1-8in.csv`, 75mm only 3 of the 10 available casualties
+rows, 155mm casualties: 3 + 11 + 11 = the published n = 25, about **44 %**
+wrong-column. The compounding fact is the selection: all 33 perforation rows
+have arrival M > 0.7, against 21 of 32 casualties rows, so the "lethal-relevant"
+subset the verdict leaned on was *preferentially* the wrong column. That is a
+criterion-match failure in the `source-data-fidelity.md` sense — the cited data
+does not measure the quantity the model computes — not a transcription slip,
+and no glyph-level or closure check could have seen it.
+
+### 34c · The decision survives; the reason is replaced
+
+C12 — *do not implement* — is **shifted, not void**. Both laws sit inside the
+±10 % fidelity bar (7.1 % vs 5.3 %), so the honest closure is *immaterial at the
+stated fidelity target*, with the architectural cost carrying the decision
+alone. The pass ruled this conditional on a shipped-code fact it was forbidden
+to check; the main agent closed it, and it came back **stronger** than assumed:
+`retardation_coeff` (`fragmentation.py:333`) feeds seven call sites that all
+evaluate `V0 * np.exp(-lam * s)`, `np.log` appears nowhere in the module, and
+the field kernel at `:1210` evaluates `lam[None, :] * s_c[:, None]` — one
+broadcast outer product over the entire mass × standoff grid. A velocity-
+dependent $C_D$ turns that single exponential into a per-fragment, per-standoff
+ODE march. Leg (b) is the dominant cost, not a makeweight.
+
+### 34d · Shock A is void but does not resurrect the old constant
+
+Rescaling the published 7–34 × by the casualties/perforation ratio (1.2–2.25 ×)
+still leaves 3–28 ×, so the motive's collapse does not restore $C_D$ = 0.585.
+With C1 gone the update's load-bearing leg is **C4**, the geometric
+admissibility bound — 0.585 implies $k$ ≈ 25 400 kg/m³, denser than any
+plausible fragment — which consumes **no dataset at all** and is therefore
+immune to every shock in this audit. C10 (adopt combined 2.674) stands on it.
+
+That is the same shape as §31's `mott-scale-gap` result and §32's
+`count-gap-1938` result, now three times over: **the conclusions that survived a
+source re-baseline are the ones that never rested on a tabulated number.**
+`mott-scale-gap` used the *width* of a bracket, `count-gap-1938` used a
+threshold-free mass-fraction identity, and here a density bound. The audit is
+steadily converting "this agrees with the data" arguments into "this is
+impossible regardless of the data" arguments, and only the latter are holding.
+
+### 34e · Phase 4 is answered by this pass
+
+The re-scoped Phase 4 asked two questions. Both are now ruled and neither needs
+a separate `src/arty/` dispatch: the shipped constant survives (C10, on C4's
+dataset-free ground), and the rejection of Mach-dependent drag survives **as a
+decision** while its **stated reason is void** (C11 void, C12 shifted). What
+Phase 4 must still carry forward is the justification now sitting in shipped
+code. On `DragParams.C_D` (`src/arty/fragmentation.py:201-203`, greppable
+anchor `does not` / `beat this constant`) the comment reads:
+
+> "take the drag coefficient as constant at its supersonic value of 1.28". The
+> Mach dependence of its Fig. 3 does not beat this constant on the 1944
+> Ordnance velocity-decay data (derivation §5).
+
+The **value is sound** (C10) and must not change. The **second sentence is
+false**: on a like-for-like comparison the Mach dependence does beat it, on both
+columns and in both bands. It must be replaced by the immateriality argument
+(both inside the ±10 % bar; the closed-form λ at `:1210` is what carries the
+decision), not deleted — a bare constant with no recorded reason is how this
+whole thread started. Note the audit plan cited this comment as
+`fragmentation.py:184`; it has since moved to `:201-203`, which is the bare
+line-number anchor rot `source-data-fidelity.md` exists to prevent, occurring
+inside the audit's own planning document.
+
+FINDING\[blocking\]: src/arty/fragmentation.py:201-203 justifies the shipped C_D=1.28 with "The Mach dependence of its Fig. 3 does not beat this constant on the 1944 Ordnance velocity-decay data", which ledger 34a rules void — given equal scale freedom the Mach law beats it on both columns and both bands; the constant itself is sound (C10) so only the stated reason must be replaced, with the immateriality argument (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-03)

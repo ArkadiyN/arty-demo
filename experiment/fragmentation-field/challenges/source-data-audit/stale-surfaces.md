@@ -108,6 +108,28 @@ they describe the pre- and post-state of a specific edit, not a current value.
 
 ______________________________________________________________________
 
+## Added after the final two Phase-3 verdicts landed
+
+The sweep above was written when four threads had ruled. `mach-dependent-fragment-drag`
+(ledger §34) and `frag-field-3d-geometry` (§33) have since ruled and add the
+following. Two of them outrank everything in Tier 1, because they sit in
+**shipped code** rather than in a notebook.
+
+| Surface                                                              | Stale claim                                                                                                                                                                           | Exposure                               |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `src/arty/fragmentation.py:201-203`                                  | Comment on `DragParams.C_D`: the Mach dependence "does not beat this constant on the 1944 Ordnance velocity-decay data" — **false**; the value 1.28 is sound, only the reason is void | shipped                                |
+| `src/arty/zones.py:384-385` (via `derivation.md`)                    | Computes `V0_ogive` / `V0_cyl` from a derivation whose own §6 example contradicts its scoping rationale, previously reconciled by a citation now void                                 | shipped, **which is wrong is unknown** |
+| `updates/frag-field-3d-geometry/scoping.md:61, :65-78, :96-97, :290` | "BRL 126 reports nose-spray fragments averaging 2740 ft/s" — misattributed to Tolch 1938; belongs to NWC TP 7124, and is a *range* not an average                                     | working folder                         |
+| `updates/frag-field-3d-geometry/derivation.md:358, :379`             | §6 "range-panel artefact" reconciliation and §7 open-item 2, both built on the same void citation                                                                                     | cited by shipped `zones.py:14`         |
+| `updates/mach-dependent-fragment-drag/derivation.md` §5              | The rejection of the Mach-dependent law, decided by a comparison giving the constant a fitted parameter and the Mach law none                                                         | working folder                         |
+
+The two `src/arty/` rows are **not repairs this audit performs** — the plan
+scopes `src/arty/` to assess-only, and the `zones.py` one is a physics
+correctness question that belongs to @modeler under Gate 3. Both carry blocking
+findings so the decision to defer stays with the human.
+
+______________________________________________________________________
+
 ## Not a surface
 
 `experiment/fragmentation-field/fragmentation-field.html` and the per-challenge
