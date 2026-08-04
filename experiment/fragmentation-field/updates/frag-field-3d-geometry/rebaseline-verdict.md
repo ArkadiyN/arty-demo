@@ -67,6 +67,43 @@ secondhand. Ruling: **void**, not merely shifted — the number, its unit
 framing ("averaging," implying a mean, versus the source's stated range),
 and its attributed source are all wrong simultaneously.
 
+> **CORRECTION — 2026-08-03, Phase 5 independent verification.** The paragraph
+> above is **wrong on its central premise**, and the repair it prescribes is
+> also wrong. The figure *is* in Tolch 1938. It appears three times —
+> `tolch-1938.md:146`, restated at `:1658` and `:1698` — as
+> *"the velocity of the perforating fragments duo to the explosive charge
+> averaged **27^0 f/s** while that of the penetrating fragments was
+> **3030 f/s**"*. It is a four-digit number with its third glyph destroyed by
+> OCR (`^`), which is why a repo-wide `grep` for the literal string `2740`
+> could not see it. `card.md:49` already resolves it to `2,750 f/s`.
+>
+> **The ruling still stands, but on completely different grounds.** What is
+> wrong with the scoping's citation is not that the number is absent — it is
+> the **spray class** and the **companion value**:
+>
+> - Tolch's figure is the **side** spray, not the nose spray. The source says
+>   so explicitly and three times over: it was *computed from the change in
+>   the side-spray angle with remaining velocity*. BRL 126 reports **no**
+>   nose-spray velocity at all.
+> - The companion is **3030 f/s for the penetrating fragments** — *faster*
+>   than the perforating ones, which Tolch attributes to their smaller
+>   ballistic coefficients. The scoping's "1070 f/s penetrating" inverts the
+>   source's own ordering.
+>
+> So the citation is a **criterion mismatch plus an inverted companion**, not
+> a fabricated number. Consequently **the repair this section prescribed —
+> "re-attribute to NWC TP 7124" — must NOT be carried out**: it would replace
+> one misattribution with a second, moving a genuine Tolch side-spray figure
+> onto a 1990 document that merely happens to print overlapping digits. The
+> correct repair re-states the figure as Tolch's **side-spray** velocity, with
+> its true companion, and drops the nose-vs-side framing entirely.
+>
+> Two further consequences, both of which strengthen rather than weaken the
+> void: the figures are *computed from the side-spray angle*, not measured, so
+> they carry no independent velocity content; and the third glyph is genuinely
+> unreadable, so whether the value is 2740 or 2750 is not settled by the
+> processed text (`source.pdf` is retained and could settle it).
+
 **Downstream contamination — everything this figure was used to support:**
 
 - `scoping.md:61,65-78` — Q1 Option-C rejection and the "reconciliation"
@@ -130,8 +167,11 @@ citation sites: `scoping.md:61`, `scoping.md:65-78`, `scoping.md:290`,
 `derivation.md:358`, `derivation.md:379`).
 
 **Most consequential ruling:** the "BRL 126 nose-spray averaging 2740 ft/s"
-figure is a fabricated/misattributed provenance chain — it belongs to a
-different, later (1990) document, is a range rather than an average, and was
+figure is cited for the wrong spray class with an inverted companion — it is
+Tolch's **side**-spray value, computed from the sidespray-angle change, whose
+true companion is 3030 f/s (see the CORRECTION in §4: the earlier reading of
+this as a *fabricated* figure belonging to a 1990 document was itself wrong,
+and its prescribed repair must not be carried out). It was
 being used to paper over a genuine internal contradiction in the M1 zone-Gurney
 numerical example (model predicts cylinder $V_0$ > ogive $V_0$; scoping's Q1
 rationale predicted the opposite). The core Q1 recommendation (Option A)
@@ -139,6 +179,6 @@ still stands on its independent geometric-CRH argument, but the
 corroborating "BRL 126 agrees" bullets and the entire §6/§7 velocity
 narrative need re-derivation or removal — not a quiet re-citation.
 
-FINDING[blocking]: scoping.md:65-66 and derivation.md:358,379 attribute a "2740 ft/s / 835 m/s nose-spray" velocity figure to BRL 126 (Tolch 1938); it is not in that source and traces to NWC TP 7124's 1070-2740 f/s measured range instead (affects: experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/derivation.md; since: 2026-08-03)
+FINDING[blocking]: scoping.md:65-66 and derivation.md:358,379 cite a "2740 ft/s nose-spray vs 1070 ft/s penetrating" split to BRL 126 (Tolch 1938); the figure IS in Tolch (tolch-1938.md:146,1658,1698, OCR-damaged as "27^0 f/s") but is the SIDE spray computed from the sidespray-angle change, and its companion is 3030 f/s penetrating - so the spray class is wrong and the companion is inverted; do NOT re-attribute to NWC TP 7124, which would be a second misattribution (affects: experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/derivation.md; since: 2026-08-03)
 
 FINDING[blocking]: derivation.md §6 M1 numerical example computes cylinder V0 (1578 m/s) > ogive V0 (578 m/s), contradicting the Q1 scoping rationale's predicted "ogive C/M higher -> higher ogive V0"; the mismatch was papered over with the now-void BRL-126 citation rather than resolved, and this derivation is the cited source of shipped zones.py:384-385 which computes exactly those two quantities, so either the rationale or a shipped V0 is wrong and which is unknown (affects: experiment/fragmentation-field/updates/frag-field-3d-geometry/derivation.md, src/arty/zones.py; since: 2026-08-03)

@@ -119,14 +119,42 @@ following. Two of them outrank everything in Tier 1, because they sit in
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
 | `src/arty/fragmentation.py:201-203`                                  | Comment on `DragParams.C_D`: the Mach dependence "does not beat this constant on the 1944 Ordnance velocity-decay data" — **false**; the value 1.28 is sound, only the reason is void | shipped                                |
 | `src/arty/zones.py:384-385` (via `derivation.md`)                    | Computes `V0_ogive` / `V0_cyl` from a derivation whose own §6 example contradicts its scoping rationale, previously reconciled by a citation now void                                 | shipped, **which is wrong is unknown** |
-| `updates/frag-field-3d-geometry/scoping.md:61, :65-78, :96-97, :290` | "BRL 126 reports nose-spray fragments averaging 2740 ft/s" — misattributed to Tolch 1938; belongs to NWC TP 7124, and is a *range* not an average                                     | working folder                         |
+| `updates/frag-field-3d-geometry/scoping.md:61, :65-78, :96-97, :290` | "BRL 126 reports nose-spray fragments averaging 2740 ft/s" — the figure **is** Tolch's, but it is the **side** spray and its companion is 3030 f/s, not 1070 (see below)              | working folder                         |
+| `src/arty/shells.py:58-60`                                           | 75 mm M48 `mass_deductions=0.200` kg is a placeholder against Tolch's stated 2.35 lb M39 P.D. fuze; case metal 5755 g vs the source's 4962 g, ~16% high, and `N0 = M_case/2μ` uses it | shipped                                |
 | `updates/frag-field-3d-geometry/derivation.md:358, :379`             | §6 "range-panel artefact" reconciliation and §7 open-item 2, both built on the same void citation                                                                                     | cited by shipped `zones.py:14`         |
 | `updates/mach-dependent-fragment-drag/derivation.md` §5              | The rejection of the Mach-dependent law, decided by a comparison giving the constant a fitted parameter and the Mach law none                                                         | working folder                         |
 
-The two `src/arty/` rows are **not repairs this audit performs** — the plan
+The `src/arty/` rows are **not repairs this audit performs** — the plan
 scopes `src/arty/` to assess-only, and the `zones.py` one is a physics
-correctness question that belongs to @modeler under Gate 3. Both carry blocking
+correctness question that belongs to @modeler under Gate 3. All carry blocking
 findings so the decision to defer stays with the human.
+
+______________________________________________________________________
+
+## Added after Phase 5 verification — one row here was itself wrong
+
+Phase 5 overturned the reading behind the `frag-field-3d-geometry` row above.
+The "2740 ft/s" figure **is** in Tolch 1938 (`tolch-1938.md:146`, `:1658`,
+`:1698`), OCR-damaged to `27^0 f/s`, which is why a literal `grep` for `2740`
+found nothing and the absence was misread as fabrication.
+
+**The repair this map previously implied — re-attribute to NWC TP 7124 — must
+not be carried out.** It would move a genuine Tolch side-spray value onto a
+1990 document that merely prints overlapping digits. The correct repair
+restates the figure as Tolch's **side-spray** velocity with its true companion
+(3030 f/s penetrating, *faster*), and drops the nose-vs-side framing.
+
+Two further surfaces enter the map from Phase 5:
+
+| Surface                                      | Stale claim                                                                                                                                                                                                                                    | Exposure                           |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| Tolch `card.md:57-59` "Drag Model Relevance" | Recommends the velocity-sweep collapse as the drag anchor; the axis is **exactly** degenerate in `C_D·C_shape`, not merely insensitive. Section must leave `doc-reference/` for `challenges/drag-gap-1944/`, leaving a referral                | premise doc for the next drag pass |
+| Tolch `card.md:26` + `#L617-L627` anchor     | Calls the collapse "table-sourced and high-confidence" while anchoring at a bare line range that lands on solid-angle prose; that surface misprints two cells of the same table (Panel B @2130: 3.12 vs CSV 1.12; Panel C @1085: 0.65 vs 0.85) | reference doc                      |
+
+Also newly mapped, and *not* stale so much as unsettled: the two retained
+DoD-1975 tracing scripts disagree on the true Figure-3 value at Mach 1.00
+(~1.257 vs 1.274). Both agree the CSV's 1.233 is wrong; the size of the
+correction is not yet settled and is registered as a `note`.
 
 ______________________________________________________________________
 

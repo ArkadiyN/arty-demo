@@ -3379,3 +3379,130 @@ line-number anchor rot `source-data-fidelity.md` exists to prevent, occurring
 inside the audit's own planning document.
 
 FINDING\[blocking\]: src/arty/fragmentation.py:201-203 justifies the shipped C_D=1.28 with "The Mach dependence of its Fig. 3 does not beat this constant on the 1944 Ordnance velocity-decay data", which ledger 34a rules void — given equal scale freedom the Mach law beats it on both columns and both bands; the constant itself is sound (C10) so only the stated reason must be replaced, with the immateriality argument (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-03)
+
+______________________________________________________________________
+
+## 35 · Phase 5 — independent verification, and what it overturned
+
+Four @model-reviewer passes, split by claim class rather than by thread
+(criterion-match; adversarial refutation of the void rulings; provenance;
+the Tolch card). Artifacts: `review-criterion-match.md`,
+`review-void-rulings.md`, `review-provenance.md` (§1–3).
+
+The headline is that **the verification pass earned its cost by overturning
+the audit's own work, twice** — once a ruling this ledger published, once a
+finding the main agent had escalated by hand. A verification phase that only
+ratifies is indistinguishable from no verification phase.
+
+### 35a · The BRL-126 "2740 ft/s" ruling was right for the wrong reason
+
+§33a ruled the figure **void** on the grounds that it *is not in Tolch at
+all* and traces to NWC TP 7124, a 1990 document. That premise is false. The
+figure is in Tolch three times — `tolch-1938.md:146`, `:1658`, `:1698` —
+as *"the perforating fragments … averaged **27^0 f/s** while that of the
+penetrating fragments was **3030 f/s**"*. It is a four-digit number whose
+third glyph OCR destroyed, so **a repo-wide `grep` for the literal `2740`
+could not see it, and returning nothing was read as proof of absence**.
+
+The void ruling survives, on different and narrower grounds: the figure is
+Tolch's **side** spray (the source says three times it was *computed from the
+change in the sidespray angle*), not the nose spray, and its companion is
+**3030 f/s penetrating** — *faster*, which Tolch attributes to smaller
+ballistic coefficients. The scoping inverted that. So the defect is a
+criterion mismatch plus an inverted companion, not a fabrication.
+
+**The consequential part is the repair.** §33 prescribed re-attributing the
+figure to NWC TP 7124. Carrying that out would have moved a genuine Tolch
+side-spray value onto a 1990 document that merely prints overlapping digits —
+**the audit would have introduced a second misattribution while closing the
+first**, and the new one would have looked freshly verified.
+
+**Lesson (a new one, and it generalises past this audit).** *A negative
+provenance claim cannot be established by literal `grep` against an OCR'd
+source.* Absence of the string is evidence about the extraction, not about the
+document. Where the claim is "the primary does not say this", the check must
+run against the retained `source.pdf`, or against a glyph-tolerant search, or
+be downgraded to "not found in the processed text". This is the same class as
+`#laundered-glyphs`: the extraction looked clean because the damage was one
+character wide.
+
+### 35b · `TABLE nn` renumbers between the scan and the extraction
+
+The criterion-match pass flagged that consuming documents cite "Table 43/51/59"
+for the casualties series while the six `.invariant` files anchor "TABLE
+38/48/56". **The natural repair — align the invariants to the extraction — is
+wrong**, and the main agent had begun it before checking.
+
+`checks/ordnance-1944-page-geometry.py` establishes by *page geometry* (word
+x-coordinates on the retained scan, never reading order) that `source.pdf`
+prints TABLE 38/39, 48/49, 56/57 — and it passes on every anchor. The
+flattened extraction `ordnance-1944.md` prints TABLE 43/44, 51/52, 59/60 above
+the very same rows. `checks/ordnance-1944-table-number-anchors.py` confirms the
+data is identical (65 of 66 CSV rows appear verbatim in the extraction; the
+one gap is the already-known 155 mm r=300 divergence) and that each anchored
+`TABLE nn` lands, in the extraction, under a **different shell**.
+
+So the anchors are correct and the surfaces disagree. What is missing is a
+warning that `TABLE nn` must never be grepped against `ordnance-1944.md`. This
+is the rule's own case — *"a `TABLE n` line is only an anchor if the extraction
+kept it attached to its own rows"* — with the twist that here the **PDF** is
+right and the derived copy is the liar.
+
+### 35c · A shipped case mass resting on a placeholder
+
+Independent of any re-baseline, the refutation pass found that
+`count-gap-1938` compares the model's **case metal** against Tolch's **shell
+plus fuze**. Tolch's own weight row closes exactly and settles the basis
+(`tolch-1938.md:232`):
+
+```
+12.50 (loaded unfuzed) - 1.56 (TNT) + 2.35 (M39 P.D. fuze) = 13.29 lb   ✓
+```
+
+so case metal is 10.94 lb = **4962 g**. Shipped `src/arty/shells.py` implies
+6.622 − 0.6668 − 0.200 = **5755 g**, because `mass_deductions = 0.200` kg is a
+self-declared *placeholder* against a stated fuze weight of 2.35 lb (1066 g).
+The model is **~16% high**, not the 4.5% low the thread recorded — the sign
+flips with the basis. `N0 = M_case / 2μ` carries this into every fragment
+count. Note also the fuze is Tolch's **M39** P.D.; the code comment names an
+"M48 PD fuze", which is the *shell's* designation.
+
+### 35d · The Tolch drag anchor is exactly degenerate, not merely weak
+
+The card's "Drag Model Relevance" section recommends the velocity-sweep density
+collapse as the drag-calibration anchor. The standing correction (in agent
+memory for years, then in `tolch-1938-panel-distance.md`) called that axis
+"near-insensitive" to drag. The provenance pass sharpened it to **exact**: at
+fixed panel radius, `exp(-R/L(m))` is independent of the shell's remaining
+velocity, so it folds entirely into the fitted marking threshold and the
+collapse curve is *invariant* under any rescaling of `C_D·C_shape`. The source
+itself attributes the collapse to vector addition (`:853-857`) and attributes
+the **distance** axis to air resistance (`:804`) — the card recommends the
+first and never mentions the second.
+
+The card also anchors this table at `tolch-1938.md#L617-L627`, which is a bare
+line-number anchor landing on solid-angle prose and OCR noise — verified, not
+inferred — and that markdown surface misprints two cells of the very table the
+card calls "high-confidence" (Panel B at 2130 f/s: **3.12** vs the CSV's
+**1.12**; Panel C at 1085 f/s: **0.65** vs **0.85**).
+
+### 35e · What the four passes did to the audit's own confidence
+
+| Pass             | Ratified                                                            | Overturned                                                          |
+| ---------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| criterion-match  | all three consuming artifacts PASS                                  | — (both its conditionals closed by arithmetic)                      |
+| refute-the-voids | C11 upheld on *stronger* grounds; count-gap Fact 2 upheld, narrower | the BRL-126 premise **and** its prescribed repair                   |
+| provenance §1–2  | Gold eq. (6) substitution closes                                    | DoD-1975 CSV row at Mach 1.00; two card-as-modelling-claim sections |
+| provenance §3    | —                                                                   | the Tolch drag anchor, upgraded to *exactly* degenerate             |
+
+The converging pattern noted at §30/§31/§34 now has a counterpart on the
+verification side: **every ruling that survived Phase 5 unchanged was one that
+rested on an identity or a closure, and every ruling Phase 5 moved was one that
+rested on a search returning nothing.** Absence-of-evidence is the audit's
+weakest instrument, and it is the one it reached for most cheaply.
+
+FINDING\[blocking\]: src/arty/shells.py:58-60 gives 75mm M48 mass_deductions=0.200 kg as a self-declared placeholder, but Tolch 1938's own weight row (tolch-1938.md:232, closing exactly as 12.50-1.56+2.35=13.29 lb) states the M39 P.D. fuze at 2.35 lb = 1066 g; shipped case metal is therefore 5755 g against the source's 4962 g, ~16% high, and N0 = M_case/2mu carries it into every fragment count (affects: src/arty/shells.py, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/source-data-audit/checks/tolch-case-mass-basis.py; since: 2026-08-03)
+
+FINDING\[deferrable\]: the six ordnance-1944 .invariant files anchor TABLE 38/39,48/49,56/57 which are correct against the retained source.pdf (geometry-verified by checks/ordnance-1944-page-geometry.py) but resolve to a DIFFERENT shell in the flattened extraction ordnance-1944.md, which renumbers the same tables 43/44,51/52,59/60; no data is wrong, but nothing warns a reader not to grep TABLE nn against the extraction (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables, experiment/fragmentation-field/challenges/source-data-audit/checks/ordnance-1944-table-number-anchors.py; since: 2026-08-03)
+
+FINDING\[note\]: two retained scripts disagree on the traced page value of DoD-1975 Figure 3 at Mach 1.00 - checks/dod-1975-figure-3-mach1-gridline-probe.py gives ~1.257 (the value review-provenance.md quotes) and checks/dod-1975-figure-3-independent-trace.py gives 1.274; both agree the CSV's 1.233 is wrong and that this is the largest residual on the curve, but the size of the correction is not settled (affects: experiment/fragmentation-field/challenges/source-data-audit/checks/dod-1975-figure-3-independent-trace.py, experiment/fragmentation-field/challenges/source-data-audit/review-provenance.md; since: 2026-08-03)
