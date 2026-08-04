@@ -644,7 +644,32 @@ extract-once rule does not apply to them — only the anchor rule does.
 
 FINDING\[deferrable\]: shipped code cites DoD-1975 by bare line number (lines 316, 321, 338-339) for \_K_BALLISTIC and C_D; the lines resolve correctly today but rot silently on any re-extraction — replace with greppable strings (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-02)
 
-FINDING\[deferrable\]: one doc-reference document feeds numbers into committed artifacts with no tables/\*.csv and no retained source PDF, so it cannot be re-baselined without re-acquisition (dod-1975 closed in §13 by re-acquisition, ammunition-series-6-wdss-specs in §19, aisi-1335 in §21 — the last of these needed no scan at all, its source is a live page and its table carries an arithmetic closure) (affects: doc-reference/ww2-shells/ammunition-series-6-steel-composition/; since: 2026-08-02)
+**The last of these was never true.** `ammunition-series-6-steel-composition`
+was recorded here as the one document with no retained source PDF, and it has
+had one all along: §6-11 "Steel Used Early in World War II" sits at **PDF page
+11 = printed page 6-4** of
+`doc-reference/ww2-shells/ammunition-series-6-wdss-specs/source.pdf` — the same
+book, filed under the sibling slug, 59 pages, with a working text layer
+(`X-1340` returns 2 hits, `heat-robbing` 1). The audit looked inside the
+document's own directory, found no blob, and concluded there was none; nothing
+in that check could see a book split across two `doc-reference/` entries. So
+the count of un-re-baselineable documents in this audit is **zero**, not one.
+
+Checked at the page while closing this: §6-11 gives the X-1340 composition as
+prose — "carbon, 0.35 to 0.45 percent; manganese, 1.35 to 1.65 percent;
+phosphorus, 0.45 percent maximum; sulfur, 0.075 to 0.15 percent" — so the
+disputed **P = 0.45%** is the printed value, faithfully carried by every
+surface between the page and the card. The extraction's "possible transcription
+error (should be 0.045%?)" caveat was doubt about the source, not a transcription
+defect, and the card now says so. The extraction *does* drop a verbatim sentence
+the page carries (the 0.01%-Mn / 100–500 psi relationship), which the migration
+pass had reported as a fabricated quote in the card — it is on the page; the gap
+is in the derived surface. That is the ordnance-1944 false-negative shape again
+(§35e), on a second document, found by the same reflex of not accepting absence
+from a derived copy.
+
+The generalisable miss is registered on the card, not here:
+`doc-reference/ww2-shells/ammunition-series-6-steel-composition/card.md`.
 
 ## 12. The 1944 source scan, recovered — column identity checked at the page
 
@@ -2602,7 +2627,26 @@ at §35b below and is not closed by this.
 
 The dod-1975 leg was closed in `bab141a` — the "Use:" recommendation and the "presumably ~0–Mach 7" range are gone, replaced by the two weapon-class-specific shape factors the source does state plus a referral, and that card now has a provenance section. Two cards still carry the defect:
 
-FINDING\[note\]: two pre-audit cards carry interpretive sections asserting what the source does not state — aisi-1045 bolds a provenance guess that it is "likely the source of the 45000 psi baseline figure", and ammunition-series-6-steel-composition lists elongation and hardness targets it marks "not stated in source"; both are uncited today so they gate nothing, and both sit in the cards lacking a provenance section, which is the case for splitting card.md in Phase 8 item 2 (affects: doc-reference/azom-steel-grades/aisi-1045/card.md, doc-reference/ww2-shells/ammunition-series-6-steel-composition/card.md; since: 2026-08-03)
+**Both are closed.** `aisi-1045`'s bolded provenance guess and its two inline
+"matches the catalog" asides are struck; `ammunition-series-6-steel-composition`'s
+elongation and hardness targets — the two values it marked "not stated in
+source" — are struck entirely. Both cards now carry a `## Provenance of this card` section, and both separate the source's own words from the surrounding
+commentary.
+
+Two things surfaced in doing it, and neither was the defect being repaired:
+
+- **`aisi-1045.md` is not purely an extraction.** Its `## Remarks` section is
+    the extractor's own text — one sentence stating what the reference does
+    *not* mention, and one comparing the page's yield figure to "the
+    fragmentation catalog baseline", which is this repo's artifact and cannot
+    have appeared on an AZoM page. The migration pass, correctly refusing to let
+    the card assert the comparison, moved it into a quote attributed to the
+    source instead, which laundered it. Both sentences are now marked as
+    commentary on the card and the finding is registered against the extraction.
+    This is `.claude/rules/source-data-fidelity.md`'s "`<stem>.md` is not
+    reliably an extraction" with a different filler.
+- **The `ammunition-series-6` source blob was retained all along** — see §11
+    above, where the finding that said otherwise is closed.
 
 FINDING\[deferrable\]: the m49a2-60mm-mortar-shell document work was never finished, so its card.md is mid-work state and must not be treated as adjudicated — its "Design Intent and Context" section speculates on the body-shell material ("Likely ductile-steel", "most probable"); exposure is low and bounded — the shell is a recently added catalog entry with no model physics derived from it (user, 2026-08-03), it appears downstream only as one row in mott-fragment-shape-closure's cross-shell sweep, and updates/wdss1-steel-grade/derivation.md A6 sources the composition to Ammunition Series 6 Table 6-1 instead, explicitly declining the drawing; Phase 2.5d issued no verdict on the card and none should be inferred (affects: doc-reference/ww2-shells/m49a2-60mm-mortar-shell/card.md, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md; since: 2026-08-03)
 

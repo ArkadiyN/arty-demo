@@ -22,10 +22,10 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:589`
 - **experiment/fragmentation-field/_validation.qmd Check 7 labels the three ordnance-1944 shell tables "Tables 43/51/59" on a rendered reader-facing surface, but those are the flattened extraction's renumbering and each points at a neighbouring shell (43 is 81mm M43A1, 51 is 105mm M38A1, 59 is 8in M103); the printed and geometry-verified numbers are 38/39, 48/49, 56/57**
     - affects: `experiment/fragmentation-field/_validation.qmd`
-    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:748`
+    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:773`
 - **SAND92-0243 is cited as "C_D 1.2-1.7" and 1.2 is used as its low end, but that is the report's general prose sentence; its parameter-range list on the same page gives the span of its own computed data as 1.0 to 1.71, so the cited floor is 0.2 high**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/checks/drag-coefficient-calibration.py`, `experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md`, `experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range.qmd`, `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`, `experiment/fragmentation-field/_limitations.qmd`
-    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:1967`
+    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:1992`
 - **the "Implications for 79 J Threshold" section, Key Findings bullet 1 and the Summary's "79–80 J" clause are not on the source page — it never mentions 79 J or 80 J — so a repo argument is published here as a DoD/Navy claim**
     - affects: `doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md`, `experiment/fragmentation-field/_limitations.qmd`
     - raised: 2026-08-03 (0d) in `doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md:75`
@@ -43,10 +43,10 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range-rebaseline.md:171`
 - **ES-310's "Implications for 79 J Threshold" section, Key Findings bullet 1 and Summary "79–80 J" clause are not on the source page — it never mentions 79 J or 80 J — so a repo argument is published as a DoD/Navy claim**
     - affects: `doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md`, `experiment/fragmentation-field/_limitations.qmd`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2185`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2210`
 - **src/arty/shells.py:58-60 gives 75mm M48 mass_deductions=0.200 kg as a self-declared placeholder, but Tolch 1938's own weight row (tolch-1938.md:232, closing exactly as 12.50-1.56+2.35=13.29 lb) states the M39 P.D. fuze at 2.35 lb = 1066 g; shipped case metal is therefore 5755 g against the source's 4962 g, ~16% high, and N0 = M_case/2mu carries it into every fragment count**
     - affects: `src/arty/shells.py`, `experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md`, `experiment/fragmentation-field/challenges/source-data-audit/checks/tolch-case-mass-basis.py`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:3547`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:3591`
 - **figure-3-drag-coefficient.csv row mach=1.00 reads cd=1.233 where the page shows ~1.257, and its cd_lo..cd_hi band excludes the page value; cause is the trace's +-10px half-Mach-gridline exclusion sampling ~0.035 Mach off-label on the steepest part of the curve, and the .invariant is blind to it because all three pinned features sit on flat segments**
     - affects: `doc-reference/fragmentation/dod-1975-fragment-debris-hazards/tables/figure-3-drag-coefficient.csv`, `doc-reference/fragmentation/dod-1975-fragment-debris-hazards/tables/figure-3-drag-coefficient.invariant`, `doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md`, `experiment/fragmentation-field/challenges/source-data-audit/checks/dod-1975-figure-3-trace.py`
     - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/review-provenance.md:102`
@@ -72,7 +72,7 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - affects: `src/arty/fragmentation.py`, `experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md`, `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md`, `doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.invariant`
     - raised: 2026-08-03 (0d) in `src/arty/fragmentation.py:61`
 
-## Deferrable (29)
+## Deferrable (28)
 
 - **AMCP 706-249 §6-14 states yield strengths of 60,000-80,000 psi for artillery-caliber shell steels; `_limitations.qmd` §13 (A6) and prior cards asserted the source gives none, so shipped `sigma_f = 800 MPa` has never been compared against it**
     - affects: `experiment/fragmentation-field/_limitations.qmd`, `src/arty/fragmentation.py`, `experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md`
@@ -80,15 +80,12 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
 - **shipped code cites DoD-1975 by bare line number (lines 316, 321, 338-339) for _K_BALLISTIC and C_D; the lines resolve correctly today but rot silently on any re-extraction — replace with greppable strings**
     - affects: `src/arty/fragmentation.py`, `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md`
     - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:645`
-- **one doc-reference document feeds numbers into committed artifacts with no tables/*.csv and no retained source PDF, so it cannot be re-baselined without re-acquisition (dod-1975 closed in §13 by re-acquisition, ammunition-series-6-wdss-specs in §19, aisi-1335 in §21 — the last of these needed no scan at all, its source is a live page and its table carries an arithmetic closure)**
-    - affects: `doc-reference/ww2-shells/ammunition-series-6-steel-composition/`
-    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:647`
 - **dod-1975 card.md cites its passages as bare line ranges (L293-L315, L320-L327, L346, L550), the anchor form source-data-fidelity.md forbids; the page numbers are now known (pdf pp.17-19, figure p.33) so the replacement is mechanical**
     - affects: `doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md`
-    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:849`
+    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:874`
 - **SAND92-0243 is cited for a velocity-DEPENDENT C_D but states no functional form; its own analyses take "Drag coefficient = variable (Ref. 1)" and Ref. 1 is SAND91-0277, which is not held, so the dependence is cited but unsourced**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md`, `experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md`, `doc-reference/ww2-shells/sandia-sand92-0243/card.md`
-    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:1969`
+    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:1994`
 - **Gold 2017 attributes to "Mott (1943)" both a constant fragment breadth:length ratio and an average cross-sectional area proportional to (r/V)^2, and this derivation inherits the first as the premise that A = l/x is one constant across shells; the primary (Mott & Linfoot, A.C. 3348, now retained at doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/) states the opposite twice ("we have not been able to find a theory to account for the average length of the splinters", p.2; "our theory ... does not account for the length of splinters from shells, but only for their breadth", p.4) and where sect. 3 treats length it makes it independent of breadth, while the (r/V)^2 area scaling is Mott 1947's, not 1943's — only the parallelepiped attribution survives, so the 1.6 VALUE is fine (it is Felix 2022 Table 4, ledger sect. 16) but the structural premise is not primary-backed and the Phase-3 pass on this thread should say so rather than repeat Gold's citation**
     - affects: `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md`, `experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md`, `src/arty/fragmentation.py`, `doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/card.md`
     - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md:19`
@@ -112,22 +109,22 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/mott-scale-gap/rebaseline-verdict.md:107`
 - **_limitations.qmd tells readers Cunniff (2014) and AEP-55 Vol. 3 are not present in doc-reference/, but both are collected; the correct claim is that neither carries a quotable man-silhouette scalar**
     - affects: `experiment/fragmentation-field/_limitations.qmd`, `experiment/fragmentation-field/updates/target-area-profile/derivation.md`, `experiment/fragmentation-field/updates/familyA-false-safe-zone/scoping.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2193`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2218`
 - **scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that**
     - affects: `src/utils/scan-extraction-quality.py`, `.claude/rules/source-data-fidelity.md`, `doc-reference/fragmentation/fragment-size-distribution-conwep/card.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2403`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2428`
 - **_limitations.qmd tells readers to treat posture-resolved hit counts as provisional "until the references are collected", naming AEP-55 Vol. 3 — but the retained scan shows Vol. 3 is an armoured-vehicle IED test standard assessing occupants with ATDs, so it can never supply a man-silhouette presented area and the caveat as written can never be discharged; the correct disclosure is scoping.md's, that 0.85 m² is an engineering convention**
     - affects: `experiment/fragmentation-field/_limitations.qmd`, `doc-reference/wound-ballistics/aep-55-vol3/card.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2405`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2430`
 - **the m49a2-60mm-mortar-shell document work was never finished, so its card.md is mid-work state and must not be treated as adjudicated — its "Design Intent and Context" section speculates on the body-shell material ("Likely ductile-steel", "most probable"); exposure is low and bounded — the shell is a recently added catalog entry with no model physics derived from it (user, 2026-08-03), it appears downstream only as one row in mott-fragment-shape-closure's cross-shell sweep, and updates/wdss1-steel-grade/derivation.md A6 sources the composition to Ammunition Series 6 Table 6-1 instead, explicitly declining the drawing; Phase 2.5d issued no verdict on the card and none should be inferred**
     - affects: `doc-reference/ww2-shells/m49a2-60mm-mortar-shell/card.md`, `experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2607`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2651`
 - **the card.md split is now a rule but the 18 existing cards are not migrated — four carry interpretive sections asserting what their source does not say, and none of the seven pre-audit cards has a provenance section; the convention binds new cards only until this migration runs**
     - affects: `doc-reference/`, `.claude/rules/source-data-fidelity.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2708`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2752`
 - **the six ordnance-1944 .invariant files anchor TABLE 38/39,48/49,56/57 which are correct against the retained source.pdf (geometry-verified by checks/ordnance-1944-page-geometry.py) but resolve to a DIFFERENT shell in the flattened extraction ordnance-1944.md, which renumbers the same tables 43/44,51/52,59/60; no data is wrong, but nothing warns a reader not to grep TABLE nn against the extraction**
     - affects: `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables`, `experiment/fragmentation-field/challenges/source-data-audit/checks/ordnance-1944-table-number-anchors.py`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:3549`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:3593`
 - **b-vs-range agreement validates only the direction-averaged density, since the 1944 B column is N/(4*pi*r^2) by construction and carries no angular information; must not be cited as support for the side-spray/four-zone angular structure**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range-rebaseline.md`, `experiment/fragmentation-field/_limitations.qmd`
     - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/review-criterion-match.md:124`
@@ -162,32 +159,35 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - affects: `experiment/fragmentation-field/updates/target-area-profile/derivation.md`, `experiment/fragmentation-field/_four-zone-3d.qmd`
     - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/updates/target-area-profile/derivation.md:444`
 
-## Note (16)
+## Note (17)
 
 - **`src/arty/fragmentation.py` names the grade `US WW2 WDSS1`, but AMCP 706-249 dates table 6-1 to 17 Feb 1953 and titles §6-11/§6-13 "Steel Used Early in World War II" (X-1340) / "Steels Used After World War II" - WDSS is post-war, so the identifier misdates the grade**
     - affects: `src/arty/fragmentation.py`, `experiment/fragmentation-field/_parameters.qmd`, `experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md`
     - raised: 2026-08-02 (1d) in `doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md:147`
 - **SAND92-0243's C_D is defined for tumbling plate/disk fragments and enters its range formula only as a product with the shape factor Re and thickness factor Sf, never alone; whether a bare C_D in src/arty measures the same quantity is an open criterion-match question for @model-reviewer**
     - affects: `src/arty/fragmentation.py`, `doc-reference/ww2-shells/sandia-sand92-0243/card.md`
-    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:1971`
+    - raised: 2026-08-02 (1d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:1996`
+- **aisi-1045.md interleaves extractor commentary with processed source text under a "## Remarks" heading and marks neither — its two sentences are a meta-statement about the reference and a cross-reference to this repo's own fragmentation catalog, neither of which the AZoM page can have contained, and a card built on it attributed both to the source**
+    - affects: `doc-reference/azom-steel-grades/aisi-1045/aisi-1045.md`, `doc-reference/azom-steel-grades/aisi-1045/card.md`
+    - raised: 2026-08-03 (0d) in `doc-reference/azom-steel-grades/aisi-1045/card.md:51`
+- **this document was recorded as un-re-baselineable for want of a retained source, but the page is in the repo — Ammunition Series 6 section 6-11 sits at PDF page 11 of doc-reference/ww2-shells/ammunition-series-6-wdss-specs/source.pdf, the same book filed under the sibling slug; the miss came from looking only inside this directory, so a per-directory "no source.pdf" check under-reports whenever one book is split across two doc-reference entries**
+    - affects: `doc-reference/ww2-shells/ammunition-series-6-steel-composition/card.md`, `doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md`
+    - raised: 2026-08-03 (0d) in `doc-reference/ww2-shells/ammunition-series-6-steel-composition/card.md:155`
 - **pk_given_hit interpolates ES-310's three anchors in log10(E), a scheme the source never states; at the one point the page works it gives 0.817 against a stated 0.8, where linear-in-E gives 0.767 — agreement on a single point, not a derivation**
     - affects: `src/arty/fragmentation.py`, `doc-reference/wound-ballistics/fas-es310-damage-criteria/card.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2195`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2220`
 - **Gold 2017 eq. (17) (N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a factor of 2; src/arty follows eq. (1), which is the self-consistent reading since mu is defined as HALF the average fragment mass, and a future pass that "corrects" the code toward eq. (17) would double every fragment count with a citation to back it**
     - affects: `src/arty/fragmentation.py`, `src/arty/zones.py`, `doc-reference/fragmentation/fragment-size-distribution-conwep/card.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2399`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2424`
 - **the closure that admits Gold 2017 is algebraic, not tabular — the committed .md's equations are vision-reconstructed LaTeX and the raw text layer encodes the minus as a non-printable char it also uses for hyphens, so neither surface settles eq. (6)'s alpha^(-2/3) and only substituting eq. (2) into eq. (4) fixes the sign; .claude/rules/source-data-fidelity.md lists four forms of closure invariant and none of them covers "an equation the source states is a substitution of two others", which is worth adding in Phase 8**
     - affects: `.claude/rules/source-data-fidelity.md`, `experiment/fragmentation-field/challenges/source-data-audit/ledger.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2401`
-- **two pre-audit cards carry interpretive sections asserting what the source does not state — aisi-1045 bolds a provenance guess that it is "likely the source of the 45000 psi baseline figure", and ammunition-series-6-steel-composition lists elongation and hardness targets it marks "not stated in source"; both are uncited today so they gate nothing, and both sit in the cards lacking a provenance section, which is the case for splitting card.md in Phase 8 item 2**
-    - affects: `doc-reference/azom-steel-grades/aisi-1045/card.md`, `doc-reference/ww2-shells/ammunition-series-6-steel-composition/card.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2605`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2426`
 - **source.pdf's text layer covers this document's tabular pages but not its prose pages - pdftotext extracts ~186k chars and resolves SHELL 149x, FRAGMENT 206x, Ordnance 22x while returning zero for SOURCES OF DATA, retardation, Army, Navy and proving, all demonstrably on the page - so a full-text PDF search returning nothing is not evidence of absence for this source and has already produced one false fabricated-content verdict; check ordnance-1944.md or the page image instead**
     - affects: `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md`, `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/ordnance-1944.md`, `.claude/rules/source-data-fidelity.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:3545`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:3589`
 - **two retained scripts disagree on the traced page value of DoD-1975 Figure 3 at Mach 1.00 - checks/dod-1975-figure-3-mach1-gridline-probe.py gives ~1.257 (the value review-provenance.md quotes) and checks/dod-1975-figure-3-independent-trace.py gives 1.274; both agree the CSV's 1.233 is wrong and that this is the largest residual on the curve, but the size of the correction is not settled**
     - affects: `experiment/fragmentation-field/challenges/source-data-audit/checks/dod-1975-figure-3-independent-trace.py`, `experiment/fragmentation-field/challenges/source-data-audit/review-provenance.md`
-    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:3551`
+    - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:3595`
 - **b-vs-range-rebaseline.md cites the casualties tables as "Table 43/51/59"; the re-baselined invariants anchor them as TABLE 38/48/56**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range-rebaseline.md`
     - raised: 2026-08-03 (0d) in `experiment/fragmentation-field/challenges/source-data-audit/review-criterion-match.md:138`
