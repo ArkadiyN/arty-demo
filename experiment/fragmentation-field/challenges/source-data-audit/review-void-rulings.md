@@ -257,7 +257,9 @@ remains correct.
 
 FINDING\[blocking\]: frag-field-3d-geometry rebaseline-verdict.md:142 and its section 4 state the 2740 ft/s figure "is not in that source and traces to NWC TP 7124"; BRL-126 prints it three times as "27^0 f/s" (tolch-1938.md:146,1658,1698) and card.md:49 resolves it to 2,750 f/s, so the defect is a wrong spray class (side, not nose) plus an inverted companion value (Tolch's penetrating fragments are 3030 f/s, not 1070), and the prescribed re-attribution to NWC would be a second misattribution (affects: experiment/fragmentation-field/updates/frag-field-3d-geometry/rebaseline-verdict.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/derivation.md; since: 2026-08-03)
 
-FINDING\[deferrable\]: the Tolch/BRL-126 processed source renders a four-digit velocity as "27^0 f/s" at tolch-1938.md:146,1658,1698 with the third digit lost, and card.md:49 states 2,750 f/s without recording that the glyph is unreadable on this surface; the disambiguating digit needs a read of source.pdf and a hedge in the card until then (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md, doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md; since: 2026-08-03)
+The hedge was landed in `bab141a` — the card now says the third digit is unreadable on this surface and that 2,750 is not to be treated as an exact source value. What remains is the read that would actually resolve the digit:
+
+FINDING\[note\]: the four-digit perforating-fragment velocity renders as "27^0 f/s" at tolch-1938.md:146,1658,1698 with the third digit lost, and no surface in the repo resolves it - the card carries the hedge but the digit itself needs a read of the retained source.pdf at those three pages, which nobody has done (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md, doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md; since: 2026-08-03)
 
 ______________________________________________________________________
 

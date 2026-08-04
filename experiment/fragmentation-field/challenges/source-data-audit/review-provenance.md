@@ -540,7 +540,10 @@ are the title-page headings `## AD` / `## REPORT NO. 126` / `## December 1938`, 
 **L182**), and the `2,750 f/s` OCR glyph at `card.md:49` (covered by
 `review-void-rulings.md`).
 
-FINDING\[blocking\]: the Tolch card's entire "Drag Model Relevance" section (card.md:57-59) is a modelling recommendation in a reference document - it frames the source by purpose, asserts a capability about this project's drag model, and issues the imperative "use the table-based density collapse instead" - so it must be deleted from doc-reference/ and replaced by a referral naming the criterion-match question and routing to experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md, which already holds the correct two-axis assessment; this is the structural ruling that the 2026-08-02 axis-correctness marker does not cover (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-03)
+Closed in `bab141a`: the section was deleted from `doc-reference/` and replaced
+by a referral that names the criterion-match question and routes to
+`experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`,
+exactly as ruled here.
 
 ### 3f. Two collateral provenance defects in the same section
 
@@ -561,7 +564,10 @@ unreliable, and the citation points away from the authoritative CSV. Adjacent
 to but distinct from the existing "tolch-1938.md remains a citable surface"
 entry, which is about the file, not about a card claiming confidence in it.
 
-FINDING\[deferrable\]: Tolch card.md:26 calls the base-spray collapse "table-sourced and high-confidence" while anchoring it at tolch-1938.md#L617-L627 rather than tables/base-spray-density.csv, and that markdown is the surface base-spray-density.invariant declares corrupted in ~20 of 54 cells - it misprints two cells of this same table (2130 f/s Panel B 3.12 vs CSV 1.12, breaking the source's own stated monotone drop-out; 1085 f/s Panel C 0.65 vs CSV 0.85); the two Panel A values the card quotes, 9.71 and 0.70, are correct so no downstream number moves (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md; since: 2026-08-03)
+Closed in `bab141a`: the card now anchors this table at
+`tables/base-spray-density.csv`, drops the "table-sourced and high-confidence"
+framing, and prints both misread cells found here (Panel B at 2 130 f/s, Panel C
+at 1 085 f/s) as worked examples of why the markdown is not to be read from.
 
 **The 2 750 / 3 030 f/s are computed, and the card presents them as measured.**
 `card.md:47–53` heads them *"Fragment Velocities (Charge Components)"* with a
@@ -577,7 +583,9 @@ labelled, and a future pass could treat it as an independent Gurney check,
 which it is not. Distinct from the `card.md:49` glyph finding, which concerns
 the third digit; this concerns the derivation chain behind all four.
 
-FINDING\[deferrable\]: Tolch card.md:47-53 presents 2,750 / 3,030 f/s under "Fragment Velocities (Charge Components)" without recording that the source states three times (tolch-1938.md:146, :1658, :1698) that they were computed from the change in the sidespray angle with remaining velocity, not measured - so they are a geometric inference off the burst-geometry axis and carry no drag or independent-Gurney content; challenges/drag-gap-1944/tolch-1938-panel-distance.md:134 already calls the 838.2 m/s value "Tolch's own measured perforating-fragment velocity" (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-03)
+The card leg was closed in `bab141a` — it now states the two figures are a geometric inference computed from the change in sidespray angle, not measured, with all three source anchors. The second surface still carries the defect:
+
+FINDING\[deferrable\]: challenges/drag-gap-1944/tolch-1938-panel-distance.md:134 calls the 838.2 m/s value "Tolch's own measured perforating-fragment velocity", but the source states three times (tolch-1938.md:146, :1658, :1698) that it was computed from the change in the sidespray angle with remaining velocity - it is a geometric inference off the burst-geometry axis and carries no drag or independent-Gurney content, so calling it measured is what makes it look like an independent check (affects: experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-03)
 
 ### 3g. What in the section does check out
 
