@@ -29,7 +29,7 @@ $$B = \text{average number of effective hits per sq. ft. of target area at dista
 
 ## Key Reference Shells (Project Match)
 
-### Table 43: 75-mm H.E. Shell, M48
+### Tables 38–39: 75-mm H.E. Shell, M48
 
 **Anchor:** [Lines 340–369](ordnance-1944.md#L340-L369)
 
@@ -39,7 +39,7 @@ $$B = \text{average number of effective hits per sq. ft. of target area at dista
 - **Sample B Value (Casualties @ 20 ft):** 0.213 hits/sq ft
 - **Lightest Effective Fragment (Casualties @ 20 ft):** 0.014 oz, 2,060 f/s
 
-### Table 51: 105-mm H.E. Shell, M1
+### Tables 48–49: 105-mm H.E. Shell, M1
 
 **Anchor:** [Lines 676–709](ordnance-1944.md#L676-L709)
 
@@ -49,7 +49,7 @@ $$B = \text{average number of effective hits per sq. ft. of target area at dista
 - **Sample B Value (Casualties @ 20 ft):** 0.231 hits/sq ft
 - **Lightest Effective Fragment (Casualties @ 20 ft):** 0.010 oz, 2,440 f/s
 
-### Table 59: 155-mm H.E. Shell, M107
+### Tables 56–57: 155-mm H.E. Shell, M107
 
 **Anchor:** [Lines 817–849](ordnance-1944.md#L817-L849)
 
@@ -81,7 +81,7 @@ The document includes 60+ damage-pattern figures (Figures 67 onward) showing fra
 
 **Saved as images only — qualitative reference, no digitization of shaded-band boundaries.**
 
-### Table 43 (75-mm H.E. M48) — Figures 67–73, original pages 140–143
+### Tables 38–39 (75-mm H.E. M48) — Figures 67–73, original pages 140–143
 
 ![fig67-68](images/fig67-68_75mm-M48_casualties-ground-burst.png)
 Figures 67–68 — Casualties, ground burst (shell horizontal at rest / remaining velocity 800 f/s, range 8,500 yd, 75-mm Gun M3)
@@ -95,7 +95,7 @@ Figures 71–72 — Perforation of 1/8-in. mild steel, ground burst
 ![fig73](images/fig73_75mm-M48_perforation-hob30.png)
 Figure 73 — Perforation of 1/8-in. mild steel, height of burst 30 ft
 
-### Table 51 (105-mm H.E. M1) — Figures 93–100, original pages 154–158
+### Tables 48–49 (105-mm H.E. M1) — Figures 93–100, original pages 154–158
 
 ![fig93-94](images/fig93-94_105mm-M1_casualties-ground-burst.png)
 Figures 93–94 — Casualties, ground burst (remaining velocity 800 f/s, range 7,000 yd charge 5, 105-mm How. M2A1)
@@ -112,7 +112,7 @@ Figures 97–98 — Perforation of 1/8-in. mild steel, ground burst
 ![fig99-100](images/fig99-100_105mm-M1_perforation-hob30-60.png)
 Figures 99–100 — Perforation of 1/8-in. mild steel, height of burst 30 ft / 60 ft
 
-### Table 59 (155-mm H.E. M107) — Figures 117–125, original pages 168–173
+### Tables 56–57 (155-mm H.E. M107) — Figures 117–125, original pages 168–173
 
 ![fig117-118](images/fig117-118_155mm-M107_casualties-ground-burst.png)
 Figures 117–118 — Casualties, ground burst (remaining velocity 900 f/s, range 9,000 yd charge 5, 155-mm How. M1)
