@@ -1,0 +1,52 @@
+csv:     pit-screen-recovery.csv
+source:  source.pdf p.10 (report page -6-); DTIC AD0702233
+anchor:  Fragments caught by following screens:
+anchor:  Pit Fragmentation Tests of 75 mm T3 Shell from 75 mm
+
+# Tolch (1938), BRL Report 126 -- sand-pit fragmentation test, fragments
+# recovered on each retaining screen, AVERAGED OVER THE FOUR ROUNDS ("Ave. of
+# 4 rds."). The per-round table is on the facing page (report page -5-).
+#
+# SHELL IDENTITY: this is the same shell as the panel tests. The report is
+# titled "FRAGMENTATION EFFECTS OF THE 75MM H.E. SHELL T3 (M48)" -- T3 is the
+# developmental designation of the M48, not a different projectile. The
+# 105 mm M1 results are explicitly "reserved for a separate report".
+#
+# CLOSURE INVARIANTS -- the source prints a total row beneath the five screen
+# rows, and prints two percentage columns whose bases it states in the column
+# headings. All four checks are non-vacuous: the totals are separately typeset
+# from the rows they sum, and each percentage is a ratio of two other printed
+# columns.
+#
+#   1. the five screen counts sum to the printed total, 779;
+#   2. `pct_no` is each row's share of that total  ("% of total no. of
+#      fragments");
+#   3. `pct_empty` is each row's weight over the empty shell & fuze weight
+#      ("% of empty shell & fuze"). That divisor is 13.29 lb -- the mean of
+#      the four per-round values 13.29 / 13.29 / 13.26 / 13.33 tabulated on
+#      report page -5- (anchor "Wt. empty shell"), NOT a fitted constant;
+#   4. the printed column totals (779 / 100.0 / 12.708 / 95.6) each reproduce
+#      as the sum of their column.
+#
+# All hold to the printed 1-3 d.p. on all five rows.
+#
+# WHY 779 AND NOT 803: committed model artifacts under
+# experiment/fragmentation-field/ quote the recovered count as 803. The
+# `pct_no` column discriminates: at N=779 every row reproduces its printed
+# percentage, at N=803 screens 2 and "thru 4" miss theirs by 1.03 and 0.45 pp
+# -- far outside the 0.05 pp rounding band the other rows sit in. 779 is also
+# what the report's own body text states (report page -74-, anchor "In the pit
+# fragmentation tests, an average of"). See
+# experiment/fragmentation-field/challenges/source-data-audit/checks/
+# tolch-count-basis-closure.py.
+#
+# Not transcribed: the per-round table on report page -5-, whose screen-4 and
+# recovered-count glyphs are damaged in this scan. The averaged table here is
+# legible and carries its own closure, so the per-round table is not needed by
+# any current consumer.
+row:    pct_no - 100 * n_frag / 779 == 0 within 0.06
+row:    pct_empty - 100 * wt_lb / 13.29 == 0 within 0.06
+total:  n_frag == 779 within 0.5
+total:  pct_no == 100.0 within 0.15
+total:  wt_lb == 12.708 within 0.005
+total:  pct_empty == 95.6 within 0.15

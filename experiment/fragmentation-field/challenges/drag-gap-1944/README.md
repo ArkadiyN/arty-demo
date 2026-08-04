@@ -10,7 +10,12 @@ has since been **corrected** — see
 ([`scoping.md`](../../updates/mach-dependent-fragment-drag/scoping.md),
 [`derivation.md`](../../updates/mach-dependent-fragment-drag/derivation.md)),
 which anchors `C_D·C_shape` to the DoD-1975 ballistic density at **2.67**
-(from 0.585). That update **supersedes the inferences drawn in rows #5 and #6 below, and two
+(from 0.585). **That update is now closed and half-retired (2026-08-03) — read
+[`its README`](../../updates/mach-dependent-fragment-drag/README.md) before
+citing it.** The anchor cited here is the half that survives; the update's
+*Mach-dependence* sections are withdrawn. Note also that the "Status: Closed"
+verdict on this thread is itself under an open blocking finding — the gap it
+closed was measured against the wrong column. That update **supersedes the inferences drawn in rows #5 and #6 below, and two
 of the "Where it stands" bullets** (marked ⚠ inline; the measurements in those
 rows stand, the conclusions drawn from them do not). It narrows the *B(r)*
 over-prediction from ~2.1–27.3× (pre-anchor) to ~1.9–5.3× (see

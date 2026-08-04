@@ -1,0 +1,39 @@
+csv:     75mm-m48-perforation-1-8in.csv
+source:  ../source.pdf p.84 = report page 70 (RIGHT table of the pair)
+anchor:  TABLE 39
+anchor:  PERFORATION OF
+anchor:  INITIAL FRAGMENT VELOCITY 3,120 F/S
+anchor:  # 75-MM H.E. SHELL, M48
+
+# VERIFIED AGAINST THE PAGE IMAGE, 2026-08-02. All 50 cells were read off a
+# 200-dpi render of source.pdf p.84 and match this CSV exactly. See
+# 75mm-m48-casualties.invariant for the shared provenance note.
+#
+# Criterion tabulated: PERFORATION OF 1/8-IN. MILD STEEL. Same five columns as
+# the casualties table it is interleaved with (see 75mm-m48-casualties.invariant).
+#
+# ADMISSIBILITY NOTE -- this table has NO energy closure. The source states no
+# numeric perforation threshold, and 1/2 m v^2 on these rows runs 272-829 ft-lb,
+# rising with range, because defeating a fixed plate is not a fixed-energy
+# criterion. Identity was ORIGINALLY established by ELIMINATION: the page
+# carries exactly two interleaved tables, the other closes on 58 ft-lb, so this
+# is the remaining one. That argument is only sound while both halves of the
+# pair are transcribed together -- do not split them.
+#
+# It is no longer the only argument. The retained scan gives this table a
+# DIRECT, positive identity check that needs no closure of its own: the caption
+# "TABLE 39 / PERFORATION OF 1/8 IN. MILD STEEL" is printed above it in the
+# right half of the page, and every discriminating value in this CSV is
+# physically printed in that half. That is what
+# checks/ordnance-1944-page-geometry.py asserts, and it is the check that
+# would have caught the original inversion.
+#
+# Consequence: the monotonicity checks below are structural sanity only. They
+# CANNOT distinguish this column from the casualties column (both are monotone
+# in every field), so they must never be cited as a column-identity check --
+# doing exactly that is what inverted three committed scripts.
+monotonic:  r_ft increasing
+monotonic:  N non-increasing
+monotonic:  B non-increasing
+monotonic:  m_oz non-decreasing
+monotonic:  v_fps non-increasing

@@ -1,3 +1,29 @@
+"""Flag markdown extractions whose *glyphs* are damaged — and nothing more.
+
+This is a **glyph-level** gate, and a green result is not admissibility. It
+cannot see the defect class `.claude/rules/source-data-fidelity.md` exists to
+prevent: every digit extracted perfectly and assigned to the wrong row, column,
+or table. A clean table of wrong numbers passes here. Admissibility comes from
+a closure invariant (`check-table-invariants.py`), never from this script.
+
+Two limits worth knowing before trusting a pass:
+
+- **The flagged range is narrower than "broken glyph".** Only Private Use Area
+    codepoints (U+E000-F8FF) are counted. A font that maps its unmapped glyphs
+    into the C0 control range instead scores zero — one paper carries 61 such
+    characters in its text layer, including the minus sign that decides an
+    exponent's sign, and is reported clean.
+- **A vision-reconstructed `.md` has already been laundered.** The vision pass
+    emits well-formed characters whether or not it read them correctly, so this
+    scanner reports on the reconstruction, not the source. A green scan
+    therefore certifies strictly less on a vision-extracted document than on a
+    transcribed one, and nothing in the output distinguishes them.
+
+Usage:
+    uv run src/utils/scan-extraction-quality.py <file.md>
+    uv run src/utils/scan-extraction-quality.py doc-reference/   # default path
+"""
+
 import argparse
 import re
 import sys
@@ -67,7 +93,10 @@ def main():
         description=(
             "Scan extracted markdown for signs of broken PDF/XML extraction: "
             "Private Use Area glyphs (broken font cmaps), suspicious symbol-run "
-            "lines, and abnormal short-token ratios (fragmented word extraction)."
+            "lines, and abnormal short-token ratios (fragmented word extraction). "
+            "GLYPH-LEVEL ONLY: a clean pass says nothing about whether a number "
+            "landed in the right row or column, and is not admissibility -- see "
+            "the module docstring and .claude/rules/source-data-fidelity.md."
         )
     )
     parser.add_argument(

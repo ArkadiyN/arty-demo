@@ -1,85 +1,79 @@
-# US 105mm M1 HE Shell — Bill of Material and Steel Specification
+# US 105mm M1 HE Shell — Description of Manufacture (1940)
 
 **Document:** "Description of Manufacture, Shell, H.E. 105 mm., M1, From Forging"\
 **Author:** Office of the Chief of Ordnance, U.S. Army\
-**Date:** August 30, 1940\
-**Source:** https://www.bulletpicker.com/pdf/Shell-HE-105mm-M1.pdf\
+**Date:** August 30, 1940 — 183 pages\
+**Original:** https://www.bulletpicker.com/pdf/Shell-HE-105mm-M1.pdf\
+**Retained scan:** `source.pdf` beside this card — **not committed**
+(`.gitignore:58`); re-acquire from the URL above.\
 **Classification:** Unclassified (historical)
 
-______________________________________________________________________
+## Tables — read these, not the prose
 
-## Key Finding: Steel Grade WD-X1335
+| File                          | What it holds                                                   | Closure                                                                  |
+| ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `tables/bill-of-material.csv` | the 8-row BILL OF MATERIAL, `source.pdf` p.16 (document page 7) | per-shell × 100,000 = per-100,000-shell, on all three rows carrying both |
 
-### Bill of Material Entry (Page 16)
+Transcription verified cell-by-cell against the page's text layer by
+[`ordnance-105mm-bom-page-fidelity.py`](../../../experiment/fragmentation-field/challenges/source-data-audit/checks/ordnance-105mm-bom-page-fidelity.py).
+Run the closure with:
 
-| Component       | Material           | Specification | Form    | Quantity | Weight             |
-| --------------- | ------------------ | ------------- | ------- | -------- | ------------------ |
-| **Body, Shell** | **Steel WD-X1335** | **57-107**    | Forging | 1        | 53.9 lbs (24.4 kg) |
+```
+uv run src/utils/check-table-invariants.py doc-reference/ww2-shells/ordnance-105mm-m1-1940/tables/bill-of-material.invariant
+```
 
-### Material Properties Callout
+## The one fact this document supplies to the model
 
-- **Grade:** WD-X1335
-- **Specification Reference:** 57-107 (per U.S. Army Ordnance)
-- **Commercial Form:** Forging
-- **Shell Body Weight:** 53.9 pounds per shell
-- **Total Material Allotment:** 5,290,000 pounds per contract
+Anchor: `Steel WD-X1335` — the **Body, Shell** row of the BILL OF MATERIAL.
 
-### Status of Composition/Mechanical Data
+| Column                               | Value              |
+| ------------------------------------ | ------------------ |
+| Material                             | Steel **WD-X1335** |
+| Spec.                                | **57-107**         |
+| Commercial form                      | Forging            |
+| Average amount of material per shell | 53.9 lbs (24.4 kg) |
 
-**Not specified in the Bill of Material table.** The document references specification **57-107** for detailed composition, yield strength, tensile strength, hardness, and heat-treatment parameters — those details are not reproduced in the shell manufacturing drawing set itself.
+`src/arty/fragmentation.py` quotes the material/spec pair as the identity of
+the `"WW2 US HE Shell"` steel entry. That grade **name** is the entire
+contribution of this document to the model — the composition read behind it,
+and every mechanical property, come from elsewhere. See
+`experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md`.
 
-______________________________________________________________________
+**Composition, yield, tensile, hardness and heat treatment are NOT in this
+document.** It defers all of them to specification **57-107**, which is not
+reproduced in the drawing set and is not digitized in open sources. Anything
+quoting this card for a mechanical property is quoting something that was
+never here.
 
-## Secondary Components (BOM Summary)
+Corroboration on a second page: the LIST OF PARTS table (`source.pdf` p.9)
+independently pairs the shell body with the same grade and spec. The OCR on
+that page is poor (`AO-X/335` / `37-/07`); it is a cross-check, not a
+transcription source.
 
-| Component         | Material                        | Spec       | Form                           |
-| ----------------- | ------------------------------- | ---------- | ------------------------------ |
-| Band, Rotating    | Gliding Metal (seamless tubing) | 50-27-1    | Tubing, O.D. 4.58", I.D. 4.15" |
-| Cover, Base       | Steel WD 1010                   | 57-136     | Strips per U.S. Gage           |
-| Screws, Set       | Steel                           | Commercial | —                              |
-| Coating, Exterior | Yellow Lacquer Enamel           | 3-87       | —                              |
-| Coating, Interior | Acid Proof Black Paint          | 3-106      | —                              |
-| Stenciling        | Black Marking Ink               | 35-2       | —                              |
-| Packing           | Shell Grease                    | 50-11-37   | 20 gallons                     |
+## What else is in the document, not extracted
 
-______________________________________________________________________
+- **Dimensioned shell drawings** (`source.pdf` pp.7–8, anchors
+    `MEAN VOLUME OF CAVITY` and `TOLERANCE ON CAPACITY`) — the full finished-shell
+    dimension set, plus a stated mean cavity volume to overflowing of 91 cu. in.
+    and the concentricity tolerances. Deliberately **not extracted**: no current
+    model needs shell geometry from this source, and the text layer on these
+    blueprint pages is heavily corrupted, so extraction is a vision job with a
+    real cost. Recorded here so a future pass knows the geometry exists rather
+    than re-searching for it.
+- **LIST OF OPERATIONS** (pp.10–15) and ~150 pages of tooling, gage and
+    fixture drawings — manufacturing process, no model relevance.
+- **Government / contractor inspection procedure** (pp.17, 19).
 
-## Operational Context
+## Provenance of this card
 
-- **Gun Platform:** US 105mm howitzer (M2A1, M101, or equivalent)
-- **Period:** WW2-era (1940–1945 and post-war)
-- **Explosive Filler:** TNT or equivalent
-- **Manufacturing Process:** Drop forging from high-carbon steel billet
-
-______________________________________________________________________
-
-## Data Access Notes
-
-1. **Detailed composition and properties (Spec 57-107):** Not located in open sources; stored in archived U.S. Army Ordnance specifications (DTIC, if available)
-1. **Mechanical properties (yield, tensile, hardness):** Inferred typical range for WW2 19-ton/20-ton shell steel: 250–350 MPa yield, ~400–500 HB hardness (estimated; not confirmed for WD-X1335)
-
-______________________________________________________________________
-
-## Confidence Assessment
-
-| Aspect                  | Confidence    | Evidence                                    |
-| ----------------------- | ------------- | ------------------------------------------- |
-| Steel Grade Identity    | High          | Direct BOM callout: "Steel WD-X1335"        |
-| Shell Mass              | High          | 53.9 lbs (verified from table)              |
-| Specification Reference | High          | 57-107 explicitly cited                     |
-| Composition Data        | **Not Found** | Spec 57-107 not digitized in public sources |
-| Mechanical Properties   | **Not Found** | Spec 57-107 not digitized in public sources |
-
-______________________________________________________________________
-
-## Recommendations for Follow-Up
-
-1. **Locate Spec 57-107** — Contact DTIC, Army Heritage Center, or Aberdeen Proving Ground archives for the full specification sheet
-1. **Cross-reference WD-X1335** — Search metallurgical literature (1935–1945) for W-Nr or SAE equivalence
-1. **Compare to SAE 1040** — Typical WW2 US artillery steel; WD designation suggests proprietary War Department grade (not standard SAE/AISI)
-
-______________________________________________________________________
-
-**Source transcription and scanned images:** removed to reduce repo size; see
-`https://www.bulletpicker.com/pdf/Shell-HE-105mm-M1.pdf` for the original, or
-git history for the prior transcription/extracted pages.
+Re-baselined 2026-08-02 against `source.pdf` p.16 under
+`.claude/rules/source-data-fidelity.md`. The prior version of this card was
+written without the page and carried four transcription errors (`5,290,000`
+for `5,390,000` and mislabelled as a per-contract total rather than the
+per-100,000-shell column; `Gliding` for `Gilding` Metal; band O.D. `4.58"` for
+`4.56"`; specs `3-87`/`35-2` for `3-67`/`36-2`), none of which any model
+consumed. It also carried an "Inferred typical range" of mechanical properties
+(250–350 MPa yield, 400–500 HB) attributed to no source and mutually
+inconsistent — **removed**, per the finding that this document supplies no
+mechanical data at all. Detail:
+`experiment/fragmentation-field/challenges/source-data-audit/ledger.md` §15.

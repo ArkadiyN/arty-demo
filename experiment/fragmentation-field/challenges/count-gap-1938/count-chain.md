@@ -7,6 +7,8 @@ independent perforation model (§5) — out of scope for now; a perforation
 model is future work, not this pass's. Nothing in `src/arty/` changes as a
 result of this thread yet.
 
+FINDING\[blocking\]: this document publishes the pit-recovered count as 803 (true value 779, +3.1% on every N/803 figure), the mean recovered fragment mass as 6.85 g (true 7.40 g), and the two-totals spread as 15% (true 11%); §2 Fact 2's "not the population" inference is void — verdicts and replacement numbers in challenges/count-gap-1938/rebaseline-verdict.md (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-decomposition.py, experiment/fragmentation-field/challenges/README.md; since: 2026-08-03)
+
 **Question.** `_limitations.qmd` L1 records that Tolch (1938)'s absolute
 perforating-fragment count is still over-predicted by ~4–6× after both the Mott
 shape-closure fix (`../mott-scale-gap/` → `updates/mott-fragment-shape-closure/`)

@@ -1,0 +1,19 @@
+csv:     table-3-grady-aspect-ratio-counts.csv
+source:  ../source.pdf p.9 (journal page 167), Table 3
+anchor:  The calculation of aspect ratios for Grady
+
+# Felix, Colwill & Harris (2022), Defence Technology 18:159-169.
+# Grady's Fig. 10 fragment photograph, counted by aspect-ratio bin and by the
+# authors' five size Groups. The five Group rows are transcribed here; the
+# published Total and Percentage rows are NOT data -- they are the closure,
+# expressed as total: checks below, so a mis-keyed count cannot hide.
+
+# Every Group's bins sum to its own stated total.
+row:  (n_1to1 + n_1to2 + n_1to3 + n_1to4plus) / total == 1 within 0.001
+
+# The five Groups reproduce the published Total row, bin by bin.
+total:  n_1to1     == 1382 within 0.5
+total:  n_1to2     == 712  within 0.5
+total:  n_1to3     == 303  within 0.5
+total:  n_1to4plus == 18   within 0.5
+total:  total      == 2415 within 0.5

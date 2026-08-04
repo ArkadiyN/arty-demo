@@ -1,0 +1,34 @@
+csv:     105mm-m1-casualties.csv
+source:  ../source.pdf p.89 = report page 75 (LEFT table of the pair)
+anchor:  TABLE 48
+anchor:  CASUALTIES
+anchor:  INITIAL FRAGMENT VELOCITY 3,500
+anchor:  # 105-MM H.E. SHELL,'Ml
+
+# VERIFIED AGAINST THE PAGE IMAGE, 2026-08-02. All 55 cells were read off a
+# 200-dpi render of source.pdf p.89 and match this CSV exactly; the caption
+# "TABLE 48 / CASUALTIES" is printed above this table in the left half of the
+# page. See 75mm-m48-casualties.invariant for the shared provenance note.
+#
+# See 75mm-m48-casualties.invariant for the column definitions. The 58 ft-lb
+# energy closure below was the only column-identity discriminator available
+# while these tables were transcribed off the flattened markdown; with the scan
+# retained, checks/ordnance-1944-page-geometry.py now checks identity directly
+# from where the values are printed on the page.
+#
+# CROSS-SHELL CLOSURE: this shell and the 155 mm M107 share INITIAL FRAGMENT
+# VELOCITY 3,500 F/S, and (m, v) is a single-fragment ballistics result
+# independent of shell size -- so the two tables, typeset four pages apart,
+# should print the same (m, v) at the same range. They do on 8 of the 10 shared
+# ranges. They differ in the last digit at r = 300 ft (0.166/598 here against
+# 0.161/598) and r = 400 ft (0.232/507 against 0.233/505). Both readings were
+# re-checked at 500 dpi and both are faithful: the divergence is the SOURCE's.
+# The 155 mm r=300 row is the weakest energy closure in the whole six-table set
+# at 55.9 ft-lb (-3.6%); this one gives 57.7 ft-lb.
+row:        0.5 * (m_oz / 16 / 32.174) * v_fps**2 == 58 within 5%
+
+monotonic:  r_ft increasing
+monotonic:  N non-increasing
+monotonic:  B non-increasing
+monotonic:  m_oz non-decreasing
+monotonic:  v_fps non-increasing

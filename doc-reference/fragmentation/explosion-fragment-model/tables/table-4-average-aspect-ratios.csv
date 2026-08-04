@@ -1,0 +1,4 @@
+dataset,figure,casing_shape,casing_material,avg_width_to_length
+Grady,Fig. 10,ogive,steel,1.58
+Hiroe,Fig. 11,cylindrical,steel,1.66
+Mott,Table 2,cylindrical,steel,1.48

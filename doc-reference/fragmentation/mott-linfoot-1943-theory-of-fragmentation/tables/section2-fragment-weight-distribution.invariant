@@ -1,0 +1,31 @@
+csv:     section2-fragment-weight-distribution.csv
+source:  ../source.pdf                      # report p.3 = source.pdf p.7
+anchor:  The agreement is shown below       # p.2, the sentence introducing the table
+
+# Mott & Linfoot 1943 sect. 2, the Welch fragment-weight distribution.  The
+# table has no caption; it follows "The agreement is shown below :-" on report
+# p.2 and is the fit of eq. (4)  N(m)dm = C exp(-M/M_0) dM,  M = m^(1/3),  to
+# recovered-fragment counts from a 3.7 in. A.A. shell and a 3 in. U.P.
+#
+# Weights are OUNCES.  The "1/2 - 4" bin really is that wide; the source prints
+# it so, and the exponential closure in the check script below confirms it
+# (a 1/2 - 1 bin would predict 92 where the page prints 181).
+#
+# Row 1 is blank in the shell columns: the page prints "not recovered" spanning
+# both, so no digit exists to transcribe.  Do not read the blanks as zeros.
+#
+# CLOSURE.  C is fitted, so by construction the calculated column carries the
+# same total as the observed one.  For the U.P. -- the pair with no blank cells
+# -- that is a per-digit check: 570+751+93+64 = 528+793+101+56 = 1478, and any
+# single misread digit in either column breaks the equality.
+total:      up_obs  == 1478 within 0.5
+total:      up_calc == 1478 within 0.5
+
+monotonic:  bin_lo_oz increasing
+
+# The shell pair closes the same way (782 = 782) but cannot be written as a
+# `total:` here, because this tool requires every row of a summed column to be
+# numeric and row 1 is legitimately blank.  That closure, and the stronger
+# one-parameter exponential closure on the calc column itself, are in
+# experiment/fragmentation-field/challenges/source-data-audit/checks/
+# mott-linfoot-1943-closures.py -- run it too before citing this table.

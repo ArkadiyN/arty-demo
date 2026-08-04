@@ -1,0 +1,37 @@
+csv:     figure-3-drag-coefficient.csv
+source:  ../source.pdf p.33 = report page 23, the figures section
+anchor:  Figure 3  Drag Coefficient of Fragments
+anchor:  supersonic value of 1.28
+
+# PROVENANCE. Not typed by hand and not read by eye: produced by
+# experiment/fragmentation-field/challenges/source-data-audit/checks/
+# dod-1975-figure-3-trace.py, which traces the curve's black stroke off a
+# 300-dpi render of the retained scan and emits this file with --write. Columns
+# are the stroke's midpoint (cd) and its two edges (cd_lo, cd_hi); the stroke
+# widens where the curve is steep, so cd_lo..cd_hi is the honest read band, not
+# an error bar on the source.
+#
+# SUPERSEDES ../figure-3-digitized.md, which is an eyeballed reading and is
+# WRONG through the transonic rise -- see that file's FINDING marker and
+# ledger s13. Consumers must read this CSV. The one hand-copied array of the
+# old table is in updates/mach-dependent-fragment-drag/checks/
+# required-retardation-vs-mach.py:29 and is the repair the finding tracks.
+#
+# CLOSURE. The source states its own supersonic value in the text on pdf p.18
+# ("take the drag coefficient as constant at its supersonic value of 1.28"),
+# so the plateau is a definitional check, not a plausibility judgement: every
+# row above Mach 3 must reproduce 1.28. The subsonic plateau and the peak have
+# no stated value in the text; they are pinned here at what the page shows,
+# which is also what card.md reports, so the three of them together fix the
+# axis calibration in both directions. A calibration error large enough to
+# matter cannot leave all three intact.
+row:  (cd if mach >= 3.0 else 1.28) == 1.28 within 0.01
+row:  (cd if mach <= 0.45 else 1.08) == 1.08 within 0.01
+row:  (cd if 1.40 <= mach <= 1.55 else 1.40) == 1.40 within 0.02
+
+# The curve never leaves the printed axis box, and the midpoint always lies
+# between the stroke edges it was computed from.
+row:  (0 if 1.07 <= cd <= 1.41 else 1) == 0 within 0.5
+row:  (0 if cd_lo <= cd <= cd_hi else 1) == 0 within 0.5
+
+monotonic:  mach increasing

@@ -1,0 +1,51 @@
+csv:     bill-of-material.csv
+source:  ../source.pdf p.16 = document page 7, "BILL OF MATERIAL"
+anchor:  BILL OF MATERIAL
+anchor:  MACHINING SHELL, H.E., 105 MM.
+anchor:  Steel WD-X1335
+
+# WHAT THIS TABLE IS FOR. Exactly one cell of it reaches shipped code: the
+# material name "Steel WD-X1335" with spec "57-107" on the Body, Shell row,
+# quoted at src/arty/fragmentation.py STEELS["WW2 US HE Shell"]. That is the
+# ONLY sourced fact about that entry's material identity -- the composition
+# behind it is an unconfirmed reading of WD-X1335 as AISI 1335, and sigma_f
+# and gamma come from elsewhere entirely. Nothing else on this page is
+# consumed by any model.
+#
+# THE CLOSURE. The two right-hand columns are, in the page's own header words,
+# "AVERAGE AMOUNT OF MATERIAL PER SHELL" and "AMOUNT OF MATERIAL PER 100,000
+# SHELL". That definition is an exact arithmetic relation, and it holds on all
+# three rows that carry both figures:
+#     53.9    x 100000 = 5,390,000
+#      0.653  x 100000 =    65,300
+#      0.0852 x 100000 =     8,520
+#
+# WHAT THE CLOSURE ACTUALLY BUYS -- IT IS NOT THE 100,000-SHELL FIGURE.
+# No model consumes either amount column; a procurement quantity from 1940 is
+# of no interest here. The closure is a ROW-IDENTITY WITNESS. The one cell that
+# matters is a STRING ("Steel WD-X1335"), and a string has no arithmetic, so
+# there is no way to check directly that it was read off the row it belongs to.
+# The amount columns supply that check indirectly: if the numeric cells sit on
+# the row their part name sits on, the material cell does too.
+#
+# That is not hypothetical for this page. The OCR transcription of it that was
+# committed until 69d3362 prints the Band, Rotating amounts on the line ABOVE
+# the "Band, Rotating" part name -- values offset by one row from their labels,
+# the same flattening defect that inverted the 1944 Ordnance tables. Anything
+# reading that transcription rather than the page could pick up the wrong row.
+#
+# The 5,290,000-vs-5,390,000 discrepancy in the prior card.md is a demonstration
+# of the check working (it fails at ratio 0.9814), not a defect that cost
+# anything -- nothing consumed that figure either. The guard on lbs_per_shell
+# skips the five rows measured in gallons or carrying no amount at all.
+row:  (lbs_per_100k_shell / (lbs_per_shell * 100000) if lbs_per_shell != "" else 1.0) == 1.0 within 0.005
+
+# Every row of this BOM is one piece per shell where a quantity is given.
+row:  (qty_per_shell if qty_per_shell != "" else 1) == 1 within 0.001
+
+# NO MONOTONIC CHECK. The obvious candidate -- lbs_per_shell decreasing down
+# the page -- cannot be expressed here: five of the eight rows leave that
+# column blank, and monotonic: has no per-row guard, so it fails on the gap
+# rather than on the data. The closure above already discriminates against a
+# per-shell / per-100,000 column transposition (the ratio would be 5.4e-10,
+# not 1.0), which is the failure mode that would have mattered.

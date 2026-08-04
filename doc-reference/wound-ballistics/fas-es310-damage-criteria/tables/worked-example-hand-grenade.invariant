@@ -1,0 +1,41 @@
+csv:     worked-example-hand-grenade.csv
+source:  ../fas-es310-damage-criteria.md
+anchor:  find the Pk from a hand-grenade against personnel at 2 m
+# Live page: https://man.fas.org/dod-101/navy/docs/es310/dam_crit/dam_crit.htm
+# Anchor on the page: the sentence above, which opens the worked example, and
+# the phrase "Compare this, on the other hand to the Pk at 5m" which opens its
+# second case.  Every column below is a number the page prints or states in
+# words; nothing here is inferred:
+#
+#   N0 = 200 fragments          "there are 200 fragments"
+#   frag_energy_J = 3000        "at about 3000 J each"
+#   A_m2 = 1                    "a person presents about 1 m2 to the warhead"
+#   pk_hit = 0.8                "Take 0.8 as an estimate"
+#   R_m, nhits, pk              printed per case, as the arithmetic below
+#
+# THIS IS THE DOCUMENT'S REAL CLOSURE.  Table 3 on its own has no internal
+# arithmetic (see table-3-fragmentation-damage-criteria.invariant); this
+# example does, and it is the page checking itself -- the criterion is stated
+# in one place and exercised in another, so the two must agree.  The
+# cross-table half of it -- that pk_hit = 0.8 can only have come from the
+# PERSONNEL row of Table 3 -- needs both CSVs and therefore lives in
+# experiment/fragmentation-field/challenges/source-data-audit/checks/
+#   es310-worked-example-closure.py
+
+# CLOSURE 1 -- the page's stated hit model, Nhits = A(N0 / 4 pi R^2), must
+# reproduce the Nhits it prints for both ranges.  Absolute tolerance because
+# the page rounds: 3.979 is printed "4" and 0.6366 is printed "0.6", so the
+# residuals are 0.021 and 0.037.  A tolerance of 0.05 admits that rounding and
+# nothing looser -- swapping the two ranges gives residuals of 3.4 and 3.3.
+row: abs(A_m2 * N0 / (4 * pi * R_m**2) - nhits) == 0 within 0.05
+
+# CLOSURE 2 -- the page's two-branch aggregation rule, selected by the value of
+# Nhits exactly as the page selects it ("If Nhits > 1 ... If Nhits < 1 ..."),
+# must reproduce the printed Pk for both cases.  2 m: 1 - 0.2**4 = 0.9984,
+# residual 0.  5 m: 0.6 x 0.8 = 0.48 printed as "0.5", residual 0.02.
+row: abs((nhits > 1) * (1 - (1 - pk_hit)**nhits) + (nhits <= 1) * (nhits * pk_hit) - pk) == 0 within 0.025
+
+# ORDERING -- more standoff, fewer hits, lower Pk.  Rows are in printed order.
+monotonic: R_m increasing
+monotonic: nhits decreasing
+monotonic: pk decreasing

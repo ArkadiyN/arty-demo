@@ -82,25 +82,28 @@ reply to one that is still open, to advance the workflow. That is the
 violation — stop, let it return, and dispatch the next pass fresh with a brief
 that points at the artifacts.
 
-**Why it matters (the top token-waste failure mode — and it's input-side, not
-output):** the cost of a threaded instance is not the cheap per-turn cache
-reads — it is **window size**. A threaded window grows every pass and is (a)
-re-read each turn and (b) **fully re-written at the 1.25× cache-write tier on
-every resume once the ~5-min cache TTL has lapsed**. On the Pro plan those
-resumes are *structural* — the usage cap parks the session for hours between
-turns, unavoidably — so the only lever left is the **size** of the window each
-resume re-caches. Fresh-per-pass caps that at one pass (~40k, reloaded from the
-compact `derivation.md`) instead of the whole accreted workflow. One incident
-threaded a single modeler across five passes to a **~268k window**; ~84% of its
-cache-write cost was full-window idle re-caches (74k → 125k → 175k → 268k as it
-grew) — re-dispatching fresh roughly halves the run. Output is intrinsic work
-(derivation + review cycles) and is unaffected either way. Threading also
-resets `maxTurns` on every message, removing the last turn-count guard.
-Mechanism detail: `.claude/rules/subagent-harness.md`.
+**Why it matters — the top token-waste failure mode, and it is input-side, not
+output.** A threaded window grows every pass and is re-written in full at the
+1.25× cache-write tier on every resume. One incident reached a **~268k** window
+across five passes; **~84%** of its cache-write spend was idle re-caches, and
+fresh-per-pass would have roughly halved the run at identical output.
+Mechanism and numbers: `.claude/incidents.md#threaded-modeler`.
 
-**The only `SendMessage` to a modelling agent that is ever allowed** is none
-for workflow progression. A pass that returns with an open question is
-answered by folding the answer into the *next* fresh dispatch's brief.
+**No `SendMessage` for workflow progression, ever.** A pass that returns with
+an open question is answered by folding the answer into the *next* fresh
+dispatch's brief.
+
+**The one exception — salvaging a crashed pass, not advancing a workflow.** A
+pass that hit `maxTurns` *after reaching real results but before writing them
+down* may be resumed **once**, immediately, with a hard-scoped message. That is
+not progression: nothing moves to the next step, the instance is only asked to
+land the artifact its own window already contains. The distinction that makes
+this safe is that Gate 4's economics assume the next pass can be "briefed from
+the durable artifacts" — on a **zero-artifact** return there are none, so a
+fresh dispatch re-pays the whole discovery cost instead of reading a compact
+`derivation.md`. Conditions, and the over-read case where this does *not*
+apply, are in `.claude/rules/subagent-harness.md` — classify before resuming;
+a window full of circling reads is a liability and must be discarded.
 
 ## Model tier per pass
 

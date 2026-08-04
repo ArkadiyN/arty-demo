@@ -1,0 +1,2 @@
+elevation_site_ft,ambient_temperature_C,ambient_pressure_psia,air_density_g_cc,density_tantalum,density_steel,density_aluminum,density_span_lo,density_span_hi,velocity_lo_fts,velocity_lo_mm_us,velocity_hi_fts,velocity_hi_mm_us
+5500,30,12.06,0.000957,16.6,7.86,2.77,2.77,16.6,2000,0.6,14000,4.3

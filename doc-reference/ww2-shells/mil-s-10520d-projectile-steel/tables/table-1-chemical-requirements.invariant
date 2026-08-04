@@ -1,0 +1,21 @@
+csv:     table-1-chemical-requirements.csv
+source:  ../source.md
+anchor:  TABLE I. Chemical requirements
+
+# A composition specification has no arithmetic closure: every cell is an
+# independent policy limit, so there is nothing to reproduce from the source's
+# own definitions.  The two checks below are therefore NOT the closure for this
+# table -- see checks/cross-document-table-1.py, which diffs all 30 cells
+# against AMCP 706-249 table 6-1 (the same table at revision C).  That
+# cross-document diff is this table's closure; the rest of this file is the
+# part of it the DSL can express.
+#
+# What the DSL does buy here is a COLUMN-IDENTITY check, which is the failure
+# mode `.claude/rules/source-data-fidelity.md` exists to catch.  Phosphorus and
+# Sulfur are constant down all six grades at values no neighbouring column
+# shares (0.040 and 0.050; Carbon and Manganese are per-grade, Silicon is
+# 0.15-0.30).  So a one-column shift in either direction breaks these sums,
+# while a row permutation within the column -- harmless here, since the column
+# is constant -- does not.
+total:  p_hi == 0.240 within 0.0005
+total:  s_hi == 0.300 within 0.0005

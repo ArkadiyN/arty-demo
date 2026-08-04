@@ -1,0 +1,224 @@
+"""Collect deferred findings scattered across the repo into one register.
+
+Consumer: `OPEN-FINDINGS.md` (generated), and the dispatch briefs that inject
+matching entries via `--for`.
+
+A finding recorded only in the document where it was discovered is invisible to
+everyone who needs to act on it. The 1944-Ordnance column inversion was
+correctly diagnosed twice, in `initial-conditions-105mm.md` and
+`initial-conditions-155mm.md`, deferred both times as "out of scope — flagged
+for a follow-up fix", and never actioned; the wrong numbers stayed in committed
+artifacts. This script is the aggregation step that was missing.
+
+Marker syntax (one line, any of .md/.qmd/.py):
+
+    FINDING[blocking]: one-line statement (affects: path/one.py, path/two.md; since: 2026-08-02)
+
+Severities are `blocking`, `deferrable`, `note`; see
+`.claude/rules/deferred-findings.md` for which is which and what may not be
+deferred at all. Close a finding by deleting its marker — the register is
+regenerated, never hand-edited.
+
+Usage:
+    uv run python src/utils/collect-findings.py            # rewrite the register
+    uv run python src/utils/collect-findings.py --check    # exit 1 if stale (pre-commit)
+    uv run python src/utils/collect-findings.py --for experiment/fragmentation-field/challenges/drag-gap-1944
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+REGISTER = REPO / "OPEN-FINDINGS.md"
+
+SCAN_DIRS = ("experiment", "src", "app", "doc-reference", "openspec")
+SCAN_SUFFIXES = (".md", ".qmd", ".py")
+SKIP_PARTS = (".venv", ".git", "node_modules", ".ruff_cache", ".pytest_cache", "_site")
+
+# Files that legitimately contain the marker syntax as documentation.
+SELF = {Path("src/utils/collect-findings.py"), Path("OPEN-FINDINGS.md")}
+
+STALE_DAYS = 30
+
+# The `\\?` before each bracket is not defensive padding: mdformat rewrites
+# `FINDING[blocking]:` to `FINDING\[blocking\]:` in every .md it touches, which
+# silently zeroed this register the first time it ran. A marker must survive any
+# formatter that has an opinion about brackets.
+MARKER = re.compile(
+    r"FINDING\\?\[(?P<sev>blocking|deferrable|note)\\?\]:\s*"
+    r"(?P<text>.+?)\s*"
+    r"\(affects:\s*(?P<affects>[^;)]+);\s*since:\s*(?P<since>\d{4}-\d{2}-\d{2})\s*\)"
+)
+# Anything that opens a marker but does not parse — reported rather than skipped,
+# so a typo cannot silently drop a finding out of the register.
+LOOSE = re.compile(r"FINDING\\?\[")
+
+SEVERITIES = ("blocking", "deferrable", "note")
+
+# Same reason as the `\\?` above — a formatter may have escaped `*`, `_` or `[`
+# inside the text or the paths. Normalise so the register reads as written.
+ESCAPED = re.compile(r"\\([*_\[\]`~])")
+
+
+def unescape(text: str) -> str:
+    return ESCAPED.sub(r"\1", text)
+
+
+@dataclass(frozen=True)
+class Finding:
+    severity: str
+    text: str
+    affects: tuple[str, ...]
+    since: datetime.date
+    source: str
+    line: int
+
+    def age_days(self, today: datetime.date) -> int:
+        return (today - self.since).days
+
+
+def scan(root: Path) -> tuple[list[Finding], list[str]]:
+    """Return (findings, malformed-marker complaints) across the scanned tree."""
+    findings: list[Finding] = []
+    malformed: list[str] = []
+    for directory in SCAN_DIRS:
+        base = root / directory
+        if not base.is_dir():
+            continue
+        for path in sorted(base.rglob("*")):
+            if path.suffix not in SCAN_SUFFIXES or not path.is_file():
+                continue
+            if any(part in SKIP_PARTS for part in path.parts):
+                continue
+            rel = path.relative_to(root)
+            if rel in SELF:
+                continue
+            try:
+                lines = path.read_text(encoding="utf-8").splitlines()
+            except (UnicodeDecodeError, OSError):
+                continue
+            for n, line in enumerate(lines, 1):
+                match = MARKER.search(line)
+                if match:
+                    findings.append(
+                        Finding(
+                            severity=match["sev"],
+                            text=unescape(match["text"].strip()),
+                            affects=tuple(
+                                unescape(a.strip())
+                                for a in match["affects"].split(",")
+                                if a.strip()
+                            ),
+                            since=datetime.date.fromisoformat(match["since"]),
+                            source=str(rel),
+                            line=n,
+                        )
+                    )
+                elif LOOSE.search(line):
+                    malformed.append(f"{rel}:{n}: marker does not parse — {line.strip()[:90]}")
+    return findings, malformed
+
+
+def render(findings: list[Finding], today: datetime.date) -> str:
+    """Render the register: blocking first, oldest first within each severity."""
+    stale = [f for f in findings if f.age_days(today) >= STALE_DAYS]
+    blocking = [f for f in findings if f.severity == "blocking"]
+
+    out: list[str] = [
+        "# Open findings",
+        "",
+        "<!-- GENERATED by src/utils/collect-findings.py — do not edit by hand. -->",
+        "<!-- Close a finding by deleting its FINDING[...] marker at the source. -->",
+        "",
+        f"**{len(findings)} open** — {len(blocking)} blocking, "
+        f"{len(stale)} older than {STALE_DAYS} days.",
+        "",
+        "A *blocking* finding means a committed artifact is known to carry a wrong",
+        "number, or shipped code or a published surface rests on one. It may not be",
+        "closed by deferral — see `.claude/rules/deferred-findings.md`.",
+        "",
+    ]
+
+    for severity in SEVERITIES:
+        group = sorted(
+            (f for f in findings if f.severity == severity),
+            key=lambda f: (f.since, f.source, f.line),
+        )
+        if not group:
+            continue
+        out += [f"## {severity.capitalize()} ({len(group)})", ""]
+        for f in group:
+            age = f.age_days(today)
+            flag = " ⚠ **stale**" if age >= STALE_DAYS else ""
+            out.append(f"- **{f.text}**{flag}")
+            out.append(f"    - affects: {', '.join(f'`{a}`' for a in f.affects)}")
+            out.append(f"    - raised: {f.since.isoformat()} ({age}d) in `{f.source}:{f.line}`")
+        out.append("")
+
+    if not findings:
+        out += ["No open findings.", ""]
+    return "\n".join(out)
+
+
+def matching(findings: list[Finding], prefix: str) -> list[Finding]:
+    """Findings whose affects: paths intersect a dispatch's scope."""
+    return [f for f in findings if any(a.startswith(prefix) or prefix in a for a in f.affects)]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="exit 1 if the register is stale")
+    parser.add_argument("--for", dest="scope", help="print findings matching a path prefix")
+    parser.add_argument("filenames", nargs="*", help="ignored; pre-commit passes these")
+    args = parser.parse_args()
+
+    today = datetime.date.today()
+    findings, malformed = scan(REPO)
+
+    if malformed:
+        print("Malformed FINDING markers (fix or the finding is lost):", file=sys.stderr)
+        for complaint in malformed:
+            print(f"  {complaint}", file=sys.stderr)
+        return 1
+
+    if args.scope:
+        hits = matching(findings, args.scope)
+        if not hits:
+            print(f"No open findings affecting {args.scope}")
+            return 0
+        print(f"{len(hits)} open finding(s) affecting {args.scope}:\n")
+        for f in sorted(hits, key=lambda f: (SEVERITIES.index(f.severity), f.since)):
+            print(f"[{f.severity}] {f.text}")
+            print(f"    affects: {', '.join(f.affects)}")
+            print(f"    raised {f.since.isoformat()} ({f.age_days(today)}d) in {f.source}:{f.line}")
+        return 0
+
+    rendered = render(findings, today)
+    current = REGISTER.read_text(encoding="utf-8") if REGISTER.exists() else ""
+
+    if args.check:
+        if rendered != current:
+            print(
+                f"{REGISTER.name} is out of date — run "
+                f"`uv run python src/utils/collect-findings.py` and stage it.",
+                file=sys.stderr,
+            )
+            return 1
+        return 0
+
+    if rendered != current:
+        REGISTER.write_text(rendered, encoding="utf-8")
+        print(f"wrote {REGISTER.relative_to(REPO)} — {len(findings)} open finding(s)")
+    else:
+        print(f"{REGISTER.relative_to(REPO)} already current — {len(findings)} open finding(s)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
