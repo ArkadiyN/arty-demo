@@ -319,3 +319,71 @@ assumptions corrupt drag is thereby logged, not acted on.
 1. **A9.7 The break-up-velocity item (scoping §5) is deliberately left open.**
     The ~1.2–1.8× residual in §7.3/§7.5 is its predicted size; absorbing it into
     `A` or `κ_x` is forbidden.
+
+## 10. Gold 2017 provenance: shipped-code verification, the N₀ contradiction, and the two α's
+
+Relocated 2026-08-03 from
+`doc-reference/fragmentation/fragment-size-distribution-conwep/card.md`
+(sections "The shipped code" and "The paper contradicts itself on N₀...",
+plus the `γ = 50` bullet under "What is *not* certified"), per
+`.claude/rules/source-data-fidelity.md` ("A card states what the source says,
+not what to use it for") and the finding logged at
+`experiment/fragmentation-field/challenges/source-data-audit/review-provenance.md:342`.
+These are code-verification verdicts and a computed model output — correct,
+but they belong in a derivation a reviewer reads, not in a reference card. Text
+is moved verbatim; it was not re-derived or re-checked for this move. The card
+retains only the source's own eq. (1)/eq. (17) contradiction as a fact about
+the paper; what follows is the resolution — which side `src/arty` takes, and
+why.
+
+### The shipped code
+
+- `mott_params` builds μ the long way — eq. (2) for `x₀`, eq. (6) to fold `α`
+    into `γ`, eq. (16). Eq. (4) reaches the same μ in one step. **They agree to
+    2 × 10⁻¹⁶** at three break-up velocities, which they can only do if the
+    shipped `alpha ** (-2.0/3.0)` carries the sign the algebra demands.
+- `μ_(7)` and `μ_(16)` are identical to 4 × 10⁻¹⁶ over a seven-point parameter
+    sweep (the `½·2^{3/2} = √2` collapse), so citing either name is correct.
+- **`N₀`**: the code uses `M/(2μ)` — eq. (1), *not* eq. (17).
+
+### The paper contradicts itself on N₀, and the code takes the right side
+
+Eq. (1) states `N₀ = M/2μ`; eq. (17) states `N₀ⱼ = mⱼ/μⱼ`. These differ by
+exactly a factor of 2, and eq. (17) would double every fragment count. Eq. (1)
+is the self-consistent one: μ is defined two sentences earlier as **half** the
+average fragment mass, so total mass over μ counts half-fragments. At the
+shipped M1 geometry the gap is 3 959 vs 7 918 fragments at V₀ = 1000 m/s.
+
+`src/arty` follows eq. (1). Recorded here rather than repaired anywhere,
+because there is nothing to repair — but any future pass that reads eq. (17)
+off the page and "corrects" the code would be introducing the error.
+
+### Gold's `γ = 50` is the shape-absorbed γ of eq. (6), not `γ′`
+
+Gold never states α for Charge A, so his 50 cannot be converted to a `γ′`.
+`_validation.qmd:48` already reads it correctly — as an "un-shape-corrected"
+value, i.e. the cube limit α = 1 where γ = γ′ — and explicitly declines to
+score the model against the resulting band. That reading is sound; a future
+pass must not silently treat 50 as a `γ′` for `SteelParams`.
+
+### Gold overloads the symbol α — two unrelated quantities
+
+Gold 2017 uses `α` for two things that share nothing but the letter:
+
+- **Eq. (4)'s fragment shape aspect-ratio** — `α = (l₀/x₀)(t₀/x₀)`, the
+    parallelepiped shape factor this derivation's §1 (G4) uses throughout, and
+    which feeds `γ = α^{-2/3}γ′` (G6). This is the only `α` this derivation
+    computes with (§4, §7, `mott_params`). Anchor: `In the equation (4)` (the
+    sentence defining it, `…conwep/1-s2.0-S221491471730079X-main.md`).
+- **Section 4's detonation-wave incidence angle** — the angle between the
+    detonation-wave front and the shell surface normal in the Charge B
+    multi-region discussion, unrelated to fracture geometry. "The steeper angle
+    α is, the higher parameter γ is" (Fig. 7(b) caption) — the *opposite* sign
+    relation from eq. (6)'s aspect-ratio α, where **larger** α **lowers** γ.
+    Anchors: `incident angle $\alpha$ between the detonation wave direction`
+    (§4 prose) and `detonation shock wave incidence angle $\alpha$` (Fig. 7
+    caption).
+
+A future pass that looks up "Gold's α" and lands on Fig. 7(b) instead of eq.
+(4) will take the sign of (G6) backwards. Nothing in this derivation uses the
+Fig. 7 α; it is documented here only to block that mix-up.

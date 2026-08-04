@@ -313,7 +313,13 @@ backwards. The card's "Gold never states α for Charge A" is true of the *shape*
 α and false-looking of the §4 α; it needs the disambiguation to be safe as a
 premise.
 
-FINDING\[deferrable\]: Gold 2017 uses the symbol alpha for two unrelated quantities - eq.(4)'s fragment shape aspect-ratio (larger alpha lowers gamma) and section 4's detonation-wave incidence angle (Fig. 7 caption: steeper alpha raises gamma) - and card.md does not disambiguate them, so a future pass looking for "Gold's alpha" can land on Fig. 7(b) and take the sign of eq. (6) backwards (affects: doc-reference/fragmentation/fragment-size-distribution-conwep/card.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md; since: 2026-08-03)
+**Closed.** Both files now carry the disambiguation, added identically: eq. (4)'s
+α is the parallelepiped shape factor `α = (l₀/x₀)(t₀/x₀)` — the one this repo
+computes with — and it is unrelated to §4 / Fig. 7(b)'s detonation-wave
+incidence angle, which carries the *opposite* sign relation to γ. The three
+anchors used (`In the equation (4)`, `incident angle $\alpha$ between the detonation wave direction`, `detonation shock wave incidence angle $\alpha$`)
+were each re-grepped against
+`1-s2.0-S221491471730079X-main.md` on close and return exactly one hit.
 
 ### 2d. Card-as-modelling-claim check on this card
 
@@ -339,7 +345,17 @@ correct**; the objection is structural (they are reviewed by nobody), so
     set, so I did not verify the cited line; the endorsement itself is the
     misplaced claim.
 
-FINDING\[note\]: Gold card.md sections "The shipped code" and "The paper contradicts itself on N0..." carry code-verification verdicts and a computed model output (3959 vs 7918 fragments at V0=1000 m/s), and the "What is not certified" bullet endorses \_validation.qmd:48's reading as sound - all correct but reviewed by nobody in a card; move the resolutions to derivation.md and leave only the source's own eq.(1)/eq.(17) contradiction in the card (affects: doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
+**Closed.** All three moved verbatim to
+`experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md`
+**§10**, under a header recording where they came from, why, and that the text
+was relocated rather than re-derived — so a reviewer now sees the μ-agreement
+check, the N₀ resolution and the `γ = 50` endorsement in a document that gets
+reviewed. The card keeps the source's own eq. (1) / eq. (17) contradiction as a
+bare fact about the paper, and the orphaned cross-references the removal left
+behind were repointed at §10 rather than restating the resolution. What stayed
+on the card by design: the equations as printed, the α-sign closure (a
+transcription-fidelity question, not a modelling claim), the Table 1 CSV, and
+the remaining "not certified" bullets.
 
 ## 3. Tolch 1938 "Drag Model Relevance"
 

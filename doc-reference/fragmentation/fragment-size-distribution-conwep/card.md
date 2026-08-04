@@ -81,7 +81,19 @@ does.
 - **(7)** `μ = ½ (2σ_F/(ρ^{1/3} γ))^{3/2} (r/V)³`.
 - **(16)** `μⱼ = √(2/ρ) (σ_F/γ)^{3/2} (rⱼ/Vⱼ)³` — **the same formula as (7)**,
     written per ring segment. The repo cites both names for it.
-- **(17)** `N₀ⱼ = mⱼ/μⱼ`. **This contradicts (1)** — see below.
+- **(17)** `N₀ⱼ = mⱼ/μⱼ`. **This contradicts (1)** by exactly a factor of 2 —
+    a fact about the paper, not resolved here. The resolution (which side
+    `src/arty` takes, and why) is in
+    `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md`
+    §10.
+
+**Gold overloads the symbol α.** Eq. (4)'s α above (`= (l₀/x₀)(t₀/x₀)`, the
+parallelepiped shape factor feeding eq. (6)/(7)/(16)) is unrelated to a
+second, unconnected use later in the paper: §4's detonation-wave incidence
+angle (anchor `incident angle $\alpha$ between the detonation wave direction`)
+and its Fig. 7(b) caption (anchor `detonation shock wave incidence angle $\alpha$`), where "the steeper angle α is, the higher parameter γ is" — the
+*opposite* sign relation from eq. (6)'s aspect-ratio α, where larger α lowers
+γ. Do not conflate the two when reading "Gold's α" off this document.
 
 ## Closure
 
@@ -157,27 +169,10 @@ the vision reconstruction agrees with the algebra. **That agreement is what
 promotes it from an unchecked model reading to a checked one** — read on its
 own it would be evidence of nothing, since it is the reading under test.
 
-### The shipped code
-
-- `mott_params` builds μ the long way — eq. (2) for `x₀`, eq. (6) to fold `α`
-    into `γ`, eq. (16). Eq. (4) reaches the same μ in one step. **They agree to
-    2 × 10⁻¹⁶** at three break-up velocities, which they can only do if the
-    shipped `alpha ** (-2.0/3.0)` carries the sign the algebra demands.
-- `μ_(7)` and `μ_(16)` are identical to 4 × 10⁻¹⁶ over a seven-point parameter
-    sweep (the `½·2^{3/2} = √2` collapse), so citing either name is correct.
-- **`N₀`**: the code uses `M/(2μ)` — eq. (1), *not* eq. (17).
-
-### The paper contradicts itself on N₀, and the code takes the right side
-
-Eq. (1) states `N₀ = M/2μ`; eq. (17) states `N₀ⱼ = mⱼ/μⱼ`. These differ by
-exactly a factor of 2, and eq. (17) would double every fragment count. Eq. (1)
-is the self-consistent one: μ is defined two sentences earlier as **half** the
-average fragment mass, so total mass over μ counts half-fragments. At the
-shipped M1 geometry the gap is 3 959 vs 7 918 fragments at V₀ = 1000 m/s.
-
-`src/arty` follows eq. (1). Recorded here rather than repaired anywhere,
-because there is nothing to repair — but any future pass that reads eq. (17)
-off the page and "corrects" the code would be introducing the error.
+The paper's own eq. (1)/eq. (17) contradiction on N₀ — and which side
+`src/arty` takes, and why — is resolved in
+`experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md`
+§10, not here (relocated 2026-08-03, `.claude/rules/source-data-fidelity.md`).
 
 ## Tables
 
@@ -199,12 +194,10 @@ incident (ledger §13b) is the warning about doing it by eye.
 
 ## What is *not* certified
 
-- **Gold's `γ = 50` is the shape-absorbed γ of eq. (6), not `γ′`.** Gold never
-    states α for Charge A, so his 50 cannot be converted to a `γ′`.
-    `_validation.qmd:48` already reads it correctly — as an "un-shape-corrected"
-    value, i.e. the cube limit α = 1 where γ = γ′ — and explicitly declines to
-    score the model against the resulting band. That reading is sound; a future
-    pass must not silently treat 50 as a `γ′` for `SteelParams`.
+- **Whether Gold's `γ = 50` is `γ′` or the shape-absorbed γ of eq. (6)** is a
+    criterion-match question, resolved (not just flagged) in
+    `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md`
+    §10 — relocated there 2026-08-03, `.claude/rules/source-data-fidelity.md`.
 - **The attribution of eq. (3)/(4) to "Mott (1943)"** is Gold's, and it does not
     survive contact with the primary. Registered as a deferrable finding on
     `mott-fragment-shape-closure/derivation.md:19` (ledger §16): Mott & Linfoot

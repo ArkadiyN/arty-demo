@@ -2602,6 +2602,35 @@ new catalog entry whose one number of interest is sourced elsewhere (§25c). The
 `m49a2` document work itself remains unfinished and is carried as deferrable —
 it is a shell to finish, not a defect to retract.
 
+### 25h · The card migration, completed 2026-08-03
+
+Phase 8 item 2 — splitting `card.md` so the interpretive half leaves
+`doc-reference/` — is now **applied to every card that needed it**. Six were
+repaired: `tolch-1938` and `dod-1975` (`bab141a`), `ordnance-1944` (`71963fc`,
+`bf705b4`), `aisi-1045` and `ammunition-series-6-steel-composition` (`68fc301`),
+`aisi-1020` and `fragment-size-distribution-conwep` (this commit). Gold 2017's
+relocation went to `updates/mott-fragment-shape-closure/derivation.md` §10
+rather than being struck, because unlike the others its content was correct and
+worth keeping — it was only in a file no reviewer reads.
+
+A mechanical re-sweep of all 19 cards (provenance section present; bare
+line-number anchors) over-reported: `aep-55-vol3` and `britishartillery-wt-of-fire`
+are compliant in substance and were only missing the literal heading string,
+and the `.md:NNN` counts on the three repaired scan-backed cards are the
+convenience line numbers the rule permits *alongside* a greppable anchor. Only
+`aisi-1020` was genuinely unmigrated, and only `m49a2` remains — deferred by
+the user as unfinished document work, not a defect.
+
+**What the migration kept finding was not interpretation but derived surfaces
+misrepresenting their sources**, three times in one session by three unrelated
+mechanisms: `source.pdf`'s text layer covering ordnance-1944's tabular pages
+and not its prose ones (§35e); the Ammunition Series 6 extraction silently
+dropping a sentence the page carries verbatim (§11); and all three AZoM
+extractions closing with a `## Remarks` section written by the extractor, not
+the page. Each was found the same way — by refusing to accept absence from a
+derived copy as absence from the source. That reflex, not the card convention,
+is what this phase actually produced.
+
 The two anchor findings below supersede nothing — §12's blocking label finding
 stands as written and is now confirmed at the page with its cause identified.
 
