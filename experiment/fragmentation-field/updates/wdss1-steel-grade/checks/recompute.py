@@ -21,6 +21,10 @@ Sources for the inputs:
                             doc-reference/azom-steel-grades/aisi-1335/aisi-1335.md
 """
 
+import csv
+from dataclasses import replace
+from pathlib import Path
+
 import numpy as np
 
 from arty.fragmentation import (
@@ -34,19 +38,57 @@ from arty.fragmentation import (
 
 # --- Inputs -----------------------------------------------------------------
 
-# FINDING[deferrable]: MOTT_SERIES below hand-copies the Mott p.308 gamma series into a literal array instead of reading doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.csv, which is the transcribe-once failure mode .claude/rules/source-data-fidelity.md names; the four values were confirmed correct against the retained scan at 420 dpi on 2026-08-02, so this is fragility rather than wrongness, and the swap should be made by the pass that next re-runs this script so its output can be diffed (affects: experiment/fragmentation-field/updates/wdss1-steel-grade/checks/recompute.py, doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.csv; since: 2026-08-02)
 # Mott 1947 sec.3 p.308, after Koerber & Rohland (1924): (carbon %, gamma).
-# gamma is dimensionless, so it is immune to the scan's stress-column unit
-# ambiguity. "iron" is entered at 0.0 %C.
+# READ FROM THE CSV, never hand-copied (.claude/rules/source-data-fidelity.md,
+# "Numbers are extracted once, not re-typed"). gamma is dimensionless, so it is
+# immune to the scan's stress-column unit ambiguity; "iron" is at 0.0 %C.
 # NOTE the row spacing is NON-UNIFORM (0 / 0.1 / 0.25 / 0.45 %C) -- do not assume
 # a 0.1 %C grid; the quadratic below therefore uses divided differences.
-MOTT_SERIES = [(0.0, 20.0), (0.1, 42.0), (0.25, 53.0), (0.45, 67.0)]
+_CSV = (
+    Path(__file__).resolve().parents[5]
+    / "doc-reference/fragmentation/gurney-equations-fragmentation"
+    / "tables/section3-gamma-vs-composition.csv"
+)
+
+
+def _load_mott_table() -> list[dict]:
+    """Return the Mott sec.3 rows as dicts with float carbon/RA/P_F/P_2/gamma."""
+    with _CSV.open(newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    for r in rows:
+        for k in ("carbon_pct", "reduction_in_area", "P_F_kg_per_mm2", "P_2_kg_per_mm2", "gamma"):
+            r[k] = float(r[k])
+    return rows
+
+
+MOTT_ROWS = _load_mott_table()
+MOTT_SERIES = [(r["carbon_pct"], r["gamma"]) for r in MOTT_ROWS]
+
+# Closure-recomputed column (rebaseline-verdict.md sect.1). Mott's own
+# gamma ~ 160 P_2 / (P_F (1+s_F)) reproduces the iron/0.1C/0.25C rows to <=3.2 %
+# when s_F is read as the engineering fracture strain RA/(1-RA) *without* the
+# printed "+1"; the 0.45 %C row does not reproduce (55.9 vs printed 67) and its
+# P_2 = 38 breaks the column's own monotone rise. Baseline WD-X1335 sits in the
+# 0.25-0.45 %C segment, i.e. its upper bracket is that indicted row, so the
+# baseline gamma' is re-anchored on this recomputed column (verdict sect. 3.2).
+MOTT_CLOSURE_COEFF = 160.0
+
+
+def _gamma_closure(row: dict) -> float:
+    """Return Mott's closure-formula gamma [-] for one table row (verdict sect.1)."""
+    ra = row["reduction_in_area"]
+    s_f = ra / (1.0 - ra)
+    return MOTT_CLOSURE_COEFF * row["P_2_kg_per_mm2"] / (row["P_F_kg_per_mm2"] * s_f)
+
+
+MOTT_SERIES_RECOMPUTED = [(r["carbon_pct"], _gamma_closure(r)) for r in MOTT_ROWS]
 
 WDSS1_CARBON = (0.14, 0.20)      # Ammunition Series 6 Table 6-1
 BASELINE_CARBON = (0.33, 0.38)   # WD-X1335 ~ AISI 1335 (unconfirmed; see A8)
 BASELINE_ALT_CARBON = 0.40       # SAE 1040, the equally plausible alternate analog
 SIGMA_F = 800e6                  # [Pa] held; only R = sigma_f/gamma is observable
-BASELINE_GAMMA_SHIPPED = 65.0    # as catalogued in STEELS today
+BASELINE_GAMMA_LEGACY = 65.0     # the pre-2026-08-08 catalogued value (superseded)
+BASELINE_GAMMA_SHIPPED = 54.5    # as catalogued in STEELS today (sect.9 re-anchor)
 N_R = 20001                      # R50 grid: the shipped default (200) quantises to 1.5 m
 
 M_REF = 0.5e-3                   # [kg] reference mass for the N(>0.5 g) validation band
@@ -55,13 +97,14 @@ M_REF = 0.5e-3                   # [kg] reference mass for the N(>0.5 g) validat
 # --- gamma interpolants -----------------------------------------------------
 
 
-def gamma_linear(c: float) -> float:
+def gamma_linear(c: float, series: list | None = None) -> float:
     """Return Mott gamma [-] at carbon fraction c [%] by local-linear interpolation."""
-    for (c0, g0), (c1, g1) in zip(MOTT_SERIES, MOTT_SERIES[1:]):
+    series = MOTT_SERIES if series is None else series
+    for (c0, g0), (c1, g1) in zip(series, series[1:]):
         if c0 <= c <= c1:
             return g0 + (g1 - g0) * (c - c0) / (c1 - c0)
     # beyond the last row: extrapolate on the final segment's slope
-    (c0, g0), (c1, g1) = MOTT_SERIES[-2], MOTT_SERIES[-1]
+    (c0, g0), (c1, g1) = series[-2], series[-1]
     return g1 + (g1 - g0) * (c - c1) / (c1 - c0)
 
 
@@ -118,8 +161,65 @@ def _line(label: str, gamma: float, **kw) -> dict:
     return v
 
 
+def reanchor_report() -> None:
+    """Print sect.9: the baseline gamma' re-anchor onto the closure-recomputed column."""
+    b_lo, b_hi = BASELINE_CARBON
+    b_mid = 0.5 * (b_lo + b_hi)
+
+    print("=== sect.9  Baseline gamma' re-anchor (rebaseline-verdict sect.3.2) ===\n")
+    print("Mott sec.3 column: printed vs closure-recomputed 160 P_2/(P_F s_F), s_F=RA/(1-RA)")
+    for (c, g_p), (_, g_r) in zip(MOTT_SERIES, MOTT_SERIES_RECOMPUTED):
+        print(f"  c={c:5.2f} %C   printed={g_p:6.2f}   recomputed={g_r:6.2f}"
+              f"   dev={100 * (g_r / g_p - 1):+6.1f} %")
+
+    print("\nlocal-linear interpolation of each column:")
+    for c in (b_lo, b_mid, b_hi):
+        print(f"  c={c:.3f} %C   printed-col={gamma_linear(c):6.2f}   "
+              f"recomputed-col={gamma_linear(c, MOTT_SERIES_RECOMPUTED):6.2f}")
+    c_wd = 0.5 * sum(WDSS1_CARBON)
+    print(f"  (WDSS-1 {c_wd:.3f} %C  printed-col={gamma_linear(c_wd):6.2f}   "
+          f"recomputed-col={gamma_linear(c_wd, MOTT_SERIES_RECOMPUTED):6.2f}"
+          f"  -> both round to {round(gamma_linear(c_wd, MOTT_SERIES_RECOMPUTED)):.0f})")
+
+    print(f"\nAdopted baseline gamma' = {BASELINE_GAMMA_SHIPPED} "
+          f"(was {BASELINE_GAMMA_LEGACY}); composition band "
+          f"{gamma_linear(b_lo, MOTT_SERIES_RECOMPUTED):.1f}-"
+          f"{gamma_linear(b_hi, MOTT_SERIES_RECOMPUTED):.1f}")
+    print(f"  R = sigma_F/gamma' : {SIGMA_F / BASELINE_GAMMA_LEGACY / 1e6:.3f} -> "
+          f"{SIGMA_F / BASELINE_GAMMA_SHIPPED / 1e6:.3f} MPa "
+          f"({100 * (BASELINE_GAMMA_LEGACY / BASELINE_GAMMA_SHIPPED - 1):+.1f} %)")
+
+    print("\nPer-shell effect of the re-anchor (all four catalog shells):")
+    from arty.shells import SHELLS
+
+    hdr = f"{'shell':16s} {'alpha':>6s} {'gamma old':>9s} {'gamma new':>9s} " \
+          f"{'mu old':>8s} {'mu new':>8s} {'N0 old':>8s} {'N0 new':>8s} " \
+          f"{'N>0.5g old':>10s} {'N>0.5g new':>10s}"
+    print(hdr)
+    for name, base_shell in SHELLS.items():
+        row = [name]
+        vals = {}
+        for tag, g in (("old", BASELINE_GAMMA_LEGACY), ("new", BASELINE_GAMMA_SHIPPED)):
+            steel = SteelParams(name="x", rho=7850.0, sigma_f=SIGMA_F, gamma=g)
+            sh = replace(base_shell, steel=steel)
+            v0 = gurney_velocity(sh)
+            mu, n0 = mott_params(sh, v0)
+            r_o, r_i, r_bu, _ = _shell_geometry(sh)
+            t_bu = sh.wall_t * 0.5 * (r_o + r_i) / r_bu
+            x0 = np.sqrt(2.0 * SIGMA_F / (7850.0 * g)) * r_bu / v0
+            alpha = sh.aspect_ratio * sh.breadth_factor**2 * t_bu / x0
+            vals[tag] = (alpha, alpha ** (-2 / 3) * g, mu * 1e3, n0,
+                         n0 * np.exp(-np.sqrt(M_REF / mu)))
+        o, n = vals["old"], vals["new"]
+        print(f"{row[0]:16s} {n[0]:6.2f} {o[1]:9.1f} {n[1]:9.1f} "
+              f"{o[2]:8.3f} {n[2]:8.3f} {o[3]:8.0f} {n[3]:8.0f} "
+              f"{o[4]:10.0f} {n[4]:10.0f}")
+    print()
+
+
 def main() -> None:
     print(f"Geometry: V0={V0:.4f} m/s  r_bu={R_BU:.6f} m  M_shell={M_SHELL:.4f} kg\n")
+    reanchor_report()
 
     c_lo, c_hi = WDSS1_CARBON
     c_mid = 0.5 * (c_lo + c_hi)

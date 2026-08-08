@@ -253,7 +253,12 @@ The main agent's escalation of the ogive/cylinder contradiction to `blocking`
 and its routing to a Gate-3 @modeler pass is unaffected by any of the above and
 remains correct.
 
-FINDING\[blocking\]: frag-field-3d-geometry rebaseline-verdict.md:142 and its section 4 state the 2740 ft/s figure "is not in that source and traces to NWC TP 7124"; BRL-126 prints it three times as "27^0 f/s" (tolch-1938.md:146,1658,1698) and card.md:49 resolves it to 2,750 f/s, so the defect is a wrong spray class (side, not nose) plus an inverted companion value (Tolch's penetrating fragments are 3030 f/s, not 1070), and the prescribed re-attribution to NWC would be a second misattribution (affects: experiment/fragmentation-field/updates/frag-field-3d-geometry/rebaseline-verdict.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/derivation.md; since: 2026-08-03)
+**Closed 2026-08-08** — see `frag-field-3d-geometry/rebaseline-verdict.md`'s
+own closure note above its (now-deleted) mirror of this marker: the citation
+is repaired at every cited site (Tolch's figures re-read as side-spray, not
+re-attributed to NWC TP 7124), and the ogive/cylinder V0 contradiction this
+citation was papering over is independently resolved in `derivation.md` §6
+against the shipped `compute_shell_zones` output.
 
 The hedge was landed in `bab141a` — the card now says the third digit is unreadable on this surface and that 2,750 is not to be treated as an exact source value. What remains is the read that would actually resolve the digit:
 
