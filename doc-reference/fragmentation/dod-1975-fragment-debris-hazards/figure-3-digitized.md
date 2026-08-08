@@ -12,7 +12,17 @@
 > hand-copied into a check script that is still live; see
 > `experiment/fragmentation-field/challenges/source-data-audit/ledger.md` §13b.
 
-FINDING\[blocking\]: figure-3-digitized.md under-states C_D by up to 0.082 across Mach 1.0-2.2 and misplaces the transonic rise; its hand-copied array in required-retardation-vs-mach.py fed the rejection of Mach-dependent drag, and the error runs in the direction that weakens that candidate — read tables/figure-3-drag-coefficient.csv instead (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/figure-3-digitized.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/checks/required-retardation-vs-mach.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, app/sensitivity.py; since: 2026-08-02)
+**Closed 2026-08-08.** All four `affects:` legs are discharged: this file
+carries the SUPERSEDED banner above and points to the corrected CSV;
+`derivation.md` and `scoping.md` carry WITHDRAWN banners routing readers to
+`rebaseline-verdict.md` and `_limitations.qmd` limitation 15, which already
+publishes the corrected reasoning (Mach law wins ~20–25% RMS given equal scale
+freedom; decision to not implement survives on architectural cost, not
+accuracy); `app/sensitivity.py`'s C_D help text cites only landmark values
+(1.08–1.10 / 1.40 / 1.28) that the corrected CSV confirms unchanged, no wrong
+data consumed. `required-retardation-vs-mach.py`'s hard-coded old array is
+intentionally retained as the record of what was run — governed by its own
+separate note-level finding in `rebaseline-verdict.md`, not by this one.
 
 **Source:** DOD (1975), _Fragment and Debris Hazards_, "Figure 3 Drag Coefficient of Fragments" — `source.pdf` p.33 = report page 23 (extraction: `10-F-0806_Fragment_and_Debris_Hazards.md`, lines 300–370)
 
