@@ -93,10 +93,12 @@ from arty.shells import SHELLS
 
 
 def test_steel_params_ww2_us():
+    # gamma' re-anchored 65.0 -> 54.5, a sigma_f/gamma' move holding sigma_f
+    # fixed (updates/wdss1-steel-grade/derivation.md sect. 9.1-9.2)
     steel = STEELS["WW2 US HE Shell"]
     assert steel.rho == pytest.approx(7850.0)
     assert steel.sigma_f == pytest.approx(800e6)
-    assert steel.gamma == pytest.approx(65.0)
+    assert steel.gamma == pytest.approx(54.5)
 
 
 def test_steel_params_wdss1():
@@ -208,10 +210,12 @@ def test_default_shape_factors_preserve_mott_output():
     # Promoting A / kappa_x from module constants to ShellParams fields must not
     # move the default numbers: an unset shell has to reproduce both the
     # explicitly-defaulted call bit-for-bit and the reviewed baseline of
-    # updates/mott-fragment-shape-closure/derivation.md sect. 7.4, whose
-    # 105 mm M1 row is the ShellParams() default geometry: mu = 1.538 g,
-    # N0 = 3913 at its Gurney V0. (Sect. 7.3's 0.793 g / 3627 is the 75 mm
-    # M48, a different shell -- do not use it as the default baseline.)
+    # updates/wdss1-steel-grade/derivation.md sect. 9.3 (post gamma' 65 -> 54.5
+    # re-anchor; superseded mott-fragment-shape-closure/derivation.md sect. 7.4's
+    # 1.538 g / 3913), whose 105 mm M1 row is the ShellParams() default
+    # geometry: mu = 1.835 g, N0 = 3281 at its Gurney V0. (Sect. 7.3's 0.793 g /
+    # 3627 is the 75 mm M48, a different shell -- do not use it as the default
+    # baseline.)
     shell = ShellParams()
     assert shell.aspect_ratio == 1.6
     assert shell.breadth_factor == 1.5
@@ -222,8 +226,8 @@ def test_default_shape_factors_preserve_mott_output():
     )
     assert mu == mu_explicit
     assert N0 == N0_explicit
-    assert mu == pytest.approx(1.538e-3, rel=1e-2)
-    assert N0 == pytest.approx(3913.0, rel=1e-2)
+    assert mu == pytest.approx(1.835e-3, rel=1e-2)
+    assert N0 == pytest.approx(3281.0, rel=1e-2)
 
 
 def test_higher_aspect_ratio_gives_larger_mu():

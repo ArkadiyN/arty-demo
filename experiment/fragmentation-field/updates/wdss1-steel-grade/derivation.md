@@ -454,13 +454,22 @@ contrast (C7/A5).
   with carbon, so in reality σ_F and γ move together and partially cancel in
   $R$; the γ-only transfer therefore *overstates* the γ-channel contribution.
   A3 and A4 push opposite ways and are not separately resolvable in this model.
-- **A5 — The two catalog entries are on different rules** (check C7): the
-  baseline γ = 65 is a bracket-anchored estimate at 0.33–0.38 % C, WDSS-1's
-  γ = 47 a within-table interpolation at 0.14–0.20 % C. The catalogued pair gives
-  the **largest** defensible contrast (−38.5 % on N₀ against −31 %/−36 % for
-  rule-consistent baselines, C7). Direction is robust; magnitude is an **upper
-  bound** — a baseline put on WDSS-1's own interpolation rule would shrink the
-  contrast to ≈ −31 %, not widen it.
+- **A5 — ~~The two catalog entries are on different rules~~ — CLOSED by §9.1
+  (2026-08-08); text rewritten in place.** As originally logged, the baseline
+  γ = 65 was a bracket-anchored estimate at 0.33–0.38 % C while WDSS-1's γ = 47
+  was a within-table interpolation at 0.14–0.20 % C, and the catalogued pair was
+  said to give the **largest** defensible contrast (−38.5 % on N₀). Both halves
+  are withdrawn. §9.1 re-anchors the baseline to **γ′ = 54.5**, a local-linear
+  interpolation at the 0.355 % C midpoint on the **recomputed** γ column — the
+  same rule *and* the same column as WDSS-1 (which re-interpolates to 46.61 →
+  the shipped 47). The pair is therefore now rule-consistent, and the contrast
+  it gives is the rule-consistent one, not an upper bound: at M1 geometry
+  μ **+16.0 %**, N₀ **−13.8 %**, N(>0.5 g) **−10.5 %** (§9.3). Direction and
+  ordering γ′(WDSS-1) < γ′(baseline) are unchanged; the *magnitude* is ~14 % on
+  N₀, not ~39 %. What remains open is **A8**, not A5: γ′ = 54.5 is now
+  interpolated *at* the inferred composition midpoint, so the shipped baseline
+  value depends on the unconfirmed WD-X1335 ≈ AISI 1335 grade-name inference
+  (the ±0.025 % C band itself moves γ′ only 54.1–54.9).
 - **A6 — Grade identity and composition are sourced; one conflicting figure is
   flagged, not used.** WDSS-1 = War Department shell steel **WDSS 1**,
   0.14–0.20 % C / 1.00–1.30 % Mn, from *Ammunition Series 6* **Table 6-1**
@@ -511,17 +520,21 @@ contrast (C7/A5).
   an external anchor. The adopted value (γ = 47) and its uncertainty (45–49)
   are unchanged by the withdrawal (§2).
 
-**Limitations-page entries** (for `_limitations.qmd` when the presentation pass
-runs): A5 (contrast is an **upper** bound — the catalogued baseline γ = 65 is
-the largest-contrast choice; a rule-consistent baseline shrinks it to ≈ −31 %),
-A9 (one prose corroboration for γ was found not to exist in the source and is
-withdrawn; the interpolation stands on the table alone), A6 (mechanical
-properties unsourced for
-both grades; one conflicting secondary composition figure flagged for review),
-A8 (the baseline grade's composition is an unconfirmed grade-name inference, so
-the quoted baseline % C — and hence the contrast magnitude — is not sourced),
-and the C8 note that steel grade barely moves R₅₀ — the adopted γ sits at the
-R₅₀ maximum.
+**Limitations-page entries** (for `_limitations.qmd`; refreshed 2026-08-08 to
+§9's figures — the pre-re-anchor wording of the A5 and C8 entries is withdrawn):
+A5 (both entries are now on **one rule and one column**, so the modelled grade
+contrast is the rule-consistent one, **−13.8 % on N₀** at M1 geometry — *not* an
+upper bound and *not* −38.5 %), A9 (one prose corroboration for γ was found not
+to exist in the source and is withdrawn; the interpolation stands on the table
+alone), A6 (mechanical properties unsourced for both grades; one conflicting
+secondary composition figure flagged for review), A8 (the baseline grade's
+composition is an unconfirmed grade-name inference — and since §9.1 interpolates
+γ′ = 54.5 *at* that inferred midpoint, the shipped baseline γ′ now rests on it
+directly), and the C8 note that steel grade barely moves R₅₀ — post-shape-closure
+R₅₀ rises weakly and monotonically with γ′ across the whole plausible range
+(43.5 m at γ′ = 35 → 45.8 m at γ′ = 65, §9.3 / `checks/recompute.py` C8), so the
+softer WDSS-1 grade *shortens* R₅₀ by 1.2 % (45.42 → 44.89 m) rather than
+lengthening it; the "adopted γ sits at the R₅₀ maximum" reading is superseded.
 
 ## 8 · What the implementation pass touched (shipped) — and what is left
 
@@ -536,3 +549,155 @@ R₅₀ maximum.
    `app/sensitivity.py` and the notebook, honouring C8 — do not headline R₅₀ as
    the grade discriminator. The notebook partials already carry the §7
    limitations (A5/A6/A8/A9 and the C8 note).
+
+______________________________________________________________________
+
+## 9 · Baseline γ′ re-anchor (2026-08-08) — 65 → 54.5
+
+**Why this is here and not in a new update.** The baseline entry
+`SteelParams("WW2 US HE Shell")` was declared out of scope in §7 (A5/C7) and its
+γ′ = 65 logged as "on a different rule". `updates/mott-fragment-shape-closure/`
+then found that the row γ′ = 65 was anchored on — Mott p. 308's 0.45 %C row —
+is the **one row of four that fails the paper's own closure**, and its
+`rebaseline-verdict.md` §3.2 tagged the value **SHIFTED** (conclusion survives,
+number wrong) and routed the re-anchor here, as a registry question. This
+section is that re-anchor. The closure question itself (`s_F = RA/(1−RA)`,
+i.e. which reading of Mott's column closes) is **settled there and not
+reopened**.
+
+### 9.1 The anchor that failed, and its replacement
+
+Mott's own closure `γ ~ 160 P_2/(P_F (1+s_F))`, evaluated with
+`s_F = RA/(1−RA)` (verdict §1), reproduces three of the four printed rows and
+not the fourth:
+
+| c (% C) | printed γ | closure-recomputed γ | dev |
+| ------: | --------: | -------------------: | ---: |
+| 0.00 | 20 | 20.63 | +3.2 % |
+| 0.10 | 42 | 41.14 | −2.0 % |
+| 0.25 | 53 | 52.86 | −0.3 % |
+| **0.45** | **67** | **55.93** | **−16.5 %** |
+
+WDSS-1 (0.14–0.20 %C) is bracketed by the 0.10 and 0.25 rows, **both of which
+close**; the baseline (0.33–0.38 %C) is bracketed by 0.25 and the **indicted**
+0.45 row. That asymmetry is the whole finding — the same table is sourced for
+one entry and only a working value for the other (verdict §2's caveat).
+
+Re-anchoring the baseline on the **recomputed** column, on WDSS-1's own rule
+(local-linear, no extrapolation):
+
+| c (% C)          | printed-column γ | recomputed-column γ |
+| ---------------- | ---------------: | ------------------: |
+| 0.330 (band low) | 58.60 | 54.09 |
+| **0.355 (midpoint, adopted)** | 60.35 | **54.47 → 54.5** |
+| 0.380 (band high) | 62.10 | 54.86 |
+
+**Adopted: γ′ = 54.5**, composition band 54.1–54.9 (±0.7 %, negligible beside
+A8's unconfirmed composition). The value is the verdict's own §3.2 number.
+
+**Consistency check that costs nothing and matters:** re-interpolating WDSS-1 on
+the *recomputed* column gives 46.61, which rounds to the shipped **47**. Both
+catalog entries are therefore now on one rule *and* one column — the §7 A5
+complaint ("the two entries are not on the same rule") is closed by this pass,
+not merely restated.
+
+### 9.2 Why this is a σ_F/γ′ move, not a relabelling
+
+By §1 only $R = \sigma_F/\gamma'$ is observable, so "γ′: 65 → 54.5" is
+meaningless until the split convention is stated. Two readings exist and they
+are physically different:
+
+1. **Hold $R$, move both** — a pure reparametrisation, zero downstream effect.
+   This is *not* what the verdict found: the finding is that the anchor fixing
+   the material's brittleness is wrong, i.e. the physical ratio is wrong.
+1. **Hold $\sigma_F = 800$ MPa, move $\gamma'$** — the move made here. It
+   changes the observable:
+
+$$
+R_{\rm base}:\quad \frac{800}{65} = 12.308
+\;\longrightarrow\;
+\frac{800}{54.5} = 14.679\ \mathrm{MPa}
+\qquad (+19.3\ \%). \quad (7)
+$$
+
+σ_F is held for the same three reasons as §3 — no source gives a dynamic flow
+stress for either composition; every point on the ray $\sigma_F/\gamma' = R$ is
+the same model, so fixing σ_F is the cheapest convention; and holding it keeps
+the two catalog entries comparable, which is exactly what §9.1 exploits. The
+shipped `sigma_f = 800e6` is therefore **still a reporting convention, not a
+measured flow stress** (A4); what this pass asserts is the ratio (7).
+
+**Sensitivity under the shipped shape closure.** In `mott_params`,
+$x_0 \propto \gamma'^{-1/2}$, so $\alpha \propto \gamma'^{1/2}$ and the
+shape-corrected $\gamma = \alpha^{-2/3}\gamma' \propto \gamma'^{2/3}$; hence
+
+$$
+\mu \;\propto\; \left(\frac{\sigma_F}{\gamma}\right)^{3/2} \;\propto\; \gamma'^{-1},
+\qquad N_0 \propto \gamma', \quad (8)
+$$
+
+**not** the pre-closure $\gamma'^{-3/2}$ of eq. (2). A −16.2 % move in γ′
+therefore gives +19.3 % on μ and −16.2 % on N₀ — a third smaller than eq. (2)
+predicts. Eq. (2) is superseded for any post-shape-closure sensitivity estimate.
+
+### 9.3 Downstream numbers, recomputed
+
+All four catalog shells on the baseline grade, shipped code, regenerated by the
+§9 block of `checks/recompute.py`
+(`uv run python experiment/fragmentation-field/updates/wdss1-steel-grade/checks/recompute.py`):
+
+| shell | α | γ (shape-corr.) 65 → 54.5 | μ [g] 65 → 54.5 | N₀ 65 → 54.5 | N(>0.5 g) 65 → 54.5 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 75 mm M48 | 3.31 | 27.6 → 24.5 | 0.692 → 0.826 | 3 597 → 3 016 | 1 538 → 1 385 |
+| 105 mm M1 | 4.26 | 23.3 → 20.7 | 1.538 → 1.835 | 3 913 → 3 281 | 2 213 → 1 947 |
+| 155 mm M107 | 4.72 | 21.8 → 19.4 | 4.738 → 5.651 | 3 665 → 3 073 | 2 648 → 2 282 |
+| 60 mm M49A2 | 6.62 | 17.4 → 15.5 | 0.317 → 0.378 | 1 194 → 1 001 | 340 → 317 |
+
+(The 60 mm row is shown on the *baseline* grade for scaling comparison; in the
+catalog that shell is a WDSS-1 body. The α/γ differ slightly from
+`mott-fragment-shape-closure` §7.4, which predates the 75 mm case-mass
+correction and the fuze-mass sourcing of 2026-08-08.)
+
+**Validation bands still hold.** `N(>0.5 g)` at M1 geometry 2 213 → **1 947**,
+inside the Gold arena-**recovery** band 800–3 000 that
+`tests/test_fragmentation.py` was re-based onto by the shape-closure pass; the
+155 mm (2 282) and 75 mm (1 385) rows likewise. **No test band moves.**
+
+**Grade contrast — supersedes the §4 table and C7.** At M1 geometry, WDSS-1
+(γ = 47) against the re-anchored baseline: μ **+16.0 %**, N₀ **−13.8 %**,
+N(>0.5 g) **−10.5 %**, R₅₀ **−0.52 m (−1.2 %)**. The §4 table's −38.5 % on N₀ is
+superseded twice over — once by the shape closure (which changed μ's scaling per
+(8)) and once here. **Direction is unchanged and the ordering
+γ′(WDSS-1) < γ′(baseline) survives** (47 < 54.5), which is exactly the verdict's
+"SHIFTED, not void". What changed is the *magnitude* of the demo's grade
+contrast: ~14 % on N₀, not ~39 %. Note R₅₀ now moves the *other* way (−1.2 %)
+because both grades sit on the far side of the C8 R₅₀ maximum once the shape
+closure is applied — another reason C8's "R₅₀ is the wrong readout" stands.
+
+⚠️ **Presentation consequence.** C8's warning hardens: a grade selector is now a
+**modest** effect on every readout — correctly signed and physically driven, but
+a second-order material sensitivity, not a headline.
+
+### 9.4 What this closes, and what it does not
+
+- **Closes** the blocking finding at `src/arty/fragmentation.py` (γ′ = 65
+  anchored on a non-closing row) and the deferrable one at
+  `mott-fragment-shape-closure/derivation.md` §7.4 — at γ′ = 54.5 the three gun
+  shells read γ = 24.5 / 20.7 / 19.4, so the 155 mm falls just below Gold's 20
+  floor and the sentence is softened in place from "lands inside Gold's own
+  published 20–50 range" to a directional cross-check.
+- **Closes** the deferrable finding in `checks/recompute.py`: `MOTT_SERIES` now
+  reads `tables/section3-gamma-vs-composition.csv` rather than hand-copying it.
+- **Closes A5 / C7** — the two entries are now on one rule and one column
+  (§9.1). A5's "the catalogued pair gives the largest defensible contrast" is
+  withdrawn with it: the re-anchored pair gives the rule-consistent contrast.
+- **Does not close A8.** The baseline composition 0.33–0.38 %C is still an
+  unconfirmed AISI-1335 grade-name inference and dominates the residual
+  uncertainty on γ′ — the ±0.4 composition-band spread is an order below it.
+  Nor A1/A2 (1924 annealed bars → quenched-and-tempered forging; quasi-static γ
+  used at ε̇ ~ 10⁴ s⁻¹): those set the *level* of γ′ for both entries equally and
+  are untouched by which column is read.
+- **Standing of the adopted value: a working value, not a sourced one** — its
+  upper bracketing row is the row the verdict indicts, repaired by the paper's
+  own formula rather than read off the page. Verdict §2's caveat is adopted
+  verbatim and must accompany any citation of this number.

@@ -1195,3 +1195,511 @@ verdict.
    citation, and test in the six `.qmd` partials, `src/arty/fragmentation.py`,
    and `tests/test_fragmentation.py` is correct and consistent with
    `derivation.md` (G1).
+
+---
+---
+
+### Re-review — 2026-08-08 (baseline γ′ re-anchor 65 → 54.5)
+
+**Reviewer:** model-reviewer agent
+**Scope:** the four items named in the dispatch brief — `src/arty/fragmentation.py`'s
+`gamma: 65.0 → 54.5` change and its σ_F/γ′ argument, `wdss1-steel-grade/derivation.md`
+§9's recomputed validation table, `mott-fragment-shape-closure/derivation.md` §7.4's
+sentence softening, and `checks/recompute.py`'s CSV-read fix — against
+`rebaseline-verdict.md` §3 as the evidence base. Stopped on coordinator instruction
+before checking anything outside these four items in depth.
+
+**Verification method:** ran `checks/recompute.py` directly and diffed every printed
+number against `derivation.md` §9's table (exact match); independently re-derived the
+γ-interpolation arithmetic (recomputed-column local-linear at 0.355 %C: 52.86 + 0.525
+× (55.93 − 52.86) = 54.47 → 54.5) and the σ_F/γ′ scaling law (§9.2 eq. 7–8) by hand;
+independently recomputed the shape-corrected γ for the three gun shells at γ′ = 54.5
+via a scratch script calling the shipped `mott_params`/`_shell_geometry` (result:
+75 mm 24.5, 105 mm 20.7, 155 mm 19.4); confirmed `check-table-invariants.py` passes on
+`section3-gamma-vs-composition.invariant`; grepped `derivation.md` §9 and the shipped
+code comment for the withdrawn/superseded numbers to confirm the blocking and
+deferrable finding markers this pass claims to close are actually gone from
+`src/arty/fragmentation.py` and `OPEN-FINDINGS.md`.
+
+## Verdict: **FAIL**
+
+The core re-anchor is correct, exactly reproducible, and honestly argued as a
+σ_F/γ′ move rather than a bare parameter swap — every number in `derivation.md`
+§9.1–§9.3 matches `checks/recompute.py`'s live output to reported precision, and the
+γ′ = 54.5 anchor is the more defensible choice per `rebaseline-verdict.md` §3.2's
+closure-invariant evidence (the printed 0.45 %C row Mott's own formula fails to
+reproduce). The `recompute.py` CSV-read fix is correct and closes its own deferrable
+finding. But the correction leaves a **published, rendered surface** —
+`_limitations.qmd` Limitation 13, `_change-log.qmd`'s v0.7.0 row and γ-sensitivity
+prose, and `_governing-equations.qmd`'s "Note on γ′ and σ_F" — asserting the old
+γ′ = 65, the old −38.5 % N₀ contrast, and, specifically, an R₅₀ trend **direction**
+that the correction's own §9.3 states has reversed. That is a shipped/published
+surface resting on a wrong number and a reversed trend, which
+`.claude/rules/deferred-findings.md` says cannot be closed by deferral — it is marked
+Blocking below.
+
+---
+
+## Findings
+
+### H1 — σ_F/γ′ re-anchor argument: dimensionally sound and exactly reproduced (Note)
+
+`sigma_f = 800e6` held fixed, `gamma: 65.0 → 54.5` (`src/arty/fragmentation.py`
+diff). Verified independently: `R = σ_F/γ′` moves 12.308 → 14.679 MPa (+19.3 %),
+matching the diff comment and `derivation.md` eq. (7) exactly. The claimed
+post-shape-closure sensitivity law (eq. 8), `μ ∝ γ′⁻¹`, `N₀ ∝ γ′`, is not an
+approximation but an **exact** consequence of the shipped `mott_params`: `x₀ ∝
+γ′^{-1/2}` ⇒ `α ∝ γ′^{1/2}` ⇒ shape-corrected `γ = α^{-2/3}γ′ ∝ γ′^{2/3}` ⇒ `μ ∝
+(σ_F/γ)^{1.5} ∝ γ′⁻¹`. I confirmed this exactness numerically: `N0_new/N0_old` for
+every one of the four catalog shells equals `54.5/65 = 0.83846` to 5 significant
+figures (e.g. 105 mm M1: 3281/3913 = 0.83849). No unit or dimensional issue found;
+`R` carries MPa throughout and the identifiability check (C2, `(kσ_F, kγ)`
+invariance) remains bit-exact per `recompute.py`'s own printed output.
+
+### H2 — γ′ = 54.5 is the better-supported anchor per the closure evidence (Note)
+
+`rebaseline-verdict.md` §3.2 is the correct evidence base cited, and the derivation
+does not reopen the closure question (correctly deferred to that document). I
+independently re-derived the interpolation: recomputed-column values at 0.25 %C
+(52.86) and 0.45 %C (55.93) — both already established in the verdict — interpolated
+linearly to 0.355 %C give 52.86 + 0.525 × 3.07 = 54.47, rounding to the adopted 54.5.
+The old anchor (65) sat on the one row of four (0.45 %C) that fails Mott's own
+`γ ~ 160 P₂/(P_F(1+s_F))` closure under the reading that reproduces the other three
+rows to ≤3.2 %; the new anchor is interior to a segment bracketed by a closing row
+(0.25 %C, −0.3 % residual) and a repaired top row. This is a strictly better
+closure-invariant standing than the value it replaces.
+
+### H3 — `derivation.md` §9.3 validation table: fully reproduced (Note)
+
+Every number in the §9.1 recomputed-column table, the §9.3 per-shell table (α, γ,
+μ, N₀, N(>0.5 g) for all four catalog shells old→new), and the M1-geometry grade
+contrast (μ +16.0 %, N₀ −13.8 %, N(>0.5 g) −10.5 %, R₅₀ −0.52 m / −1.2 %) matches
+`checks/recompute.py`'s live printed output exactly. `N(>0.5 g)` at all three gun
+shells (1385/1947/2282) stays inside the 800–3000 arena-recovery band the shape
+closure re-based tests onto; no test-bound crossing. Physically plausible for these
+calibers.
+
+### H4 — `mott-fragment-shape-closure/derivation.md` §7.4 sentence: softened but with a stale, not current, number (Deferrable)
+
+The softened sentence correctly stops claiming a clean "lands inside Gold's 20–50
+range" and correctly attributes the re-anchor to `wdss1-steel-grade/derivation.md`
+§9.3 and `rebaseline-verdict.md` §3.2. But the three γ figures it quotes for the
+re-anchored case — "`γ` = 24.2 / 19.5 / 18.3" — are `rebaseline-verdict.md` §3.3's
+numbers, computed on a shell-geometry snapshot that **predates** the 75 mm
+case-mass fix and the fuze-mass sourcing pass (both dated 2026-08-08, i.e. the same
+day, per `wdss1-steel-grade/derivation.md` §9.3's own footnote: "The α/γ differ
+slightly from `mott-fragment-shape-closure` §7.4, which predates the 75 mm
+case-mass correction and the fuze-mass sourcing"). I independently recomputed the
+three shape-corrected γ values against the **currently shipped** code
+(`mott_params`/`_shell_geometry` at γ′ = 54.5): 75 mm = 24.529, 105 mm = 20.731,
+155 mm = 19.368 — i.e. **24.5 / 20.7 / 19.4**, matching `wdss1-steel-grade/
+derivation.md` §9.3's table exactly, not the 24.2/19.5/18.3 the edited §7.4 sentence
+prints. The discrepancy is not cosmetic: under the stale numbers 105 mm (19.5) reads
+as *also* sitting near/below Gold's 20 floor, alongside the 155 mm; under the
+current, correct numbers 105 mm (20.7) is comfortably inside Gold's range and only
+the 155 mm (19.4) dips below it. The edited sentence's own wording ("the 155 mm
+falls just below Gold's 20 floor and the 105 mm sits close to it") is written to the
+stale reading, not the current one.
+
+**Impact:** zero on any test, shipped parameter, or PASS/FAIL verdict — the
+sentence is explicitly a "soft cross-check... no verdict moves," and the underlying
+`α`/shape-closure claim that §7.4 is corroborating is unaffected either way. It
+misstates, by ~1.2 points of γ (≈6 %), how many of the three shells sit near the
+Gold floor, in a document that exists specifically to keep this kind of number
+synchronized with the shipped code.
+
+**Why Deferrable, not Blocking:** confined to a documentation cross-check narrative,
+not a shipped value, not a rendered end-user surface (unlike H5), and does not
+change any pass/fail bound.
+
+**Suggested correction (not applied):** replace "24.2 / 19.5 / 18.3" with the
+current-geometry values "24.5 / 20.7 / 19.4" (`wdss1-steel-grade/derivation.md`
+§9.3) and reword to "only the 155 mm falls just below Gold's 20 floor; the 105 mm
+sits comfortably inside it."
+
+### H5 — Published notebook surfaces still state the withdrawn γ′ = 65 and, for R₅₀, a now-reversed trend (Blocking)
+
+`_limitations.qmd` Limitation 13, `_change-log.qmd` (v0.7.0 changelog row and the
+executed γ-sensitivity cell's header string "σ_F sensitivity (γ = 65 fixed)" plus
+its prose "101.1 m at γ = 53 vs 98.9 m at γ = 65"), and `_governing-equations.qmd`
+("γ = 65 is a bracket-anchored estimate sitting just under Mott's 0.45%C row") were
+**not touched by this diff** (confirmed: none of these three files appear in `git
+diff --stat`). They still present, as current shipped fact:
+
+- `γ′ = 65` for the baseline grade — the shipped value is now 54.5.
+- The N₀ grade contrast as −38.5 % — `derivation.md` §9.3 recomputes this to
+  −13.8 % (M1 geometry), a >2.5× reduction in the stated effect size.
+- `_limitations.qmd`'s own explanatory sentence for the R₅₀ direction: "The
+  −38.5 % move in N₀ shifts R₅₀ by only +2.5 % (98.9 → 101.5 m): **fewer but
+  heavier fragments each retain lethal KE further out**." This is a *directional*
+  physical claim, and `wdss1-steel-grade/derivation.md` §9.3 states explicitly that
+  the direction has flipped under the re-anchor: "Note R₅₀ now moves the *other*
+  way (−1.2 %) because both grades sit on the far side of the C8 R₅₀ maximum once
+  the shape closure is applied." A reader of the still-published limitations page
+  is told the opposite of what the shipped model now does.
+
+**Impact:** the rendered demo notebook's own limitations/governing-equations/
+change-log pages assert a parameter value, an effect magnitude, and a trend
+*direction* for the grade-contrast on R₅₀ that all contradict the model that
+`git diff -- src/arty/fragmentation.py` just shipped. This is exactly the class of
+defect `.claude/rules/deferred-findings.md` singles out as not closeable by
+deferral ("a committed artifact known to carry a wrong number — or shipped code or
+a published surface resting on one"), and the review rubric's own Blocking
+criterion ("a trend reverses") is met literally, not by extrapolation — §9.3 uses
+that word itself. `_change-log.qmd`'s executed γ-sensitivity cell (lines 38–56) is
+still numerically self-consistent as *code* (it recomputes live from the current
+`STEELS` values via `replace(shell, steel=replace(shell.steel, ...))`), so the
+*executed table* it prints will be correct at render time — only the **prose above
+and around it** (the hardcoded header string "γ = 65 fixed" and the "53–67" /
+"98.9 m at γ = 65" sentences) is stale text, not stale computation. That narrows
+but does not remove the defect: a reader sees a live-correct table sitting under a
+hardcoded-wrong caption.
+
+**Why Blocking:** the §9.4 "what this closes" list in `wdss1-steel-grade/
+derivation.md` claims to close A5/C7 and the Gold-corroboration deferrable finding,
+but does not extend to, or even mention, these three presentation files, leaving a
+rendered surface that a demo viewer would actually see stating a reversed physical
+trend as current fact.
+
+**Suggested correction (not applied):**
+
+1. `_limitations.qmd` Limitation 13: replace `γ = 65` → `γ = 54.5`, `−38.5 %` on
+   N₀ → `−13.8 %` (or the appropriate per-shell figure), and rewrite the R₅₀
+   bullet to state the now-reversed direction (`−1.2 %`, not `+2.5 %`) with the
+   corrected causal sentence from `derivation.md` §9.3.
+2. `_change-log.qmd`: update the v0.7.0 row's `38.5 %`/`+2.5 %` figures (or add a
+   note that they are superseded by v0.10.0/the re-anchor entry, if a changelog
+   convention against editing old rows is intended instead — either resolution is
+   acceptable, but leaving them silently wrong is not), and fix the hardcoded
+   "γ = 65 fixed" header string and the "98.9 m at γ = 65" sentence in the
+   γ-sensitivity notes.
+3. `_governing-equations.qmd`: update the "Note on γ′ and σ_F" paragraph to state
+   the current γ′ = 54.5 anchor and its recomputed-column justification, replacing
+   the withdrawn "sitting just under Mott's 0.45%C row" framing.
+4. Add a `_change-log.qmd` entry (v0.10.0 or similar) for the re-anchor itself,
+   analogous to the existing per-version rows, and have `wdss1-steel-grade/
+   derivation.md` §9.4 name these three files explicitly in its "what this closes"
+   list (currently it does not).
+
+### H6 — `derivation.md` §7's own A5 text and "Limitations-page entries" list are not updated in place, despite §9.4 declaring them closed (Deferrable — same recurring pattern as F12/F14/F15/G3 above)
+
+§9.4 states "**Closes A5 / C7**... A5's 'the catalogued pair gives the largest
+defensible contrast' is withdrawn with it." But §7's A5 bullet (`derivation.md`
+line ~457–463) and the "Limitations-page entries" list (line ~514–524) still read,
+verbatim, the pre-re-anchor text: "the baseline γ = 65...the catalogued pair gives
+the largest defensible contrast (−38.5 % on N₀...)". This is the same
+document-internal staleness pattern this same folder's review history has now
+flagged four times (F12, F14, F15, G3) — a later section declaring an earlier one
+superseded without editing the earlier one's own text.
+
+**Impact:** zero on any computed number — §9 is additive and is the section a
+reader would consult for the current figures; but a reader who stops at §7 (which
+is exactly where `_limitations.qmd`'s H5 staleness appears to have been sourced
+from) gets the withdrawn number. This is very plausibly the proximate cause of H5:
+whoever would refresh `_limitations.qmd` from `derivation.md` §7 (as the prior
+presentation-reconciliation passes in this document's history did) would copy the
+stale A5 text forward again unless they specifically consult §9.
+
+**Suggested correction (not applied):** rewrite A5 in place (line ~457–463) and the
+Limitations-page A5 entry (line ~514–524) to the §9.3 figures (γ = 54.5, −13.8 % on
+N₀ at M1 geometry, upper-bound framing dropped since the entries are now on one
+rule/column per §9.1), rather than leaving the withdrawal statement only in §9.4.
+
+---
+
+## Checklist pass-through (this pass, scoped to the four named items)
+
+- **Dimensional analysis:** correct — R carries MPa throughout, γ′ is
+  dimensionless, the power-law sensitivity (eq. 8) is exact under the shipped
+  `mott_params` (H1).
+- **Boundary cases:** N/A new — no new geometry/grazing-angle path; composition
+  band (54.1–54.9) re-confirmed narrow and interior to no segment boundary.
+- **Parameter ranges:** γ′ = 54.5 sits inside Mott's 0.25–0.45 %C segment
+  (interpolation, not extrapolation) on the recomputed column (H2).
+- **Numerical stability:** C2 identifiability bit-exact per `recompute.py`; no
+  division-by-zero/sign-change paths touched.
+- **Physical plausibility:** N(>0.5 g) 1385–2282 across the three gun shells,
+  inside the validated 800–3000 arena-recovery band (H3).
+- **Source attribution / criterion match:** the re-anchor correctly reads the
+  same closure-invariant evidence (`rebaseline-verdict.md` §3.2) it is scoped to
+  use, and does not reopen the closure question. `checks/recompute.py` now reads
+  `tables/section3-gamma-vs-composition.csv` instead of a hand-typed literal
+  array — table invariant re-confirmed passing.
+- **Layering:** clean for the four named items — no physics/parameter values
+  leaked into a `.qmd` by this diff itself. (H5 is a *staleness*, not a
+  *layering*, defect — the presentation files are not touched at all.)
+- **Limitations/constraints check:** the correction's own within-file limitation
+  log (§9.4) is honest about what it closes, but two surfaces it claims or implies
+  are synchronized are not: `derivation.md` §7 itself (H6) and the three rendered
+  `.qmd` partials (H5).
+- **Data-driven analysis:** strong for the four named items — every number
+  independently reproduced against a live `recompute.py` run (H1–H3).
+
+---
+
+## Suggested corrections (not applied) — this pass
+
+1. **(Blocking, H5)** Refresh `_limitations.qmd` Limitation 13, `_change-log.qmd`'s
+   v0.7.0 row and γ-sensitivity prose, and `_governing-equations.qmd`'s "Note on γ′
+   and σ_F" to the shipped γ′ = 54.5, the recomputed −13.8 % N₀ contrast, and the
+   reversed R₅₀ direction (−1.2 %, not +2.5 %).
+2. **(Deferrable, H4)** Replace `mott-fragment-shape-closure/derivation.md` §7.4's
+   "24.2 / 19.5 / 18.3" with the current-geometry "24.5 / 20.7 / 19.4" and reword
+   the 105 mm characterization accordingly.
+3. **(Deferrable, H6)** Rewrite A5 in place (§7 and the Limitations-page entries
+   list) to the §9.3 figures instead of leaving the withdrawal only in §9.4.
+4. No changes needed to `src/arty/fragmentation.py`'s γ′ = 54.5 value, the σ_F/γ′
+   argument, `derivation.md` §9.1–§9.3's arithmetic, or `checks/recompute.py`'s
+   CSV-read fix — all independently reproduced and correct (H1–H3).
+
+---
+---
+
+## Re-review — 2026-08-08 (fix pass for H4/H5/H6, plus independent test-fix check)
+
+**Reviewer:** model-reviewer agent
+**Scope:** verification of the fix pass addressing the three findings from the
+immediately preceding "Re-review — 2026-08-08 (baseline γ′ re-anchor 65 → 54.5)"
+section (H4, H5, H6), plus an independently-discovered fix to two tests in
+`tests/test_fragmentation.py`. Per the dispatch brief, this pass does not
+re-litigate anything already passed in the prior sections of this file, and does
+not open new-scope findings beyond the named items — except where a leftover
+instance of the *same* named defect (H5) was found while confirming its fix, which
+is reported per the deferred-findings rule rather than silently passed over.
+
+**Verification method:** `git diff` on the five touched files
+(`_limitations.qmd`, `_change-log.qmd`, `_governing-equations.qmd`,
+`mott-fragment-shape-closure/derivation.md`, `wdss1-steel-grade/derivation.md`);
+ran `checks/recompute.py` directly and cross-checked every number quoted in the
+diff against its live output (§9.1 recomputed-column table, §9.3 per-shell table,
+the M1-geometry contrast, the C8 R₅₀-vs-γ′ sweep) — all matched exactly, including
+the previously-unverified C8 sweep endpoints (43.458→43.5 m at γ′=35,
+45.760→45.8 m at γ′=65, confirmed monotonically increasing across all 10 sampled
+points). Ran `uv run pytest tests/test_fragmentation.py -q` directly (55 passed,
+0 failed) and read both updated test bodies
+(`test_steel_params_ww2_us`, `test_default_shape_factors_preserve_mott_output`)
+against `derivation.md` §9.3's table. Grepped all three previously-flagged
+rendered surfaces plus `src/arty/fragmentation.py` repo-wide for `gamma.*65` /
+`γ.*= *65` / `γ′ = 65` to confirm no unqualified (non-historical) instance of the
+withdrawn value survives.
+
+## Verdict: **FAIL**
+
+H4 and H6 are fixed correctly and completely. H5 is fixed in substance in two of
+its three named files (`_limitations.qmd`, `_change-log.qmd`) and in the prose
+paragraph of the third (`_governing-equations.qmd`'s "Note on γ′ and σ_F"), but
+that same third file's own **symbol-definition table**, ~30 lines above the fixed
+paragraph, still prints γ′ = 65 as the current "Value (105 mm M1)" — the exact
+class of defect the prior pass ruled Blocking, in one of the three files that
+ruling specifically named, left untouched by this fix pass. That is enough on its
+own to keep the verdict at FAIL; nothing else found this pass rises above Note.
+
+---
+
+## Findings
+
+### I1 — `_governing-equations.qmd`'s symbol table still states γ′ = 65 for the 105 mm M1, unqualified, 30 lines above its own corrected prose (Blocking)
+
+`_governing-equations.qmd:116`, in the eq. (4)/(4a–4c) symbol table:
+
+```
+| $\gamma'$ | Mott statistical fragmentation parameter (material, per grade) | — | 65 |
+```
+
+labelled "Value (105 mm M1)" — i.e. presented as the current shipped parameter
+value for the model's headline shell, not as a historical figure. The shipped
+value is 54.5 (`src/arty/fragmentation.py`, `STEELS["WW2 US HE Shell"].gamma`,
+confirmed by `test_steel_params_ww2_us`). The very same file's "Note on γ′ and
+σ_F" paragraph, 30 lines below this table (`_governing-equations.qmd:143–152`),
+was correctly rewritten by this fix pass to state γ′ = 54.5 and walk through the
+closure-recomputed-column justification — so a reader scrolling this one page
+sees the symbol table assert 65 and the very next prose section assert 54.5 for
+the identical quantity on the identical shell, with no note that the table is
+stale.
+
+I confirmed by repo-wide grep that this is the only unqualified surviving
+instance: every other `65` hit for γ in the three named files
+(`_limitations.qmd:355,384`, `_change-log.qmd:18`) is explicitly framed in past
+tense ("the superseded γ = 65", "γ′ = 65 → 54.5", "the earlier ... reading") —
+correctly distinguishing old from current. This table row carries no such
+framing; it reads as a present-tense fact.
+
+**Impact:** no computed number, test, or physics changes — this is a
+documentation/reference table, not code that feeds `mott_params` or any
+downstream chart. But it is a rendered, reader-facing notebook surface stating
+the withdrawn value as current fact, in exactly the file the prior pass's H5
+named and exactly the class of defect (`.claude/rules/deferred-findings.md`:
+"a committed artifact known to carry a wrong number ... cannot be closed by
+deferral") that pass ruled Blocking. The fix pass closed two of the three named
+files completely and the third file's prose, but missed this same file's own
+table — an incomplete fix of a Blocking finding is itself Blocking, per this
+project's review rubric ("A pass that left an open blocking finding on its own
+scope untouched — and did not say why — is itself a Blocking review finding").
+
+**Suggested correction (not applied):** change `_governing-equations.qmd:116`'s
+table entry from `65` to `54.5` (or `computed` with a footnote to the "Note on
+γ′ and σ_F" paragraph below, consistent with how `$\gamma$`, `$\alpha$`, `$x_0$`
+etc. are already listed as `computed` in the same table rather than pinned to a
+stale literal).
+
+### I2 — H4 fix: verified correct (Note)
+
+`mott-fragment-shape-closure/derivation.md` §7.4 now reads "γ = 24.5 / 20.7 /
+19.4" for the three gun shells at the current-geometry, re-anchored γ′ = 54.5,
+correctly attributed to `wdss1-steel-grade/derivation.md` §9.3. I independently
+re-ran `checks/recompute.py` in `updates/wdss1-steel-grade/` and confirmed its
+§9.3 table prints α/γ = 3.31/24.5 (75 mm), 4.26/20.7 (105 mm), 4.72/19.4
+(155 mm) — an exact match to the three digits now quoted in §7.4. The sentence
+is correctly reworded to "only the 155 mm falls just below Gold's 20 floor; the
+105 mm sits inside the range," matching the corrected 20.7 vs. Gold's 20 floor.
+The stale 24.2/19.5/18.3 figures are retained but now explicitly attributed to
+`rebaseline-verdict.md` §3.3 and marked superseded, with the reason (pre-75 mm
+case-mass-fix geometry) stated — this is the correct disposition (keep the old
+number legible as a historical citation, not delete it), not a re-occurrence of
+the defect.
+
+### I3 — H6 fix: A5 rewritten in place, correctly (Note)
+
+`wdss1-steel-grade/derivation.md` §7's A5 bullet now opens "~~The two catalog
+entries are on different rules~~ — CLOSED by §9.1 (2026-08-08); text rewritten
+in place," states both the original (withdrawn) claim and the corrected one
+(μ +16.0 %, N₀ −13.8 %, N(>0.5 g) −10.5 %, matching §9.3 exactly), and correctly
+redirects the still-open item to A8 rather than A5. The "Limitations-page
+entries" list (originally flagged as the second stale copy) is likewise rewritten
+to the −13.8 % figure and the corrected, monotonically-increasing R₅₀(γ′)
+description. Both edits are internally consistent with §9's own numbers — no
+discrepancy found.
+
+### I4 — Two `tests/test_fragmentation.py` fixes: correct target values (Note)
+
+`test_steel_params_ww2_us` now asserts `steel.gamma == pytest.approx(54.5)`
+(previously presumably 65.0, not diffed here since it is independently
+discovered/pre-fixed per the dispatch brief, but the current value is the
+correct shipped one). `test_default_shape_factors_preserve_mott_output` now
+asserts `mu == pytest.approx(1.835e-3, rel=1e-2)` and
+`N0 == pytest.approx(3281.0, rel=1e-2)` — both are the exact §9.3 values for the
+105 mm M1 (`ShellParams()` default geometry) at the re-anchored γ′ = 54.5, which
+I independently reproduced via `checks/recompute.py`'s live output
+(μ = 1.8347 g, N₀ = 3281). The test's own comment correctly documents the
+provenance chain and explicitly warns against confusing this row with §7.3's
+75 mm figures (0.793 g / 3627) — a good defensive comment given this exact
+mix-up class of error has recurred in this document's history (F12/F14/F15/G3
+in the review history above). Full suite: `uv run pytest
+tests/test_fragmentation.py -q` → **55 passed, 0 failed**.
+
+---
+
+## Checklist pass-through (this pass, scoped to H4/H5/H6 plus the two test fixes)
+
+- **Dimensional analysis:** N/A new — no new physics this pass, only
+  documentation/test synchronization.
+- **Boundary cases:** N/A — no new parameter range touched.
+- **Parameter ranges:** N/A — unchanged from the prior pass (H1–H3, already
+  confirmed).
+- **Numerical stability:** N/A — no new numerics.
+- **Physical plausibility:** N/A — no new physical claim; the corrected
+  numbers in all five files match the already-verified §9.1–§9.3 arithmetic.
+- **Source attribution / criterion match:** all corrected figures trace to
+  `wdss1-steel-grade/derivation.md` §9 and are independently reproduced against
+  `checks/recompute.py`'s live output (I2–I4). No criterion-match issue.
+- **Layering:** clean — all five touched files are documentation/notebook
+  partials or tests; no physics or parameter values newly leaked into a `.qmd`
+  (the numbers already existed in `src/arty/fragmentation.py` and
+  `derivation.md`; this pass only propagates them into prose).
+- **Limitations/constraints check:** the H4 and H6 fixes correctly extend the
+  limitation log in place rather than leaving a forward-reference dangling
+  (the recurring F12/F14/F15/G3/H6 pattern this document's history has flagged
+  four times before is, this time, actually closed for A5). H5's fix is
+  incomplete — see I1.
+- **Data-driven analysis:** strong — every corrected number in scope
+  independently reproduced against a live `checks/recompute.py` run and a live
+  `pytest` run, not trusted from the diff text.
+
+---
+
+## Suggested corrections (not applied) — this pass
+
+1. **(Blocking, I1)** `_governing-equations.qmd:116`: change the symbol table's
+   γ′ "Value (105 mm M1)" entry from `65` to `54.5` (or `computed`, matching
+   the table's own convention for derived quantities, with a pointer to the
+   "Note on γ′ and σ_F" paragraph).
+2. No changes needed to `_limitations.qmd`, `_change-log.qmd`, or
+   `_governing-equations.qmd`'s prose (H5's other two files and this file's own
+   prose paragraph are correct) — I2–I4 confirm H4, H6, and the two test fixes
+   are complete and correct as shipped.
+
+---
+
+## Re-review — 2026-08-08 (fix cycle 2: I1 confirmation, final permitted cycle)
+
+## Verdict: **PASS**
+
+I1 is resolved as specified, and no other Blocking findings remain open in
+this thread. This closes the wdss1-steel-grade update.
+
+## Findings
+
+### I1 — resolved (verified)
+
+`_governing-equations.qmd:116`'s symbol table now reads:
+
+```
+| $\gamma'$        | Mott statistical fragmentation parameter (material, per grade) | — | 54.5 |
+```
+
+This matches the shipped value (`src/arty/fragmentation.py`,
+`STEELS["WW2 US HE Shell"].gamma == 54.5`, confirmed by `test_steel_params_ww2_us`
+per I4) and matches the same file's "Note on γ′ and σ_F" prose paragraph at
+lines 142–151, which itself states γ′ = 54.5 and walks through the
+closure-recomputed-column justification. Table and prose are now internally
+consistent within the same file — the exact defect I1 flagged (table asserting
+65 as current fact, 30 lines above prose correctly stating 54.5) no longer
+exists.
+
+I re-ran the repo-wide sweep for stale, unqualified "65" across
+`experiment/fragmentation-field/*.qmd`:
+
+- `_governing-equations.qmd:146` — "It supersedes the earlier bracket-anchored
+  γ = 65" — correctly framed as superseded, in the prose paragraph, unchanged
+  from the prior pass.
+- `_limitations.qmd:355` — "the superseded $\gamma = 65$" — correctly framed,
+  unchanged.
+- `_limitations.qmd:384` — "$\gamma' = 65$" — this is a sensitivity-sweep
+  endpoint ("Post-shape-closure $R_{50}$ ... 43.5 m at γ′ = 35 → 45.8 m at
+  γ′ = 65"), not a claim about the current parameter value; correctly framed.
+- `_change-log.qmd:18` — "$\gamma' = 65 \to 54.5$" — explicit before→after,
+  correctly framed.
+- `_change-log.qmd:40` — `for g in [40, 47, 54.5, 65, 80]:` — a sensitivity
+  sweep range inside an embedded check script's printed output, not an
+  assertion about the current baseline value; correctly framed (and pre-dates
+  this fix pass — not part of H5/I1's scope).
+- Remaining "65" hits in all three files (`1.65`, `0.65`, `C_D = 0.65`) are
+  unrelated coefficients (aspect ratio, drag), not γ′.
+
+No other unqualified "γ′ = 65 as current fact" instance survives anywhere in
+`experiment/fragmentation-field/*.qmd`. **Tag: Note** (confirms fix, no new
+defect).
+
+### Thread-level disposition
+
+With I1 closed, the wdss1-steel-grade update thread (spanning the
+γ′ re-anchor derivation, the three-file H5 fix, and this I1 table fix) carries
+no open Blocking findings. Remaining open items in the thread's history are
+all Deferrable/Note, already logged and out of this pass's scope to
+re-litigate: H4/H6/I2/I3/I4 (Note, confirmed correct), and prior-pass
+Deferrable items (F13–F17, G2–G3, H6-pattern recurrence) that were already
+carried forward as logged limitations rather than blocking defects.
+
+## Checklist pass-through (this pass, scoped to I1 only)
+
+- **Source attribution / criterion match:** table value now traces to the same
+  `src/arty/fragmentation.py` constant and the same `derivation.md` §9
+  reasoning as the prose paragraph it sits beside. No mismatch.
+- **Layering:** unaffected — single-cell literal-value edit in a documentation
+  table, no physics or computation newly introduced into the `.qmd`.
+- **Internal consistency:** table and prose in `_governing-equations.qmd` now
+  agree; repo-wide grep confirms no other file/location regressed.
+
+## Suggested corrections (not applied) — this pass
+
+None. I1 is fully resolved; no further action needed on this thread.

@@ -63,21 +63,14 @@ Wall thickness, projectile mass, and filler mass are taken from US Army TM 9-190
 If these inputs are wrong, every output shifts — V₀ scales with M/C, and μ scales
 as r_bu³.
 
-**Addendum to 5 — the 105 mm and 155 mm inert-mass deductions are unsourced.**
-The fuze and rotating-band allowances subtracted from those two projectiles'
-total mass (0.75 kg and 1.5 kg) are engineering estimates, not read from a
-weight table; no fuze-weight source for either round is currently in
-`doc-reference/`. The only partial evidence is the
-[105 mm M1 bill of material](../../doc-reference/ww2-shells/ordnance-105mm-m1-1940/tables/bill-of-material.csv),
-whose rotating-band and base-cover lines are *raw stock issued* rather than
-finished-part mass, so they bound the non-fuze deduction from above and no
-more. Because fragment count depends on case mass only weakly —
-∂ln N₀/∂ln M_case = (C/M)/(2 + C/M) ≈ 0.07–0.09, the Gurney velocity feedback
-cancelling most of the linear term — a ±0.5 kg (105 mm) / ±1.0 kg (155 mm)
-error moves M_case by 4.2 % / 2.9 % and N₀ by under 0.4 %
-(`updates/shell-case-mass-basis/derivation.md` §6, assumption A1). The 75 mm
-M48 row, by contrast, no longer shares this limitation: its whole mass triple
-is grounded on Tolch (1938)'s own per-round weight table.
+- **The 75 mm M48 entry models the *fielded production round*** (TM-9-1904
+  14.6 lb, official 1.47 lb TNT, M48-family fuze + M20/M20A1 booster). Tolch
+  (1938) — the only fragmentation dataset this shell is validated against —
+  fired 1938 T3 articles with M39 fuzes and an average 1.56 lb TNT fill, ~6 %
+  heavier. Case metal agrees between the two to 0.4 %, but Gurney $V_0$ in
+  Tolch comparisons runs ~3 % low for this reason
+  ([`updates/75mm-fuze-case-mass-fix/derivation.md`](updates/75mm-fuze-case-mass-fix/derivation.md)
+  §3).
 
 **6 · Mott input uncertainties amplify super-linearly.**
 The break-up radius r_bu is derived from the V/V₀ ≈ 3 expansion criterion, which
@@ -147,8 +140,7 @@ re-opened here:
     every material/geometric input feeding $N_0$ (case mass, Gurney $V_0$,
     $\sigma_f$, $\gamma'$, the shape-closure prism) would need to leave its
     literature bracket by 4–6× to carry the residual alone, and none does
-    (`checks/count-chain-decomposition.py`) — $N_0=3801$ for 75mm M48 (rebased
-    from 3627 by `updates/shell-case-mass-basis/`, v 0.9.1) in fact
+    (`checks/count-chain-decomposition.py`) — $N_0=3597$ for 75mm M48 in fact
     falls *between* Tolch's own two totals (5000 issued, 803 pit-recovered).
     The gross fragment population is not the defect. What is: the model's
     fitted $E_{thr}$ (1.9–3.6 J) declares 81–85% of fragments perforating where
@@ -357,18 +349,25 @@ sourced fact (the AISI card carries no WD-series linkage, and SAE 1040 at
 *Ammunition Series 6* Table 6-1. Consequence: the *direction* of the carbon
 ranking between the two catalogued grades is safe — every candidate analog for
 WD-X1335 sits well above WDSS-1's band — but its *magnitude*, and every "% C"
-figure quoted for the baseline, inherit the inference. No shipped parameter
-value depends on it: $\gamma = 65$ is a bracket-anchored estimate, not a
-quantity fitted to 0.355 % C. Closing this needs spec 57-107 or an equivalent
-WD-series chemistry table. Three related residues from the same derivation
-(`updates/wdss1-steel-grade/derivation.md`, §7):
+figure quoted for the baseline, inherit the inference. Since the 2026-08-08
+re-anchor the shipped parameter **does** depend on it: $\gamma' = 54.5$ is a
+local-linear interpolation of Mott's recomputed $\gamma$ column *at* the
+inferred 0.355 % C midpoint (§9.1), where the superseded $\gamma = 65$ was
+merely bracket-anchored. The composition *band* itself is cheap (0.33–0.38 % C
+moves $\gamma'$ only 54.1–54.9); the exposure is the grade identity, if
+WD-X1335 is not an AISI 1335 analog at all. Closing this needs spec 57-107 or an
+equivalent WD-series chemistry table. Three related residues from the same
+derivation (`updates/wdss1-steel-grade/derivation.md`, §7 as amended by §9):
 
-- **The modelled grade contrast is an upper bound (A5).** The two entries sit on
-  different rules — the baseline $\gamma$ is bracket-anchored, WDSS-1's is a
-  within-table interpolation of Mott (1947 §3) — and this pairing yields the
-  *largest* defensible contrast (−38.5 % on $N_0$, against −31 %/−36 % for
-  rule-consistent baselines). Direction robust, magnitude is an upper bound, not
-  conservative.
+- **The modelled grade contrast is now rule-consistent, and modest (A5).**
+  Both catalogued entries sit on **one rule and one column** since the
+  re-anchor: $\gamma'$ = 54.5 (baseline, 0.355 % C) and 47 (WDSS-1, 0.17 % C)
+  are both local-linear interpolations of the same recomputed Mott column. The
+  earlier "largest defensible contrast, −38.5 % on $N_0$, upper bound" reading
+  is **withdrawn**: at M1 geometry the contrast is $\mu$ +16.0 %, $N_0$
+  −13.8 %, $N(>0.5\,\text{g})$ −10.5 %. Direction and grade ordering are
+  unchanged; the effect size is ~14 % on $N_0$, not ~39 % — a second-order
+  material sensitivity, not a headline.
 - **Mechanical properties are unsourced for both grades (A6).** Table 6-1 is
   chemistry-only: no yield strength, no heat treatment. $\sigma_F = 800$ MPa is
   a shared reporting convention, not a per-grade measurement — legitimate only
@@ -377,12 +376,16 @@ WD-series chemistry table. Three related residues from the same derivation
   An earlier working band of 0.18–0.28 % C for WDSS-1, from a secondary
   attribution that Table 6-1 contradicts, is flagged for review and used
   nowhere.
-- **$R_{50}$ is the wrong readout for grade choice (C8).** The −38.5 % move in
-  $N_0$ shifts $R_{50}$ by only +2.5 % (98.9 → 101.5 m): fewer but heavier
+- **$R_{50}$ is the wrong readout for grade choice (C8).** The −13.8 % move in
+  $N_0$ shifts $R_{50}$ by only −1.2 % (45.42 → 44.89 m): fewer, heavier
   fragments each retain lethal KE further out, and the two effects very nearly
-  cancel. $R_{50}$ is in fact non-monotone in $\gamma$ with a broad maximum
-  essentially *at* the adopted $\gamma = 47$. Read grade effects on fragment
-  *count and mass distribution*, not on lethal radius.
+  cancel. Post-shape-closure $R_{50}$ rises **weakly and monotonically** with
+  $\gamma'$ over the whole plausible range (43.5 m at $\gamma' = 35$ → 45.8 m at
+  $\gamma' = 65$), so the softer WDSS-1 grade *shortens* $R_{50}$ slightly
+  rather than lengthening it — the earlier "+2.5 %, broad maximum at
+  $\gamma = 47$" reading was computed before the shape closure and the drag
+  re-anchor and is withdrawn. Either way the conclusion stands: read grade
+  effects on fragment *count and mass distribution*, not on lethal radius.
 
 **14 · Check 5b's lethality-criterion half is an open discrepancy, not a
 pass (v 0.9.0).**

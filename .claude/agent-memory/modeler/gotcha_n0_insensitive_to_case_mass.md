@@ -1,27 +1,20 @@
 ---
 name: gotcha-n0-insensitive-to-case-mass
-description: N0 is NOT linear in M_case despite N0 = M_case/2mu — Gurney feedback cancels ~93% of it; sensitivity is (C/M)/(2+C/M) ~ 0.07
+description: N0 barely moves when M_case is corrected, because mu ~ V0^-3 cancels it; the real shift is in V0 and mu
 metadata:
   type: project
 ---
 
-`N0 = M_case/(2 mu)` reads linear in case mass, but `mu` depends on `V0` which
-depends on `M_case`. With the Mott shape closure, `mu ∝ V0^-2` (not `V0^-3` —
-the `alpha^(-2/3)` gamma correction eats one power), so
+Correcting a shell's `M_case` (e.g. a wrong `mass_deductions`) moves `N0`
+almost not at all: `N0 = M_case/2mu`, but a smaller case raises Gurney `V0`,
+and `mu ∝ V0⁻³`, so the two effects nearly cancel. A 16 % `M_case` error on
+75 mm M48 shifted `N0` by under 5 % (3627 → 3801).
 
-    N0 ∝ C·M_case/(M_case + C/2),   ∂lnN0/∂lnM_case = (C/M)/(2 + C/M)
+**Why:** it makes a real mass-bookkeeping defect invisible on any
+fragment-count comparison — the surface people naturally check.
 
-≈ 0.055–0.092 across the registry. **Fragment count is set by filler mass, not
-case mass** (∂lnN0/∂lnC ≈ 0.93).
-
-**Why:** a scoping pass sized a 16% `M_case` defect as a 16% count error and
-mis-ranked the whole aspect; the real shift was +4.8%, and most of *that* came
-from the filler moving.
-
-**How to apply:** before sizing any `mass_total`/`mass_filler`/
-`mass_deductions` exposure, use the formula above — deduction errors are
-usually far inside the fidelity bar, filler errors are not. Derivation + the
-analytic-vs-finite-difference check:
-`experiment/fragmentation-field/updates/shell-case-mass-basis/derivation.md`
-sect. 5 and its `checks/registry-case-mass-consistency.py`.
-See also [[gotcha-tolch-empty-shell-includes-fuze]].
+**How to apply:** never validate a case-mass fix on `N0` or count ratios.
+The materially-shifted quantities are `V0` (+10 %) and `mu` (−18 %), i.e.
+per-fragment energy and the mass spectrum. Full variant table:
+`experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/scoping.md`.
+See also [[gotcha-r50-insensitive-to-steel]].

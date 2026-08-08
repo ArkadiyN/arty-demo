@@ -113,7 +113,7 @@ and recovers the cube idealisation used before v0.8.0.
 | ----------------- | ---------------------------------------------- | ----- | ----------------- |
 | $\rho$           | Shell steel density                            | kg/m³ | 7 850             |
 | $\sigma_F$       | Dynamic flow stress at fracture                | Pa    | 800 × 10⁶         |
-| $\gamma'$        | Mott statistical fragmentation parameter (material, per grade) | — | 65 |
+| $\gamma'$        | Mott statistical fragmentation parameter (material, per grade) | — | 54.5 |
 | $\gamma$          | Shape-absorbed constant $\alpha^{-2/3}\gamma'$ fed to eq. (4) | — | computed |
 | $A$               | Fragment length-to-breadth ratio $\bar l/\bar x$ | —   | 1.6               |
 | $\kappa_x$       | Mean breadth in fracture spacings $\bar x/x_0$ | —     | 1.5               |
@@ -133,12 +133,20 @@ of Felix et al. (2022, §2.5), corroborated by Wilson ($1{:}1.65$) and Grady
 Full argument and checks: `updates/mott-fragment-shape-closure/derivation.md`.
 
 **Note on $\gamma'$ and $\sigma_F$:** These are the dominant uncertainties.
-Mott (1947 §3) tabulates γ = 53 for 0.25%C steel and γ = 67 for 0.45%C steel
-(the row spacing is non-uniform: 0 / 0.1 / 0.25 / 0.45 %C).
-The 105 mm M1 bill of material names the body steel **WD-X1335** (spec 57-107);
-γ = 65 is a bracket-anchored estimate sitting just under Mott's 0.45%C row, *not*
-a fit to fragment-count data (the earlier "SAE 1045, ≈ 0.45%C" attribution was
-uncited and is superseded). Dynamic flow stress at high strain rate is typically
+Mott (1947 §3) *prints* γ = 53 for 0.25%C steel and γ = 67 for 0.45%C steel
+(the row spacing is non-uniform: 0 / 0.1 / 0.25 / 0.45 %C), but the 0.45%C row
+is the one row of the four that its own closure
+γ ~ 160 P₂/(P_F(1+s_F)) fails to reproduce (−16.5 %; the other three close to
+≤ 3.2 %). The shipped γ′ is therefore read off the **closure-recomputed**
+column, not the printed one.
+The 105 mm M1 bill of material names the body steel **WD-X1335** (spec 57-107),
+taken as an AISI 1335 analog at 0.33–0.38 %C; γ′ = 54.5 is a local-linear
+interpolation of the recomputed column at that band's 0.355 %C midpoint (band
+spread 54.1–54.9), *not* a fit to fragment-count data. It supersedes the earlier
+bracket-anchored γ = 65 (which sat just under the indicted printed 0.45%C row),
+and the still earlier uncited "SAE 1045, ≈ 0.45%C" attribution. Both catalogued
+grades are now interpolated on this one rule and one column
+(`updates/wdss1-steel-grade/derivation.md` §9.1). Dynamic flow stress at high strain rate is typically
 800–1 000 MPa for hardened steel, higher than the quasi-static value of 600 MPa.
 The sensitivity section explores both.
 

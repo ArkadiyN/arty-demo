@@ -27,7 +27,7 @@ class SteelParams:
     name: str
     rho: float = 7850.0      # density [kg/m³]
     sigma_f: float = 800e6   # dynamic fracture stress [Pa]
-    gamma: float = 65.0      # Mott fragmentation parameter [-]
+    gamma: float = 54.5      # Mott fragmentation parameter gamma' [-]
 
 
 STEELS: dict[str, SteelParams] = {
@@ -44,26 +44,38 @@ STEELS: dict[str, SteelParams] = {
     # over uncited from the original entry and is NOT supplied by the AISI 1335
     # card or any other source in doc-reference/. Retained only as provenance
     # history; nothing here depends on it.
-    # NOT a fit to fragment-count data. sigma_f = 800 MPa is the low end of the
-    # 800-1000 MPa dynamic flow-stress range for hardened steel (quasi-static
-    # ~600 MPa); gamma = 65 is a bracket-anchored estimate sitting just under
-    # Mott 1947 §3 row "steel 0.45 C" (gamma = 67), read as an as-forged value.
-    # (Under the same interpolation rule 65 corresponds to ~0.42 %C; at the
-    # inferred 0.355 %C the rule gives gamma ~60.4, so the shipped 65 OVERstates
-    # rather than understates the grade contrast -- see check C7 / assumption
-    # A5.) The resulting N(>0.5 g) ~ 2200 falls inside the 800-3000 arena-recovery
-    # band -- a consistency check, not a calibration. (Before the fragment-shape
-    # closure this read ~5300 against Gold's un-shape-corrected 3000-8000
-    # model-to-model band; see updates/mott-fragment-shape-closure/derivation.md
-    # sect. 7.4. Neither number is a fit -- gamma was never tuned to either band.)
-    # Only R = sigma_f/gamma is observable (see mott_params); the split is a
-    # reporting convention. Provenance: updates/wdss1-steel-grade/derivation.md.
-    # FINDING[blocking]: gamma = 65 below is justified above as sitting just under Mott 1947 p.308's 0.45 %C row (gamma = 67), but that is the one row of four that fails the paper's own closure -- reading s_F as the engineering fracture strain RA/(1-RA), gamma ~ 160 P_2/P_F(1+s_F) reproduces the iron/0.1C/0.25C rows to within 3.2 % and gives 55.9 for the 0.45 %C row against the printed 67, whose tabulated P_2 = 38 also breaks the column's own monotone rise (45.5 would reproduce it) and which contradicts the paper's own stated length law; at the recomputed anchor the 0.355 %C interpolation drops 60.4 -> 54.5, so the shipped 65 sits ABOVE the entire recomputed series and its stated justification is inverted -- verdict SHIFTED not void (the grade ordering 47 < gamma'(0.355 %C) survives both readings) with downstream exposure in experiment/fragmentation-field/updates/mott-fragment-shape-closure/rebaseline-verdict.md sect. 3.2, and only sigma_f/gamma is identifiable so any re-anchor must be argued as a sigma_f/gamma move (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.invariant; since: 2026-08-03)
+    # NOT a fit to fragment-count data. Only R = sigma_f/gamma is observable
+    # (see mott_params), so the pair below is ONE physical number plus a split
+    # convention: sigma_f is HELD at 800 MPa (low end of the 800-1000 MPa dynamic
+    # flow-stress range for hardened steel; quasi-static ~600 MPa) and the whole
+    # composition statement is carried by gamma. sigma_f is a reporting
+    # convention, not a measured flow stress -- see derivation.md A4 / sect.9.2.
+    # gamma' = 54.5 (re-anchored 2026-08-08 from 65; this is a sigma_f/gamma MOVE,
+    # R = 12.308 -> 14.679 MPa, +19.3 %): local-linear interpolation at the
+    # inferred 0.355 %C on the CLOSURE-RECOMPUTED Mott 1947 §3 column
+    # (52.86 at 0.25 %C, 55.93 at 0.45 %C), not the printed one. The printed
+    # 0.45 %C row (gamma = 67) that the old 65 sat "just under" is the one row of
+    # four that fails Mott's own gamma ~ 160 P_2/(P_F (1+s_F)) closure; the other
+    # three reproduce to <=3.2 % under s_F = RA/(1-RA), and that row's P_2 = 38
+    # also breaks its column's monotone rise. Correction source:
+    # updates/mott-fragment-shape-closure/rebaseline-verdict.md sect. 3.2
+    # (verdict SHIFTED, not void -- the grade ordering 47 < gamma'(baseline)
+    # survives both readings). Standing: a WORKING value, not a sourced one --
+    # its upper bracketing row is repaired by the paper's formula, not read off
+    # the page. Re-anchoring puts this entry on WDSS1's rule and column (WDSS1
+    # re-interpolates to 46.61 there, i.e. the shipped 47), closing the old
+    # "different rules" caveat C7/A5.
+    # Under the shape closure mu ~ gamma'^-1 (NOT gamma'^-3/2): the move gives
+    # mu +19.3 %, N0 -16.2 %. Resulting N(>0.5 g) ~ 1950 at M1 geometry stays
+    # inside the 800-3000 arena-recovery band -- a consistency check, not a
+    # calibration (gamma was never tuned to it).
+    # Provenance, per-shell numbers and assumption log:
+    # updates/wdss1-steel-grade/derivation.md sect. 9.
     "WW2 US HE Shell": SteelParams(
         name="WW2 US HE Shell",
         rho=7850.0,
         sigma_f=800e6,
-        gamma=65.0,
+        gamma=54.5,
     ),
     # US WW2 "WDSS 1" War Department shell steel, 0.14-0.20 %C, 1.00-1.30 %Mn
     # (Ammunition Series 6, Table 6-1, 17 Feb 1953); band midpoint 0.17 %C.

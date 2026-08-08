@@ -15,6 +15,14 @@ SHELLS: dict[str, ShellParams] = {
         wall_t=0.009208,        # 0.3625" min wall from M60 smoke drawing (shared body)
         mass_total=14.97,       # 33 lb complete with fuze
         mass_filler=2.18,       # cast TNT
+        # mass_deductions: fuze+booster. Authorized fuzes (TM-9-1904 p.481/
+        # printed p.473): M48 or M54 w/ M20 or M20A1 Booster. TM-9-1901 sources
+        # fuze-only weight (M48/M54 = 1.41-1.42 lb = 0.640-0.644 kg); M20/M20A1
+        # booster weight is NOT tabulated in TM-9-1901. Value bracketed by
+        # fuze-only (0.640 kg) and fuze+M21A2-booster-analog (2.15 lb = 0.975
+        # kg, a stand-in for the unsourced M20/M20A1); materiality confirmed
+        # <=0.2% N0 shift across this range — see
+        # experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md
         mass_deductions=0.75,
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
@@ -36,6 +44,15 @@ SHELLS: dict[str, ShellParams] = {
         wall_t=0.014288,        # 0.5625" min wall from manufacturing drawing
         mass_total=43.09,       # 95 lb complete with fuze (1943 spec)
         mass_filler=6.863,      # 15.13 lb cast TNT (1943 spec)
+        # mass_deductions: fuze+booster+rotating band+base plug (estimate).
+        # Authorized fuzes (TM-9-1904 p.529/printed p.521): P.D. M51 w/ M21
+        # Booster or M51A1 w/ M21A1 Booster. TM-9-1901 only tabulates the
+        # superseding pair M51A3 w/ M21A2 = 2.15 lb = 0.975 kg (fuze+booster
+        # only, no band/plug); M51/M21 and M51A1/M21A1 weights are not
+        # directly sourced (expected close by within-family analogy, see
+        # doc-reference/ww2-shells/tm-9-1901-artillery-ammunition/card.md).
+        # Materiality confirmed <=0.2% N0 shift across the sourced range —
+        # see experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md
         mass_deductions=1.5,    # fuze + rotating band + base plug (estimate)
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
@@ -55,16 +72,26 @@ SHELLS: dict[str, ShellParams] = {
     "75mm M48 HE": ShellParams(
         caliber=0.075,
         wall_t=0.006,                # estimate; caliber-scaled from M1 (needs confirmation)
-        # Mass triple from ONE measured lot — Tolch (1938) round 1/2 per-round
-        # weight row, doc-reference/.../tolch-1938/tables/round-weights.csv:
-        # 12.50 lb loaded unfuzed - 1.56 lb TNT + 2.35 lb M39 P.D. fuze
-        # = 14.85 lb fuzed, so M_case = 12.50 - 1.56 = 10.94 lb = 4.9623 kg
-        # exactly. Do not mix with the TM-era catalog row (14.6 lb / 1.47 lb):
-        # its closure was accidental and put M_case 16% high.
-        # updates/shell-case-mass-basis/derivation.md §2, §4 (Option B).
-        mass_total=6.735847,         # 14.85 lb complete with M39 P.D. fuze
-        mass_filler=0.707604,        # 1.56 lb cast TNT
-        mass_deductions=1.065942,    # 2.35 lb M39 P.D. fuze (Tolch 1938)
+        mass_total=6.622,            # 14.6 lb mean loaded+fuzed projectile
+                                     # (TM-9-1904 p.414, "Fuzes M48, M48A1 and M54")
+        mass_filler=0.6668,          # 1.47 lb cast TNT (official M48 filler;
+                                     # TM-9-1904 quotes a rounder 1.49 lb
+                                     # bursting charge — not used)
+        # mass_deductions: fuze+booster. Authorized (TM-9-1904 p.414): Fuzes
+        # M48, M48A1, M54; Boosters M20, M20A1. TM-9-1901 sources fuze-only
+        # 1.41 lb (M48/M48A1/M48A2, sec.319.b); M20/M20A1 booster weight is
+        # NOT tabulated, so the closure-checked M21A2 increment 0.74 lb stands
+        # in (2.15-1.41 = 2.16-1.42) — the same stand-in method the 105 mm M1
+        # entry above brackets with (that entry does not itself adopt it).
+        # 1.41+0.74 = 2.15 lb.
+        # => M_case = 4980.4 g, +0.37% vs Tolch 1938's independently-stated
+        # case metal 12.50-1.56 = 10.94 lb = 4962.3 g (tolch-1938.md, "Wt.
+        # empty shell & fuze").
+        # NOTE: entry models the FIELDED production round; Tolch's 1938 T3
+        # test rounds averaged 1.56 lb TNT, so Tolch comparisons run ~3% low
+        # on V0. See
+        # experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/derivation.md
+        mass_deductions=0.97522,
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
         # Tier-2: inner-arc radius unknown; outer geometry from Handbook of

@@ -174,8 +174,6 @@ this thread is a case-mass input error, not a spectrum error. (Confirming
 *where* the model's 5755 g comes from requires `src/arty/shells.py`, outside
 this read set — that is the one grep that closes it.)
 
-FINDING\[blocking\]: count-gap-1938 rebaseline-verdict.md rules sound the comparison "M_case 5755 g vs Tolch's 6030 g" and BOTH numbers are wrong - 6028 g is Tolch's empty shell AND fuze (tolch-1938.md:232, fuze 2.35 lb) so the reference is case metal 10.94 lb = 4962 g, and the 5755 g model side was superseded 2026-08-08 by the shell-case-mass-basis rebase (registry now 4962 g, N0 3627 -> 3801); every ratio in the thread rests on the stale pair and must be recomputed, noting the sign flips (affects: experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-03)
-
 FINDING\[deferrable\]: the "fuze-excluded variant" in count-chain-rebaseline.py block (E) removes screen-1 mass from the numerator but keeps the fuze-inclusive model M_case in the denominator, producing a spurious 1.19x floor; on a fuze-consistent basis the threshold-free band is 2.2-2.7x and the derived velocity fraction restates from f=0.61-0.92 to f=0.61-0.68 (affects: experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md; since: 2026-08-03)
 
 ______________________________________________________________________
@@ -255,7 +253,12 @@ The main agent's escalation of the ogive/cylinder contradiction to `blocking`
 and its routing to a Gate-3 @modeler pass is unaffected by any of the above and
 remains correct.
 
-FINDING\[blocking\]: frag-field-3d-geometry rebaseline-verdict.md:142 and its section 4 state the 2740 ft/s figure "is not in that source and traces to NWC TP 7124"; BRL-126 prints it three times as "27^0 f/s" (tolch-1938.md:146,1658,1698) and card.md:49 resolves it to 2,750 f/s, so the defect is a wrong spray class (side, not nose) plus an inverted companion value (Tolch's penetrating fragments are 3030 f/s, not 1070), and the prescribed re-attribution to NWC would be a second misattribution (affects: experiment/fragmentation-field/updates/frag-field-3d-geometry/rebaseline-verdict.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/derivation.md; since: 2026-08-03)
+**Closed 2026-08-08** — see `frag-field-3d-geometry/rebaseline-verdict.md`'s
+own closure note above its (now-deleted) mirror of this marker: the citation
+is repaired at every cited site (Tolch's figures re-read as side-spray, not
+re-attributed to NWC TP 7124), and the ogive/cylinder V0 contradiction this
+citation was papering over is independently resolved in `derivation.md` §6
+against the shipped `compute_shell_zones` output.
 
 The hedge was landed in `bab141a` — the card now says the third digit is unreadable on this surface and that 2,750 is not to be treated as an exact source value. What remains is the read that would actually resolve the digit:
 

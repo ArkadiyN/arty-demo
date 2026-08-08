@@ -58,25 +58,30 @@ ______________________________________________________________________
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | **A. Cylinder formula, zone-local $C/M$**                 | Use eq. (1) of the main notebook with $M$ = ogive steel mass, $C$ = explosive within ogive envelope. | SAND92-0243 Table I is a steel-cylinder table; the cylinder formula is the only one with a tabulated reference. NWC TP 7124 acknowledges "fundamental physics" of cylinder. | Trivial — reuse existing `gurney_velocity()`.            |
 | **B. Gurney cone / reduced-coefficient formula**          | Apply a geometric reduction factor (≈ 0.8 × $V_0^\text{cyl}$, per NWC TP 7124 §Q1).                 | NWC TP 7124 recommends a stress-projection argument: oblique detonation incidence reduces radial impulse on the ogive wall.                                                 | One scalar factor; no new equation.                      |
-| **C. Combine ogive + cylinder into a single Gurney zone** | Compute one $V_0$ from total (ogive+cylinder) $C/M$; only split mass between zones for Mott $\mu$.  | Simplest interpretation of BRL 126 which reports two velocities (nose 2740 ft/s, side ?). But BRL 126's *nose* spray is *higher*, not lower, than side spray.               | Loses the velocity contrast BRL 126 explicitly measures. |
+| **C. Combine ogive + cylinder into a single Gurney zone** | Compute one $V_0$ from total (ogive+cylinder) $C/M$; only split mass between zones for Mott $\mu$.  | BRL 126 identifies three *spray zones* by hit density but measures velocity for the side spray only, so it does not constrain an ogive/cylinder velocity split either way. | Loses the velocity contrast the four-zone partition exists to produce. |
 
 **Evidence weighing the velocity difference:**
 
-- BRL 126 reports nose-spray perforating fragments averaging **2740 ft/s
-  (835 m/s)** vs. penetrating fragments at **1070 ft/s (326 m/s)**. The
-  high-velocity nose-spray population is the headline observation. This
-  argues *against* a blanket "ogive is slower" reduction (Option B).
+> **Correction (2026-08-08).** This bullet list previously read BRL 126 as
+> reporting a *nose*-spray velocity of 2740 ft/s against a *penetrating*
+> 1070 ft/s, and built a "forward-projection artefact" reconciliation on it.
+> Both halves were wrong. Tolch's two figures are **both side-spray**,
+> back-computed from the forward rotation of the side-spray angle with shell
+> remaining velocity, and split by fragment *class*: perforating ≈ 2,7?0 f/s
+> (≈ 835 m/s; third glyph unreadable on the held scan) and penetrating
+> **3,030 f/s** (923 m/s) — grep `duo to the explosive charge averaged`
+> (`tolch-1938.md:146`), `Ave. 3030` (line 1654). BRL 126 reports **no**
+> nose-spray velocity at all, so it cannot weigh on the ogive-vs-cylinder
+> ordering in either direction. Corrected bullets follow.
+
+- BRL 126 gives a side-spray charge velocity of **835–923 m/s** for the
+  75 mm M48 (perforating / penetrating fragment classes). This is a
+  magnitude anchor on the *cylinder*-zone $V_0$ and is silent on the
+  ogive. It neither supports nor refutes Option B.
 - NWC TP 7124's stress-projection argument predicts the ogive should be
-  *slower* (lower radial impulse). This is in **direct tension** with
-  BRL 126's measured nose velocity.
-- Reconciliation: the high BRL 126 nose velocity is plausibly a
-  **forward-projection artefact** — fragments from the ogive shoulder
-  travel along the shell-axis direction and combine the shell's
-  pre-detonation residual velocity with $V_0$. Velocity *normal to the
-  zone surface* (which is what Gurney gives) may still be lower than the
-  cylinder, while the *lab-frame* velocity along the line of fire is
-  higher. The BRL 126 data is from a near-static burst (no pre-detonation
-  velocity), so this artefact cannot be the full explanation.
+  *slower* (lower radial impulse). With BRL 126 removed from this
+  question, nothing in the held literature contradicts it — but nothing
+  measures it either. See `derivation.md` §7 open item 2.
 - For CRH 6–11 ogives (M1 has CRH ≈ 7, M107 has CRH ≈ 9): the *mean
   surface normal angle* across the ogive is ~80°–85° from the axis (per
   design Decision 3). The wall-normal component of detonation pressure
@@ -93,9 +98,11 @@ Rationale:
    6–11 the local arc is nearly parallel to the cylinder over most of
    the ogive length, so the cylinder formula is a good first approximation.
 1. The zone-local $C/M$ for the ogive is higher than the cylinder's
-   $C/M$ (less steel, similar explosive column), which naturally
-   produces a *higher* $V_0$ in the ogive — consistent with BRL 126's
-   nose-spray velocity being above side-spray.
+   $C/M$ *for the M1* (long cavity, thin ogive wall), which produces a
+   marginally higher $V_0$ there. **This is not a general rule** — it is a
+   drawing-dependent outcome of the two arc integrals and it reverses for
+   the M107 (ogive $V_0$ 24 % *below* cylinder). The recommendation does
+   not rest on it; see `derivation.md` §6 for the per-shell table.
 1. Option B's reduction factor can be added later as a single multiplier
    on $V_0^\text{ogive}$ if dedicated cone data appears; the interface
    from Decision 2 (`compute_shell_zones` returns per-zone $V_0$) makes
@@ -287,7 +294,7 @@ ______________________________________________________________________
 
 | Source                                                                 | What it contributes                                                                                                                                                                                                                                      | Used for                                                                                                                                   |
 | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| **BRL Report 126** (Tolch 1938, 75 mm M48)                             | Experimental three-zone spray identification (nose/side/base); fragment-velocity range 1070–2740 ft/s; mass-screening bins; pit-test mass distribution showing base ≈ 15 % of weight in fewer, heavier pieces. **Anchors the empirical four-zone case.** | Q1 nose-velocity reality check; Q2 base-mass evidence.                                                                                     |
+| **BRL Report 126** (Tolch 1938, 75 mm M48)                             | Experimental three-zone spray identification (nose/side/base) by hit density; **side**-spray charge velocity 2,7?0 f/s perforating / 3,030 f/s penetrating (835–923 m/s), inferred from the side-spray angle change — no nose- or base-spray velocity is reported; mass-screening bins; pit-test mass distribution showing base ≈ 15 % of weight in fewer, heavier pieces. **Anchors the empirical four-zone case.** | Cylinder-zone $V_0$ magnitude check (`derivation.md` §6); Q2 base-mass evidence.                                                            |
 | **NWC TP 7124** (Pearson 1990, cylindrical warhead expansion)          | Four-phase expansion mechanism; end-effect physics (rarefaction → larger fewer base fragments, ~0.7–0.8 × $V_m$); SAE 1015 / Rb 78–85 steel baseline; temperature-dependent fracture mode. **Physical explanation for the four-zone partition.**         | Q2 base treatment ("mott" with reduced $V_0$); $V_0$ reduction factor for base; potentially future "ogive reduction" if we adopt Option B. |
 | **SAND92-0243** (Vigil 1992, hazard zones)                             | Closed-form Gurney velocity vs. $C/M$ (Table I, steel/HMX); fragment shape factors $R_e$, $S_f$; trajectory and max-range $X_r$ formulas; lists seven casing geometries (cylinder is primary; no ogive/boattail).                                        | Q1 cylinder-Gurney baseline; trajectory framework reference for the derivation.                                                            |
 | **Mott (1947)** (in `doc-reference/fragmentation/`)                    | $\gamma$ table for low-carbon steels (γ ≈ 53 for 0.2 %C; γ ≈ 67 for 0.3 %C). Used unchanged.                                                                                                                                                            | Per-zone $\mu$ calculation.                                                                                                               |
