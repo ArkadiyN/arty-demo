@@ -12,6 +12,7 @@
 - [Steel sigma_f/gamma ratio only](gotcha_steel_sigma_gamma_ratio_only.md) — the steel "parameter pair" is one identifiable DOF; only sigma_f/gamma is observable
 - [R50 insensitive to steel grade](gotcha_r50_insensitive_to_steel.md) — count and per-fragment reach offset; "grade does nothing to R50" is physics, not a bug
 - [P(kill) columns padded-segment bounds](gotcha_pkill_columns_padded_segment_bounds.md) — _pkill_columns_vec pads collapsed segments to z=h_b; bounds-check only weighted samples or it false-fires
+- [Tolch "empty shell & fuze" is not case metal](gotcha_tolch_empty_shell_includes_fuze.md) — 13.29 lb includes the fuze; case metal is 10.94 lb, and his count percentages use the fuzed basis
 - [Tolch "remaining velocity" is shell, not fragment](gotcha_tolch_remaining_velocity_is_shell_not_fragment.md) — its card.md wrongly sells the velocity sweep as a drag anchor; the drag content is the panel-radius axis
 - [Density-falloff shape is threshold-degenerate](gotcha_density_falloff_shape_is_threshold_degenerate.md) — a hits-vs-range curve can't discriminate drag (threshold absorbs it); absolute counts can
 - [Mott mu scale not fixable by gamma](gotcha_mott_mu_scale_not_fixable_by_gamma.md) — a fragment-size/count gap can't be closed via gamma/sigma_f; suspect the cube mass-closure in mott_params

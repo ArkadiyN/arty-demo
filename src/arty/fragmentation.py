@@ -147,7 +147,14 @@ class ShellParams:
     wall_t: float = 0.009208         # cylindrical wall thickness [m]
     mass_total: float = 14.97        # total projectile mass [kg]
     mass_filler: float = 2.18        # explosive filler mass [kg]
-    mass_deductions: float = 0.75    # fuze + rotating band [kg]
+    # Mass excluded from the Gurney/Mott case, i.e. everything that is neither
+    # filler nor part of the radially-confining, plastically-expanding wall
+    # (nose fuze, adapters, base plug) [kg]. NOT "inert" or "non-fragmenting":
+    # deducted parts may still fragment and be recovered — Tolch (1938) finds
+    # ~15% of screen-1 recovered weight is fuze pieces. Reading (b) of
+    # updates/shell-case-mass-basis/derivation.md §3; a rotating band stays
+    # inside M_case (assumption A2, §8).
+    mass_deductions: float = 0.75
     filler: FillerParams = FILLERS["TNT"]
     steel: SteelParams = STEELS["WW2 US HE Shell"]
     # --- Optional Tier-1 zone arc geometry (frag-field-3d-geometry update) ---
