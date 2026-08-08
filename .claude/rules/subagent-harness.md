@@ -111,7 +111,10 @@ unavoidable — their cost is set purely by how big the window is at resume. In
 one incident ~84% of the cache-write spend was full-window idle re-caches of a
 window that grew to ~268k; output (intrinsic work) was untouched by any of it.
 
-**Consequence for orchestration:** never thread a multi-pass workflow through
+**Consequence for orchestration:** never thread a multi-*pass* workflow through
 one instance — re-dispatch a fresh agent per pass so each resume re-caches one
-small pass, not the whole accreted workflow. For modelling agents this is
-binding as `.claude/rules/agents-routing.md` **Gate 4**.
+small pass, not the whole accreted workflow. Restarting is not free either (a
+fresh agent pays cache-write to reload plus re-orientation output), so
+finishing an unfinished *single* pass on a still-small window is fine — see the
+boundary in `.claude/rules/agents-routing.md` **Gate 4**, which is where this is
+binding for modelling agents.

@@ -82,25 +82,19 @@ reply to one that is still open, to advance the workflow. That is the
 violation — stop, let it return, and dispatch the next pass fresh with a brief
 that points at the artifacts.
 
-**Why it matters (the top token-waste failure mode — and it's input-side, not
-output):** the cost of a threaded instance is not the cheap per-turn cache
-reads — it is **window size**. A threaded window grows every pass and is (a)
-re-read each turn and (b) **fully re-written at the 1.25× cache-write tier on
-every resume once the ~5-min cache TTL has lapsed**. On the Pro plan those
-resumes are *structural* — the usage cap parks the session for hours between
-turns, unavoidably — so the only lever left is the **size** of the window each
-resume re-caches. Fresh-per-pass caps that at one pass (~40k, reloaded from the
-compact `derivation.md`) instead of the whole accreted workflow. One incident
-threaded a single modeler across five passes to a **~268k window**; ~84% of its
-cache-write cost was full-window idle re-caches (74k → 125k → 175k → 268k as it
-grew) — re-dispatching fresh roughly halves the run. Output is intrinsic work
-(derivation + review cycles) and is unaffected either way. Threading also
-resets `maxTurns` on every message, removing the last turn-count guard.
-Mechanism detail: `.claude/rules/subagent-harness.md`.
+**Why it matters:** the cost driver is window **size**, not the cheap per-turn
+cache reads — a threaded window is re-written in full at the cache-write tier
+on every resume. One incident grew a single modeler to a **~268k window** and
+roughly doubled the run. Threading also resets `maxTurns` on every message,
+removing the last turn-count guard. Full mechanism and figures:
+`.claude/rules/subagent-harness.md`.
 
-**The only `SendMessage` to a modelling agent that is ever allowed** is none
-for workflow progression. A pass that returns with an open question is
-answered by folding the answer into the *next* fresh dispatch's brief.
+**Boundary — this is a window-size rule, not a ban on `SendMessage`.** Gate 4
+binds *advancing to the next workflow stage* on an accreted window. Re-firing
+the **same** agent to finish an **incomplete single pass** while its window is
+still small (~\<70k) is allowed and is *cheaper* than reloading a fresh one —
+confirmed by the user 2026-07-26. A pass that returns with an open **question**
+is still answered in the *next* fresh dispatch's brief, not by resuming.
 
 ## Model tier per pass
 
