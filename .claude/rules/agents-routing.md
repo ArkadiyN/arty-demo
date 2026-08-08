@@ -82,28 +82,19 @@ reply to one that is still open, to advance the workflow. That is the
 violation — stop, let it return, and dispatch the next pass fresh with a brief
 that points at the artifacts.
 
-**Why it matters — the top token-waste failure mode, and it is input-side, not
-output.** A threaded window grows every pass and is re-written in full at the
-1.25× cache-write tier on every resume. One incident reached a **~268k** window
-across five passes; **~84%** of its cache-write spend was idle re-caches, and
-fresh-per-pass would have roughly halved the run at identical output.
-Mechanism and numbers: `.claude/incidents.md#threaded-modeler`.
+**Why it matters:** the cost driver is window **size**, not the cheap per-turn
+cache reads — a threaded window is re-written in full at the cache-write tier
+on every resume. One incident grew a single modeler to a **~268k window** and
+roughly doubled the run. Threading also resets `maxTurns` on every message,
+removing the last turn-count guard. Full mechanism and figures:
+`.claude/rules/subagent-harness.md`.
 
-**No `SendMessage` for workflow progression, ever.** A pass that returns with
-an open question is answered by folding the answer into the *next* fresh
-dispatch's brief.
-
-**The one exception — salvaging a crashed pass, not advancing a workflow.** A
-pass that hit `maxTurns` *after reaching real results but before writing them
-down* may be resumed **once**, immediately, with a hard-scoped message. That is
-not progression: nothing moves to the next step, the instance is only asked to
-land the artifact its own window already contains. The distinction that makes
-this safe is that Gate 4's economics assume the next pass can be "briefed from
-the durable artifacts" — on a **zero-artifact** return there are none, so a
-fresh dispatch re-pays the whole discovery cost instead of reading a compact
-`derivation.md`. Conditions, and the over-read case where this does *not*
-apply, are in `.claude/rules/subagent-harness.md` — classify before resuming;
-a window full of circling reads is a liability and must be discarded.
+**Boundary — this is a window-size rule, not a ban on `SendMessage`.** Gate 4
+binds *advancing to the next workflow stage* on an accreted window. Re-firing
+the **same** agent to finish an **incomplete single pass** while its window is
+still small (~\<70k) is allowed and is *cheaper* than reloading a fresh one —
+confirmed by the user 2026-07-26. A pass that returns with an open **question**
+is still answered in the *next* fresh dispatch's brief, not by resuming.
 
 ## Model tier per pass
 

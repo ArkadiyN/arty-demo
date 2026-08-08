@@ -131,13 +131,33 @@ than burn it.
 
 ## Continuing a subagent doesn't reset its context — and defeats `maxTurns`
 
-`maxTurns` bounds a **single invocation**. `SendMessage` starts a fresh
-invocation with a fresh budget **on the same, never-reset conversation** — so N
-follow-ups grant N×`maxTurns` on one accumulating window. Subagents auto-compact
-only near the ~1M limit, not 200k, so a threaded agent never hits it.
+`maxTurns` bounds a **single invocation**. Continuing an agent with
+`SendMessage` starts a fresh invocation with a fresh `maxTurns` budget **on the
+same, never-reset conversation** — so N follow-ups grant up to N×`maxTurns`
+turns piled onto one accumulating window, and every turn re-sends the whole
+window (cache-read burn that grows with each pass).
 
-**Never thread a multi-pass workflow through one instance** — re-dispatch per
-pass so each resume re-caches one small pass, not the whole accreted workflow.
-The cost is window **size**, re-written at 1.25× on every resume, not the cheap
-per-turn reads. Binding for modelling agents as `agents-routing.md` **Gate 4**;
-numbers in `.claude/incidents.md#threaded-modeler`.
+Subagents *do* auto-compact — same logic and trigger as the main conversation,
+and `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` applies to them
+([docs](https://code.claude.com/docs/en/sub-agents#auto-compaction)). But
+compaction only fires near the model's window limit, which for Opus 4.8 is the
+~1M tier, **not** 200k — so a threaded agent grows into the hundreds of
+thousands of tokens long before compaction (a lossy last resort that can drop
+mid-derivation intermediates) would ever engage. The 200k figure is a
+per-request window size, not a usage cap and not Opus 4.8's limit.
+
+**The dominant cost is window re-caching, not the reads.** Each turn re-reads
+the window (cheap, 0.1×), but every resume after the ~5-min cache TTL lapses
+**re-writes the entire window at 1.25×**. On the Pro plan the usage cap parks
+the session for hours between turns, so these full-window re-caches are
+unavoidable — their cost is set purely by how big the window is at resume. In
+one incident ~84% of the cache-write spend was full-window idle re-caches of a
+window that grew to ~268k; output (intrinsic work) was untouched by any of it.
+
+**Consequence for orchestration:** never thread a multi-*pass* workflow through
+one instance — re-dispatch a fresh agent per pass so each resume re-caches one
+small pass, not the whole accreted workflow. Restarting is not free either (a
+fresh agent pays cache-write to reload plus re-orientation output), so
+finishing an unfinished *single* pass on a still-small window is fine — see the
+boundary in `.claude/rules/agents-routing.md` **Gate 4**, which is where this is
+binding for modelling agents.
