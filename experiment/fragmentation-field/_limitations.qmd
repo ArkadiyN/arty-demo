@@ -63,6 +63,22 @@ Wall thickness, projectile mass, and filler mass are taken from US Army TM 9-190
 If these inputs are wrong, every output shifts — V₀ scales with M/C, and μ scales
 as r_bu³.
 
+**Addendum to 5 — the 105 mm and 155 mm inert-mass deductions are unsourced.**
+The fuze and rotating-band allowances subtracted from those two projectiles'
+total mass (0.75 kg and 1.5 kg) are engineering estimates, not read from a
+weight table; no fuze-weight source for either round is currently in
+`doc-reference/`. The only partial evidence is the
+[105 mm M1 bill of material](../../doc-reference/ww2-shells/ordnance-105mm-m1-1940/tables/bill-of-material.csv),
+whose rotating-band and base-cover lines are *raw stock issued* rather than
+finished-part mass, so they bound the non-fuze deduction from above and no
+more. Because fragment count depends on case mass only weakly —
+∂ln N₀/∂ln M_case = (C/M)/(2 + C/M) ≈ 0.07–0.09, the Gurney velocity feedback
+cancelling most of the linear term — a ±0.5 kg (105 mm) / ±1.0 kg (155 mm)
+error moves M_case by 4.2 % / 2.9 % and N₀ by under 0.4 %
+(`updates/shell-case-mass-basis/derivation.md` §6, assumption A1). The 75 mm
+M48 row, by contrast, no longer shares this limitation: its whole mass triple
+is grounded on Tolch (1938)'s own per-round weight table.
+
 **6 · Mott input uncertainties amplify super-linearly.**
 The break-up radius r_bu is derived from the V/V₀ ≈ 3 expansion criterion, which
 Gold (2017, §2) describes as "accepted as a rule of thumb for routine one-region
@@ -131,7 +147,8 @@ re-opened here:
     every material/geometric input feeding $N_0$ (case mass, Gurney $V_0$,
     $\sigma_f$, $\gamma'$, the shape-closure prism) would need to leave its
     literature bracket by 4–6× to carry the residual alone, and none does
-    (`checks/count-chain-decomposition.py`) — $N_0=3627$ for 75mm M48 in fact
+    (`checks/count-chain-decomposition.py`) — $N_0=3801$ for 75mm M48 (rebased
+    from 3627 by `updates/shell-case-mass-basis/`, v 0.9.1) in fact
     falls *between* Tolch's own two totals (5000 issued, 803 pit-recovered).
     The gross fragment population is not the defect. What is: the model's
     fitted $E_{thr}$ (1.9–3.6 J) declares 81–85% of fragments perforating where
