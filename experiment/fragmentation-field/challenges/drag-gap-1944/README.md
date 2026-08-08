@@ -4,20 +4,41 @@
 1944 Ordnance Dept. *B*-vs-range casualty data — and if not, is the
 retardation/drag model the cause?
 
-**Status: open, but narrowed.** The gap is real and reproducible. Drag is
-implicated and has since been **corrected** — see
+**Status: Closed.** The gap was real and reproducible. Drag was implicated and
+has since been **corrected** — see
 [`../../updates/mach-dependent-fragment-drag/`](../../updates/mach-dependent-fragment-drag/)
 ([`scoping.md`](../../updates/mach-dependent-fragment-drag/scoping.md),
 [`derivation.md`](../../updates/mach-dependent-fragment-drag/derivation.md)),
 which anchors `C_D·C_shape` to the DoD-1975 ballistic density at **2.67**
-(from 0.585). That update **supersedes the inferences drawn in rows #5 and #6 below, and two
+(from 0.585). **That update is now closed and half-retired (2026-08-03) — read
+[`its README`](../../updates/mach-dependent-fragment-drag/README.md) before
+citing it.** The anchor cited here is the half that survives; the update's
+*Mach-dependence* sections are withdrawn. Note also that the "Status: Closed"
+verdict on this thread is itself under an open blocking finding — the gap it
+closed was measured against the wrong column. That update **supersedes the inferences drawn in rows #5 and #6 below, and two
 of the "Where it stands" bullets** (marked ⚠ inline; the measurements in those
 rows stand, the conclusions drawn from them do not). It narrows the *B(r)*
 over-prediction from ~2.1–27.3× (pre-anchor) to ~1.9–5.3× (see
 [`b-vs-range.qmd`](b-vs-range.qmd)'s refreshed table, and
 [`checks/b-vs-range-drag-attribution.py`](checks/b-vs-range-drag-attribution.py))
-but does **not** close it; the residual must be sought outside the
-retardation law.
+but does **not** fully close it.
+
+**Closed, not chased further, for a physical reason, not a convenience one:**
+the corrected constant (2.674) already sits within ~10% of the geometric
+ceiling — the fragment's presented area implied by any higher constant would
+require it to be denser than solid steel (`_limitations.qmd` L3). The
+literature-motivated alternative to a bigger constant — a Mach-dependent
+`C_D(M)` integrated along the trajectory — was built and tested, and scored no
+better than the flat corrected constant on this same data
+(`derivation.md` §5; `_limitations.qmd`, "Mach-dependent... rejected on
+evidence"). The residual is attributed outside the retardation law — to the
+count chain or spray/belt geometry (`_limitations.qmd` L1, L3) — which are
+different model aspects, not more drag calibration. The third L3 candidate,
+the *B(r)* reduction itself, has since been checked (#8 below): both
+families' reductions are implementation-correct, ruling out a reduction bug
+as the residual's cause, though not the averaging convention itself.
+Continuing to tune `C_D`/`C_shape` against this one dataset past this point
+would be overfitting to 1944 Ordnance data on an already-exhausted parameter.
 
 ## Reading order
 
@@ -30,6 +51,7 @@ retardation law.
 | 5   | [`drag-coefficient-calibration.md`](drag-coefficient-calibration.md)                                                                       | Does a bigger constant drag close it? **No.** Raising combined `C_D·C_shape` from 0.585 into the literature's 1.2–1.7 shrinks the ratio everywhere but closes it nowhere uniformly — the decay curve has the wrong *shape*, not just the wrong scale. **⚠ Conclusion superseded** — that sweep stopped short of the literature-admissible constant; at the DoD-1975 anchor of 2.67 the Mach>0.7 band closes (RMS 0.710 → 0.092, [`updates/mach-dependent-fragment-drag/derivation.md`](../../updates/mach-dependent-fragment-drag/derivation.md) V2). The "wrong shape, not scale" framing is exactly what motivated a Mach-dependent law, which was tested and rejected (scoping §3a, §4 option 3) — a corrected constant was the fix.                                      |
 | 6   | [`tolch-1938-panel-distance.md`](tolch-1938-panel-distance.md)                                                                             | Is Tolch (1938) an independent check? Partly, and it **contradicts the remedy**: the panel-radius falloff is shape-degenerate on drag, and the absolute count rules *out* raising drag. Also surfaces a separate, larger defect — the Mott scale (→ [`../mott-scale-gap/`](../mott-scale-gap/)). **⚠ Conclusion superseded** — re-run with post-shape-closure Mott parameters ([`updates/mach-dependent-fragment-drag/scoping.md`](../../updates/mach-dependent-fragment-drag/scoping.md) §3d) reverses the sign of this test: the absolute count now vetoes the *current* 0.585 constant (4–31 perforations predicted vs. ~700–800 observed, requiring an impossible ~6.5–12 kJ threshold), not a raised one. The panel-radius degeneracy and the Mott-scale finding stand. |
 | 7   | [`shape-closure-orthogonality.md`](shape-closure-orthogonality.md)                                                                         | Does the Mott shape-closure fix (`../mott-scale-gap/` → `updates/mott-fragment-shape-closure/`) close this thread's gap? **No.** `retardation_coeff` never calls `mott_params`; the check feeds it source-tabulated masses directly. The two aspects are structurally independent — reviewed PASS in [`review.md`](review.md).                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 8   | [`b-vs-range-familyA.md`](b-vs-range-familyA.md)                                                                                           | Implements the Family A half of #1's reduction, deferred until now. Family A numerically **passes** the factor-of-2 band at all 33 tabulated points — but reviewed PASS-with-limitations: this is a cancellation of two threshold-confounded errors (Family B's own 2–5× card over-prediction × Family A's ES-310 curve being ~10× stricter than the card's threshold), not an independent kernel validation. Rules out a reduction-*implementation* bug as the residual's cause for both families (`review.md`'s per-zone $A_p$-inversion check); does not rule out the reduction *convention* itself.                                                                                                                                                                      |
 
 ## Where it stands
 
@@ -54,6 +76,14 @@ retardation law.
 - #7 closes off a tempting shortcut: the Mott shape-closure fix that resolved
     `../mott-scale-gap/` does **not** also resolve this thread — it touches a
     different quantity (`mu`/`N0`) that `retardation_coeff` never consumes.
+- #8 checks the last of the three L3 candidates named above the reading-order
+    table: the *B(r)* reduction itself. Both families' reductions are now
+    independently verified as correct implementations (Family B in #3, Family A
+    in #8's review) — so an implementation bug in the reduction is ruled out.
+    What #8 does *not* rule out is the reduction *convention* (azimuthal
+    averaging over the four-zone geometry) harbouring a systematic bias; nobody
+    has stress-tested that. The residual's most likely locus is therefore
+    narrowed to the count chain / spray-belt geometry, not eliminated to it.
 
 ## `checks/`
 
@@ -68,3 +98,4 @@ Scripts that produced the numbers above. All run standalone under
 | [`checks/initial-conditions-155mm-decay.py`](checks/initial-conditions-155mm-decay.py)                                                                                     | #4 — 155mm velocity-decay comparison vs. Table 59                                                           |
 | [`checks/drag-coefficient-calibration.py`](checks/drag-coefficient-calibration.py)                                                                                         | #5 — the `C_D·C_shape` sweep over 1.2–1.7                                                                   |
 | [`checks/shape-closure-orthogonality.py`](checks/shape-closure-orthogonality.py)                                                                                           | #7 — structural check plus a DoD-1975 reference-area `C_shape` anchor                                       |
+| [`checks/b-vs-range-familyA.py`](checks/b-vs-range-familyA.py) [`-aof-ap`](checks/b-vs-range-familyA-aof-ap.py)                                                            | #8 — Family A's per-zone $B(r)$ reduction, AoF-sensitivity band, and flat-vs-graded $A_p$ sensitivity       |

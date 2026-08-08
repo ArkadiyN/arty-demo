@@ -1,0 +1,27 @@
+csv:     site-and-material-constants.csv
+source:  ../source.pdf
+anchor:  9. DISCUSSION AND CONCLUSIONS
+# Also anchored on the identical "Conditions:" block reprinted at the head of
+# every appendix (APPENDIX A/B/C/D), whose items 2 and 7-10 restate these same
+# constants.  One wide row because every closure below crosses quantities, and
+# the DSL evaluates `row:` expressions within a single row.
+
+# CLOSURE 1 -- the density span in DISCUSSION item (c) must be exactly the
+# min and max of the three materials named in item (b) and tabulated in the
+# appendix "Conditions" blocks.  Two independently-printed places in the
+# document, so a value read off the wrong line breaks it.
+row: (density_aluminum - density_span_lo) + (density_tantalum - density_span_hi) == 0 within 0.005
+
+# CLOSURE 2 -- the appendices' air density must follow from the ambient
+# pressure and temperature the same appendices state, by the ideal gas law for
+# dry air (R = 287.058 J/kg/K).  Expressed as a ratio so the tolerance is
+# relative.  Result 0.99845: the report's 0.000957 g/cc is 0.15 % above the
+# ideal-gas value for 12.06 psia at 30 degrees C, which is rounding, not a
+# different atmosphere.
+row: (ambient_pressure_psia * 6894.757 / (287.058 * (ambient_temperature_C + 273.15)) / 1000) / air_density_g_cc == 1 within 0.005
+
+# CLOSURE 3 -- the INTRODUCTION prints its velocity bounds twice, in ft/sec and
+# in mm/microsecond.  1 ft/s = 0.0003048 mm/us, so the two printings must agree
+# to the printed precision.  Sum of both absolute residuals: 0.0096 + 0.0328.
+# Swapping the two ends would give 7.4, so this catches a bound inversion.
+row: abs(velocity_lo_fts * 0.0003048 - velocity_lo_mm_us) + abs(velocity_hi_fts * 0.0003048 - velocity_hi_mm_us) == 0 within 0.05

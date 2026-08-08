@@ -58,6 +58,7 @@ STEELS: dict[str, SteelParams] = {
     # sect. 7.4. Neither number is a fit -- gamma was never tuned to either band.)
     # Only R = sigma_f/gamma is observable (see mott_params); the split is a
     # reporting convention. Provenance: updates/wdss1-steel-grade/derivation.md.
+    # FINDING[blocking]: gamma = 65 below is justified above as sitting just under Mott 1947 p.308's 0.45 %C row (gamma = 67), but that is the one row of four that fails the paper's own closure -- reading s_F as the engineering fracture strain RA/(1-RA), gamma ~ 160 P_2/P_F(1+s_F) reproduces the iron/0.1C/0.25C rows to within 3.2 % and gives 55.9 for the 0.45 %C row against the printed 67, whose tabulated P_2 = 38 also breaks the column's own monotone rise (45.5 would reproduce it) and which contradicts the paper's own stated length law; at the recomputed anchor the 0.355 %C interpolation drops 60.4 -> 54.5, so the shipped 65 sits ABOVE the entire recomputed series and its stated justification is inverted -- verdict SHIFTED not void (the grade ordering 47 < gamma'(0.355 %C) survives both readings) with downstream exposure in experiment/fragmentation-field/updates/mott-fragment-shape-closure/rebaseline-verdict.md sect. 3.2, and only sigma_f/gamma is identifiable so any re-anchor must be argued as a sigma_f/gamma move (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.invariant; since: 2026-08-03)
     "WW2 US HE Shell": SteelParams(
         name="WW2 US HE Shell",
         rho=7850.0,
@@ -67,9 +68,16 @@ STEELS: dict[str, SteelParams] = {
     # US WW2 "WDSS 1" War Department shell steel, 0.14-0.20 %C, 1.00-1.30 %Mn
     # (Ammunition Series 6, Table 6-1, 17 Feb 1953); band midpoint 0.17 %C.
     # 60mm/81mm mortar and 57mm recoilless bodies -- a ductile, low-carbon grade.
+    # gamma = 47 was re-checked against the Mott 1947 closure on 2026-08-03 and
+    # is SOUND: both bracketing rows reproduce the paper's own formula to within
+    # 2 %, and re-interpolating the recomputed column gives 46.6 vs the shipped
+    # 47.1 -- a 1 % shift, well inside the 45-49 band below. See
+    # updates/mott-fragment-shape-closure/rebaseline-verdict.md sect. 3.1.
     # gamma = 47: local-linear interpolation of the Mott 1947 §3 composition
-    # series (after Koerber & Rohdal 1924) inside the single 0.1 %C (gamma = 42)
+    # series (after Koerber & Rohland 1924) inside the single 0.1 %C (gamma = 42)
     # to 0.25 %C (gamma = 53) segment -- no extrapolation, no slope break.
+    # Series: gurney-equations-fragmentation, tables/section3-gamma-vs-
+    # composition.csv; anchor "Some values of".
     # The band endpoints 0.14/0.20 %C give gamma = 45/49:
     # that is the parameter uncertainty, not separate grades.
     # sigma_f held at 800 MPa and rho at 7850: only R = sigma_f/gamma is
@@ -97,16 +105,27 @@ STEELS: dict[str, SteelParams] = {
 # fields below (single source of truth) and are overridable per call.
 
 # A = l_bar/x_bar, fragment length-to-circumferential-breadth ratio [-].
-# Mott/Grady/Hiroe cross-dataset mean width:length = 1:1.6
-# (explosion-fragment-model, 1-s2.0-S221491472030502X-main.md:137);
-# corroborated by Wilson 1:1.65 and Grady 1:1.5.
+# Mott/Grady/Hiroe cross-dataset mean width:length = 1:1.6, i.e. length is the
+# LONG dimension: Felix, Colwill & Harris (2022) define aspect ratio as "a
+# fragment's width divided by its length" (sect. 2.5), and Table 4's per-dataset
+# averages 1.58/1.66/1.48 mean to 1.573 -> 1.6. Corroborated on other materials
+# by Wilson 1:1.65 (tungsten alloy) and Grady 1:1.5 (AERMET-100).
+# Source: explosion-fragment-model, tables/table-4-average-aspect-ratios.csv;
+# anchors "Approximate average ratio" and "aspect ratio of a fragment is
+# defined". Verified by challenges/source-data-audit/checks/
+# explosion-fragment-model-aspect-ratio.py.
 _MOTT_ASPECT_RATIO = 1.6
 
 # kappa_x = x_bar/x0, mean circumferential breadth in units of the fracture
 # spacing [-]. Mott's own ruled-line statistic, finding (1): fragment lengths
-# lie mostly in x0..2x0 with average 1.5 x0 (rspa.1947.0042.md:190). Gold
-# restates x0 itself as the mean breadth, i.e. silently sets kappa_x = 1;
-# Mott is the primary source and the only one who measures the mean.
+# "lie between x0 and 2x0, and the average length is about 1.5x0" (Mott 1947
+# p.305, anchor "The fragments have lengths most of which lie"). Gold restates
+# x0 itself as the mean breadth, i.e. silently sets kappa_x = 1; Mott is the
+# primary source and the only one who measures the mean.
+# The 1.5 is confirmed against Mott's own worked example rather than read off
+# a neighbouring sentence: p.306 gives x0 = 1.6/sqrt(gamma) in. and concludes
+# 0.24 in. at gamma ~ 100, and 1.5 * 1.6/sqrt(100) = 0.24 exactly. Verified by
+# challenges/source-data-audit/checks/mott-1947-gamma-and-length-closure.py.
 _MOTT_BREADTH_FACTOR = 1.5
 
 
@@ -180,8 +199,16 @@ def c_shape_from_ballistic_density(k: float, rho_steel: float) -> float:
 @dataclass(frozen=True)
 class DragParams:
     # TP-12 line 338-339: "take the drag coefficient as constant at its
-    # supersonic value of 1.28". The Mach dependence of its Fig. 3 does not
-    # beat this constant on the 1944 Ordnance velocity-decay data (derivation §5).
+    # supersonic value of 1.28". Its Fig. 3 is *not* flat -- C_D runs 1.08 at
+    # M = 0 through a ~1.40 transonic peak to the 1.28 plateau -- and that
+    # variation is deliberately not modelled: a Mach-dependent C_D(M) would
+    # replace the closed-form lambda below with a per-fragment ODE march, for a
+    # difference that stays inside the model's stated arrival-velocity fidelity
+    # bar. Architectural cost, not lack of evidence -- see _limitations.qmd #15.
+    # (The earlier claim here, that C_D(M) "does not beat this constant on the
+    # 1944 Ordnance velocity-decay data", is withdrawn: it was scored on the
+    # wrong column and gave the constant a free parameter the curve did not
+    # have -- updates/mach-dependent-fragment-drag/README.md.)
     C_D: float = 1.28
     # Presented area per unit (m/rho_steel)^(2/3), derived from the DoD
     # ballistic density via eq. (4) above -- 2.0890 at k = 2.60 g/cm³,

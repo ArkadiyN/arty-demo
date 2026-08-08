@@ -1,0 +1,25 @@
+csv:     nose-spray-density.csv
+source:  source.pdf p.43-44 (report pages -21-, -22-); DTIC AD0702233
+anchor:  Total number of hits in the nose spray per unit solid
+
+# Tolch (1938), BRL Report 126 -- nose-spray fragment density per unit solid
+# angle, averaged over 0-17.5 deg from the shell axis. `v_fps` is the shell's
+# AVERAGE REMAINING VELOCITY AT BURST (a firing condition), NOT a fragment
+# velocity; v_fps = 0 is the row the source labels "Static".
+#
+# CLOSURE INVARIANT -- stated verbatim by the source (report p.22): "The
+# average number of perforations, penetrations, and dents per unit solid angle
+# for the nose spray were added together for the various conditions of fire
+# and are listed in the following table." So per (velocity, panel) cell:
+#     perf + penet + dents == total
+# 16 of 17 cells close EXACTLY at the printed 2 d.p.; Panel C at 700 f/s sums
+# to 2.73 against a stated 2.72, a 0.01 rounding residual -- hence the 0.02
+# tolerance rather than 0.
+#
+# Not transcribed: the P.E.-of-mean column beside each panel, and the source's
+# `a` footnote ("Two rounds only"). Panel C at 1450 f/s is a dash in the
+# source -- no data -- and is omitted rather than zero-filled.
+#
+# See ../tables/base-spray-density.invariant for the transcription-history
+# warning; it applies to this table too.
+row:  perf + penet + dents - total == 0 within 0.02

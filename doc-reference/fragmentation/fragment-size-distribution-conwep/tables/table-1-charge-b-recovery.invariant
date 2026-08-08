@@ -1,0 +1,29 @@
+csv:     table-1-charge-b-recovery.csv
+source:  ../1-s2.0-S221491471730079X-main.md
+anchor:  Results of the Charge B 100% fragment recovery experimentation with and without axial booster initiation.
+
+# Table 1 is the only numeric table in Gold 2017 and NOTHING IN THIS REPO CITES
+# IT.  It is transcribed so the document stops reading as "carries numbers, has
+# no CSV" in the Phase 2.5c admissibility sweep, and so a future consumer reads
+# a checked file instead of re-typing two rows out of prose.  What this repo
+# actually takes from Gold 2017 is the equation chain (2)/(4)/(6)/(7)=(16), and
+# that is closed by algebra rather than by any table -- see
+# experiment/fragmentation-field/challenges/source-data-audit/checks/gold-2017-equation-provenance.py
+#
+# `axial_booster` is transcribed as 0/1 because the invariant DSL evaluates
+# numeric columns only; the page prints "No"/"Yes".
+#
+# CLOSURE.  The fragment-count column is normalised by the source's own stated
+# definition -- the header reads `N/N*`, and N* is the no-booster total -- so
+# the no-booster row must be exactly 1.  Anything else means the column was
+# read off the wrong table or the wrong row was taken as the reference.
+row: (axial_booster > 0) * 1.0 + (axial_booster <= 0) * total_fragments_ratio == 1.0 within 0
+
+# Both rows are the same body and the same explosive, so the detonation
+# pressure column is a property of IMX and must not vary between them.
+total: pcj_GPa == 38.0 within 0.001
+
+# The booster row is the treatment; the source's whole claim is that it raises
+# the count.  A transposed pair of rows fails here.
+monotonic: axial_booster increasing
+monotonic: total_fragments_ratio increasing

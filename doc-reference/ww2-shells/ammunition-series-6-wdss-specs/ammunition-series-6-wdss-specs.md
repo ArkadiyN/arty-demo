@@ -1,16 +1,44 @@
 # WDSS Steel Grades: Late WW2 and Post-War Artillery Shell Specifications
 
-**Document:** Ammunition Series 6 — Manufacture of Metallic Components of Artillery Ammunition\
+> **⚠ THIS FILE IS NOT AN EXTRACTION OF THE SOURCE — DO NOT CITE IT.**
+> Read `card.md` and `tables/table-6-1-chemical-requirements.csv` instead.
+>
+> Despite its filename and its "transcribed excerpt" label below, this document
+> is an **essay written about** the source, not text taken from it. Only the
+> composition table and the incidental-elements footnote come off the page;
+> everything else — the metallurgical theory, the σ_y estimates, the design
+> rationale, the confidence assessment — is model-authored inference that the
+> source does not state. It predates the retained scan.
+>
+> Re-baselined 2026-08-02 against `source.pdf` (Phase 2.5b). **Its composition
+> figures are correct**, confirmed cell-for-cell. Three of its narrative claims
+> are **refuted by the page** and are annotated inline below:
+>
+> 1\. "WDSS 3, 5, 6, 7 … tabulated without stated application" — §6-14 states
+> they "cover all calibers from 37-mm to over 155-mm".
+> 2\. "silent on mechanical properties" — §6-14 states yield strengths of
+> 60,000–80,000 psi for those grades.
+> 3\. The WDSS 1 sulfur 0.08–0.13 % flagged twice for verification is
+> **confirmed faithful**; that action is closed.
+
+**Document:** *Engineering Design Handbook, Ammunition Series, Section 6 —
+Manufacture of Metallic Components of Artillery Ammunition*, **AMCP 706-249**,
+HQ U.S. Army Materiel Command, **July 1964** (DTIC AD830266)\
 **Section:** 6-14, "Prevailing Shell Steel Specifications"\
 **Table:** 6-1 — Chemical requirements (all percent by weight)\
-**Date:** 17 February 1953\
-**Source Type:** Primary military technical reference (transcribed excerpt)
+**Date:** specification as of 17 February 1953; handbook published July 1964\
+**Source Type:** model-authored commentary on a primary military reference
 
 ______________________________________________________________________
 
 ## Overview
 
 This document captures the WDSS family of War Department shell steel specifications as of February 1953. The grades span a range of carbon and manganese contents, with WDSS 1 and WDSS 2 explicitly designated for mortar shell (60mm, 81mm) and 57mm recoilless gun bodies. The remaining grades (WDSS 3, 5, 6, 7) are tabulated without stated application. The specification emphasizes chemical composition control while remaining silent on mechanical properties, heat treatment, or performance targets.
+
+> **Refuted (2026-08-02).** The last two sentences are wrong. §6-14: *"The other
+> grades cover all calibers from 37-mm to over 155-mm, in which the yield
+> strengths vary from 60,000 psi to 80,000 psi."* Both the application and a
+> mechanical property **are** stated for WDSS 3/5/6/7.
 
 ______________________________________________________________________
 
@@ -78,7 +106,9 @@ The 0.08–0.13% S range is atypical for a standardized post-war military specif
 
 1. **MnS inclusion control:** Intentional elevated S to form controllable MnS phases that arrest crack propagation (a known mechanism in ductile steels)
 1. **Recycled scrap:** Economic post-war practice accepting higher sulfur from industrial scrap
-1. **Transcription artifact:** Less likely, but worth verifying against the original document image
+1. ~~**Transcription artifact:**~~ **Ruled out 2026-08-02** — the retained
+    scan's text layer prints `0.08-0.13`. The value is faithful, so explanations
+    1 and 2 are the live ones.
 
 ### WDSS 2: Medium-Carbon, Moderate-Manganese Grade
 
@@ -116,8 +146,13 @@ WDSS 2's Si range (0.15–0.30%) exceeds WDSS 1 (≤0.10%) significantly. Silico
 
 - **Hardness source:** Primary carbon content (0.55–0.65%) + Mn/Si solid-solution hardening
 - **Ductility:** Reduced vs. WDSS 1–2; brittleness risk increases with C
-- **Typical strength range:** ~400–550 MPa yield (estimated)
-- **Design purpose:** Not stated in source; likely for:
+- **Typical strength range:** ~400–550 MPa yield (estimated) — **the source
+    states 60,000–80,000 psi = 414–552 MPa for exactly these grades** (§6-14).
+    The estimate happens to land on it; it was not fitted to it.
+- ~~**Design purpose:** Not stated in source; likely for:~~ **Refuted
+    2026-08-02** — §6-14 states it: these grades "cover all calibers from 37-mm
+    to over 155-mm". The speculation below is superseded and kept only to show
+    what was inferred in its place:
     - Projectile body strength in larger-caliber shells (requiring structural stiffness)
     - Enhanced penetration or fragmentation (harder body → smaller fragment distribution, per Mott theory)
     - Specialized ammunition types (armor-piercing, concrete-penetrating)
@@ -172,14 +207,14 @@ The table provides **chemistry only**. Missing critical data for model implement
 
 ### Confidence Assessment
 
-| Aspect                                 | Confidence | Notes                                                       |
-| -------------------------------------- | ---------- | ----------------------------------------------------------- |
-| **Chemical composition**               | High       | Direct transcription from authoritative military source     |
-| **Intended use (WDSS 1, 2)**           | High       | Explicitly stated: 60mm, 81mm mortar; 57mm recoilless gun   |
-| **Incidental element limits**          | High       | Footnote clearly specifies Ni, Cr, Cu, Mo maxima            |
-| **Intended use (WDSS 3, 5, 6, 7)**     | **Low**    | Not stated; pure inference from composition                 |
-| **Mechanical properties (all grades)** | **None**   | Source is silent; heat-treatment unknown                    |
-| **Sulfur specification (WDSS 1)**      | **Medium** | 0.08–0.13% is unusually high; verify against original image |
+| Aspect                                 | Confidence           | Notes                                                                                                                                     |
+| -------------------------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Chemical composition**               | High                 | Direct transcription from authoritative military source                                                                                   |
+| **Intended use (WDSS 1, 2)**           | High                 | Explicitly stated: 60mm, 81mm mortar; 57mm recoilless gun                                                                                 |
+| **Incidental element limits**          | High                 | Footnote clearly specifies Ni, Cr, Cu, Mo maxima                                                                                          |
+| **Intended use (WDSS 3, 5, 6, 7)**     | ~~Low~~ **High**     | ~~Not stated~~ — §6-14 states "all calibers from 37-mm to over 155-mm"                                                                    |
+| **Mechanical properties (all grades)** | ~~None~~ **Partial** | ~~Source is silent~~ — §6-14 gives yield 60,000–80,000 psi for WDSS 3/5/6/7; silent for WDSS 1/2, and silent on heat treatment throughout |
+| **Sulfur specification (WDSS 1)**      | ~~Medium~~ **High**  | 0.08–0.13% **confirmed** against `source.pdf` text layer, 2026-08-02 — not an OCR error                                                   |
 
 ______________________________________________________________________
 
@@ -207,6 +242,13 @@ Each alloying element contributes to yield strength in ferrite:
 
 *Caveat:* These are rough estimates based on standard alloy theory; actual properties depend on heat-treatment (quench/temper) and cooling rate, neither specified in the source.
 
+> **Partly checkable after all (2026-08-02).** §6-14 states 60,000–80,000 psi
+> (414–552 MPa) for the artillery-caliber grades, i.e. WDSS 3/5/6/7 — against
+> the 400–550 MPa estimated just above. The agreement is close, but it is an
+> estimate matching a source figure that was available all along, not a
+> validation: nothing here was fitted to it. The WDSS 1 and WDSS 2 estimates
+> remain unchecked, the source giving no yield strength for either.
+
 ### Grain Size and Toughness (Halleffects)
 
 Manganese influences austenite grain growth during heating. Higher Mn → coarser grain → lower toughness (paradoxically). Control of Mn levels (as seen in WDSS 3–7's ≤1.00% vs. WDSS 1's 1.00–1.30%) may reflect optimization for hardness without sacrificing fracture-toughness.
@@ -215,18 +257,25 @@ ______________________________________________________________________
 
 ## Recommendations for Further Investigation
 
-1. **Verify Sulfur Specification (WDSS 1):** Check original document image (/mnt/f/Projects/TMP/AgenticCoding/wdss.png) to confirm 0.08–0.13% S is not an OCR error for 0.08–0.13% typical spec or a MnS-control artifact.
+1. ~~**Verify Sulfur Specification (WDSS 1).**~~ **CLOSED 2026-08-02** — the
+    retained scan's text layer prints `0.08-0.13` for WDSS 1 sulfur. Faithful,
+    not an OCR error. Check:
+    `experiment/fragmentation-field/challenges/source-data-audit/checks/ammunition-series-6-table-6-1-fidelity.py`
 
 1. **Locate Mechanical Property Data:** Search for:
 
     - War Department Ordnance Specifications (WD-xxxx series) for WDSS 1–7
     - DTIC archives (AD/ADA series technical reports on WD steel grades)
     - Aberdeen Proving Ground material test reports, 1950–1955
+    - **MIL-S-10520C** (printed `(ORO)`, a scan artifact for `(ORD)`) — named by §6-14 as "the current specification for
+        hot-forged artillery shell". This is the obvious next document and was
+        missed because it sits in the same paragraph as the caliber/yield-strength
+        sentence this file recorded as absent.
 
-1. **Clarify WDSS 3, 5, 6, 7 Applications:** Cross-reference Table 6-1 with:
-
-    - Adjacent sections in Ammunition Series 6 (6-13, 6-15) for context
-    - Bill-of-materials for late-war and post-war mortar/recoilless gun ammunition
+1. ~~**Clarify WDSS 3, 5, 6, 7 Applications.**~~ **CLOSED 2026-08-02** — §6-14
+    states them directly: "all calibers from 37-mm to over 155-mm". No
+    cross-referencing was ever required; the answer was one sentence above the
+    table.
 
 1. **Heat Treatment Protocol:** Determine whether WDSS grades were:
 

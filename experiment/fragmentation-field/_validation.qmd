@@ -8,6 +8,9 @@ reimplemented in the notebook.
 HE artillery shells (M/C = 4–8) produce Gurney velocities of 900–1 400 m/s
 (Carlucci & Jacobson, *Ballistics: Theory and Design*, Table 5-1).
 
+<!-- FINDING[deferrable]: Check 1 asserts against a 900-1400 m/s bracket attributed to Carlucci & Jacobson Table 5-1, but that source is not in doc-reference/ at all — so a rendered PASS on this surface rests on a bracket nobody can check against a page; collect the source or downgrade the assert to a reported comparison (affects: experiment/fragmentation-field/_validation.qmd, doc-reference/; since: 2026-08-03) -->
+
+
 ```{python}
 print("Gurney velocity vs. M/C:")
 for mc in [4.0, 5.0, 5.6, 6.0, 7.0, 8.0]:
@@ -122,9 +125,13 @@ probability of lethality at 200 feet (61 m)** when striking vital organs. This i
 *independent* datum — it is not part of the 1944 US Ordnance velocity-decay set the
 drag constants were anchored to
 ([`updates/mach-dependent-fragment-drag/derivation.md`](updates/mach-dependent-fragment-drag/derivation.md)
-§5) — so it is not re-banded to match the model. Note the same source's extraction
+§4 V2 — the anchor half of that update, which remains live) — so it is not
+re-banded to match the model. Note the same source's extraction
 renders "1/8 oz" as "~28 grams"; 1/8 oz is **3.54 g** (28 g is a full ounce), and the
 oz figure is taken as authoritative.
+
+<!-- FINDING[blocking]: Check 5b hard-asserts a rendered PASS against the britishartillery-wt-of-fire 3.5 g / 58 ft-lb datum and calls it an "independent" corroboration, but that source is now recorded UNVERIFIABLE (doc-reference/wound-ballistics/britishartillery-wt-of-fire/card.md, Admissibility) — the primary AORG Report 179 was not obtainable, no source.pdf is retained, and the only available surface carries two internal arithmetic failures: the "1/8 oz (~28 grams)" conversion this paragraph already flags, and a 25-pdr fragment-count table whose four disjoint bands sum to >2041 against its own stated total of ~1140; the two values Check 5b actually consumes are not shown to be wrong, so this is not a void verdict, but the surface publishes checkedness it does not have and the assert must be downgraded to a reported comparison or the primary obtained (affects: experiment/fragmentation-field/_validation.qmd, doc-reference/wound-ballistics/britishartillery-wt-of-fire/card.md; since: 2026-08-03) -->
+
 
 The datum is a *statement about lethality*, so reading it requires a lethality
 criterion, and the same source supplies two that differ by 11.6×: 5 ft-lb (6.8 J,

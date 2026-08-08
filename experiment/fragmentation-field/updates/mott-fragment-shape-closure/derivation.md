@@ -9,12 +9,16 @@ checks. No `src/arty/` edits here.
 
 | # | Equation | Source |
 | --- | --- | --- |
-| (G2) | `x₀ = (2σ_F/ργ′)^{1/2}·r/V`, at the instant of fracture, with `r` the ring radius **at break-up** | Gold 2017 eq. (2), `…conwep/1-s2.0-S221491471730079X-main.md:58-60`; Mott 1947 line after eq. (5), `…gurney-equations-fragmentation/rspa.1947.0042.md:158` |
+| (G2) | `x₀ = (2σ_F/ργ′)^{1/2}·r/V`, at the instant of fracture, with `r` the ring radius **at break-up** | Gold 2017 eq. (2), `…conwep/1-s2.0-S221491471730079X-main.md:58-60`; Mott 1947 line after eq. (5), `…gurney-equations-fragmentation/`, p.304 line after eq. (5), anchor `The length` (verified against the retained scan 2026-08-02: the page reads `x₀ = (2P_F/ργ)^{1/2}·r/v`, agreeing with Gold symbol-for-symbol; the `.md` extraction of this line is corrupt — see that document's `card.md`) |
 | (G4) | fragment idealised as a parallelepiped `l₀ × x₀ × t₀`; `μ = ½αρx₀³`, `α = (l₀/x₀)(t₀/x₀)`; `μ` ≡ **half** the mean fragment mass | Gold eq. (4), lines 70-76, and line 54 |
 | (G6) | `γ ≡ α^{-2/3}γ′` — shape absorbed into a redefined constant | Gold eq. (6), line 78 |
 | (G16) | `μ = √(2/ρ)·(σ_F/γ)^{3/2}·(r/V)³` (algebraically identical to the coded line, `fragmentation.py:211-215`) | Gold eq. (7)≡(16) |
 | (M1) | Mott's own ruled-line statistic: fragment circumferential lengths lie mostly in `x₀…2x₀`, **average ≈ 1.5x₀** | Mott 1947 finding (1), rspa line 190 |
-| (A16) | fragment width:length = **1:1.6** (mean of Mott's own aspect histogram, Grady, Hiroe; corroborated by Wilson 1:1.65, Grady 1:1.5). "Aspect ratio" is defined width÷length, so length = 1.6 × width | `…explosion-fragment-model/1-s2.0-S221491472030502X-main.md:137`, §2.5 line 51 |
+| (A16) | fragment width:length = **1:1.6** (mean of Mott's own aspect histogram, Grady, Hiroe; corroborated by Wilson 1:1.65, Grady 1:1.5). "Aspect ratio" is defined width÷length, so length = 1.6 × width | `…explosion-fragment-model/tables/table-4-average-aspect-ratios.csv`; anchors "Approximate average ratio" (Table 4) and "aspect ratio of a fragment is defined" (§2.5) — **re-baselined against the retained scan 2026-08-02**, ledger §16 |
+
+FINDING[deferrable]: Gold 2017 attributes to "Mott (1943)" both a constant fragment breadth:length ratio and an average cross-sectional area proportional to (r/V)^2, and this derivation inherits the first as the premise that A = l/x is one constant across shells; the primary (Mott & Linfoot, A.C. 3348, now retained at doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/) states the opposite twice ("we have not been able to find a theory to account for the average length of the splinters", p.2; "our theory ... does not account for the length of splinters from shells, but only for their breadth", p.4) and where sect. 3 treats length it makes it independent of breadth, while the (r/V)^2 area scaling is Mott 1947's, not 1943's — only the parallelepiped attribution survives, so the 1.6 VALUE is fine (it is Felix 2022 Table 4, ledger sect. 16) but the structural premise is not primary-backed and the Phase-3 pass on this thread should say so rather than repeat Gold's citation (affects: experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md, src/arty/fragmentation.py, doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/card.md; since: 2026-08-02)
+
+FINDING[deferrable]: rows (G4), (G6), (G16) above and scoping.md's governing-equation table cite Gold 2017 by bare line number ("lines 70-76", "line 54", "line 78"), the anchor form .claude/rules/source-data-fidelity.md forbids because it rots silently on re-extraction and lands the reader on a different equation without failing; row (G2) has already been converted to a greppable anchor and the rest should follow (affects: experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/scoping.md; since: 2026-08-02)
 
 Working symbols: `x̄` mean circumferential breadth [m]; `l̄` mean axial length
 [m]; `t₀` fragment thickness [m]; `A ≡ l̄/x̄` [-]; `κ_x ≡ x̄/x₀` [-]; `t`
@@ -28,8 +32,8 @@ as-manufactured wall [m]; `t_bu` wall at break-up [m]; `r_mean = ½(r_o+r_i)`,
 Read from source, not the cards. Mott introduces `x₀` as the *half-width of the
 unstressed zone* round a fracture (his eq. (5) preamble), then says only that
 it "is on dimensional grounds obviously proportional to the average fragment
-length" (rspa:160). He then measures the average from his ruled-line Monte
-Carlo and reports **1.5x₀** (rspa:190). Gold restates the same expression but
+length" (Mott 1947 p.304, anchor `The length`). He then measures the average from his ruled-line Monte
+Carlo and reports **1.5x₀** (Mott 1947 p.305 finding (1), anchor `The fragments have lengths most of which lie`). Gold restates the same expression but
 labels it "the average circumferential length of the resulting fragments"
 (conwep:58) — i.e. Gold has silently set `κ_x = 1`, dropping Mott's factor.
 
@@ -206,6 +210,8 @@ independent corroboration that `α` is the right size. The 60 mm falls to
 `γ` = 14, below Gold's range, consistent with §5.5's finding that it is past
 the thin-case regime.
 
+FINDING[deferrable]: the "lands inside Gold's own published 20–50 range" sentence above rests on `γ′` = 65, whose Mott 1947 anchor is the one row of four that fails the paper's own closure (registered blocking at src/arty/fragmentation.py); at the rebaselined `γ′` ≈ 55 the three gun shells read 24.9 / 20.0 / 18.7, so the 155 mm drops just below Gold's 20 floor and the 105 mm sits on it — the corroboration is directional, not tight, and should stop being written as a clean "lands inside"; it is a soft cross-check rather than a PASS criterion, so no verdict moves (affects: experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, src/arty/fragmentation.py; since: 2026-08-03)
+
 **Nominal FAIL against scoping §7 check 4 as written**, and against
 `tests/test_fragmentation.py::test_mott_fragment_count_in_pafrag_range[_all_grades]`:
 `N(>0.5 g)` now falls **below** the 3 000–8 000 band (2 213 at M1 geometry).
@@ -313,3 +319,71 @@ assumptions corrupt drag is thereby logged, not acted on.
 1. **A9.7 The break-up-velocity item (scoping §5) is deliberately left open.**
     The ~1.2–1.8× residual in §7.3/§7.5 is its predicted size; absorbing it into
     `A` or `κ_x` is forbidden.
+
+## 10. Gold 2017 provenance: shipped-code verification, the N₀ contradiction, and the two α's
+
+Relocated 2026-08-03 from
+`doc-reference/fragmentation/fragment-size-distribution-conwep/card.md`
+(sections "The shipped code" and "The paper contradicts itself on N₀...",
+plus the `γ = 50` bullet under "What is *not* certified"), per
+`.claude/rules/source-data-fidelity.md` ("A card states what the source says,
+not what to use it for") and the finding logged at
+`experiment/fragmentation-field/challenges/source-data-audit/review-provenance.md:342`.
+These are code-verification verdicts and a computed model output — correct,
+but they belong in a derivation a reviewer reads, not in a reference card. Text
+is moved verbatim; it was not re-derived or re-checked for this move. The card
+retains only the source's own eq. (1)/eq. (17) contradiction as a fact about
+the paper; what follows is the resolution — which side `src/arty` takes, and
+why.
+
+### The shipped code
+
+- `mott_params` builds μ the long way — eq. (2) for `x₀`, eq. (6) to fold `α`
+    into `γ`, eq. (16). Eq. (4) reaches the same μ in one step. **They agree to
+    2 × 10⁻¹⁶** at three break-up velocities, which they can only do if the
+    shipped `alpha ** (-2.0/3.0)` carries the sign the algebra demands.
+- `μ_(7)` and `μ_(16)` are identical to 4 × 10⁻¹⁶ over a seven-point parameter
+    sweep (the `½·2^{3/2} = √2` collapse), so citing either name is correct.
+- **`N₀`**: the code uses `M/(2μ)` — eq. (1), *not* eq. (17).
+
+### The paper contradicts itself on N₀, and the code takes the right side
+
+Eq. (1) states `N₀ = M/2μ`; eq. (17) states `N₀ⱼ = mⱼ/μⱼ`. These differ by
+exactly a factor of 2, and eq. (17) would double every fragment count. Eq. (1)
+is the self-consistent one: μ is defined two sentences earlier as **half** the
+average fragment mass, so total mass over μ counts half-fragments. At the
+shipped M1 geometry the gap is 3 959 vs 7 918 fragments at V₀ = 1000 m/s.
+
+`src/arty` follows eq. (1). Recorded here rather than repaired anywhere,
+because there is nothing to repair — but any future pass that reads eq. (17)
+off the page and "corrects" the code would be introducing the error.
+
+### Gold's `γ = 50` is the shape-absorbed γ of eq. (6), not `γ′`
+
+Gold never states α for Charge A, so his 50 cannot be converted to a `γ′`.
+`_validation.qmd:48` already reads it correctly — as an "un-shape-corrected"
+value, i.e. the cube limit α = 1 where γ = γ′ — and explicitly declines to
+score the model against the resulting band. That reading is sound; a future
+pass must not silently treat 50 as a `γ′` for `SteelParams`.
+
+### Gold overloads the symbol α — two unrelated quantities
+
+Gold 2017 uses `α` for two things that share nothing but the letter:
+
+- **Eq. (4)'s fragment shape aspect-ratio** — `α = (l₀/x₀)(t₀/x₀)`, the
+    parallelepiped shape factor this derivation's §1 (G4) uses throughout, and
+    which feeds `γ = α^{-2/3}γ′` (G6). This is the only `α` this derivation
+    computes with (§4, §7, `mott_params`). Anchor: `In the equation (4)` (the
+    sentence defining it, `…conwep/1-s2.0-S221491471730079X-main.md`).
+- **Section 4's detonation-wave incidence angle** — the angle between the
+    detonation-wave front and the shell surface normal in the Charge B
+    multi-region discussion, unrelated to fracture geometry. "The steeper angle
+    α is, the higher parameter γ is" (Fig. 7(b) caption) — the *opposite* sign
+    relation from eq. (6)'s aspect-ratio α, where **larger** α **lowers** γ.
+    Anchors: `incident angle $\alpha$ between the detonation wave direction`
+    (§4 prose) and `detonation shock wave incidence angle $\alpha$` (Fig. 7
+    caption).
+
+A future pass that looks up "Gold's α" and lands on Fig. 7(b) instead of eq.
+(4) will take the sign of (G6) backwards. Nothing in this derivation uses the
+Fig. 7 α; it is documented here only to block that mix-up.

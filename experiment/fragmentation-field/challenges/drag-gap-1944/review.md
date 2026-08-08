@@ -238,3 +238,156 @@ None — no Blocking, Deferrable, or Note-level issues.
 ## What to log
 
 Nothing — no limitation or correction to log for this artifact.
+
+______________________________________________________________________
+
+# Review: `b-vs-range-familyA` (Family A vs. 1944 Ordnance Dept. B-vs-range data)
+
+**Reviewed:** `b-vs-range-familyA.md`, `checks/b-vs-range-familyA.py`,
+`checks/b-vs-range-familyA-aof-ap.py`, `b-vs-range.md` §2 (the reduction this
+implements), `src/arty/zones.py::_four_zone_familyA_eval`,
+`src/arty/fragmentation.py::_belt_column_zrep_vec`/`presented_area`.
+
+## Verdict: PASS-with-limitations
+
+The reduction is a faithful implementation of `b-vs-range.md` §2's Family-A
+rule (divide the field builder's own $A_p(\gamma)$ back out of $N(x,y)$), the
+per-zone $A_p$-inversion is the correct handling of the fact that
+`_four_zone_familyA_eval` relocates each zone's belt to its own $z_\text{rep}$
+(so there is no single ground-point $A_p$ to divide by), all 33 tabulated
+numbers reproduce exactly on independent re-run, and the write-up's central
+"cancellation, not validation" argument is sound and, unusually for this
+project, understates rather than overstates its own result (a numeric PASS is
+correctly *not* claimed as a validated kernel). No Blocking findings. Two
+Deferrable items (an already-logged-adjacent threshold-matched follow-up that
+should be named explicitly as a limitation, one unused import) and one Note.
+
+## Findings
+
+### 1. Deferrable: the "cancellation, not validation" conclusion is correct but not yet captured in `_limitations.qmd`
+
+The write-up (§5) explicitly declines to claim Family A is validated by this
+comparison, and instead states the numeric PASS is the product of two
+offsetting, threshold-confounded errors: Family B's 2-5x over-prediction
+against the card's own 58 ft-lb threshold, times Family A's own ES-310 curve
+being anchored ~10-13x stricter (`E_LETH_DEFAULT`/`_PK_E[1]` = 1000 J vs. the
+card's 78.6 J). This algebraic identity ($B_A/B_\text{card} = (B_A/B_B) \times
+(B_B/B_\text{card})$) is verified below and holds to rounding at every row.
+The reasoning is physically grounded, not just curve-fitted: `pk_given_hit`
+has **no** `E_leth` parameter at all (confirmed by reading
+`_familyA_zone_massintegral`, `src/arty/zones.py:468-491` — it calls
+`pk_given_hit(E)` directly on the hardcoded `_PK_E=[100,1000,4000]` curve),
+so Family A structurally cannot be threshold-matched to the card without a
+code change — which is exactly why the write-up names, but does not attempt,
+a threshold-matched variant as the real follow-up.
+
+This is the right call, but right now the finding lives only in this one
+challenge document. `b-vs-range.qmd`'s own `.html` and `_limitations.qmd` #14
+(already referenced by name in §4's "Out-of-scope follow-up" paragraph) do
+not yet carry Family A's side of this story — a reader who only reads the
+`.qmd`'s Family-B FAIL and this document's Family-A PASS in isolation, without
+reading §5's cancellation argument, would wrongly read this as "Family A is
+validated, Family B is broken." **Impact:** no numeric output changes; this is
+purely about whether the caveat is discoverable from the rendered
+notebook/limitations surface rather than only from a challenge markdown file
+one directory level away. Recommend logging in `_limitations.qmd` (as an
+addendum to #14, since it's the same lethality-criterion axis) a one-paragraph
+pointer: "Family A's agreement with the 1944 card (`b-vs-range-familyA.md`) is
+confounded by a ~10x threshold mismatch with Family B's card-matched run and
+should not be read as an independent kernel validation."
+
+### 2. Note (no action required): unused `_ZONE_NAMES` import
+
+`checks/b-vs-range-familyA.py:50` imports `_ZONE_NAMES` from `arty.zones` but
+never references it — the script hardcodes its own equivalent `zone_list = [("ogive", ...), ("cylinder", ...), ("boattail", ...), ("base", ...)]`
+(line 96-97), which was confirmed to match `_ZONE_NAMES = ("ogive", "cylinder", "boattail", "base")` (`src/arty/zones.py:462`) exactly — no zone
+omitted, no drift. Harmless dead import, same category as the `FT2_PER_M2`
+note in the `b-vs-range` review section above.
+
+## Verified independently
+
+- **Numeric reproduction.** Re-ran both `checks/b-vs-range-familyA.py` and
+    `checks/b-vs-range-familyA-aof-ap.py` (`uv run python ...`). Every number in
+    every table of `b-vs-range-familyA.md` §2 (all 33 rows across 3 shells: $B_A$,
+    $B_B$, A/card, B/card, A/B, AoF band), §3 (AoF-sweep verdict table, graded-vs-
+    flat $A_p$ ratios, the `ap_floor=0.7831 m²` figure), and the summary
+    (A/card, B/card, A/B ranges, monotonicity) reproduces exactly.
+- **Per-zone $A_p$-inversion is exact, not approximate.** Read
+    `_four_zone_familyA_eval` (`src/arty/zones.py:494-565`) directly: it computes
+    `gamma = arcsin(clip((h_b - z_rep)/s_z, -1, 1))`, `geom = presented_area(gamma,   posture)/(2π s² · 2δ)`, and `field_N_z = J · geom / sin(theta_z)` — i.e. the
+    zone's output already has $A_p(\gamma_z)$ multiplied in. The check script's
+    `rho_L_familyA` recomputes `z_rep`/`lit` via the *same*
+    `_belt_column_zrep_vec` call with identical arguments (including
+    `x_axis=xg`, the correct forward-axis choice for four-zone belts per that
+    function's own docstring, `src/arty/fragmentation.py:877-881`), then computes
+    `gamma` with the identical `(h_b - z_rep)/s_z` sign convention and divides
+    `N_z / A_p(gamma)`. This is an exact algebraic inverse of the builder's own
+    multiplication, not a reconstruction from a different formula — confirmed by
+    reading both sides side by side, not just trusting the docstring's claim.
+- **Masking/filtering consistency.** Traced the builder's `ok = s_z >= 1e-6`
+    singularity guard and its early-`continue` zone-skip conditions
+    (`mass_kg<=1e-6`, `V0_ms<=0`, non-finite `mu`, `sin(aof+theta_z)<=0`) against
+    the check script's `use = lit & (N_z > 0.0)` mask: every point/zone the
+    builder suppresses ends up with `N_z = 0`, which `use` correctly excludes
+    regardless of what the check script's own independently-recomputed `gamma`/
+    `A_p` evaluate to at that (masked-out) point — no risk of a stale or
+    mismatched divisor leaking into `rho_L` at an excluded cell.
+- **Dimensional check.** $B_\text{model} = \langle\rho_L\rangle_\phi \times
+    (0.3048\,\text{m/ft})^2$: $\rho_L\,[\text{m}^{-2}] \times [\text{m}^2/\text{ft}^2]
+    = [\text{ft}^{-2}]$ — correct (same formula already validated in the Family-B
+    review section above; re-confirmed it's used identically here).
+- **Family B inputs match the published, previously-reviewed scripts exactly.**
+    Grepped all three `checks/b-vs-range-{75,105,155}mm.py` for
+    `E_LETH_58FTLB_J`/`AOF_PRIMARY_DEG`/`DELTA_DEG`/`H_B` — all three use
+    `E_leth=58 ft-lb (78.6 J)`, `AOF_PRIMARY_DEG=30`, `DELTA_DEG=15`, `H_B=0`,
+    identical to the Family-A script's own settings, confirming the "same
+    ranges, AoF, posture, drag calibration" claim in the docstring and §1 table.
+    Also confirmed the 75mm script's `CARD_B[2]` already carries the `0.0192`
+    r=40 fix from the prior `b-vs-range` review's Finding 1 (not a regression).
+- **`E_LETH_DEFAULT` anchor claim is accurate here** (unlike the analogous
+    finding flagged for `b-vs-range.qmd` above): `E_LETH_DEFAULT = 1000.0`
+    (`src/arty/fragmentation.py:533`) is documented in-line as deliberately set
+    to match "the 0.5 point of the graded `pk_given_hit` weighting it replaces"
+    — i.e. it is the *design intent* anchor for `_PK_E[1] = 1000.0`, not a
+    coincidental match being misattributed. Confirmed `pk_given_hit` has no
+    `E_leth` parameter and cannot be overridden (`_familyA_zone_massintegral`,
+    `src/arty/zones.py:468-491`), consistent with the write-up's claim that
+    Family A structurally "uses its own curve as-is."
+- **Algebraic identity check.** Spot-verified $B_A/B_\text{card} = (B_A/B_B)
+    \times (B_B/B_\text{card})$ at 75mm r=20 ($0.372 \times 3.05 = 1.135
+    \approx 1.13$ reported A/card) and confirmed the reported "26/33 points
+    outside the 2x A/B band" count ($0+1+6=7$ in-band, $33-7=26$ out) and the
+    "0.19x-0.71x" / "1.94x-5.30x" summary ranges against the per-shell min/max
+    in the tables.
+- **Monotonicity re-derived from the printed values directly** (not just
+    trusting the script's own round-trip `rA * CARD_B` diff check) for all
+    three shells — all strictly decreasing in $r$, confirming "Monotone: yes"
+    independent of the script's internal check method.
+- **AoF/robustness table and flat-vs-graded $A_p$ sensitivity numbers**
+    reproduce exactly on re-run; confirmed the "\<1%" flat/graded claim against
+    the actual printed range (0.9903-1.0, i.e. ≤0.97% deviation).
+- **No physics/parameter leakage.** All physical quantities come from
+    `arty.fragmentation`/`arty.zones` imports (`STANDING`, `DragParams`,
+    `_belt_column_zrep_vec`, `presented_area`, `retardation_coeff`,
+    `_four_zone_familyA_eval`, `compute_shell_zones`, `SHELLS`); the only
+    literal constant in the check scripts is `FT_TO_M = 0.3048` (a unit
+    conversion, same precedent already accepted for the Family-B scripts). The
+    `s_z = sqrt(x²+y²+dz²)`/`gamma = arcsin(...)` lines in the check script are
+    not new physics — they are the exact geometric inverse of formulas the
+    builder itself already computes with the same inputs, required to recover
+    $A_p$ per zone rather than a reimplementation of a different model. No
+    `.qmd`/notebook was touched by this pass, so the "no physics in `.qmd`"
+    layering rule does not apply here; both artifacts reviewed are a `.md`
+    write-up and standalone `checks/*.py` scripts.
+
+## What to log
+
+- **A limitation, not a fix**, for Finding 1: add a pointer in
+    `_limitations.qmd` (as an addendum to #14) stating that Family A's
+    factor-of-2 PASS against the 1944 card (`b-vs-range-familyA.md`) is
+    threshold-confounded against Family B's card-matched run and must not be
+    read as an independent validation of the Family-A kernel; the real
+    follow-up is the named-but-not-implemented threshold-matched Family-A
+    variant.
+- Nothing to log for Finding 2 (unused import) — cosmetic only, fix at
+    convenience, not a limitation.

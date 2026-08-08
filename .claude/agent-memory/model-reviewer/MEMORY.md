@@ -23,4 +23,7 @@
 - [Gap-closure needs source's own confidence check](gap_closure_check_source_own_confidence.md) — a cited doc-reference entry, or an uncited sibling, may flag the exact identification a derivation treats as "closed"
 - [Verify fix completeness: grep whole file](verify_fix_completeness_grep_whole_file.md) — a wording fix often lands at the headline location but leaves stale echoes/dangling forward-refs elsewhere
 - [Interleaved OCR table row check](interleaved_ocr_table_row_check.md) — one documented row-swap fix doesn't mean every row was checked; redo monotonicity for every row of every sibling table
+- [1944 Ordnance B is isotropic](ordnance_1944_B_is_isotropic.md) — B==N/(4*pi*r^2) exactly; column identity decisive for B(r), immaterial for drag-decay; B agreement can't validate angular structure
+- [Negative claim by literal grep](negative_claim_by_literal_grep.md) — "not in the source" backed by grep of literal digits fails on OCR-mangled glyphs; check card.md, prose anchors, unit variants
+- [Fixed-geometry sweep is drag-degenerate](fixed_geometry_sweep_drag_degenerate.md) — a sweep that doesn't vary R, plus a fitted threshold, has exactly zero power to calibrate drag; check before accepting any calibration anchor
 - [Gold 2017 eq(17) N0 typo](gold_2017_eq17_N0_typo.md) — eq(17) N0=m/mu contradicts the paper's own line 54/eq(1) N0=M/2mu; follow the factor-of-2 form

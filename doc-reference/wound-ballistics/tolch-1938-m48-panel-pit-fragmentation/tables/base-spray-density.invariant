@@ -1,0 +1,27 @@
+csv:     base-spray-density.csv
+source:  source.pdf p.41-42 (report pages -19-, -20-); DTIC AD0702233
+anchor:  Number of perforations, penetrations, and dents of the
+
+# Tolch (1938), BRL Report 126 -- base-spray fragment density per unit solid
+# angle, averaged over 162.5-180 deg from the shell axis. `v_fps` is the
+# shell's AVERAGE REMAINING VELOCITY AT BURST (a firing condition), NOT a
+# fragment velocity; v_fps = 0 is the row the source labels "Static".
+#
+# CLOSURE INVARIANT -- the source states of the companion nose table that the
+# component densities "were added together" to form the totals table, and the
+# same construction holds here: the totals table on report p.20 is the sum of
+# the three component rows on p.19. So per (velocity, panel) cell:
+#     perf + penet + dents == total
+# This holds EXACTLY (to the printed 2 d.p., zero residual) on all 17 cells.
+#
+# Not transcribed: the P.E.-of-mean column beside each panel, and the source's
+# `a` footnote ("Two rounds only") marking low-sample cells. Panel C at
+# 1450 f/s is printed as a dash in the source -- no data -- and is omitted
+# rather than zero-filled.
+#
+# TRANSCRIPTION HISTORY -- the values in `../tolch-1938.md` are OCR output and
+# are WRONG in ~20 of 54 component cells (e.g. nose-spray static Panel A
+# penetrations read 0.37 for a true 3.47, dents 1.22 for a true 12.25). This
+# CSV is read off the page images, not off that markdown. Do not "correct"
+# this file against `tolch-1938.md`; the markdown is the corrupted copy.
+row:  perf + penet + dents - total == 0 within 0.02

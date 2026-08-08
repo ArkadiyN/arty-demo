@@ -9,7 +9,8 @@ every table in derivation.md is regenerated from this one script.
 
 Sources for the inputs:
   Mott 1947 sec.3 table  -> doc-reference/fragmentation/gurney-equations-fragmentation/
-                            rspa.1947.0042.md lines 305-310 (re-extracted 2026-07-25;
+                            tables/section3-gamma-vs-composition.csv,
+                            anchor "Some values of" (re-extracted 2026-07-25;
                             the earlier OCR of this table was wrong -- see the
                             "Extraction note" at the top of that file)
   WDSS-1 composition     -> doc-reference/ww2-shells/ammunition-series-6-wdss-specs/
@@ -33,6 +34,7 @@ from arty.fragmentation import (
 
 # --- Inputs -----------------------------------------------------------------
 
+# FINDING[deferrable]: MOTT_SERIES below hand-copies the Mott p.308 gamma series into a literal array instead of reading doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.csv, which is the transcribe-once failure mode .claude/rules/source-data-fidelity.md names; the four values were confirmed correct against the retained scan at 420 dpi on 2026-08-02, so this is fragility rather than wrongness, and the swap should be made by the pass that next re-runs this script so its output can be diffed (affects: experiment/fragmentation-field/updates/wdss1-steel-grade/checks/recompute.py, doc-reference/fragmentation/gurney-equations-fragmentation/tables/section3-gamma-vs-composition.csv; since: 2026-08-02)
 # Mott 1947 sec.3 p.308, after Koerber & Rohland (1924): (carbon %, gamma).
 # gamma is dimensionless, so it is immune to the scan's stress-column unit
 # ambiguity. "iron" is entered at 0.0 %C.

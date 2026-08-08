@@ -3,7 +3,7 @@ name: modeler
 description: Research agent that derives physics models for simulation and owns a model aspect end-to-end. Reads literature collected by the librarian, produces the physics (scoping + derivation markdown), implements it in src/arty, and presents it in the thin Quarto notebook (import/call/render). Use when adding, refining or answering questions about a simulation model. Do not attempt physics modeling in the main conversation — always delegate to this agent.
 tools: Bash, Read, Write, Edit
 skills: quarto-science, agent-memory-discipline
-maxTurns: 15
+maxTurns: 25
 model: opus
 memory: project
 ---
@@ -50,6 +50,12 @@ and STOP.
 - *Notebook presentation* → edit the thin `.qmd` to import from `arty` and
     render; follow the **quarto-science** skill.
 
+**Check for open findings on your scope, first turn.** Run
+`uv run python src/utils/collect-findings.py --for <the folder or file your pass touches>`. Anything it returns is a known defect somebody already
+diagnosed and deferred; treat it as an input to this pass, not a discovery to
+re-make. The brief should have pasted these in — this catches the case where it
+didn't. Costs one turn; skipping it can cost the pass.
+
 **All project physics is common and lives in `src/arty/` — never in a `.qmd`.**
 The notebook only imports, calls, and renders. For artifact layout, file paths,
 and how passes sequence, Read `.claude/skills/model-workflow/SKILL.md`.
@@ -80,6 +86,24 @@ project's main token cost. So:
     line: what demo outcome this aspect drives and what error is tolerable
     (e.g. "drives the P(kill) heatmap; ±30% on lethal radius is acceptable").
     This is the bar @model-reviewer will judge materiality against.
+
+## Turn budget is tight (25 turns) — write early, don't explore-then-write
+
+Create your pass's artifact within the first turn or two and **append findings
+to it as you learn them** — the facts you establish, not a heading skeleton.
+Then keep reading. Do not hold results in your head until a final write-up
+turn; that turn frequently never arrives.
+
+A partial artifact carrying real findings is a **successful pass** — the next
+dispatch reads your notes instead of re-deriving cold. Zero files written
+because the budget ran out mid-analysis is a **failed** one, even if you had
+reached the answer and were "about to" write it. Prefer partial output over
+completeness, every time.
+
+This is the dominant way passes are lost here: one dispatch made 20 consecutive
+read/grep calls, converged on nothing, wrote nothing, and returned ~86k tokens
+of transcript with no artifact. If a brief also asks you to write early, it is
+restating this — the instruction stands whether or not the brief repeats it.
 
 ## Sources: cards navigate, papers are authoritative
 

@@ -125,6 +125,25 @@ re-opened here:
     anchor, which exercises retardation alone, is followed instead. Do not
     re-litigate this by re-fitting drag — the discriminating test is an
     independent (THOR-type) perforation model.
+    **Addendum to L1 — the Mott stage is exonerated; the residual is localized
+    to the fitted perforation threshold.** A scoping pass
+    (`challenges/count-gap-1938/count-chain.md`) decomposed the 4–6× algebraically:
+    every material/geometric input feeding $N_0$ (case mass, Gurney $V_0$,
+    $\sigma_f$, $\gamma'$, the shape-closure prism) would need to leave its
+    literature bracket by 4–6× to carry the residual alone, and none does
+    (`checks/count-chain-decomposition.py`) — $N_0=3627$ for 75mm M48 in fact
+    falls *between* Tolch's own two totals (5000 issued, 803 pit-recovered).
+    The gross fragment population is not the defect. What is: the model's
+    fitted $E_{thr}$ (1.9–3.6 J) declares 81–85% of fragments perforating where
+    Tolch measures 14% (700/5000); at Tolch's own sourced hole-size bound
+    (126 J) the residual drops to ~1.5–2.2×. The remainder is ranked, not
+    closed — C1 (the fitted threshold itself, the only unbounded term) needs a
+    perforation model `src/arty/` does not have (THOR-type, or a sourced
+    softwood ballistic limit); C2 (`mott_params` evaluates $x_0$ at the
+    terminal Gurney $V_0$ rather than the case's actual break-up-radius
+    velocity, 1.2–2×, right direction) cannot be measured until C1 is fixed,
+    since any change to $N_0$ is currently reabsorbed by the threshold fit.
+    Both are deferred — a perforation model is future scope, not this pass's.
 - **L2 — arrival-Mach < 0.7 velocities remain unclosed by any admissible drag
     law.** At the longest 75 mm/155 mm stations the *required* combined constant
     falls to 1.76–2.07 (implied C_D below the subsonic plateau of 1.08), and even
@@ -356,7 +375,8 @@ source's lethality criterion and the model's ES-310 `Pk|hit` curve are not the
 same scale (limitation 11). The **kinematic** half — retained KE against the
 source's own 58 ft-lb (78.6 J) marginal-lethality energy — passes to a
 factor-of-2 band under the v0.9.0 drag anchor
-(`updates/mach-dependent-fragment-drag/derivation.md` §5). The **criterion**
+(`updates/mach-dependent-fragment-drag/derivation.md` §4 — the anchor half of
+that update, which remains live). The **criterion**
 half does not: ES-310 reads 0% against the source's 50%, an 11.6× stricter
 scale (ES-310 half-kill at 1 kJ vs. the source's 78.6 J), and is reported, not
 asserted, rather than tuned away. The pre-v0.9.0 model appeared to pass this
@@ -368,3 +388,64 @@ Closing this needs either a documented ES-310-to-source criterion mapping or
 an independent source for the 50%-lethality energy threshold itself; neither
 exists in `doc-reference/` today. No shipped parameter depends on this check
 passing — it is a spot-check, not a calibration target.
+
+**Addendum to 14 — Family A's agreement with the 1944 card is the same
+confound, not independent evidence.** Family A's own B(r)-vs-card comparison
+(`challenges/drag-gap-1944/b-vs-range-familyA.md`) numerically passes the
+factor-of-2 band at all 33 tabulated points, but only because it multiplies
+Family B's ~2–5× fragment-count over-prediction against the card's own 58
+ft-lb threshold by Family A's ES-310 curve being ~10× stricter than that same
+threshold — two offsetting, threshold-confounded errors, verified to cancel
+algebraically at every row (review in `challenges/drag-gap-1944/review.md`).
+It must not be read as validating the Family-A kernel, or as closing the
+lethality-criterion split above; the fix is the same one this item already
+names — a threshold-matched Family A variant, not yet built.
+
+**15 · Fragment drag is speed-dependent. The model does not represent that —
+it uses one constant $C_D$ at every speed (v 0.9.0).**
+Real fragment drag varies with Mach number, and the source the model is
+anchored to shows exactly how much: DoD-1975 Figure 3 gives $C_D$ = 1.08 at
+$M = 0$, a transonic peak of 1.40 near $M = 1.5$, and a supersonic plateau of
+1.28 ([`tables/figure-3-drag-coefficient.csv`](../../doc-reference/fragmentation/dod-1975-fragment-debris-hazards/tables/figure-3-drag-coefficient.csv)) —
+a ~30% swing, of which the model represents none. `DragParams.C_D` is fixed at
+the supersonic plateau value 1.28, so $\lambda$ is a constant per fragment mass
+and $v(s) = V_0 e^{-\lambda s}$ holds in closed form. Fragments therefore decay
+too slowly through the transonic peak they actually cross, and too quickly once
+subsonic.
+
+*This is a deliberate simplification, and the reason is architectural, not
+evidential.* A Mach-dependent $C_D(M)$ integrated along each trajectory is
+**genuinely more accurate** on the corrected 1944 Ordnance velocity data: given
+both laws the same single scale freedom, it reduces RMS log-velocity error by
+~20–25% on both the casualties and perforation columns. In the lethal-relevant
+band ($M > 0.7$, casualties column) the Mach law scores 5.3% against the
+constant's 7.1%. Both land inside the aspect's stated ±10% arrival-velocity
+fidelity bar, so the ~1.8-percentage-point difference is immaterial at the
+target — while adopting it would replace a closed-form $\lambda$ with a
+per-fragment ODE march at every call site, including the field kernel's single
+broadcast exponential over the whole mass × standoff grid. Rejected as
+**immaterial at the stated fidelity target, not as unsupported by the data.**
+
+*Provenance — and a correction to what this notebook previously published.*
+Through v0.9.0 the change log and governing-equations section stated that a
+Mach-dependent $C_D$ "does not beat the constant" on this data. **That claim was
+false and is withdrawn.** It rested on a digitized Figure-3 curve that
+under-stated $C_D$ by up to 0.082 across Mach 1.0–2.2 — in the direction that
+weakened the rejected candidate — and on a 25-point velocity set that was ~44%
+wrong-column, and it scored a *fitted* constant against an *unfitted* curve.
+The decision survives the correction; the stated reason did not. Full ruling:
+[`updates/mach-dependent-fragment-drag/rebaseline-verdict.md`](updates/mach-dependent-fragment-drag/rebaseline-verdict.md)
+(C11, C12), independently verified in
+[`challenges/source-data-audit/review-void-rulings.md`](challenges/source-data-audit/review-void-rulings.md).
+That update is now closed and half-retired — see its
+[`README.md`](updates/mach-dependent-fragment-drag/README.md) before citing
+anything in it.
+
+*What would re-open this.* A fidelity target tighter than ±10% on arrival
+velocity, or any use of the model in the sub-$M$-0.7 regime where limitation
+7's carried **L2** already records that no admissible constant closes the
+velocities. Note
+also that $V_0$ for the Ordnance comparison is itself unverified, and a 10%
+$V_0$ error is comparable to the entire residual — so the 1.8-point margin
+quoted here is a measured difference between two laws, not a bound on either
+law's absolute accuracy.

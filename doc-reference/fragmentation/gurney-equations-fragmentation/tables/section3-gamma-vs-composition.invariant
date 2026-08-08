@@ -1,0 +1,96 @@
+csv:     section3-gamma-vs-composition.csv
+source:  ../source.pdf p.9 (journal page 308), the unnumbered table in sect. 3
+anchor:  Some values of
+anchor:  reduction
+anchor:  deduced below from curves given by
+
+# THIS TABLE FEEDS SHIPPED CODE. src/arty/fragmentation.py carries gamma = 47
+# for WDSS-1 (interpolated inside the 0.1 C -> 0.25 C segment) and gamma = 65
+# for the legacy grade (anchored just under the 0.45 C row's 67). Both read the
+# gamma column below, and nothing else in this table.
+#
+# TRANSCRIPTION IS VERIFIED. Every cell was read off source.pdf page 9 at
+# 420 dpi during the Phase-2.5 admissibility gate (ledger sect. 17). This
+# supersedes the pre-2026-07-25 OCR, which had gamma(0.1 C) = 32 and labelled
+# the third row 0.2 C; both are wrong and both reached derivation.md before
+# being corrected.
+#
+# carbon_pct IS DERIVED, NOT TRANSCRIBED. The page labels the rows "iron",
+# "steel 0.1 C", "0.25 C", "0.45 C". The 0.0 on the iron row is this repo's
+# reading of "iron" as nominally carbon-free; the page states no number.
+
+# --- what holds -------------------------------------------------------------
+# Three of the five columns are ordered, which is what catches a row swap or an
+# off-by-one read of the interleaved rows.
+monotonic: carbon_pct increasing
+monotonic: reduction_in_area decreasing
+monotonic: P_F_kg_per_mm2 increasing
+monotonic: gamma increasing
+
+# P_2 is NOT monotonic (34, 42, 45, 38) -- the 0.45 C row turns it over. That is
+# on the page; do not "fix" it.
+total: P_2_kg_per_mm2 == 159 within 0.5
+
+# --- the closure, and where it holds -----------------------------------------
+# CORRECTED 2026-08-03. An earlier version of this file stated that the gamma
+# column does not reproduce from the page's own closure under any reading, and
+# that the formula is "nearly FLAT" against a column rising x3.35. That was a
+# statement about the two readings then tested, not about the closure. It is
+# superseded by the sweep in
+#   experiment/fragmentation-field/updates/mott-fragment-shape-closure/checks/
+#     mott-1947-gamma-column-strain-reading.py
+# and the verdict in that update's rebaseline-verdict.md sect. 1.
+#
+# The page states its own closure two lines above the table:
+#
+#     gamma ~ 160 P_2 / P_F (1 + s_F)
+#
+# with P_F "the true stress and s_F the plastic strain at fracture" (p. 307,
+# anchor "where P_F is the true stress"). The table tabulates P_2, P_F and a
+# "reduction in area" column, and the sentence introducing it says values "of
+# P_2, P_F, s_F have been deduced below" -- so reduction in area is the
+# tabulated stand-in for s_F. How RA maps to s_F is a free choice the page does
+# not fix, and the choice decides whether the column closes.
+#
+# IT CLOSES ON THREE ROWS OF FOUR. Reading s_F as the engineering fracture
+# strain under constant volume, s_F = RA/(1-RA), and evaluating the denominator
+# as s_F where the printed formula reads (1+s_F):
+#
+#     iron    20.6 vs 20   (+3.2 %)
+#     0.1 C   41.1 vs 42   (-2.0 %)
+#     0.25 C  52.9 vs 53   (-0.3 %)
+#     0.45 C  55.9 vs 67   (-16.5 %)   <-- the only genuine non-closure
+#
+# Three consecutive rows to within 3.2 % on a formula with no free parameter is
+# not coincidence: the column IS computed from the tabulated P_2, P_F and RA.
+# (The three readings that do NOT close, kept because ruling them out is what
+# localises the defect: s_F = RA gives 55.0/56.5/55.2/47.2; s_F = ln(1/(1-RA))
+# gives 36.3/43.6/45.1/40.2; 1+s_F = 1/(1-RA) gives 17.1/28.8/33.3/31.9.)
+#
+# THE DEFECT IS ONE ROW, AND IT IS THE 0.45 C ROW. Two independent indictments,
+# neither resting on the fit above:
+#   - the P_2 column runs 34, 42, 45, 38 -- it breaks its own monotone rise at
+#     exactly the failing row, and P_2 = 45.5 (a monotone continuation) would
+#     reproduce the printed 67 exactly;
+#   - the paper's own stated length law (anchor "Thus a material with a
+#     high-stress") RISES at 0.45 C where sqrt(P_F/gamma) from the printed
+#     column falls monotonically. The printed 0.45 C row contradicts the trend
+#     law Mott states; rows 1-3 do not.
+#
+# CONSEQUENCE FOR CONSUMERS. Rows bracketed by two closing rows are sourced;
+# anything anchored on or above the 0.45 C row is a WORKING VALUE, not a sourced
+# one. gamma = 47 is an interpolation inside the 0.1 C -> 0.25 C segment, both
+# endpoints closing -- SOUND (recomputing the column and re-interpolating gives
+# 46.6 against the shipped 47.1, a 1 % shift, well inside the declared 45-49
+# band). gamma = 65 is anchored just under the 0.45 C row, the one row that
+# fails and the top row, so it has no bracketing row above it -- SHIFTED, and
+# registered blocking against src/arty/fragmentation.py.
+#
+# Not expressible as a passing DSL check (the closure is a per-row arithmetic
+# identity, not a monotonicity or a total), so it lives in the two scripts
+# above. Residuals are pinned in both, so a future re-extraction that moves a
+# digit moves them too. The older script,
+#   experiment/fragmentation-field/challenges/source-data-audit/checks/
+#     mott-1947-gamma-and-length-closure.py
+# has correct residuals for the two readings it tests, but its docstring
+# generalises them to "either reading of s_F" -- registered, see that file.

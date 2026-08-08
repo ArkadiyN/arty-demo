@@ -1,0 +1,23 @@
+csv:     chemical-composition.csv
+source:  ../aisi-1335.md
+anchor:  ## Chemical Composition
+# Live page: https://www.azom.com/article.aspx?ArticleID=6667
+# Anchor on the page: the "Chemical Composition" table, columns "Min (%)" /
+# "Max (%)".  Column order here is lo,hi per element; the CSV is one wide row
+# because the closure below crosses elements, and the DSL evaluates `row:`
+# expressions within a single row.
+#
+# The page prints its elements in the order Fe, Mn, C, Si, S, P.  The repo's
+# extraction (../aisi-1335.md) silently reordered them to C, Fe, Mn, Si, P, S,
+# so no anchor into that file may depend on row position.
+
+# CLOSURE -- iron is the balance element, which is the source's own definition
+# of how the table is constructed, so it closes arithmetically.  Each Fe bound
+# is the complement of the OPPOSITE-extreme sum of every other element: Fe sits
+# at its minimum when the alloying additions are all at their maxima, and at
+# its maximum when they are all at their minima.  That is what makes this a
+# closure rather than a plausibility check -- it crosses both columns and all
+# six elements at once, so a value landing on the wrong element, or on the
+# wrong bound of the right element, breaks one or both legs.
+row: fe_lo + c_hi + mn_hi + si_hi + s_hi + p_hi == 100 within 0.01
+row: fe_hi + c_lo + mn_lo + si_lo + s_lo + p_lo == 100 within 0.005

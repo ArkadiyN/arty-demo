@@ -1,0 +1,35 @@
+csv:     155mm-m107-perforation-1-8in.csv
+source:  ../source.pdf p.93 = report page 79 (RIGHT table of the pair)
+anchor:  TABLE 57
+anchor:  PERFORATION OF
+anchor:  INITIAL FRAGMENT VELOCITY 3,500 F/S
+anchor:  # 155-MM N.E. SHELL, M107
+
+# VERIFIED AGAINST THE PAGE IMAGE, 2026-08-02. All 60 cells were read off a
+# 200-dpi render of source.pdf p.93 and match this CSV exactly; the caption
+# "TABLE 57 / PERFORATION OF 1/8 IN. MILD STEEL" is printed above this table in
+# the right half of the page. This is the largest of the six tables and the one
+# whose text layer is most damaged (the OCR renders the caption "PERFORATION OF
+# Vg IN. ~ILD STEEL"), which is precisely why the page image, not the text
+# layer, is the authority.
+#
+# Criterion: PERFORATION OF 1/8-IN. MILD STEEL. No energy closure exists --
+# 1/2 m v^2 runs 248-1146 ft-lb across these rows. Identity was by elimination
+# against 155mm-m107-casualties.csv, and is now also direct from the page
+# geometry; see 75mm-m48-perforation-1-8in.invariant for the full admissibility
+# note and why monotonicity is NOT a column-identity test.
+#
+# CROSS-SHELL CLOSURE: (m, v) here is identical to 105mm-m1-perforation-1-8in
+# on all 11 shared ranges -- both shells fire at 3,500 f/s and (m, v) is a
+# single-fragment ballistics result independent of shell size. This pair closes
+# exactly, unlike the casualties pair (see 155mm-m107-casualties.invariant).
+# Checked by checks/ordnance-1944-page-geometry.py.
+#
+# This column carries one more range step (400 ft) than its casualties partner
+# stops at (600 ft on a coarser grid) -- the pair goes ragged at the tail, so
+# row i of one file is NOT row i of the other beyond r=200 ft.
+monotonic:  r_ft increasing
+monotonic:  N non-increasing
+monotonic:  B non-increasing
+monotonic:  m_oz non-decreasing
+monotonic:  v_fps non-increasing

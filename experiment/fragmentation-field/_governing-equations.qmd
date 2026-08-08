@@ -204,10 +204,22 @@ presenting less area than a sphere. Validation: the adopted constant reproduces
 the source's own $L_1 = 247$ m/kg$^{1/3}$ to 2.4 % (an air-density convention),
 and cuts the RMS log-velocity error against the 1944 Ordnance
 $(m, r, v)$ tables from 0.710 to 0.092 over arrival Mach $> 0.7$
-(`updates/mach-dependent-fragment-drag/derivation.md` V1–V2). A
-Mach-dependent $C_D(M)$ was tested against the same data and **rejected** — it
-does not beat the constant (RMS 0.072 vs 0.047) and would replace the closed
-form with a per-fragment ODE (ibid. §5). Residual limitations: #7.
+(`updates/mach-dependent-fragment-drag/derivation.md` V1–V2; re-run per column
+on the corrected tables the RMS is 0.755 → 0.096 on casualties and
+0.679 → 0.098 on perforation, passing the ≤ 0.10 bar on each criterion
+separately rather than on a mixture — `rebaseline-verdict.md` C7).
+
+A Mach-dependent $C_D(M)$ was tested against the same data and **rejected**,
+but *not* because it fits worse — it fits better, by ~20–25% RMS once both laws
+are given the same scale freedom. It is rejected because both land inside the
+±10% arrival-velocity bar over the lethal-relevant band (constant 7.1%,
+Mach-dependent 5.3%), making the difference immaterial at the stated fidelity
+target, while adopting it would replace the closed form with a per-fragment ODE
+march. The earlier "does not beat the constant (RMS 0.072 vs 0.047)" reading
+published here was computed from a superseded Figure-3 digitization and a
+mixed-column velocity set, and is **withdrawn** (`rebaseline-verdict.md` C11).
+Residual limitations: #7, and #15 for the speed-dependence the constant does
+not represent.
 
 ### 5 · Kinetic Energy and Fragmentation Field
 

@@ -1,0 +1,25 @@
+csv:     table-10-coupon-selection.csv
+source:  ../mil-s-10520d-projectile-steel.md
+anchor:  TABLE X. Selection of test coupons
+
+# The closure a bracketed-limit table carries is not down the whole column —
+# the yield brackets restart at every projectile-size class. Both checks below
+# are per-group, and both were hand-rolled in
+# experiment/fragmentation-field/challenges/source-data-audit/checks/mil-s-10520d-closures.py
+# before the DSL could express them (ledger 20g).
+
+# The source prints each bracket as "Over X to Y, incl.", so consecutive
+# brackets must share an endpoint: that is what makes the table total over its
+# stated yield domain. A gap or overlap is what a row read one step out of
+# position looks like here.
+tiling:     projectile_size_class yield_lo_psi yield_hi_psi
+
+# Para 4.5.1: the coupon stands in for the projectile wall, and a higher yield
+# is reached by quenching a thinner section — so within one size class the
+# coupon diameter falls as the yield bracket climbs. This is the check that
+# catches the diameter column being read out of step, which is otherwise
+# invisible because every individual diameter is plausible.
+monotonic:  coupon_diam_in decreasing by projectile_size_class
+
+# Coupon length is a single printed value throughout, so it has no ordering to
+# check; it is covered by the fidelity script's per-cell comparison instead.

@@ -1,0 +1,20 @@
+csv:     discussion-parameter-ranges.csv
+source:  ../source.pdf
+anchor:  9. DISCUSSION AND CONCLUSIONS
+# The lettered list under "The fragment trajectory data presented in this
+# report includes the following parameter ranges:".  Items b (materials) and
+# h-j (site conditions) are not ranges and live in
+# site-and-material-constants.csv instead.
+
+# Ordering only: every declared range must be non-empty in the printed lo/hi
+# order.  This is the ONLY relation internal to this table -- it is a sanity
+# check, not a closure, and is declared as such per
+# .claude/rules/source-data-fidelity.md rather than dressed up as one.  The
+# substantive closures for these same quantities are cross-table and live in
+# site-and-material-constants.invariant, which is what actually admits the
+# density and velocity rows.
+#
+# The drag-coefficient row (item e) has NO closure available anywhere in the
+# document: SAND92-0243 states the range but never the Cd(V) function, which it
+# delegates to Ref. 1 (SAND91-0277, not held).  See card.md.
+row: (hi >= lo) == 1 within 0

@@ -43,7 +43,7 @@ Read from source (not cards):
 | `γ ≡ α^{-2/3}γ′`, then eq. (7) ≡ eq. (16) — the shape-absorbed form the code uses | Gold eqs. (6)-(7), (16) |
 | `μ` is **one half the average fragment mass**; `N₀ = M/2μ` | Gold line 54. So the closure is exactly `mean mass = ρ·l₀·x₀·t₀`, and the code's `N₀ = M/2μ` is **correct** (Gold's own eq. (17) `N₀ = m/μ` contradicts his line 54 and is a typo — do not follow it) |
 | Gold's `γ` is **calibrated against explosive CJ pressure**, not composition; he runs `γ = 50` for HF-1/Comp-B and 20–50 across regions | lines 190, 212, 218 |
-| Mott's own statistic: fragment lengths mostly `x₀…2x₀`, **average ≈ 1.5x₀** | Mott 1947 finding (1), `…gurney-equations-fragmentation/rspa.1947.0042.md:190` |
+| Mott's own statistic: fragment lengths mostly `x₀…2x₀`, **average ≈ 1.5x₀** | Mott 1947 finding (1), `…gurney-equations-fragmentation/`, p.305, anchor `The fragments have lengths most of which lie` |
 | Mott's `x₀` is a *circumferential* spacing from a 1-D ruled-line simulation; he never converts it to a mass | Mott lines 156-187 |
 | **Thin-case fragments retain the casing thickness**; Mott's engineering closure `M_A = B_m t^{5/6} d^{1/3}(1+t/d)` with `μ = M_A²`, `N₀ = M/2M_A²` | `…explosion-fragment-model/1-s2.0-S221491472030502X-main.md:34` — this **resolves ledger §4 item 3's caveat**: the form *is* in `doc-reference/`. `B_m` values are not (referred out to Needham, *Blastwaves*) |
 | Fragment aspect ratio (width:length) **1:1.6** from three independent datasets (Mott's own distribution, Grady, Hiroe); corroborated by Wilson 1:1.65 (W-alloy) and Grady 1:1.5 (AERMET-100). Cuboid, mean length 1.1 cm | same file, §2.5, §4.1.3, §5 (lines 51, 137, 5-conclusions) |

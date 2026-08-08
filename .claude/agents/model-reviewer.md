@@ -11,6 +11,12 @@ description: >-
 
 ## Review Checklist
 
+**First turn, before reviewing anything:** run
+`uv run python src/utils/collect-findings.py --for <the folder or file under review>`. Each hit is a defect already diagnosed and deferred. A pass that
+left an open `blocking` finding on its own scope untouched — and did not say
+why — is itself a Blocking review finding; that is what "deferred" degrading
+into "forgotten" looks like, and catching it is your job, not the register's.
+
 - Dimensional analysis: do all equations resolve to correct units?
 - Boundary cases: zero range, maximum range, grazing angle
 - Parameter ranges: are constants within literature bounds?
@@ -18,6 +24,41 @@ description: >-
 - Physical plausibility: does fragment count/velocity/lethal radius
     make sense for the caliber?
 - Source attribution: is everything evidenced by source references?
+- **Criterion match: does the cited data measure the same quantity the model
+    computes?** For every validation against a source table, check that the
+    table's tabulated criterion is the one the model is being scored on — a
+    model computing one threshold compared against a table listing a different
+    one is **Blocking**, however faithful the transcription. Confirm the check
+    reads its series from `tables/<slug>.csv` rather than a hand-typed literal
+    array, and that the table's `.invariant` passes
+    (`uv run src/utils/check-table-invariants.py <path> --all`). This is the
+    second gate in `.claude/rules/source-data-fidelity.md`; the first
+    (transcription fidelity) is @librarian's and is not your scope.
+- **Comparison protocol: were the candidates given equal freedom?** Where a
+    derivation rejects one model in favour of another, check what each side was
+    allowed to fit. A law evaluated at its *derived* parameters, scored against
+    a rival **fitted to the very data doing the scoring**, is not a comparison,
+    and a conclusion drawn from one is **Blocking** however clean the data is.
+    Check too that the scored dataset is the one the conclusion names. This is
+    not criterion match: there the data is wrong for the question, here the data
+    is right and the protocol decides the answer. One such comparison voided the
+    stated reason for a shipped rejection, and outweighed the wrong-number defect
+    registered against that same conclusion by roughly nine to one
+    (`.claude/incidents.md#unequal-comparison`).
+- **Provenance: does the primary say what it is cited as saying?** The third
+    gate in that rule, and also yours. Where an artifact attributes a claim to
+    a source *through* another source — "Gold (2017), following Mott (1943),
+    takes the breadth:length ratio as constant" — either check the primary or
+    require the artifact to mark the claim **secondhand**. Nothing else catches
+    this: the citing paper's extraction is clean, its digits are correct, and
+    its own closure invariants pass. One source checked this way was
+    contradicted by its primary on one claim of three and unsupported on
+    another.
+- **Interpretive claims must not live in `doc-reference/`.** If a derivation or
+    notebook rests on a `card.md` section telling the reader what to *use* a
+    source for, that claim has bypassed review by sitting in a reference file —
+    flag it and require it to move into `derivation.md`, where you see it. The
+    card states what the source says.
 - Layering: does the `.qmd` contain **no** physics, computation, parameter
     values, or constants? Everything must be imported from `src/arty/` — flag any
     physics that leaked into a notebook cell.
@@ -65,6 +106,15 @@ required, not optional: write it to the aspect's folder —
 dated section on re-review), or next to the challenge notebook for
 Workflow A. This is the **only** project file you may write; everything else
 remains read-only. An inline-only verdict does not complete a review pass.
+
+**Turn budget is tight (25 turns) — write early, don't review-then-write.**
+Create `review.md` within the first turn or two and append each finding as you
+establish it, rather than holding them all for a final write-up turn that
+frequently never arrives. A partial `review.md` carrying real findings is a
+successful pass; zero files written because the budget ran out is a failed one,
+even if you had reached the verdict. If a brief also asks you to write early,
+it is restating this — the instruction stands whether or not the brief repeats
+it.
 
 The review (both the file and your returned summary) contains:
 

@@ -1,0 +1,33 @@
+csv:     table-4-aspect-ratio-distribution.csv
+source:  ../source.pdf p.9 (journal page 167), Table 4
+anchor:  Analysis of fragment size using Figs. 10 and 11
+anchor:  Approximate aspect ratio (width:
+
+# THE DIRECTION OF THE RATIO IS THE POINT. The column head reads "Approximate
+# aspect ratio (width: length)" and section 2.5 states it outright: "The aspect
+# ratio of a fragment is defined as a fragment's width divided by its length."
+# So 1:1.6 means length = 1.6 x width, which is the sense src/arty uses. Get it
+# backwards and every fragment in the model is short and fat instead of long
+# and thin. That is why this table is transcribed rather than the single number
+# read off it.
+
+# Grady's counts here are Table 3's totals -- the two tables must agree.
+total:  grady_n == 2415 within 0.5
+total:  hiroe_n == 264  within 0.5
+
+# Each percentage column is a distribution.
+total:  grady_pct == 100 within 0.5
+total:  hiroe_pct == 100 within 0.5
+total:  mott_pct  == 100 within 0.5
+
+# ...and each is its own count column, rounded to whole percent.
+row:  (grady_n / 24.15 - grady_pct) == 0 within 0.6
+row:  (hiroe_n /  2.64 - hiroe_pct) == 0 within 0.6
+
+# FOOTNOTE a, MADE ARITHMETIC. The Mott column is not Table 2 as printed: Table
+# 2's "<1:1" bin (8%) is excluded and redistributed. The footnote says "8% of
+# fragments need to be added to the amounts. There is assumed to be no increase
+# in the 1:1 ratio." So the retained Table 2 bins must sum to 92, the adjusted
+# column to 100, and the 1:1 bin must be untouched.
+total:  table2_mott_pct == 92 within 0.5
+row:    (mott_pct - table2_mott_pct if aspect_ratio_width_to_length == "1:1" else 0) == 0 within 0.001

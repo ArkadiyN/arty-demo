@@ -1,0 +1,9 @@
+part,drawing_number,piece_mark_number,qty_per_shell,material,spec,commercial_form,lbs_per_shell,lbs_per_100k_shell,other_per_100k_shell
+"Body, Shell",75-4-75,75-4-75A,1,Steel WD-X1335,57-107,Forging,53.9,5390000,
+"Band, Rotating",75-4-75,75-4-75B,1,Gilding Metal,50-27-1,"Seamless Tubing O.D. 4.56"" I.D. 4.15""",0.653,65300,
+"Cover, Base",75-4-75,75-4-75E,1,Steel WD 1010,57-136,"Strips #22 U.S. Gage 3.125"" Wide",0.0852,8520,
+"Screw, Set",75-4-75,75-4-75F,1,Steel,Commercial,,,,
+"Coating, Exterior",,,,Yellow Lacquer Enamel,3-67,,,,500 Gal.
+"Coating, Interior",,,,Acid Proof Black Paint,3-106,,,,250 Gal.
+Stenciling,,,,Black Marking Ink,36-2,,,,2 Gal.
+Packing,,,,Shell Grease,50-11-37,,,,20 Gal.

@@ -1,0 +1,42 @@
+csv:     table-3-fragmentation-damage-criteria.csv
+source:  ../fas-es310-damage-criteria.md
+anchor:  Table 3. Sample damage criteria for fragmentation effects.
+# Live page: https://man.fas.org/dod-101/navy/docs/es310/dam_crit/dam_crit.htm
+# Anchor on the page: the printed caption above, and the column headers
+# "Light Damage (Pk = 0.1)" / "Moderate Damage (Pk = 0.5)" /
+# "Heavy Damage (Pk = 0.9)".  Rows are ordered as printed: personnel,
+# aircraft, armored vehicle.  Energies are in kJ, as the table's own stub
+# column ("Fragment Energy in kJ") states -- the CSV does not convert.
+#
+# WHAT THIS FILE IS NOT.  The relations below are ORDERING checks, declared as
+# such per .claude/rules/source-data-fidelity.md rather than dressed up as a
+# closure.  Table 3 states three independent criteria per target with no
+# arithmetic tying them together, so no relation internal to THIS table can
+# distinguish a right value from a plausible wrong one.
+#
+# The substantive closure for the personnel row is CROSS-TABLE and lives in
+# worked-example-hand-grenade.{csv,invariant} plus
+# experiment/fragmentation-field/challenges/source-data-audit/checks/
+#   es310-worked-example-closure.py
+# -- the page's own hand-grenade arithmetic can only be reproduced from the
+# PERSONNEL row, which is what rules out the column/row inversion this rule
+# exists to catch.  Read that file before trusting this one.
+
+# ORDERING 1 -- energy required rises with damage level, within each target.
+# This is the source's own construction: Pk 0.1 -> 0.5 -> 0.9 is increasing
+# damage, and the table tabulates the energy that achieves it.
+row: (energy_moderate_kJ > energy_light_kJ) + (energy_heavy_kJ > energy_moderate_kJ) == 2 within 0
+
+# ORDERING 2 -- energy required rises with target hardness, down each column,
+# in the printed row order (personnel < aircraft < armored vehicle).  A
+# transposed row would break at least one of the three.
+monotonic: energy_light_kJ increasing
+monotonic: energy_moderate_kJ increasing
+monotonic: energy_heavy_kJ increasing
+
+# ORDERING 3 -- the Pk values are column headers, constant down every column.
+# Carried as data so a swapped or mis-assigned header breaks the sum: 3 x 0.1,
+# 3 x 0.5, 3 x 0.9.  This is bookkeeping, not evidence about the energies.
+total: pk_light == 0.3 within 0.001
+total: pk_moderate == 1.5 within 0.001
+total: pk_heavy == 2.7 within 0.001

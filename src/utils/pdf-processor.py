@@ -5,10 +5,62 @@ import re
 import time
 import base64
 import argparse
+import threading
+import concurrent.futures
 import fitz  # PyMuPDF
 import anthropic
 from PIL import Image, ImageDraw
-from settings import Settings
+from settings import ENV_PATHS, Settings
+
+# A vision run takes minutes and is almost always redirected to a log, which is
+# exactly when Python switches stdout from line- to block-buffered: nothing
+# reaches the file until 8 KB accumulates or the process exits. A long run then
+# looks identical to a hung one, and the operator's only recourse is to wait it
+# out. Line-buffer unconditionally so the log is readable while it is being
+# written. Cheap -- these are a few dozen lines per run, not a hot loop.
+for _stream in (sys.stdout, sys.stderr):
+    # `reconfigure` is a TextIOWrapper method, and sys.stdout is only typed as
+    # TextIO -- under a redirect it is a TextIOWrapper, but a test harness may
+    # substitute a StringIO. Buffering is a nicety, not a requirement, so skip
+    # it rather than fail the run over it.
+    if isinstance(_stream, io.TextIOWrapper):
+        _stream.reconfigure(line_buffering=True)
+
+_RUN_STARTED = time.monotonic()
+_PRINT_LOCK = threading.Lock()
+
+
+def _progress(message):
+    """Print a wall-clocked, elapsed-stamped progress line.
+
+    Every long-running step goes through this rather than bare `print`, because
+    the two questions asked of a stalled run are "how far did it get?" and "how
+    long has it been sitting there?", and a bare line answers neither. The
+    stamps are what let a reader of the finished log tell a slow call from a
+    hung one after the fact, without having been watching.
+
+    Locked because vision chunks run concurrently: without it, two workers
+    finishing together interleave mid-line and the log stops being parseable
+    exactly when it is busiest. Each line already names its page range, so
+    out-of-order lines are still readable -- interleaved characters are not.
+    """
+    elapsed = time.monotonic() - _RUN_STARTED
+    with _PRINT_LOCK:
+        print(f"[{time.strftime('%H:%M:%S')} +{elapsed:6.1f}s] {message}")
+
+
+def _page_range_label(pages):
+    """'p41' / 'pp39-40' / 'pp10,39-41' -- 1-based, matching --pages syntax."""
+    nums = sorted(p.number + 1 for p in pages)
+    parts, start, prev = [], nums[0], nums[0]
+    for n in nums[1:] + [None]:
+        if n != prev + 1:
+            parts.append(str(start) if start == prev else f"{start}-{prev}")
+            start = n
+        prev = n
+    joined = ",".join(parts)
+    return f"p{joined}" if len(nums) == 1 else f"pp{joined}"
+
 
 _DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5"
 # Anthropic SDK strips the leading "/" from paths and appends to base_url.path,
@@ -25,6 +77,21 @@ _FORMULA_PROMPT = (
     "If it is a pure layout schematic or photo with no explicit equations, reply with: [DIAGRAM]"
 )
 
+# Appended to both vision prompts. The observed failure mode was not garbled
+# glyphs but *invented* values in cells the source leaves empty — a table that
+# reads as complete and plausible while carrying numbers that are not on the
+# page. Requiring an explicit marker for both "blank in the source" and
+# "present but unreadable" makes that distinction visible in the output instead
+# of leaving the model to fill the gap silently.
+_TABLE_FIDELITY_RULES = """
+Table fidelity (applies to every table):
+- Transcribe only what is printed. Never infer, interpolate, or complete a value.
+- A cell that is blank in the source must be transcribed as a single dash: -
+- A cell that has content you cannot read with confidence must be transcribed
+  as a single question mark: ?
+- Never substitute a plausible number for a ? or a - .
+"""
+
 # Used by the Anthropic per-page path.
 _PAGE_VISION_PROMPT = """\
 Extract the content of this scanned document page as clean Markdown.
@@ -40,7 +107,7 @@ Rules:
     Insert the exact token [FIGURE] at the location where the illustration appears.
     Append the line [HAS_FIGURE] at the very end of your response.
 - If the page is purely text, tables, or administrative content, omit both tokens.
-
+""" + _TABLE_FIDELITY_RULES + """
 Output Markdown only — no preamble, no commentary."""
 
 # Used by the Google combined-image path.
@@ -61,7 +128,7 @@ Rules:
     Insert [FIGURE] at the location where the illustration appears.
     Append [HAS_FIGURE] at the very end of that page's section.
 - Output all {n} pages in order, even if a page is blank (output the header then a blank line).
-
+""" + _TABLE_FIDELITY_RULES + """
 Output only the page sections — no preamble, no commentary."""
 
 # PyMuPDF ext → MIME type (covers the common cases it returns)
@@ -120,51 +187,99 @@ def _block_to_markdown(block):
 
 
 # ---------------------------------------------------------------------------
-# Client factories — Google first, Anthropic/OpenRouter as fallback
+# Vision client factory — one explicitly selected provider, no fallback
 # ---------------------------------------------------------------------------
 
-def _try_get_google_client():
-    """Return (client, model) if GOOGLE_API_KEY is configured, else None.
+#: `kind` is the request shape, not the vendor: "anthropic" covers OpenRouter
+#: too, because OpenRouter is reached through the Anthropic SDK.
+_VISION_PROVIDERS = ("google", "anthropic", "openrouter")
 
-    A request timeout is required here: without one, an SDK call that stalls
-    server-side (e.g. a slow multimodal response) blocks forever instead of
-    raising, since the underlying httpx client has no default deadline.
-    """
-    from google import genai  # deferred so the package is optional at import time
-    from google.genai import types
-    s = Settings()
-    if not s.google_api_key:
-        return None
-    client = genai.Client(
-        api_key=s.google_api_key,
-        http_options=types.HttpOptions(timeout=s.google_timeout_ms),
+_ENV_VAR_FOR = {
+    "google": "GOOGLE_API_KEY",
+    "anthropic": "ANTHROPIC_API_KEY",
+    "openrouter": "OPENROUTER_API_KEY",
+}
+
+
+def _no_credentials(provider):
+    searched = "\n".join(
+        f"  {p}  {'(found)' if p.exists() else '(absent)'}" for p in ENV_PATHS
     )
-    return client, s.google_model
+    return SystemExit(
+        f"Error: vision provider '{provider}' selected but {_ENV_VAR_FOR[provider]} "
+        f"is not set.\nSet it, or select another provider with --provider "
+        f"({'|'.join(_VISION_PROVIDERS)}) or VISION_PROVIDER.\n"
+        f".env files searched, in precedence order:\n{searched}"
+    )
 
 
-def _get_anthropic_client():
-    """Return (client, model). Priority: ANTHROPIC_API_KEY → OPENROUTER_API_KEY.
+def _assert_google_model_usable(client, model):
+    """Fail at startup on a retired/unusable model id, not mid-document.
+
+    `gemini-2.5-flash` 404s for this project's key ("no longer available to new
+    users") — but only on `generate_content`. `models.get` returns its metadata
+    happily, so a listing probe reports the model as fine and the run dies
+    pages later, after the document has been opened and rendered. The probe has
+    to be the same call the extraction makes; a one-token prompt is the
+    cheapest form of it.
+    """
+    from google.genai import errors
+    try:
+        client.models.generate_content(model=model, contents="ping")
+    except errors.ClientError as e:
+        raise SystemExit(
+            f"Error: Google model '{model}' is not usable with this API key:\n  {e}\n"
+            "Set GOOGLE_MODEL to a current id (default: gemma-4-31b-it)."
+        ) from e
+
+
+def _get_vision_client(provider):
+    """Return (kind, client, model) for the explicitly selected provider.
+
+    There is deliberately **no fallback**. The previous `Google → except →
+    Anthropic` chain turned any Google failure — a transient 503, a retired
+    model id, a missing key — into a silent switch to a paid per-page path,
+    with a one-line print as the only signal. A configured provider that fails
+    must fail loudly.
 
     OAuth tokens (sk-ant-oat01-*) are rejected by api.anthropic.com and are
     never attempted here.
     """
     s = Settings()
-    if s.anthropic_api_key:
-        return anthropic.Anthropic(api_key=s.anthropic_api_key), _DEFAULT_ANTHROPIC_MODEL
-
-    if s.openrouter_api_key:
-        return (
-            anthropic.Anthropic(
-                api_key=s.openrouter_api_key,
-                base_url=_OPENROUTER_BASE_URL,
-            ),
-            s.openrouter_model,
+    if provider not in _VISION_PROVIDERS:
+        raise SystemExit(
+            f"Error: unknown vision provider '{provider}'. "
+            f"Choose one of: {', '.join(_VISION_PROVIDERS)}."
         )
 
-    raise SystemExit(
-        "Error: No AI credentials found. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, "
-        "or OPENROUTER_API_KEY in .env"
-    )
+    if provider == "google":
+        from google import genai  # deferred so the package is optional at import time
+        from google.genai import types
+        if not s.google_api_key:
+            raise _no_credentials("google")
+        client = genai.Client(
+            api_key=s.google_api_key,
+            # A request timeout is required: without one, an SDK call that
+            # stalls server-side blocks forever instead of raising, since the
+            # underlying httpx client has no default deadline.
+            http_options=types.HttpOptions(timeout=s.google_timeout_ms),
+        )
+        _assert_google_model_usable(client, s.google_model)
+        return "google", client, s.google_model
+
+    if provider == "anthropic":
+        if not s.anthropic_api_key:
+            raise _no_credentials("anthropic")
+        return ("anthropic",
+                anthropic.Anthropic(api_key=s.anthropic_api_key),
+                _DEFAULT_ANTHROPIC_MODEL)
+
+    if not s.openrouter_api_key:
+        raise _no_credentials("openrouter")
+    return ("anthropic",
+            anthropic.Anthropic(api_key=s.openrouter_api_key,
+                                base_url=_OPENROUTER_BASE_URL),
+            s.openrouter_model)
 
 
 # ---------------------------------------------------------------------------
@@ -190,34 +305,70 @@ def _parse_page_spec(spec, n_pages):
     return sorted(pages)
 
 
-def _assert_not_scanned(doc):
-    """Raise if the PDF has no text layer (scanned image-only document)."""
-    scanned = 0
-    for page_num in range(len(doc)):
-        page = doc[page_num]
-        if bool(page.get_text().strip()):
-            continue
-        page_area = page.rect.width * page.rect.height
-        for img_info in page.get_images(full=True):
-            for rect in page.get_image_rects(img_info[0]):
-                if (rect.width * rect.height) / page_area > 0.5:
-                    scanned += 1
-                    break
+# Fraction of a page's area that must be covered by embedded images before the
+# page counts as image-based (its content is in the raster, not the text layer).
+IMAGE_PAGE_COVERAGE = 0.5
+
+# Characters per page below which a text layer is a stamp, not content.  A
+# vendor watermark ("Downloaded from https://www.everyspec.com") is 41.
+MIN_TEXT_CHARS_PER_PAGE = 100
+
+
+def _image_coverage(page):
+    """Fraction of the page area covered by embedded images, summed over rects.
+
+    Summed, not tested one rect at a time: a scan is not always stored as one
+    full-page image.  MIL-S-10520D stores each page as 43-58 horizontal strips,
+    none larger than 3.5% of the page, so a per-rect ">50%" test called every
+    content page text-based and routed 1 of 14 pages to vision -- see
+    _assert_not_scanned for the other half of that failure.
+
+    Overlapping rects would be double-counted; the result is clamped to 1.0.
+    """
+    page_area = page.rect.width * page.rect.height
+    if not page_area:
+        return 0.0
+    total = sum(
+        rect.width * rect.height
+        for img_info in page.get_images(full=True)
+        for rect in page.get_image_rects(img_info[0])
+    )
+    return min(total / page_area, 1.0)
+
+
+def _assert_not_scanned(doc, analyze_formulas=False):
+    """Raise if the PDF is a scan and no vision pass is configured to read it.
+
+    Skipped entirely under --analyze-formulas: reading a scan is precisely what
+    that path is for, so refusing there would reject the documents it exists to
+    handle.
+
+    The text test is a character COUNT, not `bool(text.strip())`.  A stamped
+    watermark puts a few dozen characters on every page of an image-only scan,
+    which is enough to make `bool()` true on all of them -- combined with the
+    per-rect coverage test this let a 14-page specification extract to 14 copies
+    of its watermark and exit 0 reporting success.
+    """
+    if analyze_formulas:
+        return
+    scanned = sum(
+        1
+        for page_num in range(len(doc))
+        if len(doc[page_num].get_text().strip()) < MIN_TEXT_CHARS_PER_PAGE
+        and _image_coverage(doc[page_num]) > IMAGE_PAGE_COVERAGE
+    )
     if scanned / len(doc) > 0.3:
         raise SystemExit(
-            f"Error: PDF appears to be scanned ({scanned}/{len(doc)} pages have no text "
-            "layer). Run OCR before processing."
+            f"Error: PDF appears to be scanned ({scanned}/{len(doc)} pages carry "
+            f"under {MIN_TEXT_CHARS_PER_PAGE} characters of text over an embedded "
+            "image). Re-run with --analyze-formulas to read it with vision, or OCR "
+            "it first."
         )
 
 
 def _page_is_image_based(page):
-    """True when the page stores its content as a full-page embedded image."""
-    page_area = page.rect.width * page.rect.height
-    for img_info in page.get_images(full=True):
-        for rect in page.get_image_rects(img_info[0]):
-            if (rect.width * rect.height) / page_area > 0.5:
-                return True
-    return False
+    """True when the page's content is carried by embedded images, not text."""
+    return _image_coverage(page) > IMAGE_PAGE_COVERAGE
 
 
 def _render_page_jpeg(page, dpi=150):
@@ -242,13 +393,27 @@ def _get_fullpage_image(page):
 # Google combined-image vision
 # ---------------------------------------------------------------------------
 
-def _render_pages_combined(pages, dpi=60):
+#: DPI used for the stacked combined image. Raising it does not improve
+#: transcription accuracy (dpi=200 scored no better than dpi=60 on the Tolch
+#: base-spray table); page *count* per call is the variable that matters.
+_COMBINED_DPI = 60
+
+#: Longest edge the vision API accepts before downscaling server-side. A stack
+#: taller than this is silently resized, so the pages the model actually sees
+#: are lower-resolution than the ones that were rendered.
+_MAX_COMBINED_PX = 3072
+
+#: Height of the blue "PAGE N" separator bar drawn above each stacked page.
+_SEPARATOR_H = 30
+
+
+def _render_pages_combined(pages, dpi=_COMBINED_DPI):
     """Render a list of fitz pages into one tall JPEG with blue PAGE N separator bars.
 
     Returns JPEG bytes. The separator bars are 30 px tall and labeled "PAGE N"
     so the vision model can identify page boundaries.
     """
-    SEP_H = 30
+    SEP_H = _SEPARATOR_H
     SEP_COLOR = (30, 80, 200)
     TEXT_COLOR = (255, 255, 255)
 
@@ -299,20 +464,121 @@ def _parse_page_vision_response(text, n_pages):
     return results
 
 
+def _warn_if_table_has_no_fidelity_markers(page_idx, page_md):
+    """Flag a transcribed table that emitted neither a `?` nor a `-` cell.
+
+    Both vision prompts require `?` for an unreadable cell and `-` for one the
+    source leaves blank. A table page that came back with every cell populated
+    and neither marker anywhere is the signature of the observed failure —
+    values invented for cells that are empty on the page. It is not proof of a
+    defect (a genuinely complete table looks the same), so this warns rather
+    than raising; the closure invariant in `.claude/rules/source-data-fidelity.md`
+    is what actually decides admissibility.
+    """
+    rows = [ln for ln in page_md.splitlines() if ln.count("|") >= 2]
+    if len(rows) < 3:
+        return
+    cells = [c.strip() for row in rows for c in row.split("|")]
+    if any(c in ("?", "-", "--", "—", "–") for c in cells):
+        return
+    print(f"  Page {page_idx + 1}: CAUTION — transcribed a {len(rows)}-row table with no "
+          "'?' (unreadable) or '-' (blank) cells. Verify against the source page "
+          "before citing; every cell being filled is what an invented value looks like.")
+
+
 class _EmptyVisionResponse(Exception):
     """Raised when Google returns no text part (retryable, like a ServerError)."""
 
 
-# Pages per Google vision request. Keeps each request comfortably inside
-# GOOGLE_TIMEOUT_MS (a full-document combined image can take longer to
-# transcribe than the timeout allows, which silently degrades the whole
-# document to the slow per-page Anthropic fallback) and bounds the output-
-# budget failure mode in _extract_doc_via_vision_google_chunk to one batch
-# instead of the whole document.
-_DEFAULT_VISION_CHUNK_SIZE = 8
+# Pages per Google vision request.
+#
+# One. Page stacking is the established cause of the transcription failures
+# this default exists to prevent: on the Tolch base-spray table, a single-page
+# call at dpi=60 scored 18/18 ground-truth cells, the shipped 8-page stack
+# scored 5/18 and returned the exact wrong value that reached the repo, and
+# even a 3-page stack already cost 2 of 18 cells. Neither the model tier nor
+# the raster resolution moved those numbers (`checks/vision-provider-probe.py`).
+#
+# Stacking remains available via --vision-chunk-size for prose-only documents,
+# where it demonstrably works and is much cheaper. It must never be the default
+# for a document with tables, and a document's tables are not known in advance.
+_DEFAULT_VISION_CHUNK_SIZE = 1
+
+# Chunks in flight at once.
+#
+# Chunk size is pinned at 1 for correctness (above), which turns a document into
+# one request per page -- and a request costs ~145 s of pure waiting on the free
+# Gemma tier, measured. Serially that is ~17 min for 7 pages and over two hours
+# for a 56-page report, essentially all of it idle. The requests are independent
+# (each carries its own image and its own prompt, and results are reassembled by
+# index), so the only reason to serialize them is quota.
+#
+# The quota is 30 requests/minute, which the pacing gate below enforces directly;
+# the worker count is a second, blunter bound on how much is outstanding at once.
+# 8 is deliberately well under 30: at ~145 s/request the gate never binds at this
+# width (8 requests per 145 s is ~3.3/min), so the width is doing the work and
+# the gate is there for the case where responses come back fast.
+_DEFAULT_VISION_CONCURRENCY = 8
+
+# Google's free-tier limit for the Gemma models this pipeline defaults to.
+_GOOGLE_RPM_LIMIT = 30
+
+# PyMuPDF is not thread-safe across concurrent access to one document, and every
+# worker renders its own pages from the shared `fitz.Document`. Rendering is
+# local and fast (~0.1 s/page) next to a ~145 s API call, so serializing it costs
+# nothing measurable while the part that actually takes the time runs wide.
+_RENDER_LOCK = threading.Lock()
 
 
-def _extract_doc_via_vision_google_chunk(pages, client, model):
+class _RateLimiter:
+    """Sliding-window request pacer -- at most `per_minute` starts in any 60 s.
+
+    Retries and halved sub-chunks go through the same gate as first attempts,
+    because the quota counts requests, not chunks. A limiter that only saw the
+    happy path would let a retry storm breach the quota precisely when the API
+    is already unhappy.
+    """
+
+    def __init__(self, per_minute):
+        self._per_minute = per_minute
+        self._starts = []
+        self._lock = threading.Lock()
+
+    def acquire(self):
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                self._starts = [t for t in self._starts if now - t < 60.0]
+                if len(self._starts) < self._per_minute:
+                    self._starts.append(now)
+                    return
+                wait_s = 60.0 - (now - self._starts[0]) + 0.05
+            _progress(f"  rate limit: {self._per_minute}/min reached, "
+                      f"holding {wait_s:.1f}s")
+            time.sleep(wait_s)
+
+
+def _bounded_chunk_size(pages, requested):
+    """Clamp `requested` so the stacked image never exceeds _MAX_COMBINED_PX.
+
+    Above that height the API downscales the stack server-side, so the model
+    reads pages at a lower resolution than was rendered — a quality loss with
+    no visible symptom. Derived from the actual rendered page height rather
+    than assumed, since page geometry varies by document.
+    """
+    if requested <= 1 or not pages:
+        return max(1, requested)
+    pm = pages[0].get_pixmap(dpi=_COMBINED_DPI)
+    per_page_px = pm.height + _SEPARATOR_H
+    allowed = max(1, _MAX_COMBINED_PX // per_page_px)
+    if allowed < requested:
+        print(f"  Capping vision chunk size {requested} -> {allowed} "
+              f"({per_page_px} px/page at dpi={_COMBINED_DPI}; "
+              f"max combined edge {_MAX_COMBINED_PX} px)")
+    return min(requested, allowed)
+
+
+def _extract_doc_via_vision_google_chunk(pages, client, model, limiter=None):
     """Send one batch of pages as a combined image to Google; return per-page (md, has_figure).
 
     pages: ordered list of fitz.Page objects (the image-based pages only).
@@ -325,16 +591,37 @@ def _extract_doc_via_vision_google_chunk(pages, client, model):
     half and retry each half fresh (smaller combined image, less to
     transcribe, comfortably faster) instead of giving up or resending the
     same oversized request a 4th time.
+
+    `httpx.TimeoutException` is caught alongside the server errors because it
+    is that same deadline seen from the client end: the SDK's own
+    `timeout=GOOGLE_TIMEOUT_MS` firing before the server replies. Whether the
+    deadline is enforced by the server (504) or locally (ReadTimeout) is an
+    accident of which side gives up first, so the remedy has to be the same —
+    retry, then halve. Leaving it uncaught made it the one transient failure
+    that killed a whole document: a 14-page MIL-S-10520D run died on a single
+    ReadTimeout after transcribing most of it, discarding every completed
+    chunk.
+
+    Runs on a worker thread. `limiter`, if given, gates every request start
+    (including retries and halved sub-chunks) against the provider's RPM quota;
+    rendering takes `_RENDER_LOCK` because PyMuPDF is not thread-safe.
     """
+    import httpx
     from google.genai import types, errors
 
     n = len(pages)
-    combined_bytes = _render_pages_combined(pages)
+    with _RENDER_LOCK:
+        combined_bytes = _render_pages_combined(pages)
+        label = _page_range_label(pages)
     prompt = _DOC_VISION_PROMPT.format(n=n)
 
-    print(f"  Sending {n} pages as combined image to Google ({model})...")
+    _progress(f"  {label}: sending {n} page(s), "
+              f"{len(combined_bytes) / 1024:.0f} KiB jpeg -> Google ({model})")
     max_attempts = 3
     for attempt in range(1, max_attempts + 1):
+        if limiter is not None:
+            limiter.acquire()
+        call_started = time.monotonic()
         try:
             response = client.models.generate_content(
                 model=model,
@@ -349,50 +636,91 @@ def _extract_doc_via_vision_google_chunk(pages, client, model):
                 # response.text then comes back None with no exception raised.
                 # Retrying is usually enough to get a real answer.
                 raise _EmptyVisionResponse("no text part returned")
-            return _parse_page_vision_response(response.text, n)
-        except (errors.ServerError, _EmptyVisionResponse) as e:
+            parsed = _parse_page_vision_response(response.text, n)
+            _progress(f"  {label}: returned {len(response.text):,} chars in "
+                      f"{time.monotonic() - call_started:.1f}s (attempt {attempt})")
+            return parsed
+        except (errors.ServerError, _EmptyVisionResponse, httpx.TimeoutException) as e:
+            waited = time.monotonic() - call_started
             if attempt == max_attempts:
                 if n > 1:
                     mid = n // 2
-                    print(f"  Still failing after {max_attempts} attempts at {n} pages "
-                          f"({e}); splitting into {mid}+{n - mid} pages and retrying smaller "
-                          "instead of repeating the same request")
-                    return (_extract_doc_via_vision_google_chunk(pages[:mid], client, model)
-                            + _extract_doc_via_vision_google_chunk(pages[mid:], client, model))
+                    _progress(f"  {label}: still failing after {max_attempts} attempts at "
+                              f"{n} pages ({type(e).__name__}: {e}); splitting into "
+                              f"{mid}+{n - mid} pages and retrying smaller instead of "
+                              "repeating the same request")
+                    return (_extract_doc_via_vision_google_chunk(pages[:mid], client, model, limiter)
+                            + _extract_doc_via_vision_google_chunk(pages[mid:], client, model, limiter))
                 raise
             wait_s = 2 ** attempt
-            print(f"  Google vision call failed ({e}); retrying in {wait_s}s "
-                  f"(attempt {attempt}/{max_attempts})...")
+            _progress(f"  {label}: attempt {attempt}/{max_attempts} failed after "
+                      f"{waited:.1f}s ({type(e).__name__}: {e}); retrying in {wait_s}s")
             time.sleep(wait_s)
 
 
-def _extract_doc_via_vision_google(pages, client, model, chunk_size=_DEFAULT_VISION_CHUNK_SIZE):
+def _extract_doc_via_vision_google(pages, client, model, chunk_size=_DEFAULT_VISION_CHUNK_SIZE,
+                                   concurrency=_DEFAULT_VISION_CONCURRENCY):
     """Send all pages to Google in batches of chunk_size; return per-page (md, has_figure).
 
     pages: ordered list of fitz.Page objects (the image-based pages only).
-    Chunking keeps each request well within the API timeout and the 30
-    req/min quota (an 8-page chunk needs no artificial pacing), and confines
-    the output-budget failure mode to one chunk instead of the whole
-    document. Results are concatenated in input order, so callers see the
-    same shape as a single combined call.
+    Chunking confines the output-budget failure mode to one chunk instead of
+    the whole document. Results are reassembled in input order, so callers see
+    the same shape as a single combined call regardless of completion order.
 
-    A chunk that still fails after its internal retries does NOT abort the
-    whole document: its pages come back as `None` (instead of an (md, has_figure)
-    tuple) so the caller's already-succeeded chunks are still returned, and
-    `generate_markdown`'s existing per-page Anthropic fallback (for pages
-    "missing" from the Google vision_map) picks up the `None` pages the same
-    way it already picks up pages Google never attempted.
+    Chunks are sent **concurrently** (`concurrency` at a time, paced to
+    `_GOOGLE_RPM_LIMIT`). Each request is independent, and at the measured
+    ~145 s per page essentially all of that is idle waiting, so the serial loop
+    this replaces spent a 56-page document's whole runtime -- hours -- blocked
+    on a socket. Ordering is by index, not completion, so a document's pages
+    cannot be transposed by a slow chunk finishing late.
+
+    A chunk that survives neither its retries nor the halving is a hard
+    failure. It used to be swallowed into `None` pages for a cross-provider
+    fallback to pick up; with no fallback, swallowing it would mean silently
+    emitting heuristic text for those pages, which is the class of quiet
+    degradation this pipeline is being hardened against. Abort and name the
+    pages instead -- and, since siblings are in flight, cancel what has not
+    started rather than letting the run keep spending quota on a document that
+    is already going to fail.
     """
-    results = []
-    for start in range(0, len(pages), chunk_size):
-        chunk = pages[start:start + chunk_size]
+    chunk_size = _bounded_chunk_size(pages, chunk_size)
+    chunks = [pages[s:s + chunk_size] for s in range(0, len(pages), chunk_size)]
+    workers = max(1, min(concurrency, len(chunks)))
+    limiter = _RateLimiter(_GOOGLE_RPM_LIMIT)
+    _progress(f"Vision extraction: {len(pages)} page(s) in {len(chunks)} chunk(s) "
+              f"of {chunk_size} ({_page_range_label(pages)}); {workers} in flight, "
+              f"paced to {_GOOGLE_RPM_LIMIT} req/min")
+
+    done = 0
+    results = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = {
+            pool.submit(_extract_doc_via_vision_google_chunk, chunk, client, model, limiter): i
+            for i, chunk in enumerate(chunks)
+        }
         try:
-            results.extend(_extract_doc_via_vision_google_chunk(chunk, client, model))
-        except Exception as e:
-            print(f"  Chunk (pages {start + 1}-{start + len(chunk)}) failed after retries "
-                  f"({e}); leaving for per-page fallback instead of aborting the document")
-            results.extend([None for _ in chunk])
-    return results
+            for future in concurrent.futures.as_completed(futures):
+                i = futures[future]
+                results[i] = future.result()
+                done += 1
+                _progress(f"chunk {done}/{len(chunks)} complete "
+                          f"({_page_range_label(chunks[i])})")
+        except BaseException:
+            for f in futures:
+                f.cancel()
+            raise
+
+    # Keyed by index and reassembled in index order, never completion order --
+    # a slow chunk finishing late must not transpose a document's pages. Every
+    # index is present or the loop above raised, so a missing one is a bug in
+    # this function rather than a failed transcription; say so instead of
+    # silently emitting a short document.
+    missing = [i for i in range(len(chunks)) if i not in results]
+    if missing:
+        raise RuntimeError(
+            f"vision extraction lost chunk(s) {missing} of {len(chunks)} without "
+            "raising — refusing to emit a partial document")
+    return [page_result for i in range(len(chunks)) for page_result in results[i]]
 
 
 # ---------------------------------------------------------------------------
@@ -559,11 +887,13 @@ def _page_to_markdown_heuristic(page, bbox_to_name):
 
 def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False,
                         vision_chunk_size=_DEFAULT_VISION_CHUNK_SIZE,
-                        screenshot_pages=False):
+                        screenshot_pages=False, provider=None,
+                        vision_concurrency=_DEFAULT_VISION_CONCURRENCY):
+    provider = provider or Settings().vision_provider
     doc = fitz.open(pdf_path)
     images_dir = os.path.join(output_dir, "images")
     print(f"Opened PDF: {pdf_path} ({len(doc)} pages)")
-    _assert_not_scanned(doc)
+    _assert_not_scanned(doc, analyze_formulas or screenshot_pages)
 
     if screenshot_pages:
         os.makedirs(images_dir, exist_ok=True)
@@ -581,46 +911,33 @@ def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False,
         os.makedirs(images_dir, exist_ok=True)
         fig_counter = 0
 
-        google = _try_get_google_client()
-        if google:
-            g_client, g_model = google
-            image_pages = [(i, doc[i]) for i in range(len(doc)) if _page_is_image_based(doc[i])]
-            if image_pages:
-                try:
-                    results = _extract_doc_via_vision_google(
-                        [p for _, p in image_pages], g_client, g_model,
-                        chunk_size=vision_chunk_size,
-                    )
-                    for j, (page_idx, page) in enumerate(image_pages):
-                        _, has_figure = results[j]
-                        if has_figure:
-                            fig_counter += 1
-                            img_bytes, img_ext = _get_fullpage_image(page)
-                            name = f"fig{fig_counter}.{img_ext}"
-                            with open(os.path.join(images_dir, name), "wb") as f:
-                                f.write(img_bytes)
-                            print(f"  Page {page_idx + 1}: figure saved as images/{name}")
-                except Exception as e:
-                    print(f"  Google vision failed ({e}), falling back to Anthropic")
-                    google = None
+        kind, client, model = _get_vision_client(provider)
+        print(f"Vision provider: {provider} ({model})")
+        image_pages = [(i, doc[i]) for i in range(len(doc)) if _page_is_image_based(doc[i])]
 
-        if not google:
-            a_client, a_model = _get_anthropic_client()
-            for page_num in range(len(doc)):
-                page = doc[page_num]
-                if _page_is_image_based(page):
-                    print(f"  Page {page_num + 1}/{len(doc)}: checking for figure...")
-                    try:
-                        _, has_figure = _extract_page_via_vision(page, a_client, a_model)
-                        if has_figure:
-                            fig_counter += 1
-                            img_bytes, img_ext = _get_fullpage_image(page)
-                            name = f"fig{fig_counter}.{img_ext}"
-                            with open(os.path.join(images_dir, name), "wb") as f:
-                                f.write(img_bytes)
-                            print(f"    -> Saved: images/{name}")
-                    except anthropic.APIError as e:
-                        print(f"  Page {page_num + 1}: vision failed: {e}")
+        if kind == "google":
+            results = _extract_doc_via_vision_google(
+                [p for _, p in image_pages], client, model,
+                chunk_size=vision_chunk_size,
+                concurrency=vision_concurrency,
+            ) if image_pages else []
+            figure_flags = [(idx, page, results[j][1])
+                            for j, (idx, page) in enumerate(image_pages)]
+        else:
+            figure_flags = []
+            for page_idx, page in image_pages:
+                print(f"  Page {page_idx + 1}/{len(doc)}: checking for figure...")
+                _, has_figure = _extract_page_via_vision(page, client, model)
+                figure_flags.append((page_idx, page, has_figure))
+
+        for page_idx, page, has_figure in figure_flags:
+            if has_figure:
+                fig_counter += 1
+                img_bytes, img_ext = _get_fullpage_image(page)
+                name = f"fig{fig_counter}.{img_ext}"
+                with open(os.path.join(images_dir, name), "wb") as f:
+                    f.write(img_bytes)
+                print(f"  Page {page_idx + 1}: figure saved as images/{name}")
         count = fig_counter
     else:
         _, count = _extract_all_images(doc, images_dir)
@@ -630,16 +947,19 @@ def extract_pdf_images(pdf_path, output_dir="output", analyze_formulas=False,
 
 
 def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
-                       vision_chunk_size=_DEFAULT_VISION_CHUNK_SIZE, pages=None):
+                       vision_chunk_size=_DEFAULT_VISION_CHUNK_SIZE, pages=None,
+                       vision_concurrency=_DEFAULT_VISION_CONCURRENCY,
+                       provider=None):
     """pages: optional 1-indexed page spec (e.g. "40-44") to process only a
     subset — for re-extracting specific pages (garbled tables, broken cmap)
     at vision quality without re-running the whole document. Output lands in
     a separate `<stem>-pNN-NN.md` file so it never clobbers a prior full
     extraction; merge the improved section in by hand."""
+    provider = provider or Settings().vision_provider
     doc = fitz.open(pdf_path)
     images_dir = os.path.join(output_dir, "images")
     print(f"Opened PDF: {pdf_path} ({len(doc)} pages)")
-    _assert_not_scanned(doc)
+    _assert_not_scanned(doc, analyze_formulas)
 
     page_range = _parse_page_spec(pages, len(doc)) if pages else list(range(len(doc)))
 
@@ -663,33 +983,46 @@ def generate_markdown(pdf_path, output_dir="output", analyze_formulas=False,
     if analyze_formulas:
         image_page_indices = [i for i in page_range if _page_is_image_based(doc[i])]
 
-        google = _try_get_google_client()
-        if google and image_page_indices:
-            g_client, g_model = google
-            image_pages = [doc[i] for i in image_page_indices]
-            try:
-                results = _extract_doc_via_vision_google(
-                    image_pages, g_client, g_model, chunk_size=vision_chunk_size,
+        # Say how many pages vision will actually read.  Without this the
+        # routing decision is invisible, and a document whose pages all fall
+        # through to a junk text layer finishes with "Done." and exit 0 --
+        # which is how MIL-S-10520D extracted to 14 copies of its watermark.
+        print(
+            f"Vision routing: {len(image_page_indices)}/{len(page_range)} pages "
+            "are image-based and will be read by vision; the rest use their "
+            "embedded text layer."
+        )
+        if len(image_page_indices) < len(page_range):
+            thin = [
+                i + 1
+                for i in page_range
+                if i not in image_page_indices
+                and len(doc[i].get_text().strip()) < MIN_TEXT_CHARS_PER_PAGE
+            ]
+            if thin:
+                print(
+                    f"  WARNING: pages {thin} were NOT routed to vision yet carry "
+                    f"under {MIN_TEXT_CHARS_PER_PAGE} characters of text. Their "
+                    "content will be missing from the output."
                 )
-                vision_map = {image_page_indices[j]: results[j]
-                              for j in range(len(image_page_indices))
-                              if results[j] is not None}
-            except Exception as e:
-                print(f"  Google vision failed ({e}), falling back to Anthropic")
-                google = None
 
-        # Anthropic fallback for any pages not covered by Google
-        missing = [i for i in image_page_indices if i not in vision_map]
-        if missing:
-            a_client, a_model = _get_anthropic_client()
-            for page_idx in missing:
-                page = doc[page_idx]
-                print(f"  Page {page_idx + 1}/{len(doc)}: vision extraction (Anthropic)...")
-                try:
-                    vision_map[page_idx] = _extract_page_via_vision(page, a_client, a_model)
-                except anthropic.APIError as e:
-                    print(f"  Page {page_idx + 1}: vision failed ({e}), falling back to heuristic")
-                    vision_map[page_idx] = ("", False)
+        if image_page_indices:
+            kind, client, model = _get_vision_client(provider)
+            print(f"Vision provider: {provider} ({model})")
+            if kind == "google":
+                results = _extract_doc_via_vision_google(
+                    [doc[i] for i in image_page_indices], client, model,
+                    chunk_size=vision_chunk_size,
+                    concurrency=vision_concurrency,
+                )
+                vision_map = dict(zip(image_page_indices, results))
+            else:
+                for page_idx in image_page_indices:
+                    print(f"  Page {page_idx + 1}/{len(doc)}: vision extraction ({provider})...")
+                    vision_map[page_idx] = _extract_page_via_vision(doc[page_idx], client, model)
+
+        for page_idx, (page_md, _) in sorted(vision_map.items()):
+            _warn_if_table_has_no_fidelity_markers(page_idx, page_md)
 
     for page_num in page_range:
         page = doc[page_num]
@@ -739,16 +1072,39 @@ def main():
         "--analyze-formulas", "-f", action="store_true",
         help=(
             "Use vision AI for high-quality extraction: clean LaTeX formulas, "
-            "real figures only. Tries Google first, then Anthropic. Requires credentials."
+            "real figures only. Uses the provider named by --provider, with no "
+            "fallback to another provider. Requires that provider's credentials."
+        )
+    )
+    parser.add_argument(
+        "--provider", choices=_VISION_PROVIDERS, default=None,
+        help=(
+            "Vision provider for --analyze-formulas (default: VISION_PROVIDER, "
+            "or 'google'). Selection is explicit and there is no fallback: if the "
+            "chosen provider lacks credentials or fails, the run stops rather than "
+            "silently switching to another (possibly paid) provider."
         )
     )
     parser.add_argument(
         "--vision-chunk-size", type=int, default=_DEFAULT_VISION_CHUNK_SIZE,
         help=(
-            "Pages per Google vision request when --analyze-formulas is set "
-            f"(default: {_DEFAULT_VISION_CHUNK_SIZE}). Lower this for dense/scanned "
-            "documents where a large combined image causes the model to exhaust its "
-            "output budget on internal reasoning instead of transcribing."
+            "Pages stacked into one Google vision request when --analyze-formulas "
+            f"is set (default: {_DEFAULT_VISION_CHUNK_SIZE}). Stacking is measurably "
+            "lossy on tables — 1 page scored 18/18 ground-truth cells where an "
+            "8-page stack scored 5/18 — so raise it only for prose-only documents. "
+            "The value is capped so the stacked image never exceeds the API's "
+            f"{_MAX_COMBINED_PX} px limit and gets downscaled server-side."
+        )
+    )
+    parser.add_argument(
+        "--vision-concurrency", type=int, default=_DEFAULT_VISION_CONCURRENCY,
+        help=(
+            "Vision requests in flight at once "
+            f"(default: {_DEFAULT_VISION_CONCURRENCY}). Requests are independent and "
+            "each spends ~145 s waiting on the API, so this is what decides a "
+            "document's wall clock; results are reassembled by page index, never by "
+            f"completion order. Starts are paced to {_GOOGLE_RPM_LIMIT} req/min "
+            "regardless. Set 1 to serialize, e.g. when debugging a single page."
         )
     )
     parser.add_argument(
@@ -779,11 +1135,15 @@ def main():
 
     if args.markdown:
         generate_markdown(args.pdf, output_dir, analyze_formulas=args.analyze_formulas,
-                           vision_chunk_size=args.vision_chunk_size, pages=args.pages)
+                           vision_chunk_size=args.vision_chunk_size, pages=args.pages,
+                           vision_concurrency=args.vision_concurrency,
+                           provider=args.provider)
     else:
         extract_pdf_images(args.pdf, output_dir, analyze_formulas=args.analyze_formulas,
                             vision_chunk_size=args.vision_chunk_size,
-                            screenshot_pages=args.screenshot_pages)
+                            screenshot_pages=args.screenshot_pages,
+                            vision_concurrency=args.vision_concurrency,
+                            provider=args.provider)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,9 @@
+element,limit_lo,limit_hi,over_max_pct,under_min_pct
+Carbon,,0.25,0.02,0.02
+Carbon,0.25,0.55,0.03,0.03
+Carbon,0.55,,0.04,0.04
+Manganese,,0.90,0.03,0.03
+Manganese,0.90,1.30,0.06,0.06
+Phosphorus,,0.040,0.01,
+Sulfur,,0.05,0.01,
+Silicon,,0.30,0.02,0.02

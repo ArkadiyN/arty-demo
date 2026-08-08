@@ -12,7 +12,7 @@ Script: `experiment/_scratch/mott_scale_check.py`.
 ## 1. The γ/σ_f selection is sound — and cannot be the defect
 
 - σ_f = 800 MPa is better supported than the provenance note credited: Mott's
-    own worked example (rspa.1947.0042.md:201) uses "flow stress in the
+    own worked example (Mott 1947 p.306, anchor `As a numerical example`) uses "flow stress in the
     work-hardened state of 50 tons/sq.in." = **772 MPa**. The code's 800 MPa is
     Mott's own number, not just a bracket endpoint.
 - γ = 65 is on the correct table row (Mott §3 table, line 305-310: 0.45 C →
@@ -78,7 +78,7 @@ recovery 800–3 000 for >0.5 g) is the data row, and the model (2 848 at
 
 Algebraically the implemented μ is
 `μ = ρ·x₀³ / (2 γ^{3/2})` with `x₀ = sqrt(2σ_f/ρ)·r_bu/V₀` — i.e. Mott's own
-circumferential length scale (rspa.1947.0042.md:160, and his x_g = 1.6/√γ in
+circumferential length scale (Mott 1947 p.304, anchor `The length`, and his x₀ = 1.6/√γ — subscript zero, not `g` — in
 example) closed into a mass by assuming the fragment is a **cube of edge
 x₀/√γ**. For the 75mm that edge is 3.9 mm — but the wall is 6.0 mm thick, and
 Tolch's mean recovered fragment (7 g) is ≈12 × 12 × 6 mm.

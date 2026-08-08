@@ -1,0 +1,26 @@
+csv:     table-4-average-aspect-ratios.csv
+source:  ../source.pdf p.9 (journal page 167), Table 4 bottom row
+anchor:  Approximate average ratio
+anchor:  the average of the three results in Tables 4 and 1:1.6 rounded
+
+# THIS IS THE ROW THAT PRODUCES THE SHIPPED CONSTANT. src/arty/fragmentation.py
+# takes _MOTT_ASPECT_RATIO = 1.6 from this paper. The paper's own sentence for
+# it is on the facing page and is garbled in print ("the average of the three
+# results in Tables 4 and 1:1.6 rounded is taken as the starting point"), so the
+# arithmetic is worth pinning rather than trusting the sentence:
+#     (1.58 + 1.66 + 1.48) / 3 = 1.5733 -> 1.6 to one decimal.
+# The sum is the checkable form; check-table-invariants has no mean directive.
+total:  avg_width_to_length == 4.72 within 0.005
+
+# Every value must lie in the band the three bracket, so a transposed digit
+# (1.68 for 1.86, say) that happened to preserve the sum is still caught.
+row:  (0 if 1.45 <= avg_width_to_length <= 1.70 else 1) == 0 within 0.5
+
+# CAVEAT, RECORDED HERE BECAUSE IT CANNOT BE EXPRESSED AS A CHECK. These three
+# are labelled "Approximate average ratio" and do NOT reproduce as count-
+# weighted means of their own columns in table-4-aspect-ratio-distribution.csv:
+# Mott's 59/30/10/1 gives 1.53, not the 1.48 printed; Grady's 1.58 needs the
+# open "1:4 and more" bin weighted near 6. The paper states no weighting rule
+# for the open bin. The shipped 1.6 is exactly what the paper concludes, and
+# the spread of the three (1.48-1.66) is wider than that discrepancy, so this
+# is a transparency note, not a correction. See ledger sect. 16.
