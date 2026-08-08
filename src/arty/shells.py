@@ -15,6 +15,14 @@ SHELLS: dict[str, ShellParams] = {
         wall_t=0.009208,        # 0.3625" min wall from M60 smoke drawing (shared body)
         mass_total=14.97,       # 33 lb complete with fuze
         mass_filler=2.18,       # cast TNT
+        # mass_deductions: fuze+booster. Authorized fuzes (TM-9-1904 p.481/
+        # printed p.473): M48 or M54 w/ M20 or M20A1 Booster. TM-9-1901 sources
+        # fuze-only weight (M48/M54 = 1.41-1.42 lb = 0.640-0.644 kg); M20/M20A1
+        # booster weight is NOT tabulated in TM-9-1901. Value bracketed by
+        # fuze-only (0.640 kg) and fuze+M21A2-booster-analog (2.15 lb = 0.975
+        # kg, a stand-in for the unsourced M20/M20A1); materiality confirmed
+        # <=0.2% N0 shift across this range — see
+        # experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md
         mass_deductions=0.75,
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
@@ -36,6 +44,15 @@ SHELLS: dict[str, ShellParams] = {
         wall_t=0.014288,        # 0.5625" min wall from manufacturing drawing
         mass_total=43.09,       # 95 lb complete with fuze (1943 spec)
         mass_filler=6.863,      # 15.13 lb cast TNT (1943 spec)
+        # mass_deductions: fuze+booster+rotating band+base plug (estimate).
+        # Authorized fuzes (TM-9-1904 p.529/printed p.521): P.D. M51 w/ M21
+        # Booster or M51A1 w/ M21A1 Booster. TM-9-1901 only tabulates the
+        # superseding pair M51A3 w/ M21A2 = 2.15 lb = 0.975 kg (fuze+booster
+        # only, no band/plug); M51/M21 and M51A1/M21A1 weights are not
+        # directly sourced (expected close by within-family analogy, see
+        # doc-reference/ww2-shells/tm-9-1901-artillery-ammunition/card.md).
+        # Materiality confirmed <=0.2% N0 shift across the sourced range —
+        # see experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md
         mass_deductions=1.5,    # fuze + rotating band + base plug (estimate)
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],

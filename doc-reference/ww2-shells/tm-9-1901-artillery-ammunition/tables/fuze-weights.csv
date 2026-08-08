@@ -1,0 +1,9 @@
+Fuze Model,Configuration,Weight (lb),Booster Model,Notes
+M48,Fuze only,1.41,,Superquick/delay; delay 0.05 sec
+M48A1,Fuze only,1.41,,Superquick/delay; delay 0.15 sec
+M48A2,Fuze only,1.41,,Superquick/delay; switchable 0.05 or 0.15 sec delay
+M51A3,With booster,2.15,M21A2,Superquick/time; total weight includes booster
+M54,Fuze only,1.42,,Selective superquick/time (to 25 sec); same size/shape as M48
+M55A2,With booster,2.16,M21A2,Identical to M54 with M21A2 booster attached
+M55A1,With booster,2.16,M21A1,Identical to M54 with M21A1 booster attached
+M55,With booster,2.16,M21,Identical to M54 with M21 booster attached

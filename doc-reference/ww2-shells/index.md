@@ -480,4 +480,20 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
+## 7. Fuze Compatibility Data
+
+### 7.1 TM 9-1904: Fuze Fitting Reference
+
+**Reference Document:** TM 9-1904, Artillery Ammunition (U.S. Army Technical Manual)
+
+**Status:** Fuze compatibility data extracted for shell registry lookup
+
+**See:** `doc-reference/ww2-shells/tm-9-1904-fuze-fitting/` for full extraction
+
+- **105-mm Howitzer Shell M1 (Semifixed, H.E.)**: Authorized fuzes are M48 Fuze and M54 Fuze, both fitted with M20 or M20A1 Booster. Source: TM 9-1904 printed page 473 (PDF page 481).
+
+- **155-mm Howitzer Shell M107 (H.E., for M1 Howitzer)**: Authorized fuze combinations are (1) P.D. M51 Fuze with M21 Booster and (2) P.D. M51A1 Fuze with M21A1 Booster. Source: TM 9-1904 printed page 521 (PDF page 529).
+
+______________________________________________________________________
+
 **End of Report**
