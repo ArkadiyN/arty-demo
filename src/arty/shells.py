@@ -55,9 +55,16 @@ SHELLS: dict[str, ShellParams] = {
     "75mm M48 HE": ShellParams(
         caliber=0.075,
         wall_t=0.006,                # estimate; caliber-scaled from M1 (needs confirmation)
-        mass_total=6.622,            # 14.6 lb complete with M48 PD fuze
-        mass_filler=0.6668,          # 1.47 lb cast TNT
-        mass_deductions=0.200,       # M48 PD fuze placeholder (TM 43-0001-28)
+        # Mass triple from ONE measured lot — Tolch (1938) round 1/2 per-round
+        # weight row, doc-reference/.../tolch-1938/tables/round-weights.csv:
+        # 12.50 lb loaded unfuzed - 1.56 lb TNT + 2.35 lb M39 P.D. fuze
+        # = 14.85 lb fuzed, so M_case = 12.50 - 1.56 = 10.94 lb = 4.9623 kg
+        # exactly. Do not mix with the TM-era catalog row (14.6 lb / 1.47 lb):
+        # its closure was accidental and put M_case 16% high.
+        # updates/shell-case-mass-basis/derivation.md §2, §4 (Option B).
+        mass_total=6.735847,         # 14.85 lb complete with M39 P.D. fuze
+        mass_filler=0.707604,        # 1.56 lb cast TNT
+        mass_deductions=1.065942,    # 2.35 lb M39 P.D. fuze (Tolch 1938)
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
         # Tier-2: inner-arc radius unknown; outer geometry from Handbook of

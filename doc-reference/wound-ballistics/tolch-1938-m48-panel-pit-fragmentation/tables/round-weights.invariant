@@ -1,0 +1,62 @@
+csv:     round-weights.csv
+source:  report page -5- (facing page of the averaged screen table on -6-); DTIC AD0702233
+anchor:  Pack Howitzer Complete Rounds, Shell Lot 276I-3
+anchor:  Wt. loaded unfuzed shell
+
+# Tolch (1938), BRL Report 126 -- per-round weight breakdown for the four
+# rounds of the sand-pit fragmentation test, 75 mm T3 (M48) HE shell fired
+# from the 75 mm pack howitzer, shell lot 2761-3. All weights in pounds.
+#
+# SHELL IDENTITY: the report title is "FRAGMENTATION EFFECTS OF THE 75MM
+# H.E. SHELL T3 (M48)" -- T3 is the developmental designation of the M48,
+# not a different projectile.
+#
+# COLUMN DEFINITIONS (verbatim source row labels):
+#   loaded_unfuzed_lb  "Wt. loaded unfuzed shell"      = case metal + TNT
+#   fuze_lb            "Fuze (M39 P.D.) Wt., lbs."
+#   tnt_lb             "Wt. of TNT charge (ave.), lbs."
+#   empty_and_fuze_lb  "Wt. empty shell & fuze, lbs."  = case metal + fuze
+#
+# CLOSURE INVARIANT -- from the source's own row labels, on every round:
+#
+#   loaded_unfuzed - tnt + fuze == empty_and_fuze
+#
+# i.e. remove the filler from the loaded unfuzed shell and add the fuze.
+# Non-vacuous: all four columns are separately typeset in the source, and
+# the fourth is not a subtotal of a printed column but a cross-row identity.
+#
+#   Rd 1/2: 12.50 - 1.56 + 2.35 = 13.29  (printed 13.29)
+#   Rd 3:   12.47 - 1.56 + 2.35 = 13.26  (printed 13.26)
+#   Rd 4:   12.53 - 1.56 + 2.36 = 13.33  (printed 13.33)
+#
+# WHY THE CLOSURE MATTERS HERE: the scan is damaged on this table. The OCR
+# in tolch-1938.md:232 renders round 3's loaded weight as "12.^7", the TNT
+# row as "I.56 I.56 1.5b I.56", and the round-4 column header as "^". The
+# closure recovers 12.47 / 1.56 / round-4 uniquely -- no other single-digit
+# reading of the damaged glyphs satisfies it on all four rounds. The digits
+# below are closure-recovered, not eyeballed.
+#
+# CROSS-CHECK against the neighbouring table: pit-screen-recovery.invariant
+# divides its `pct_empty` column by 13.29 lb, described there as the mean of
+# the four `empty_and_fuze_lb` values in THIS table. mean(13.29, 13.29,
+# 13.26, 13.33) = 13.2925 -> 13.29. The two transcriptions agree.
+#
+# DERIVED, NOT TRANSCRIBED (do not add as columns; see the consumer below):
+#   case metal (empty UNFUZED shell) = loaded_unfuzed - tnt = 10.94 lb
+#                                                            = 4.9623 kg
+#   complete fuzed round             = loaded_unfuzed + fuze = 14.85 lb
+#
+# WARNING -- `empty_and_fuze_lb` (13.29 lb = 6028 g) IS NOT CASE METAL. It
+# is the fuzed empty projectile and is the basis Tolch's own recovery
+# percentages are quoted against (pit-screen-recovery.csv `pct_empty`).
+# Case metal driven by the explosive column is 10.94 lb = 4962 g.
+#
+# CONSUMER: experiment/fragmentation-field/updates/shell-case-mass-basis/
+# derivation.md (rebases the 75mm M48 registry row in src/arty/shells.py on
+# this table) and its checks/tolch-round-weight-closure.py.
+#
+# NOT RETAINED: source.pdf is absent from this directory (as it is for the
+# sibling tables), so page-level re-verification is currently against
+# tolch-1938.md only. Flagged in the consumer's derivation.md.
+
+row:    loaded_unfuzed_lb - tnt_lb + fuze_lb - empty_and_fuze_lb == 0 within 0.005
