@@ -27,3 +27,4 @@
 - [Negative claim by literal grep](negative_claim_by_literal_grep.md) — "not in the source" backed by grep of literal digits fails on OCR-mangled glyphs; check card.md, prose anchors, unit variants
 - [Fixed-geometry sweep is drag-degenerate](fixed_geometry_sweep_drag_degenerate.md) — a sweep that doesn't vary R, plus a fitted threshold, has exactly zero power to calibrate drag; check before accepting any calibration anchor
 - [Gold 2017 eq(17) N0 typo](gold_2017_eq17_N0_typo.md) — eq(17) N0=m/mu contradicts the paper's own line 54/eq(1) N0=M/2mu; follow the factor-of-2 form
+- [tolch-1938.md not a citable surface](tolch_md_not_citable_surface.md) — its own card.md bans citing it without a tables/*.csv; check for CSV backing before trusting an inline closure alone

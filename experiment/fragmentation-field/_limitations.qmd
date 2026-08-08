@@ -63,6 +63,15 @@ Wall thickness, projectile mass, and filler mass are taken from US Army TM 9-190
 If these inputs are wrong, every output shifts — V₀ scales with M/C, and μ scales
 as r_bu³.
 
+- **The 75 mm M48 entry models the *fielded production round*** (TM-9-1904
+  14.6 lb, official 1.47 lb TNT, M48-family fuze + M20/M20A1 booster). Tolch
+  (1938) — the only fragmentation dataset this shell is validated against —
+  fired 1938 T3 articles with M39 fuzes and an average 1.56 lb TNT fill, ~6 %
+  heavier. Case metal agrees between the two to 0.4 %, but Gurney $V_0$ in
+  Tolch comparisons runs ~3 % low for this reason
+  ([`updates/75mm-fuze-case-mass-fix/derivation.md`](updates/75mm-fuze-case-mass-fix/derivation.md)
+  §3).
+
 **6 · Mott input uncertainties amplify super-linearly.**
 The break-up radius r_bu is derived from the V/V₀ ≈ 3 expansion criterion, which
 Gold (2017, §2) describes as "accepted as a rule of thumb for routine one-region
@@ -131,7 +140,7 @@ re-opened here:
     every material/geometric input feeding $N_0$ (case mass, Gurney $V_0$,
     $\sigma_f$, $\gamma'$, the shape-closure prism) would need to leave its
     literature bracket by 4–6× to carry the residual alone, and none does
-    (`checks/count-chain-decomposition.py`) — $N_0=3627$ for 75mm M48 in fact
+    (`checks/count-chain-decomposition.py`) — $N_0=3597$ for 75mm M48 in fact
     falls *between* Tolch's own two totals (5000 issued, 803 pit-recovered).
     The gross fragment population is not the defect. What is: the model's
     fitted $E_{thr}$ (1.9–3.6 J) declares 81–85% of fragments perforating where

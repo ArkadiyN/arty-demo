@@ -16,4 +16,6 @@
 - [Density-falloff shape is threshold-degenerate](gotcha_density_falloff_shape_is_threshold_degenerate.md) — a hits-vs-range curve can't discriminate drag (threshold absorbs it); absolute counts can
 - [Mott mu scale not fixable by gamma](gotcha_mott_mu_scale_not_fixable_by_gamma.md) — a fragment-size/count gap can't be closed via gamma/sigma_f; suspect the cube mass-closure in mott_params
 - [Gold 2017 dir is misnamed](gotcha_gold2017_dir_misnamed.md) — the PAFRAG-Mott source hides under "fragment-size-distribution-conwep"; grep phrases, not author/year
+- [N0 insensitive to case mass](gotcha_n0_insensitive_to_case_mass.md) — mu ~ V0^-3 cancels a M_case correction; validate such a fix on V0/mu, never on counts
 - [Mott table non-uniform carbon spacing](gotcha_mott_table_nonuniform_carbon_spacing.md) — real rows are 0/0.1/0.25/0.45 %C, not evenly spaced; re-check brackets, not just endpoint γ
+- [Rebaseline onto validation source](gotcha_rebaseline_onto_validation_source.md) — rebaselining onto the source you validate against makes the cross-check tautological; prefer an independent basis that agrees

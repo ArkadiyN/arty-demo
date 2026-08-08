@@ -72,9 +72,26 @@ SHELLS: dict[str, ShellParams] = {
     "75mm M48 HE": ShellParams(
         caliber=0.075,
         wall_t=0.006,                # estimate; caliber-scaled from M1 (needs confirmation)
-        mass_total=6.622,            # 14.6 lb complete with M48 PD fuze
-        mass_filler=0.6668,          # 1.47 lb cast TNT
-        mass_deductions=0.200,       # M48 PD fuze placeholder (TM 43-0001-28)
+        mass_total=6.622,            # 14.6 lb mean loaded+fuzed projectile
+                                     # (TM-9-1904 p.414, "Fuzes M48, M48A1 and M54")
+        mass_filler=0.6668,          # 1.47 lb cast TNT (official M48 filler;
+                                     # TM-9-1904 quotes a rounder 1.49 lb
+                                     # bursting charge — not used)
+        # mass_deductions: fuze+booster. Authorized (TM-9-1904 p.414): Fuzes
+        # M48, M48A1, M54; Boosters M20, M20A1. TM-9-1901 sources fuze-only
+        # 1.41 lb (M48/M48A1/M48A2, sec.319.b); M20/M20A1 booster weight is
+        # NOT tabulated, so the closure-checked M21A2 increment 0.74 lb stands
+        # in (2.15-1.41 = 2.16-1.42) — the same stand-in method the 105 mm M1
+        # entry above brackets with (that entry does not itself adopt it).
+        # 1.41+0.74 = 2.15 lb.
+        # => M_case = 4980.4 g, +0.37% vs Tolch 1938's independently-stated
+        # case metal 12.50-1.56 = 10.94 lb = 4962.3 g (tolch-1938.md, "Wt.
+        # empty shell & fuze").
+        # NOTE: entry models the FIELDED production round; Tolch's 1938 T3
+        # test rounds averaged 1.56 lb TNT, so Tolch comparisons run ~3% low
+        # on V0. See
+        # experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/derivation.md
+        mass_deductions=0.97522,
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
         # Tier-2: inner-arc radius unknown; outer geometry from Handbook of
