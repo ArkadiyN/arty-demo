@@ -64,7 +64,7 @@ The Poisson form is a member of the Cookson / ES-310 expected-hits casualty
 family (scoping §3; ES-310 expected-hits `N_hits = N₀·A/(4πδs²)`,
 `doc-reference/wound-ballistics/fas-es310-damage-criteria`). **It is not,
 however, the literal ES-310 aggregate formula** — ES-310 (same document,
-L42–46) writes the multi-hit aggregate as
+under `"Aggregate Pk from multiple hits:"`) writes the multi-hit aggregate as
 
 $$
 P_k ;=; 1 - (1 - P_{k|\text{hit}})^{N_\text{hits}}
@@ -72,8 +72,14 @@ P_k ;=; 1 - (1 - P_{k|\text{hit}})^{N_\text{hits}}
 $$
 
 with a **per-hit** kill probability `P_{k|hit}`, and anchors `P_{k|hit} = 0.5`
-at the very 1000 J energy that defines `ρ_L`'s lethal-mass cut (L16, L51–55;
-the same `_PK_VAL` table in `fragmentation.py:141`, where `pk_given_hit(1000 J) = 0.5` exactly). Eq. (1) `1 − e^{−λ}` is the **special case of this aggregate
+at the very 1000 J energy that defines `ρ_L`'s lethal-mass cut
+(`"Moderate personnel kill criterion is"` **1,000 J** at Pk = 0.5; and the
+`personnel` row of `tables/table-3-fragmentation-damage-criteria.csv`,
+`pk_moderate` = 0.5 at `energy_moderate_kJ` = 1 — cited off the CSV rather than
+the extraction's "Personnel Damage Criteria Table", which is a transposed
+reconstruction and carries its own open finding). The same anchors set the
+`_PK_VAL` table in `arty.fragmentation`, where `pk_given_hit(1000 J) = 0.5`
+exactly. Eq. (1) `1 − e^{−λ}` is the **special case of this aggregate
 with `P_{k|hit} = 1`** (the Poisson `≥1` limit of `1 − (1 − P_{k|hit})^{N}` as
 `P_{k|hit} → 1`, `N` Poisson). Adopting eq. (1) therefore makes a **second,
 explicit simplification** — promoting each ρ_L-counted fragment from ES-310's

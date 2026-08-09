@@ -13,6 +13,10 @@ Cunniff's 2014 work establishes a statistical framework for fragment penetration
 
 **Critical finding for lethality models:** Ballistic limits can vary **by a factor of 2× to 1/2×** depending only on fragment striking attitude—a statistical problem, not a deterministic one. The work addresses the problem of "optimal armor is not necessarily impenetrable armor" and provides methodology to model functional utility under fragmentation threat.
 
+## Provenance note
+
+FINDING\[deferrable\]: this extraction has no card.md, no retained source.pdf, and no verification search script, and its `source_url` above is a Google Scholar search query rather than a direct link to the paper — cited claims (e.g. "no tabulated posture silhouette") are checked against this extraction's own text, not against the primary, and should be treated as secondhand until a card.md + source.pdf are added (affects: experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-09)
+
 ______________________________________________________________________
 
 ## Key Findings

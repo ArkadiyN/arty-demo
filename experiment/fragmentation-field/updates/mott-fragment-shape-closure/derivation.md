@@ -28,15 +28,24 @@ checks. No `src/arty/` edits here.
 | # | Equation | Source |
 | --- | --- | --- |
 | (G2) | `x₀ = (2σ_F/ργ′)^{1/2}·r/V`, at the instant of fracture, with `r` the ring radius **at break-up** | Gold 2017 eq. (2), `…conwep/1-s2.0-S221491471730079X-main.md:58-60`; Mott 1947 line after eq. (5), `…gurney-equations-fragmentation/`, p.304 line after eq. (5), anchor `The length` (verified against the retained scan 2026-08-02: the page reads `x₀ = (2P_F/ργ)^{1/2}·r/v`, agreeing with Gold symbol-for-symbol; the `.md` extraction of this line is corrupt — see that document's `card.md`) |
-| (G4) | fragment idealised as a parallelepiped `l₀ × x₀ × t₀`; `μ = ½αρx₀³`, `α = (l₀/x₀)(t₀/x₀)`; `μ` ≡ **half** the mean fragment mass | Gold eq. (4), lines 70-76, and line 54 |
-| (G6) | `γ ≡ α^{-2/3}γ′` — shape absorbed into a redefined constant | Gold eq. (6), line 78 |
-| (G16) | `μ = √(2/ρ)·(σ_F/γ)^{3/2}·(r/V)³` (algebraically identical to the coded line, `fragmentation.py:211-215`) | Gold eq. (7)≡(16) |
+| (G4) | fragment idealised as a parallelepiped `l₀ × x₀ × t₀`; `μ = ½αρx₀³`, `α = (l₀/x₀)(t₀/x₀)`; `μ` ≡ **half** the mean fragment mass | Gold 2017 eq. (4), `…conwep/1-s2.0-S221491471730079X-main.md`, anchor `\tag{4}`; the parallelepiped premise one line above it, anchor `idealized with simple geometric shapes like a parallelepiped`; and the half-mean-mass definition of `μ`, anchor `is defined as one half of the average fragment mass` |
+| (G6) | `γ ≡ α^{-2/3}γ′` — shape absorbed into a redefined constant | Gold 2017 eq. (6), anchor `\tag{6}`, introduced by `Since the fragment distribution relationship` |
+| (G16) | `μ = √(2/ρ)·(σ_F/γ)^{3/2}·(r/V)³` (algebraically identical to the code, `arty.fragmentation.mott_params`) | Gold 2017 eq. (7), anchor `\tag{7}`; restated later in the paper as eq. (16) |
 | (M1) | Mott's own ruled-line statistic: fragment circumferential lengths lie mostly in `x₀…2x₀`, **average ≈ 1.5x₀** | Mott 1947 finding (1), rspa line 190 |
 | (A16) | fragment width:length = **1:1.6** (mean of Mott's own aspect histogram, Grady, Hiroe; corroborated by Wilson 1:1.65, Grady 1:1.5). "Aspect ratio" is defined width÷length, so length = 1.6 × width | `…explosion-fragment-model/tables/table-4-average-aspect-ratios.csv`; anchors "Approximate average ratio" (Table 4) and "aspect ratio of a fragment is defined" (§2.5) — **re-baselined against the retained scan 2026-08-02**, ledger §16 |
 
 FINDING[deferrable]: Gold 2017 attributes to "Mott (1943)" both a constant fragment breadth:length ratio and an average cross-sectional area proportional to (r/V)^2, and this derivation inherits the first as the premise that A = l/x is one constant across shells; the primary (Mott & Linfoot, A.C. 3348, now retained at doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/) states the opposite twice ("we have not been able to find a theory to account for the average length of the splinters", p.2; "our theory ... does not account for the length of splinters from shells, but only for their breadth", p.4) and where sect. 3 treats length it makes it independent of breadth, while the (r/V)^2 area scaling is Mott 1947's, not 1943's — only the parallelepiped attribution survives, so the 1.6 VALUE is fine (it is Felix 2022 Table 4, ledger sect. 16) but the structural premise is not primary-backed and the Phase-3 pass on this thread should say so rather than repeat Gold's citation (affects: experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md, src/arty/fragmentation.py, doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/card.md; since: 2026-08-02)
 
-FINDING[deferrable]: rows (G4), (G6), (G16) above and scoping.md's governing-equation table cite Gold 2017 by bare line number ("lines 70-76", "line 54", "line 78"), the anchor form .claude/rules/source-data-fidelity.md forbids because it rots silently on re-extraction and lands the reader on a different equation without failing; row (G2) has already been converted to a greppable anchor and the rest should follow (affects: experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/scoping.md; since: 2026-08-02)
+**Anchors closed 2026-08-09.** Rows (G4), (G6), (G16) and `scoping.md`'s
+governing-equation table now follow (G2)'s pattern — equation number plus a
+grep-verified string. Gold's LaTeX equation tags are themselves the stablest
+anchors available in this extraction (`\tag{4}`, `\tag{6}`, `\tag{7}`, each
+matching exactly one line and immune to the C0-control-glyph problem that makes
+the surrounding text unreliable), backed by a prose anchor where the claim is
+prose rather than an equation: `idealized with simple geometric shapes like a
+parallelepiped` for the shape premise and `is defined as one half of the
+average fragment mass` for the `μ`/`N₀` convention. The attribution finding
+directly above is untouched and remains open.
 
 Working symbols: `x̄` mean circumferential breadth [m]; `l̄` mean axial length
 [m]; `t₀` fragment thickness [m]; `A ≡ l̄/x̄` [-]; `κ_x ≡ x̄/x₀` [-]; `t`
@@ -188,7 +197,8 @@ Script: `experiment/_scratch/mott_shape_closure.py`.
 
 `∫₀^∞ m·(−dN/dm)dm = 2N₀μ = M`. Numerically 5755.20 g vs `M` = 5755.20 g for
 the 75 mm. Exact by construction of `N₀ = M/2μ`; Gold's eq. (17) `N₀ = m/μ`
-contradicts his own line 54 and is not followed.
+contradicts his own definition of `μ` (anchor `is defined as one half of the
+average fragment mass`, which states `N₀ = M/2μ` outright) and is not followed.
 
 ### 7.3 Tolch spectrum (75 mm M48) — PASS, large end essentially closed
 

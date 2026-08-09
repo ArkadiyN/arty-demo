@@ -663,7 +663,15 @@ right. This is the same rot that moved the Tolch card's anchors ~250 lines
 (§6). Both are scalars quoted from prose, not table cells, so the
 extract-once rule does not apply to them — only the anchor rule does.
 
-FINDING\[deferrable\]: shipped code cites DoD-1975 by bare line number (lines 316, 321, 338-339) for \_K_BALLISTIC and C_D; the lines resolve correctly today but rot silently on any re-extraction — replace with greppable strings (affects: src/arty/fragmentation.py, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-02)
+**Closed 2026-08-08.** All three citations in `src/arty/fragmentation.py`, and
+the eleven in `updates/mach-dependent-fragment-drag/derivation.md` that share
+the defect, now anchor on quoted strings verified by `grep` against the current
+extraction: `"similar, the mass m and presented area A are related by"` (the
+*m* = *kA*^{3/2} closure), `"value of 660 grains/in.3 (2.60 g/cm3) has been recommended"` (*k*), and `"take the drag coefficient as constant at its"` /
+`"supersonic value of 1.28."` (*C_D*). The extraction is OCR-noisy, so the
+quotes are stored exactly as the file holds them and each sits on one line —
+a quotation straddling a newline is not greppable and would have reintroduced
+the same silent failure.
 
 **The last of these was never true.** `ammunition-series-6-steel-composition`
 was recorded here as the one document with no retained source PDF, and it has
@@ -890,7 +898,9 @@ The blocking marker for this one lives in `figure-3-digitized.md` itself rather
 than here — a reader who opens that table must see it, which is the whole point
 of `.claude/rules/deferred-findings.md`.
 
-FINDING\[deferrable\]: dod-1975 card.md cites its passages as bare line ranges (L293-L315, L320-L327, L346, L550), the anchor form source-data-fidelity.md forbids; the page numbers are now known (pdf pp.17-19, figure p.33) so the replacement is mechanical (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md; since: 2026-08-02)
+**Status 2026-08-09:** card.md's bare line-range anchors have been replaced with
+greppable strings, verified to resolve in the extraction. See
+`review-provenance.md` §1e for the anchor table and resolution status.
 
 ## 14. Phase 2.5 — the source admissibility gate
 
@@ -2250,7 +2260,14 @@ deleted per `.claude/rules/deferred-findings.md`. The bare-line-number half
 survives as a live deferrable finding on
 `updates/mott-fragment-shape-closure/derivation.md:21`.)*
 
-FINDING\[deferrable\]: \_limitations.qmd tells readers Cunniff (2014) and AEP-55 Vol. 3 are not present in doc-reference/, but both are collected; the correct claim is that neither carries a quotable man-silhouette scalar (affects: experiment/fragmentation-field/\_limitations.qmd, experiment/fragmentation-field/updates/target-area-profile/derivation.md, experiment/fragmentation-field/updates/familyA-false-safe-zone/scoping.md; since: 2026-08-03)
+*(The "not present in `doc-reference/`" claim is closed: `_limitations.qmd` §12
+now states that both `wound-ballistics/cunniff-2014/` and
+`wound-ballistics/aep-55-vol3/` are collected, and that the real gap is that
+neither carries a quotable man-silhouette presented area — Cunniff's $A_p$ is
+the *fragment's* projected area and he tabulates no standing/crouching/prone
+silhouette (`cunniff-2014.md`, "No explicit posture-dependent silhouette areas
+given"), and Vol. 3's zero-hit page search is recorded on its own card. Marker
+deleted.)*
 
 FINDING\[note\]: pk_given_hit interpolates ES-310's three anchors in log10(E), a scheme the source never states; at the one point the page works it gives 0.817 against a stated 0.8, where linear-in-E gives 0.767 — agreement on a single point, not a derivation (affects: src/arty/fragmentation.py, doc-reference/wound-ballistics/fas-es310-damage-criteria/card.md; since: 2026-08-03)
 
@@ -2462,7 +2479,14 @@ FINDING\[note\]: the closure that admits Gold 2017 is algebraic, not tabular —
 
 FINDING\[deferrable\]: scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that (affects: src/utils/scan-extraction-quality.py, .claude/rules/source-data-fidelity.md, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
 
-FINDING\[deferrable\]: \_limitations.qmd tells readers to treat posture-resolved hit counts as provisional "until the references are collected", naming AEP-55 Vol. 3 — but the retained scan shows Vol. 3 is an armoured-vehicle IED test standard assessing occupants with ATDs, so it can never supply a man-silhouette presented area and the caveat as written can never be discharged; the correct disclosure is scoping.md's, that 0.85 m² is an engineering convention (affects: experiment/fragmentation-field/\_limitations.qmd, doc-reference/wound-ballistics/aep-55-vol3/card.md; since: 2026-08-03)
+*(The undischargeable "until the references are collected" caveat is closed:
+`_limitations.qmd` §12 now carries `target-area-profile/scoping.md`'s
+disclosure instead — the box-body dimensions and the 0.85 m² standing frontal
+area are a NATO casualty-modelling engineering convention, not a value pending
+a citation, and no further collection can supply one because Vol. 3 assesses
+occupants with ATDs and Cunniff tabulates fragment, not body, presented area.
+The ±25 % band is therefore the standing disclosure rather than an interim
+one. Marker deleted.)*
 
 ## 25 · Phase 2.5d — narrative admissibility: what a card tells you to *do*
 

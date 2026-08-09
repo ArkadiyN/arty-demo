@@ -259,12 +259,29 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   consistent with the qualitative "strongly rearward but not exactly 180°
   due to finite base diameter" observation in NWC TP 7124 but is not
   literature-anchored.
-- **Posture box-body dimensions** ($w_\perp, h, d$ for STANDING and PRONE)
-  are NATO casualty-modelling engineering convention. The canonical
-  references — Cunniff (2014, Int. Symp. Ballistics) and AEP-55 Vol. 3 —
-  are **not** present in `doc-reference/`. Treat absolute posture-resolved
-  hit counts as ±25 % engineering estimates until the references are
-  collected.
+- **Posture box-body dimensions** ($w_\perp, h, d$ for STANDING and PRONE,
+  and the 0.85 m² standing frontal area they imply) are a NATO
+  casualty-modelling **engineering convention**, not a value pending a
+  citation. Both references once named as canonical for it *are* collected —
+  [`wound-ballistics/cunniff-2014/`](../../doc-reference/wound-ballistics/cunniff-2014/cunniff-2014.md)
+  and
+  [`wound-ballistics/aep-55-vol3/`](../../doc-reference/wound-ballistics/aep-55-vol3/card.md) —
+  and **neither carries a quotable man-silhouette presented area**. Cunniff's
+  "presented area" is the *fragment's* projected area $A_p$ in the
+  $A_d A_p/m_p$ penetration parameter, and its extraction states no
+  tabulated standing/crouching/prone silhouette — checked against that
+  extraction's own text, not against Cunniff's primary PDF (the extraction
+  carries no card.md or retained source.pdf; see its provenance note), so
+  treat this half of the pairing as secondhand. AEP-55 Vol. 3 is an armoured-vehicle
+  IED test standard that assesses occupants with instrumented
+  anthropomorphic test devices; a man-silhouette area is not a quantity its
+  method uses, and a search of all 106 pages returns zero hits for any
+  presented-area term (see the Vol. 3 card, which also flags the
+  0.082 m² Annex E thorax-model area as a look-alike that must **not** be
+  read as a silhouette). So collecting further references cannot discharge
+  this caveat — it is a convention, and treating absolute posture-resolved
+  hit counts as ±25 % engineering estimates is the standing disclosure, not
+  an interim one.
 - **$R_{50}$ recalibration pending.** The geometry-factor change from the
   width-based $s^{-1}$ form to the area-based $s^{-2}$ form in eq. (22')
   changes absolute hit counts: the new model is *smaller* by a factor of
@@ -437,6 +454,23 @@ It must not be read as validating the Family-A kernel, or as closing the
 lethality-criterion split above; the fix is the same one this item already
 names — a threshold-matched Family A variant, not yet built.
 
+**Second addendum to 14 — the 1944 *B(r)* comparison carries no angular
+information, in either family.** The card's $B$ column is
+$N_\text{eff}/(4\pi r^2)$ *by construction*: an isotropic reduction of a total
+count over a sphere. Whatever agreement a model reaches against it — Family B's
+re-baselined factor-of-2 pass
+([`challenges/drag-gap-1944/b-vs-range-rebaseline.md`](challenges/drag-gap-1944/b-vs-range-rebaseline.md)),
+or Family A's confounded one above — tests only the **direction-averaged**
+effective-fragment density and its range decay. A model with the correct total
+count and a completely wrong side-spray belt would score identically on every
+row of every table in that document. **This agreement must not be cited as
+external support for the model's side-spray belt or its four-zone angular
+structure**; nothing in `doc-reference/` currently validates the angular
+distribution, and the zone geometry rests on the sourcing recorded in
+limitation 12. Criterion-match ruling:
+[`challenges/source-data-audit/review-criterion-match.md`](challenges/source-data-audit/review-criterion-match.md)
+§1b′.
+
 **15 · Fragment drag is speed-dependent. The model does not represent that —
 it uses one constant $C_D$ at every speed (v 0.9.0).**
 Real fragment drag varies with Mach number, and the source the model is
@@ -485,3 +519,22 @@ also that $V_0$ for the Ordnance comparison is itself unverified, and a 10%
 $V_0$ error is comparable to the entire residual — so the 1.8-point margin
 quoted here is a measured difference between two laws, not a bound on either
 law's absolute accuracy.
+
+*And what the comparison data actually are.* The 1944 Ordnance $(r, m, v)$
+triples that both laws are scored against — the ones read by
+[`updates/mach-dependent-fragment-drag/checks/mach-law-rebaseline.py`](updates/mach-dependent-fragment-drag/checks/mach-law-rebaseline.py) —
+are **the source's own period variable-drag ballistic calculation, not
+arrival-velocity measurements**. They are internally consistent with a computed
+decay law rather than with instrumented arrivals: the retardation grouping
+$\lambda\,m^{1/3}$, which is constant along a column for any single fixed-$C_D$
+law, drifts 1.4–1.7× down the casualties columns while staying flat to ~5 % on
+the perforation columns. Every velocity comparison in this item is therefore
+**model-against-period-model agreement**, not model-against-measurement, and
+residuals below the 1944 law's own (undocumented) accuracy are not
+interpretable — including the ~1.8-percentage-point Mach-vs-constant margin
+above. It bounds what the check can license, not its arithmetic: the ±10 %
+fidelity bar is stated against a 1944 calculation, and no measured
+fragment-arrival-velocity set for these shells exists in `doc-reference/` to
+replace it. Criterion-match ruling:
+[`challenges/source-data-audit/review-criterion-match.md`](challenges/source-data-audit/review-criterion-match.md)
+§2d.

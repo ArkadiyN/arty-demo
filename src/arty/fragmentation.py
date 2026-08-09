@@ -187,7 +187,8 @@ class ShellParams:
 # doc-reference/fragmentation/dod-1975-fragment-debris-hazards/
 # 10-F-0806_Fragment_and_Debris_Hazards.md, closes the presented area A of a
 # fragment of mass m through the *ballistic density* k:  m = k A^(3/2)
-# (line 316), measured on recovered fragments. arty instead normalises the
+# (sect. "Ballistic Properties": "similar, the mass m and presented area A are
+# related by"), measured on recovered fragments. arty instead normalises the
 # presented area by the steel volume, A = C_shape (m/rho_steel)^(2/3), so the
 # two closures are the same law iff
 #
@@ -200,8 +201,8 @@ class ShellParams:
 # sphere of equal volume, so C_shape >= 1.209 (cube = 1.500).
 
 # k, ballistic density for forged steel projectiles and fragmentation bombs
-# [kg/m³]. TP-12 line 321: "the average value of 660 grains/in.3 (2.60 g/cm3)
-# has been recommended". (Demolition bombs would be 2.33 g/cm³.)
+# [kg/m³]. TP-12, sect. "Ballistic Properties": "value of 660 grains/in.3
+# (2.60 g/cm3) has been recommended". (Demolition bombs would be 2.33 g/cm³.)
 _K_BALLISTIC = 2600.0
 
 # rho_steel the ballistic density is inverted against [kg/m³]. Every shell in
@@ -217,8 +218,9 @@ def c_shape_from_ballistic_density(k: float, rho_steel: float) -> float:
 
 @dataclass(frozen=True)
 class DragParams:
-    # TP-12 line 338-339: "take the drag coefficient as constant at its
-    # supersonic value of 1.28". Its Fig. 3 is *not* flat -- C_D runs 1.08 at
+    # TP-12, sect. "Ballistic Properties", the sentence closing its Figure 3
+    # discussion: "take the drag coefficient as constant at its" / "supersonic
+    # value of 1.28." Its Fig. 3 is *not* flat -- C_D runs 1.08 at
     # M = 0 through a ~1.40 transonic peak to the 1.28 plateau -- and that
     # variation is deliberately not modelled: a Mach-dependent C_D(M) would
     # replace the closed-form lambda below with a per-fragment ODE march, for a

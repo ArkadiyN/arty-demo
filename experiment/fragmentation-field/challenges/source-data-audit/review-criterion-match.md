@@ -121,7 +121,12 @@ external support for the four-zone angular structure.
 Impact: no number changes; this bounds the claim's reach. Resolution is a
 logged limitation.
 
-FINDING\[deferrable\]: b-vs-range agreement validates only the direction-averaged density, since the 1944 B column is N/(4*pi*r^2) by construction and carries no angular information; must not be cited as support for the side-spray/four-zone angular structure (affects: experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range-rebaseline.md, experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-03)
+*Closed 2026-08-09 — logged as the second addendum to limitation 14 in
+`experiment/fragmentation-field/_limitations.qmd`, which states that the card's
+`B` column is an isotropic reduction by construction, that the agreement
+therefore tests only the direction-averaged density and its range decay in
+either family, and that it must not be cited as external support for the
+side-spray belt or the four-zone angular structure. Marker deleted.*
 
 ### 1c. Table-number labels — Note
 
@@ -245,7 +250,11 @@ direct arrival-velocity measurement (`λ·m^(1/3)` drifts 1.7× along a column).
 The drag comparison is therefore model-against-period-model; residuals below
 the 1944 law's own accuracy are not interpretable."*
 
-FINDING\[deferrable\]: 1944 Ordnance (r,m,v) triples are the source's own variable-drag calculation, not arrival-velocity measurements (lambda\*m^(1/3) drifts 1.4-1.7x on casualties columns, flat to 5% on perforation columns); drag check is model-vs-period-model, log as limitation (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/checks/mach-law-rebaseline.py, experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-03)
+*Closed 2026-08-09 — logged at the end of limitation 15 in
+`experiment/fragmentation-field/_limitations.qmd`, carrying the `λ·m^(1/3)`
+drift evidence, the model-against-period-model framing, and the consequence
+that residuals below the 1944 law's own accuracy (the ~1.8-point
+Mach-vs-constant margin included) are not interpretable. Marker deleted.*
 
 ______________________________________________________________________
 

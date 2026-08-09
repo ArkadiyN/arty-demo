@@ -44,7 +44,7 @@ A calibration that reproduces all three to 0.001 is not plausibly off in the
 band between them.
 
 Anchors are greppable strings, never line numbers:
-  "Figure 3  Drag Coefficient of Fragments"   (the figure caption, pdf p.33)
+  "Figure 3 Drag Coefficient of Fragments"   (the figure caption, pdf p.33)
   "supersonic value of 1.28"                  (the text, pdf p.18)
 
 Source: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/source.pdf
