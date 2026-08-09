@@ -299,6 +299,8 @@ so the model is biased high at every drag value by an unquantified amount;
 re-fitting drag**; the discriminating test would be an independent (THOR-type)
 perforation model replacing the fitted $E_{thr}$.
 
+FINDING\[deferrable\]: this L1 (~3-4x, E_thr 2.8-4.1x) was not resynced against the newer count-gap-1938 re-closure (count-chain.md §4, 2026-08-08, post-6c1faff/50b734e), which found the count arm met-or-marginal at sourced thresholds (N/779 1.73-2.00x) with only the falloff-ratio arm still unmet; _limitations.qmd's L1 now carries that newer framing with no forward-pointer back here, so a reader following _limitations.qmd's "carried from derivation.md §7" pointer finds a stale, compound-only framing (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, experiment/fragmentation-field/_limitations.qmd; since: 2026-08-09)
+
 **L2 — Long-range / arrival-Mach < 0.7 velocities remain unclosed by any
 admissible drag law, and gravity is not the explanation.** At 75mm 400 ft and
 155mm 300/400/600 ft the *required* combined constant falls to 1.76–2.07
