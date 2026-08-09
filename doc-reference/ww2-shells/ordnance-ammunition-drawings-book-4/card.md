@@ -2,14 +2,16 @@
 
 **Source:** U.S. Ordnance Dept., Ordnance Ammunition Drawings, Book 4 (WW2-era
 engineering specification and metal-parts/explosives-loading drawings).
-79-page PDF; 7 pages extracted (5, 6, 9, 14, 23, 25, 53).
+79-page PDF; 8 pages extracted (5, 6, 9, 14, 23, 25, 53, 71).
 
 **Pages:** 5 (105mm M60 chemical shell, metal parts assembly, drawing
 75-4-91A), 6 (M60 List of Parts / List of Specifications table), 9 (155mm
 M107 HE shell, metal parts assembly, drawing 75-4-99A), 14 (105mm M67 HEAT
 shell, List of Parts / List of Specifications, drawing 75-4-106A), 23 (75mm
 M48 HE shell, explosives loading), 25 (105mm M1 HE shell, explosives
-loading), 53 (155mm M107 HE shell, explosives loading).
+loading), 53 (155mm M107 HE shell, explosives loading), 71 (Forging for
+Shell H.E., 81mm, M43A1 and Shell, Practice, M43A1, drawing 75-20-72 —
+List of Specifications + Physical Properties block).
 
 ## Extraction provenance — read this before citing anything below
 
@@ -43,6 +45,14 @@ failure and are trustworthy as-is. Pages 6 and 14 (pure List-of-Parts/List-
 of-Specifications tables, no illustration) were never auto-captured; added
 manually as `fig6-page6-m60-specs.jpeg` and `fig7-page14-m67-heat-specs.jpeg`.
 
+**Page 71** (`fig8-page71-81mm-mortar-specs.jpeg`) was added later
+(2026-08-09), never went through the automated `--analyze-formulas` pass at
+all, and is not part of the extraction-failure narrative above — it was
+rendered directly from `source.pdf` at 300 dpi (`pdftoppm`) and read straight
+off the raster in response to a specific user claim, cross-checked at 2x zoom
+crops of the specification table and the physical-properties block before
+transcription. First-pass transcription, no automated draft to distrust.
+
 ## Headline finding — WD.SS-3 steel, spec 57-104-2, 65,000 psi minimum yield
 
 The user's premise for pulling this volume: "minimum 65,000 psi yield
@@ -52,12 +62,13 @@ WD-SS-3." Both parts confirmed directly against the primary drawings:
 
 **Table:** `tables/body-shell-steel-specs.csv`
 
-| Shell                | Drawing   | Part       | Material/Grade                         | Spec     | Related Spec                                           | Min Y.S. (psi)           | Min Elong (%) | Min R.A. (%) | Source                      |
-| -------------------- | --------- | ---------- | -------------------------------------- | -------- | ------------------------------------------------------ | ------------------------ | ------------- | ------------ | --------------------------- |
-| 105mm M60 (Chemical) | 75-4-91A  | Body Shell | STEEL (no grade named on this drawing) | 57-104-2 | —                                                      | 65,000                   | 15            | 30           | p.5 (properties)/p.6 (spec) |
-| 105mm M60 (Chemical) | 75-4-91D  | Adapter    | STEEL WDX1314 or WDX1315               | 57-107   | —                                                      | — (T.S. 60,000 min)      | 15            | 35           | p.5                         |
-| 105mm M67 (HEAT/AT)  | 75-4-106A | Body Shell | **WD.SS-3**                            | 57-104-2 | 57-104-1 (mandatory for material for forging — note b) | not printed on this page | —             | —            | p.14                        |
-| 155mm M107 (HE)      | 75-4-99A  | Body Shell | STEEL (no grade named on this drawing) | 57-104-2 | —                                                      | 65,000                   | 15 (in 2 in.) | 30           | p.9                         |
+| Shell                          | Drawing   | Part                | Material/Grade                         | Spec        | Related Spec                                                                          | Min Y.S. (psi)           | Min Elong (%) | Min R.A. (%) | Source                      |
+| ------------------------------ | --------- | ------------------- | -------------------------------------- | ----------- | ------------------------------------------------------------------------------------- | ------------------------ | ------------- | ------------ | --------------------------- |
+| 105mm M60 (Chemical)           | 75-4-91A  | Body Shell          | STEEL (no grade named on this drawing) | 57-104-2    | —                                                                                     | 65,000                   | 15            | 30           | p.5 (properties)/p.6 (spec) |
+| 105mm M60 (Chemical)           | 75-4-91D  | Adapter             | STEEL WDX1314 or WDX1315               | 57-107      | —                                                                                     | — (T.S. 60,000 min)      | 15            | 35           | p.5                         |
+| 105mm M67 (HEAT/AT)            | 75-4-106A | Body Shell          | **WD.SS-3**                            | 57-104-2    | 57-104-1 (mandatory for material for forging — note b)                                | not printed on this page | —             | —            | p.14                        |
+| 155mm M107 (HE)                | 75-4-99A  | Body Shell          | STEEL (no grade named on this drawing) | 57-104-2    | —                                                                                     | 65,000                   | 15 (in 2 in.) | 30           | p.9                         |
+| 81mm M43A1 HE / Practice M43A1 | 75-20-72  | Forging (Type I/II) | STEEL (no grade named on this drawing) | **50-37-1** | 57-104-1 (listed directly on the same List of Specifications table, no footnote link) | **35,000**               | 15            | 30           | p.71                        |
 
 - Page 14 (M67 HEAT List of Parts/Specifications, drawing 75-4-106A) is where
     **WD.SS-3** is explicitly printed against the Body Shell line, tied to
@@ -78,6 +89,35 @@ WD-SS-3." Both parts confirmed directly against the primary drawings:
 - **WD.SS-3 (this drawing) and WDSS-3** (`../ammunition-series-6-wdss-specs/   card.md`, AMCP 706-249 Table 6-1) are the same designation under two
     different punctuation conventions, ~20 years apart — not a criterion-match
     question.
+- **Page 71 corroborates a two-tier spec structure directly from a second,
+    independent drawing in this same book — not inferred, printed.** The 81mm
+    mortar forging drawing (75-20-72) lists **50-37-1** ("SHELL, STEEL FOR
+    SMOOTH-BORE MORTARS, MANUFACTURED FROM FORGINGS") and **57-104-1**
+    ("STEEL, FORGING; FOR SHELL STOCK") as the two specs this drawing directly
+    requires, with a stated minimum yield strength of **35,000 psi** — roughly
+    half of the 65,000 psi minimum the 105mm/155mm Body Shell drawings require
+    under spec 57-104-2. **57-104-2 itself is not among the specs this 81mm
+    drawing lists as required by the drawing** — its only appearance on page 71
+    is one row down, as the "Required By" entry for a *different* spec,
+    QQ-M-151 ("METALS, GENERAL SPECIFICATION FOR INSPECTION OF"), meaning
+    57-104-2 pulls in QQ-M-151 somewhere in its own text, not that this drawing
+    invokes 57-104-2 directly. Structurally, this is exactly the split
+    hypothesized from page 14's note (b): **57-104-1 is the shared raw-forging-
+    stock spec** (required directly by both the 81mm mortar drawing here and
+    the 105mm M60 drawing, page 6), while **57-104-2 is a separate,
+    higher-strength finished-part acceptance spec specific to the gun-launched
+    (105mm/155mm) Body Shell drawings** and does not govern this mortar
+    forging. The 35,000 psi / 65,000 psi split also lines up with
+    `../ammunition-series-6-wdss-specs/card.md` §6-14, which states WDSS 1/2
+    are the grades used "for the most part for 60-mm and 81-mm mortar shell
+    forgings" while a separate, higher 60,000–80,000 psi yield band applies to
+    the artillery-caliber grades WDSS 3/5/6/7 — consistent with, though not
+    direct proof of, WDSS-1/2 being the grade meeting 57-104-1 + 50-37-1 here
+    and WDSS-3 being the grade meeting 57-104-1 + 57-104-2 on page 14. **No
+    steel grade name (WDSS or otherwise) is printed anywhere on page 71** — the
+    grade-to-spec mapping for the 81mm forging is inference from the
+    Ammunition Series 6 card's caliber statement, not a direct read off this
+    drawing, and should be read as such.
 - **Still open, but not model-relevant today:** whether spec 57-104-2 as cited
     here is the same document as the 1924-dated spec 57-104-2 in
     `../paine-1929-centrifugal-casting/card.md` footnote 17. Moot for now:
@@ -86,10 +126,60 @@ WD-SS-3." Both parts confirmed directly against the primary drawings:
     Mott-closure fit — not sourced from spec 57-104-2 or any yield-strength
     figure). The only WDSS-grade steel actually wired into the model is
     `STEELS["US WW2 WDSS1"]` (grade **1**, not 3), used solely for the 60mm
-    M49A2 mortar shell — a different caliber and a different Ammunition
-    Series 6 table entry, unrelated to this drawing's Body Shell rows. This
-    card is provenance for the user's original claim, not an input the model
-    currently consumes.
+    M49A2 mortar shell — a different caliber (60mm, not 81mm) and a different
+    Ammunition Series 6 table entry, unrelated to this drawing's Body Shell
+    rows. The new 35,000 psi figure on page 71 is additional evidence for the
+    open deferred finding already recorded on
+    `../ammunition-series-6-wdss-specs/card.md` that shipped
+    `sigma_f = 800 MPa` (≈116,000 psi) has never been compared against any
+    source-stated static yield figure for a WDSS-family grade — it does
+    not change that finding's disposition (still a criterion-match question
+    for @model-reviewer: static yield vs. dynamic fracture stress are not the
+    same quantity) and no new finding is opened here. This card remains
+    provenance for the user's claims, not an input the model currently
+    consumes.
+
+## 81mm M43A1 HE / Practice M43A1 — Forging Specification (page 71, drawing 75-20-72)
+
+**Title block:** "FORGING FOR SHELL, H.E., 81MM, M43A1 AND SHELL, PRACTICE,
+M43A1", Class 75, Division 20, Drawing 72 (i.e. 75-20-72), dated July 6, 1933,
+revised through Aug. 15, 1945 (revision 8). Two forging types shown, both
+STEEL: "Forging, Shell, Type I" (75-20-72 A8) and "Forging, Shell, Type II"
+(75-20-72 B8) — dimensional forging blanks, not the finished machined shell.
+
+**List of Specifications table** (only 4 of 10 numbered lines are populated;
+blank lines transcribed as blank, not omitted):
+
+| Line | Specification                                                    | Spec Number | Required By  |
+| ---- | ---------------------------------------------------------------- | ----------- | ------------ |
+| 1    | AMMUNITION, EXCEPT SMALL ARMS AMM. GENERAL SPEC. FOR             | 50-0-1      | DRG.75-20-72 |
+| 4    | SHELL, STEEL FOR SMOOTH-BORE MORTARS, MANUFACTURED FROM FORGINGS | **50-37-1** | DRG.75-20-72 |
+| 7    | STEEL, FORGING; FOR SHELL STOCK.                                 | 57-104-1    | DRG.75-20-72 |
+| 8    | METALS, GENERAL SPECIFICATION FOR INSPECTION OF                  | QQ-M-151    | 57-104-2     |
+
+**CSV:** `tables/page71-81mm-spec-list.csv`. Row 8's "Required By" column
+reads **57-104-2**, not the drawing number — read literally, that means spec
+QQ-M-151 is invoked *by* spec 57-104-2, not directly by this drawing. Every
+other populated row's "Required By" is the drawing itself (DRG.75-20-72).
+Confirmed at 2x zoom crop against `source.pdf`; the table's own footnote
+reads: "THE SPECIFICATION NUMBERS SHOWN ARE BASIC NUMBERS ONLY. WHEN A
+SPECIFICATION IS REVISED A LETTER IS AFFIXED TO ITS BASIC NUMBER.
+SPECIFICATIONS REFERRED TO IN THESE SPECIFICATIONS AND NOT LISTED HEREON
+SHALL NOT APPLY."
+
+**Physical Properties block** (printed once, governs both forging types):
+
+- Yield Strength — not less than **35,000 lbs. per sq. in.**
+- Elongation in 2 inches — not less than 15%
+- Reduction of Area — not less than 30%
+
+**Table of Weights:** Forging, Type I — 6.88 lb max.; Forging, Type II — 6.38
+lb max. (forging blank weight, not finished/loaded shell weight; no
+arithmetic closure applies — single independent figures, not components of a
+stated total).
+
+**Image:** `images/fig8-page71-81mm-mortar-specs.jpeg` (full-page raster,
+300 dpi).
 
 ## 105mm M60 (Chemical) — Metal Parts Assembly (page 5, drawing 75-4-91A)
 
@@ -278,9 +368,10 @@ resolved). Run:
 uv run python doc-reference/ww2-shells/ordnance-ammunition-drawings-book-4/checks/verify-weight-table-closures.py
 ```
 
-The steel-spec identity table (`body-shell-steel-specs.csv`) carries no
-arithmetic closure — it is identity/specification data, not a summable
-series — and is admissible on direct-read provenance alone, consistent with
+The steel-spec identity tables (`body-shell-steel-specs.csv`,
+`page71-81mm-spec-list.csv`) carry no arithmetic closure — they are
+identity/specification data, not a summable series — and are admissible on
+direct-read provenance alone, consistent with
 `../ammunition-series-6-wdss-specs/card.md`.
 
 ## Not extracted / out of scope
@@ -292,7 +383,11 @@ series — and is admissible on direct-read provenance alone, consistent with
 - The full List of Parts / List of Specifications tables on pages 6 and 14
     (screws, adhesives, minor hardware) beyond the Body Shell steel-spec rows
     captured above.
-- Pages other than 5, 6, 9, 14, 23, 25, 53 (72 of 79 pages).
+- Page 71's forging dimensional callouts (radii, thicknesses, die-relief
+    geometry) and the six blank numbered lines (2, 3, 5, 6, 9, 10) of its List
+    of Specifications table — only the populated rows and the Physical
+    Properties block were transcribed.
+- Pages other than 5, 6, 9, 14, 23, 25, 53, 71 (71 of 79 pages).
 
 ## Source
 
@@ -300,7 +395,7 @@ series — and is admissible on direct-read provenance alone, consistent with
 WW2 era)
 **File:** originally at `/mnt/f/Projects/TMP/Docs/Ordnance Ammunition Drawings, Book 4.pdf`; retained as `source.pdf` beside this card (176 MB,
 gitignored per `.gitignore:58` — re-acquire from the original location)
-**Pages:** 79 total; 7 extracted (5, 6, 9, 14, 23, 25, 53)
+**Pages:** 79 total; 8 extracted (5, 6, 9, 14, 23, 25, 53, 71)
 **SHA256:** `0e5a061d0319e7dd19e0ab644ae83392b44de20226dad62fa5f9feaf35da1c5c`
-**Images:** `images/fig1.jpeg`–`fig7-page14-m67-heat-specs.jpeg` (7 total; see
-Extraction provenance above)
+**Images:** `images/fig1.jpeg`–`fig8-page71-81mm-mortar-specs.jpeg` (8 total;
+see Extraction provenance above)
