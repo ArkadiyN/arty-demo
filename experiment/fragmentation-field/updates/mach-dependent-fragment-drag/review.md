@@ -232,3 +232,84 @@ Sensitivity page's C_D slider bound (`app/sensitivity.py`) was not updated
 alongside the DoD-1975 drag anchor and now silently widens past its coded
 0.90 ceiling to accommodate the new 1.28 default — cosmetic/UX only, no
 physics impact, tracked for a follow-up UI-only commit."
+
+# Review — Tolch (1938) pit-recovery count re-baseline (803 → 779)
+
+**Scope.** The uncommitted working-tree diff closing the ledger finding that
+`TOLCH_PERFORATIONS` (and the "~700–800"/"~4–6×" language derived from it)
+rested on a published pit-recovery count of 803 when the source's own
+screen-recovery table and body text give 779. Files reviewed:
+`checks/tolch-count-post-shape-closure.py`, `derivation.md` (L1 restatement +
+2026-08-08 re-run note), `scoping.md` (§3d table + re-run note),
+`challenges/drag-gap-1944/README.md` (row #6), and
+`challenges/source-data-audit/ledger.md`.
+
+## Verdict: **FAIL**
+
+**Finding 1 (Blocking, resolved 2026-08-09 by the main agent after this
+review) — the ledger finding this pass exists to close was never closed; it
+still read as an open Blocking item.** The blocking marker at
+`challenges/source-data-audit/ledger.md:600`
+("the pit-test recovered-fragment count is 803 in committed artifacts...")
+was byte-for-byte unchanged in the diff. Contrast with the two *other* Blocking
+findings edited in this same ledger.md diff (B-vs-range wrong-column,
+SAND92-0243 floor): both had their marker line **deleted outright** and
+replaced with a `*(Closed 2026-08-08: ...)*` prose note, which is the pattern
+`.claude/rules/deferred-findings.md` requires ("Close a finding by deleting
+its marker — never by editing the register") and the pattern that makes
+`collect-findings.py` stop reporting it. The 803→779 marker got neither
+treatment. Consequence, confirmed two ways: (a) `uv run python
+src/utils/collect-findings.py --for experiment/fragmentation-field/updates/mach-dependent-fragment-drag`
+still returned this exact finding as the first Blocking hit; (b) the diff to
+`OPEN-FINDINGS.md` showed the "## Blocking (3)" section still carrying this
+entry (only its line number shifted, 589→600) alongside the two genuinely-new
+2026-08-08 blocking items — it was never removed. Impact: the audit register
+was factually stale (it still asserted "803 in committed artifacts," which is
+no longer true of the two files it names) and would mislead or duplicate work
+in the next dispatch briefed from `OPEN-FINDINGS.md`, since a future pass has
+no way to tell "already fixed, marker forgotten" from "still open." **Closed:**
+the marker at `ledger.md:600` has since been deleted and replaced with a
+closure note naming the three files actually fixed, and `OPEN-FINDINGS.md`
+regenerated.
+
+**Finding 2 (Note, informational only) — the substantive fix is correct and
+verified.** Independently re-ran `checks/tolch-count-post-shape-closure.py`;
+its printed table reproduces every number quoted in `derivation.md`'s L1
+re-run note and `scoping.md` §3d exactly (E_thr 3.2–6.1 J / m_thr 0.026–0.052 g
+/ N/observed 2.8–4.1× at combined 2.67; 1–9 counts at 0.585; TOLCH_PERF_LO/HI
+= 700/779, midpoint 739.5). The 779 figure itself is source-backed by a
+passing closure invariant (`doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/pit-screen-recovery.invariant`,
+confirmed re-run: "5 rows, 6 checks, ok") that shows 4 of 5 screen rows fail
+their printed percentage under 803 and all close under 779, and by
+`challenges/count-gap-1938/rebaseline-verdict.md` (path confirmed to exist and
+to state "Recovered pit count is 779, not 803" with its own closure evidence,
+lines 70–77). All remaining "803"/"750" strings inside the update folder
+(`derivation.md:278`, `scoping.md:171`, `checks/tolch-count-post-shape-closure.py:12,34`)
+are explanatory historical references ("re-baselined from a published 803"),
+not live citations — no stale live figure remains in this update. This
+finding does not change the verdict; it is recorded so Finding 1's fix is not
+mistaken for a physics problem.
+
+**Out-of-scope observation (for main-agent triage, not this pass's fault).**
+`checks/tolch-count-post-shape-closure.py`'s V0 sweep tuple (`807.5, 838.2,
+951.0`, current line 61) still carries the pre-gamma'-recloser V0=807.5 figure
+that a separate, already-open 2026-08-08 Blocking finding names at this exact
+file (`...tolch-count-post-shape-closure.py:48 (V0 sweep tuple)`,
+`OPEN-FINDINGS.md` "this table was scoped but never actioned for most rows").
+That finding is already correctly tiered Blocking and already tracks this
+file — it does not need re-tiering here, just flagging that it was not
+addressed by this pass either.
+
+## Suggested corrections (not applied)
+
+- ~~`challenges/source-data-audit/ledger.md:600` — delete the marker line and
+    replace with a `*(Closed <date>: ...)*` note naming the three files
+    actually fixed (Finding 1).~~ Done 2026-08-09, see Finding 1 above.
+- ~~Regenerate `OPEN-FINDINGS.md` after the above so the Blocking count
+    reflects reality.~~ Done.
+
+## Limitations to log
+
+None beyond what is already logged. Finding 1 is a register-hygiene defect,
+not a physics limitation, and should not be logged as one — it should simply
+be fixed (delete the stale marker) before this change is considered closed.

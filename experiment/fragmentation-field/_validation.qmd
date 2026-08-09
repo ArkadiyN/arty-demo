@@ -121,8 +121,8 @@ print("  ✓ returns m_hi at extreme range (no lethal fragments)")
 The British WW2 weight-of-fire summary
 ([`britishartillery-wt-of-fire`](../../doc-reference/wound-ballistics/britishartillery-wt-of-fire/britishartillery-wt-of-fire.md),
 "50% Lethality Criterion") states that a fragment of **1/8 oz (3.5 g) or more had 50%
-probability of lethality at 200 feet (61 m)** when striking vital organs. This is an
-*independent* datum — it is not part of the 1944 US Ordnance velocity-decay set the
+probability of lethality at 200 feet (61 m)** when striking vital organs. This datum
+is not part of the 1944 US Ordnance velocity-decay set the
 drag constants were anchored to
 ([`updates/mach-dependent-fragment-drag/derivation.md`](updates/mach-dependent-fragment-drag/derivation.md)
 §4 V2 — the anchor half of that update, which remains live) — so it is not
@@ -130,24 +130,38 @@ re-banded to match the model. Note the same source's extraction
 renders "1/8 oz" as "~28 grams"; 1/8 oz is **3.54 g** (28 g is a full ounce), and the
 oz figure is taken as authoritative.
 
-<!-- FINDING[blocking]: Check 5b hard-asserts a rendered PASS against the britishartillery-wt-of-fire 3.5 g / 58 ft-lb datum and calls it an "independent" corroboration, but that source is now recorded UNVERIFIABLE (doc-reference/wound-ballistics/britishartillery-wt-of-fire/card.md, Admissibility) — the primary AORG Report 179 was not obtainable, no source.pdf is retained, and the only available surface carries two internal arithmetic failures: the "1/8 oz (~28 grams)" conversion this paragraph already flags, and a 25-pdr fragment-count table whose four disjoint bands sum to >2041 against its own stated total of ~1140; the two values Check 5b actually consumes are not shown to be wrong, so this is not a void verdict, but the surface publishes checkedness it does not have and the assert must be downgraded to a reported comparison or the primary obtained (affects: experiment/fragmentation-field/_validation.qmd, doc-reference/wound-ballistics/britishartillery-wt-of-fire/card.md; since: 2026-08-03) -->
-
+**The source itself is recorded UNVERIFIABLE**
+([`britishartillery-wt-of-fire/card.md`](../../doc-reference/wound-ballistics/britishartillery-wt-of-fire/card.md),
+"Admissibility"): the primary, AORG Report No. 179, was not obtainable, no
+`source.pdf` is retained, and the only available surface — a secondary web
+summary — carries two internal arithmetic failures elsewhere in the same
+document (the "1/8 oz (~28 grams)" conversion flagged above, and a 25-pdr
+fragment-count table whose four disjoint bands sum to >2041 against its own
+stated total of ~1140). Neither failure touches the two values this check
+actually consumes (3.5 g, 58 ft-lb), so this is not a void datum — but per
+the card, no number from it may be presented as checked. What follows is
+therefore reported as a comparison, not asserted as a pass.
 
 The datum is a *statement about lethality*, so reading it requires a lethality
 criterion, and the same source supplies two that differ by 11.6×: 5 ft-lb (6.8 J,
 British) and an earlier 58 ft-lb (78.6 J). The model's ES-310 Pk|hit curve is a third,
-far stricter scale (50% at 1 kJ — limitation 11). We therefore check the two halves
-separately:
+far stricter scale (50% at 1 kJ — limitation 11). We therefore report the two halves
+separately, neither asserted:
 
 1. **Kinematics** (drag + Gurney velocity, what this model actually predicts): the
      retained KE at 61 m against the source's own 58 ft-lb marginal-lethality energy,
-     to a factor-of-2 band — the same tolerance Check 7 uses.
+     to a factor-of-2 band — the same tolerance Check 7 uses. Reported only: the
+     source underneath the comparator is unverifiable, so a hard assert here would
+     publish checkedness the surface does not have.
 1. **Criterion mapping**: the ES-310 Pk|hit is *reported, not asserted*. It reads 0%,
      which is an open discrepancy against the historical "50%" and is logged as
      limitation 14 rather than tuned away.
 
 ```{python}
 # Check 5b — historical spot-check: 3.5 g fragment at 61 m (British WoF 1944)
+# NOTE: britishartillery-wt-of-fire is recorded UNVERIFIABLE (card.md,
+# Admissibility) — no primary obtainable, no source.pdf retained. Both halves
+# below are reported comparisons, not asserted passes.
 m_ref   = 3.5e-3          # kg  (1/8 oz)
 s_ref   = 61.0            # m   (200 ft slant range — ground burst, y = 61 m)
 E_ww2   = 78.6            # J   — 58 ft-lb, the source's earlier lethality criterion
@@ -159,10 +173,12 @@ Pk_s    = pk_given_hit(KE_s)
 print(f"3.5 g fragment at {s_ref:.0f} m:")
 print(f"  Retained velocity : {V_s:.1f} m/s")
 print(f"  Kinetic energy    : {KE_s:.1f} J   ({KE_s/E_ww2:.2f}x the 58 ft-lb criterion)")
-# (1) kinematic half — asserted
-assert 0.5 * E_ww2 <= KE_s <= 2.0 * E_ww2, (
-    f"KE at 61 m = {KE_s:.1f} J outside factor-2 of the 58 ft-lb datum ({E_ww2} J)")
-print("  ✓ PASS — retained KE within factor 2 of the WW2 marginal-lethality energy")
+# (1) kinematic half — reported only, NOT asserted: the comparator source is
+# UNVERIFIABLE, so a hard assert would publish checkedness this surface lacks.
+in_band = 0.5 * E_ww2 <= KE_s <= 2.0 * E_ww2
+status = "within" if in_band else "outside"
+print(f"  ! REPORTED — retained KE is {status} factor 2 of the WW2 marginal-lethality"
+      " energy (comparator source unverifiable; not asserted, see limitation above)")
 # (2) criterion half — reported only, NOT asserted (see limitation 14)
 print(f"  Pk|hit (ES-310)   : {Pk_s:.2%}")
 print("  ! OPEN — ES-310 reads 0% against the historical 50%: a criterion-scale"
@@ -179,12 +195,18 @@ which happened to land near ES-310's 1 kJ half-kill point. Numbers from
 
 See the [ordnance-1944 B-vs-range challenge](challenges/drag-gap-1944/b-vs-range.html)
 for the full comparison against the declassified 1944 US Ordnance Dept.
-casualty tables (Tables 43/51/59). **Verdict: FAIL** against the challenge's
-factor-of-2 band for all three shells — Family B over-predicts $B(r)$ by
-roughly 7–34×, growing with range, though the falloff shape (monotonic
-decrease) matches. The consistency of the pattern across three independent
-shells/tables points to a systematic Family B calibration gap rather than a
-per-shell data issue; root-causing it is left to a follow-up correctness
-pass, not resolved by this validation check.
+casualty tables — printed and geometry-verified as Tables 38/39 (75mm),
+48/49 (105mm), and 56/57 (155mm); an earlier version of this check cited
+"Tables 43/51/59", the flattened extraction's renumbering of three
+*neighbouring* shells (81mm M43A1, 105mm M38A1, 8in M103), not these three.
+**Verdict: PASS for most of each shell's tabulated range** against the
+challenge's factor-of-2 band (75mm 8/10, 105mm 9/11, 155mm 11/11 points
+in-band) — the void "FAIL, 7–34× over-prediction, growing with range"
+reading came from the check scripts hand-typing the perforation-of-1/8-in.-
+mild-steel column mislabeled as the casualty column (`b-vs-range-rebaseline.md`).
+Against the corrected casualty data, a smaller residual remains at the
+longest range tested for each shell, now in the *opposite* direction
+(under-prediction, up to ~5.9× at 75mm's r=400 ft) — see the challenge's
+Verdict section for the full accounting.
 
 ______________________________________________________________________

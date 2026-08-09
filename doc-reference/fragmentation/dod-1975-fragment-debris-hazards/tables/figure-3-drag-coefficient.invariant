@@ -29,6 +29,20 @@ row:  (cd if mach >= 3.0 else 1.28) == 1.28 within 0.01
 row:  (cd if mach <= 0.45 else 1.08) == 1.08 within 0.01
 row:  (cd if 1.40 <= mach <= 1.55 else 1.40) == 1.40 within 0.02
 
+# The three pins above all sit on flat segments, so a single-nearest-column
+# misread on the steep transonic rise (or the smaller wiggle just past the
+# plateau) can pass all three while still being wrong -- exactly what
+# happened at mach=1.00 (traced 1.233, page ~1.257, fixed 2026-08-08) and
+# mach=2.60 (traced 1.280, page ~1.294, fixed 2026-08-08). Pin both directly,
+# cross-checked against three independent PNG re-traces
+# (dod-1975-figure-3-mach1-gridline-probe.py, -independent-trace.py,
+# -csv-page-residual.py) rather than the source.pdf render this table's own
+# producing script uses -- the retained source.pdf is not present in every
+# checkout (gitignored), so this invariant is the durable record even when
+# the PDF itself is absent.
+row:  (cd if mach == 1.00 else 1.257) == 1.257 within 0.01
+row:  (cd if mach == 2.60 else 1.294) == 1.294 within 0.01
+
 # The curve never leaves the printed axis box, and the midpoint always lies
 # between the stroke edges it was computed from.
 row:  (0 if 1.07 <= cd <= 1.41 else 1) == 0 within 0.5

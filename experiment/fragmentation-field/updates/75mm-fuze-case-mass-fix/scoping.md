@@ -163,6 +163,22 @@ Every path below cites at least one of `M_case = 5755(.2) g`, `V₀ = 807.5 m/s`
 Superseding notes, not rewrites — the count-gap-1938 rebaseline is separately
 tracked work per the dispatch constraint.
 
+**Propagation status (2026-08-09).** Closed this pass, all restated onto the
+shipped values printed by
+[`checks/shipped-75mm-current-values.py`](checks/shipped-75mm-current-values.py)
+(`M_case = 4980.0 g`, `V₀ = 864.4 m/s`, `μ = 0.826 g`, `N₀ = 3016`):
+`tolch-case-mass-basis.py` (now reads `arty` live instead of pinning
+constants), `tolch-count-basis-closure.py`, `stale-surfaces.md:67,123`,
+`review-void-rulings.md` §2 (its band restates 2.2–2.7× → **2.1–2.2×** and
+`f` → **0.67–0.69**), `mach-dependent-fragment-drag/*`,
+`drag-gap-1944/README.md`, and `drag-gap-1944/initial-conditions-75mm.md`
+(V₀ row **and** the "wrong direction" Comparison argument rebuilt — see the
+marker note below). Rows for `count-chain.md`, `rebaseline-verdict.md` and
+`mott-scale-gap/_scale_verdict_ledger.md` need no action (already re-closed,
+or correctly historical). Remaining rows carry the narrowed marker below.
+
+FINDING[blocking]: five rows of the section 6 table are still unactioned and cite the pre-fix V0=807.5/M_case=5755.2/mu=0.793/N0=3627 against current shipped 864.4/4980.0/0.826/3016 - _limitations.qmd:151 (highest exposure: a published surface, renders into fragmentation-field.html, states N0=3627 for 75mm M48 inside the L1 addendum's bracketing argument; the bracket 779 < N0 < 5000 still holds at 3016 but the digit is wrong), drag-gap-1944/tolch-1938-panel-distance.md:134,188 (the 807.5 model-vs-2750 f/s comparison and the V0 sweep column header), and mott-fragment-shape-closure/derivation.md:149,171,184,200,234 + review.md:57 + scoping.md:69 (these record the shape-closure transition 0.235->0.793 g and 12256->3627 and the 5755.20 g mass-closure integral, so they are arguably correct-as-history like the excluded _scale_verdict_ledger row and most likely need an as-of banner plus the current equivalents rather than a rewrite - decide that before editing) (affects: experiment/fragmentation-field/_limitations.qmd, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/review.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/scoping.md; since: 2026-08-08)
+
 ## 7. Librarian
 
 **Not needed.** Every number the recommendation uses is already processed

@@ -130,31 +130,33 @@ def b_model_at_range(zones, drag, rho_steel, r_ft, aof_deg, n_phi=72):
 
 ### Card data (Tables 43, 51, 59 — Ordnance Dept. 1944)
 
-Transcribed from `doc-reference/wound-ballistics/ordnance-dept-1944-shell-
-fragment-damage/ordnance-1944.md`, with the column-identification and
-transposition fixes documented in the `checks/b-vs-range-*.py`
-reference scripts (each table is OCR-interleaved with a companion
-perforation table; column identity is resolved there from max-range and
-monotonicity cross-checks, not assumed):
+Read from the extracted-once, closure-checked CSVs in
+`doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables/`,
+per `.claude/rules/source-data-fidelity.md`. An earlier version of this cell
+hand-typed a "CASUALTIES" series for each shell that was in fact the
+interleaved PERFORATION-OF-1/8-IN-MILD-STEEL column — a column-swap defect
+found and closed across the whole `drag-gap-1944` thread; see
+[`b-vs-range-rebaseline.md`](b-vs-range-rebaseline.md) for the full
+before/after and per-shell corrected tables.
 
 ```{python}
-CARD_DATA = {
-    "75mm M48 HE": {
-        "r_ft": np.array([20, 30, 40, 60, 80, 100, 130, 160, 190, 225], dtype=float),
-        "B": np.array([0.106, 0.0391, 0.0192, 0.0066, 0.0030, 0.0016, 0.0006, 0.0003, 0.0001, 0.0001]),
-        "table": "Table 43",
-    },
-    "105mm M1 HE": {
-        "r_ft": np.array([20, 30, 40, 60, 80, 100, 120, 140, 170, 200, 300], dtype=float),
-        "B": np.array([0.194, 0.0816, 0.0424, 0.0155, 0.0071, 0.0037, 0.0022, 0.0014, 0.0007, 0.0004, 0.0001]),
-        "table": "Table 51",
-    },
-    "155mm M107 HE": {
-        "r_ft": np.array([20, 30, 40, 60, 80, 100, 120, 140, 170, 200, 300, 400], dtype=float),
-        "B": np.array([0.247, 0.104, 0.0547, 0.0209, 0.0102, 0.0057, 0.0036, 0.0024, 0.0014, 0.0009, 0.0002, 0.0001]),
-        "table": "Table 59",
-    },
-}
+TABLES_DIR = (
+    "../../../../doc-reference/wound-ballistics/"
+    "ordnance-dept-1944-shell-fragment-damage/tables"
+)
+
+CARD_DATA = {}
+for shell_name, stem, table_label in [
+    ("75mm M48 HE", "75mm-m48", "Table 43"),
+    ("105mm M1 HE", "105mm-m1", "Table 51"),
+    ("155mm M107 HE", "155mm-m107", "Table 59"),
+]:
+    _df = pd.read_csv(f"{TABLES_DIR}/{stem}-casualties.csv")
+    CARD_DATA[shell_name] = {
+        "r_ft": _df["r_ft"].to_numpy(dtype=float),
+        "B": _df["B"].to_numpy(dtype=float),
+        "table": table_label,
+    }
 ```
 
 ### Run the comparison for all three shells
@@ -245,44 +247,55 @@ for shell_name, df in results.items():
 
 ## Key findings
 
-**Quantitative — FAIL against the factor-of-2 band, for all three shells.**
-Family B systematically *over-predicts* $B(r)$ at every tabulated range:
+**Quantitative — mostly PASS against the factor-of-2 band, for all three
+shells.** *The "7-34x FAIL" verdict originally reported here was VOID: this
+cell's `CARD_DATA` hand-typed the interleaved PERFORATION-OF-1/8-IN-MILD-STEEL
+column under a "CASUALTIES" label for all three shells — the same column-swap
+defect documented in
+[`b-vs-range-rebaseline.md`](b-vs-range-rebaseline.md). With the corrected
+casualties data (read from the closure-checked CSVs, see above) against the
+shipped DoD-1975-anchored drag default, Family B is close to the card almost
+everywhere:*
 
-| Shell | Ratio range (model/card) | Trend with range |
-| --- | --- | --- |
-| 75 mm M48 HE (Table 43) | ~7x – 33x | grows with $r$ |
-| 105 mm M1 HE (Table 51) | ~9x – 26x | grows with $r$ |
-| 155 mm M107 HE (Table 59) | ~14x – 34x | grows with $r$ |
+| Shell | Ranges in band | Ratio range (model/card) | Trend with range |
+| --- | --- | --- | --- |
+| 75 mm M48 HE (Table 43) | 8/10 | 0.17x – 1.51x | falls with $r$ |
+| 105 mm M1 HE (Table 51) | 9/11 | 0.34x – 1.74x | falls with $r$ |
+| 155 mm M107 HE (Table 59) | 11/11 | 0.67x – 1.42x | falls with $r$ |
 
-Zero of the tabulated ranges fall inside the $[0.5\times, 2\times]$ band for
-any shell. The AoF sensitivity band (0–60°, see the printed tables above)
-shifts the absolute ratio somewhat but does not close the gap to the
-factor-of-2 window at any range for any shell — this is not an AoF-tuning
-problem.
+The failing ranges in each case are the two-to-three *longest* tabulated
+ranges (75mm: r=300-400 ft; 105mm: r=400-500 ft), where the model
+under-predicts rather than over-predicts — the opposite direction and
+opposite trend from the void FAIL verdict. The AoF sensitivity band (0–60°,
+see the printed tables above) shifts the absolute ratio somewhat but does not
+change which ranges pass — this is not an AoF-tuning problem.
 
 **Qualitative — shape agrees.** Both $B_\text{model}(r)$ and $B_\text{card}(r)$
 are monotonically decreasing (per the check above), and neither curve shows
 a spurious plateau or ring the card's data doesn't show. The *falloff shape*
-is correctly captured; only the *absolute magnitude* is wrong, and
-increasingly so at longer range.
+is correctly captured, and now the *absolute magnitude* is too, for most of
+each shell's tabulated range.
 
-**A systematic finding, not a per-shell data problem.** The over-prediction
-direction, rough order of magnitude (7-34x), and the fact that the ratio
-*grows with range* are consistent across three independent shells, calibers,
-and source tables. That consistency across independent data points to a
-Family B calibration issue — most plausibly the binary energy-cutoff
-formulation itself (every fragment above 58 ft-lb counted as a full
-casualty-producing hit, with no partial-lethality falloff) combined with the
-model's inverse-square/exponential-drag geometric spreading, rather than a
-transcription error in any one table. It is *not* diagnosed further here —
-that is a correctness pass for @modeler, not a conclusion this presentation
-notebook should draw beyond flagging the pattern.
+**Residual at long range, not a per-shell data problem.** *(Original framing
+— "over-prediction, growing with range, 7-34x across all three shells" — was
+built on the void column-swap `CARD_DATA`; see the void-verdict box above.
+With the corrected data, the picture reverses: the model tracks the card
+closely at short-to-mid range and under-predicts at the longest tabulated
+ranges, the same direction and pattern for all three shells.)* That
+consistency across independent shells still points to a Family B trait worth
+naming, though a much smaller one now: the model's exponential-drag decay
+falls off a bit faster at long range than the card's own falloff. It is *not*
+diagnosed further here — that is a correctness pass for @modeler, not a
+conclusion this presentation notebook should draw beyond flagging the
+pattern.
 
 ### Follow-up: root cause traced, drag literature identified
 
-A separate, already-completed investigation (one pass per caliber) has since
-traced this pattern to a specific cause. Checking the model's inputs against
-the source's own tabulated data for all three shells —
+A separate, already-completed investigation (one pass per caliber, predating
+the CARD_DATA correction above) traced the *original* over-prediction pattern
+to a specific cause, at the drag constants in effect at the time
+(`C_D=0.65`/`C_shape=0.90`, combined $\approx$ 0.585). Checking the model's
+inputs against the source's own tabulated data for all three shells —
 [`initial-conditions-75mm.md`](initial-conditions-75mm.md),
 [`initial-conditions-105mm.md`](initial-conditions-105mm.md),
 [`initial-conditions-155mm.md`](initial-conditions-155mm.md) —
@@ -290,11 +303,12 @@ ruled out both the initial fragment velocity $V_0$ (the model's Gurney $V_0$
 runs a few percent to ~15% *low* relative to the card's stated value, the
 wrong direction to explain an over-prediction) and the 58 ft-lb lethal-energy
 threshold (already matched explicitly in this notebook, see above). On all
-three shells, the same several-fold gap instead traces to fragment velocity
-decaying too slowly in the model versus the source's own tabulated
-velocity-vs-range data — the model's combined drag term is several-fold too
-small, worst at long range, exactly matching the growing-with-range shape of
-the $B(r)$ over-prediction reported above.
+three shells, the gap instead traced to fragment velocity decaying too
+slowly in the model versus the source's own tabulated velocity-vs-range
+data — the model's combined drag term was several-fold too small at that
+time. This drag-term finding is what motivated the recalibration and
+DoD-1975 anchor described below, and stands on its own tabulated-velocity
+evidence independent of the `CARD_DATA` correction above.
 
 That combined drag term, `DragParams` in `src/arty/fragmentation.py`
 (re-exported via `arty.zones`, as imported above)
@@ -316,15 +330,19 @@ here.
 **Follow-up closed: recalibration checked, does not fully close the gap.**
 [`drag-coefficient-calibration.md`](drag-coefficient-calibration.md)
 has since run that recalibration — substituting the literature-supported
-combined drag values (1.2, 1.7; DDESB TP-12 and SAND92-0243) for the
-model's current 0.585 against all three calibers' tabulated $v(r)$ data.
-Finding: a higher constant drag substantially shrinks the model/source
-velocity ratio everywhere, but does not close it uniformly — for 75mm and
-155mm the ratio falls, overshoots toward unity, then rises again with
-range; for 105mm it never turns over and keeps diverging over the tested
-range. The residual is caliber- and range-dependent, not a simple
-under-scaled constant. This matches SAND92-0243's own framing of the
-1.2–1.7 combined drag as *velocity-dependent*, not a single value — so the
+combined drag values (1.0, 1.71; DDESB TP-12 and SAND92-0243, the latter's
+own parameter-range-list data floor/ceiling, not the "1.2 and 1.7" prose
+sentence elsewhere on the same source page) for the model's current 0.585
+against all three calibers' tabulated $v(r)$ data. Finding: a higher
+constant drag substantially shrinks the model/source velocity ratio
+everywhere, but does not close it uniformly — all three calibers show the
+same shape, the ratio falls, overshoots toward unity, then rises again with
+range. (An earlier version of this notebook reported 105mm as never turning
+over; that reading traced to the 105mm check hand-typing the wrong source
+column — see `drag-coefficient-calibration.md`'s 105mm section — and is
+corrected here.) The residual is range-dependent, not a simple under-scaled
+constant. This matches SAND92-0243's own framing of a velocity-dependent
+combined drag (1.0–1.71 by its own data), not a single value — so the
 mismatch traced above is a **characterized model gap** (a fixed-rate
 exponential decay cannot reproduce a $v(r)$ whose deviation from that decay
 changes sign with range), not evidence the recalibration direction was
@@ -332,8 +350,9 @@ wrong. Closing it fully needs a velocity- or range-dependent drag term in
 `retardation_coeff`, which is out of scope for this notebook; logged as a
 limitation (`_limitations.qmd` §7 addendum).
 
-**Follow-up (v0.9.0): drag anchored to the DoD-1975 ballistic density,
-narrows the gap but does not close it.**
+**Follow-up (v0.9.0): drag anchored to the DoD-1975 ballistic density —
+against the corrected `CARD_DATA`, this closes the gap for most of each
+shell's tabulated range.**
 [`updates/mach-dependent-fragment-drag/`](../../updates/mach-dependent-fragment-drag/)
 resolved the "velocity-dependent, not a simple constant" framing above the
 other way: a Mach-dependent $C_D(M)$ integrated along each trajectory
@@ -347,50 +366,60 @@ shape estimate ($C_\text{shape} = (\rho_\text{steel}/k)^{2/3}$,
 eq. 4), giving combined $C_D \cdot C_\text{shape} = 2.674$ (from 0.585, a
 4.6× increase — the old value was not merely low but geometrically
 impossible, implying a fragment denser than solid steel). Re-running this
-notebook's own $B(r)$ ratio at the new default against the prior
-(post-shape-closure, pre-anchor) baseline
-([`checks/b-vs-range-drag-attribution.py`](checks/b-vs-range-drag-attribution.py)):
+notebook's own $B(r)$ ratio at the new default against the pre-anchor
+baseline, both now against the corrected casualties `CARD_DATA`
+([`checks/b-vs-range-drag-attribution.py`](checks/b-vs-range-drag-attribution.py),
+which imports the same corrected `CARD_R_FT`/`CARD_B` from the per-caliber
+check modules used above):
 
-| Shell | Ratio range, pre-anchor | Ratio range, v0.9.0 | Far-field reduction |
+| Shell | Ratio range, pre-anchor (0.585) | Ratio range, v0.9.0 (2.674, shipped) | In $[0.5,2]$ band |
 | --- | --- | --- | --- |
-| 75 mm M48 HE | ~3.8x – 27.3x | ~2.7x – 5.3x | 6.7x |
-| 105 mm M1 HE | ~2.7x – 14.7x | ~2.3x – 3.4x | 4.8x |
-| 155 mm M107 HE | ~2.1x – 9.3x | ~1.9x – 3.9x | 3.0x |
+| 75 mm M48 HE | ~1.7x – 3.7x | ~0.2x – 1.5x | 8/10 |
+| 105 mm M1 HE | ~1.9x – 3.6x | ~0.3x – 1.7x | 9/11 |
+| 155 mm M107 HE | ~1.5x – 3.1x | ~0.7x – 1.4x | 11/11 |
 
-(The "pre-anchor" column is the model as of v0.8.0 — already reduced from the
-original ~7x–34x reported above by the intervening Mott shape-closure fix,
-which changed fragment mass, not drag.) The gap narrows substantially at long
-range but is not closed: a residual ~2–5x over-prediction remains at every
-range for all three shells, still outside the $[0.5\times, 2\times]$ band.
-Per `derivation.md` §7 (L3), the admissible envelope for `C_D \cdot
-C_\text{shape}` leaves at most ~10% more headroom before the fragment would
-have to be denser than solid steel, so this residual cannot be closed by a
-further drag increase — it must be sought elsewhere in the model (the count
-chain, spray/belt geometry, or the $B(r)$ reduction formulation itself).
+*(An earlier version of this table compared against the void column-swapped
+`CARD_DATA` and reported a ~2-5x residual that "cannot be closed by a
+further drag increase" — see the void-verdict box in Key findings. Against
+the corrected casualties data, the v0.9.0 anchor already lands most ranges
+inside the factor-of-2 band; see the Verdict below.)* The two-to-three
+longest-range points per shell still under-predict (see Key findings above)
+— a smaller, opposite-direction residual from the one originally reported,
+worth a closer look in a follow-up pass but not the large uniform
+over-prediction this section previously described.
 
 ### Qualitative damage-pattern-shape note (§3.4/§4)
 
 A full comparison against the card's damage-pattern figures (Figs. 67-73,
 93-100, 117-125) — rendering the ground $P_k$ field at ground-burst, 30 ft,
 and 60 ft HOB and eyeballing shape against the saved images — was scoped as
-optional for this pass given the quantitative verdict above is already a
-clear, well-evidenced FAIL and is this notebook's primary deliverable. The
-existing four-zone field plots (`_four-zone-3d.qmd`, `_field-plots.qmd`)
-already render a forward-of-burst-axis elongated fringe rather than a
-symmetric ring, which is qualitatively consistent with the card's
-described "Θ" pear/ellipse shape; a rigorous per-shell, per-HOB comparison
-against the specific saved figures is left as a follow-up study rather than
-duplicated here.
+optional for this pass given the (subsequently voided) quantitative verdict
+was a clear FAIL and this notebook's primary deliverable; it remains
+optional now that the corrected verdict is mostly PASS. The existing
+four-zone field plots (`_four-zone-3d.qmd`, `_field-plots.qmd`) already
+render a forward-of-burst-axis elongated fringe rather than a symmetric
+ring, which is qualitatively consistent with the card's described "Θ"
+pear/ellipse shape; a rigorous per-shell, per-HOB comparison against the
+specific saved figures is left as a follow-up study rather than duplicated
+here.
 
 ### Verdict
 
-**FAIL** against the scoping doc's §4 quantitative criterion, for all three
-shells (75 mm, 105 mm, 155 mm) — $B_\text{model}$ over-predicts the card's
-casualty density by roughly 7-34x, growing with range, well outside the
-factor-of-2 band. The falloff *shape* matches (monotonic decrease, no
-spurious features), so this is a magnitude-calibration defect in Family B,
-not a wrong functional form — and it recurs the same way across three
-independent shells/tables, which is evidence for a systematic Family B issue
-rather than three unrelated per-shell errors. This is a defect finding for a
-follow-up correctness pass (Gate 3), not something this presentation
-notebook fixes.
+**PASS for most of each shell's tabulated range; a smaller far-range
+residual remains.** Against the scoping doc's §4 quantitative criterion, for
+all three shells (75 mm, 105 mm, 155 mm): 8/10, 9/11, and 11/11 tabulated
+ranges respectively fall inside the $[0.5\times, 2\times]$ factor-of-2 band.
+*This restates the original "FAIL... 7-34x, growing with range" verdict,
+which was VOID — it was computed against a hand-typed `CARD_DATA` that
+transcribed the interleaved perforation-of-1/8-in.-mild-steel column under a
+"casualties" label (see the Key findings box above and
+[`b-vs-range-rebaseline.md`](b-vs-range-rebaseline.md) for the full audit
+trail).* The falloff *shape* still matches (monotonic decrease, no spurious
+features). The residual that remains is at the two-to-three *longest*
+tabulated ranges per shell, where the model now *under*-predicts — the
+opposite direction from the original (void) finding — and is small enough
+(worst case ~1/0.17 ≈ 5.9x under-prediction at 75mm's r=400 ft, vs. up to
+34x over-prediction in the void original) that it is not this notebook's
+primary deliverable; it is noted as a smaller follow-up question for whoever next
+revisits Family B's long-range drag behavior, not a defect finding requiring
+a Gate 3 correctness pass on its own.

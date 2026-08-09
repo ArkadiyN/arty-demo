@@ -576,7 +576,18 @@ They are recorded *here*, not in the affected files, because this audit's scope
 forbids editing `src/arty/` and the downstream artifacts — `affects:` does the
 routing, so a marker never has to sit in a file the pass may not touch.
 
-FINDING\[blocking\]: B-vs-range check scripts read the perforation-of-1/8-in-mild-steel column while applying the 58 ft-lb casualty criterion, and hand-type the series instead of reading tables/\*.csv (affects: experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-75mm.py, experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-105mm.py, experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-155mm.py, experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-familyA.py, experiment/fragmentation-field/challenges/drag-gap-1944/checks/drag-coefficient-calibration.py; since: 2026-08-02)
+*(Closed 2026-08-08: `b-vs-range-75mm.py`, `-105mm.py`, `-155mm.py` now
+`pd.read_csv` the closure-checked `tables/*-casualties.csv` for each caliber
+instead of hand-typing (each carries a docstring note on the earlier
+perforation-column defect); `b-vs-range-familyA.py` reuses the same casualty
+threshold and does not itself hand-type a series;
+`drag-coefficient-calibration.py`'s three inline triples now verbatim-match
+the casualties tables (105mm/155mm comments cite the correction against
+`105mm-m1-casualties.csv` / the 155mm Table 59 casualties; 75mm reuses the
+three points already quoted in `initial-conditions-75mm.md`) — the wrong-column
+defect this finding names is fixed everywhere it affects, even though this one
+file still carries literal arrays rather than a `pd.read_csv` call. Marker
+deleted.)*
 
 The three Tolch card findings raised here on 2026-08-02 — the "Drag Model
 Relevance" section recommending the wrong axis, `tolch-1938.md` remaining a
@@ -586,7 +597,17 @@ states in its own words that `tolch-1938.md` is not a citable surface for any
 number; and the velocity distribution is now recorded there as a permanent
 state of the source at its available scan quality rather than a pending action.
 
-FINDING\[blocking\]: the pit-test recovered-fragment count is 803 in committed artifacts but the report's own screen table (now at tables/pit-screen-recovery.csv, where 4 of 5 screen rows fail their printed percentage under 803 and all 5 close under 779) and body text both say 779, which shifts the derived mean fragment mass 6.85 g -> 7.06 g and the update's N/observed band 3.9-5.6x -> 3.75-6.00x (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/scoping.md, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-02)
+*(Closed 2026-08-09: `updates/mach-dependent-fragment-drag/checks/tolch-count-post-shape-closure.py`
+now normalises on the midpoint of Tolch's two independent perforation
+estimates — 700 (panel densities) and 779 (pit-test recovery) — instead of
+the stale 750/803-derived placeholder, with both bounds reported; `derivation.md`'s
+L1 limitation and `scoping.md` restate the re-run figures; `tolch-1938-panel-distance.md`
+already cited 779, re-baselined from the published 803, before this closure.
+An independent @model-reviewer pass (`updates/mach-dependent-fragment-drag/review.md`,
+"Tolch (1938) pit-recovery count re-baseline (803 → 779)" section) re-ran the
+check script and every derivation.md/scoping.md figure and confirmed exact
+reproduction, and confirmed the `pit-screen-recovery.invariant` closure holds.
+Marker deleted.)*
 
 ## 11. Sweep of the rest of `doc-reference/` (Phase 8 item 3)
 
@@ -768,9 +789,7 @@ Its seven anchors are also all bare line numbers (`ordnance-1944.md#L261`,
 `#L340-L369`, …) — the form `.claude/rules/source-data-fidelity.md` forbids, and
 the form that rotted onto the wrong shell's data in the original incident.
 
-The card leg of the mislabelling was closed in `71963fc` — the three shell sections now carry the printed numbers 38/39, 48/49 and 56/57, and the card warns that the extraction renumbers them 43/44, 51/52, 59/60 and that a `TABLE nn` line is not a citable anchor there. The rendered surface still repeats the wrong set:
-
-FINDING\[blocking\]: experiment/fragmentation-field/\_validation.qmd Check 7 labels the three ordnance-1944 shell tables "Tables 43/51/59" on a rendered reader-facing surface, but those are the flattened extraction's renumbering and each points at a neighbouring shell (43 is 81mm M43A1, 51 is 105mm M38A1, 59 is 8in M103); the printed and geometry-verified numbers are 38/39, 48/49, 56/57 (affects: experiment/fragmentation-field/\_validation.qmd; since: 2026-08-02)
+The card leg of the mislabelling was closed in `71963fc` — the three shell sections now carry the printed numbers 38/39, 48/49 and 56/57, and the card warns that the extraction renumbers them 43/44, 51/52, 59/60 and that a `TABLE nn` line is not a citable anchor there. The rendered surface repeated the wrong set until 2026-08-08, when `_validation.qmd` Check 7 was restated to the printed and geometry-verified numbers 38/39, 48/49, 56/57. Marker deleted.
 
 All seven of the card's bare line-number anchors were replaced with verified greppable strings in the same pass — three shell-title headings (including the OCR-damaged `# 105-MM H.E. SHELL,'Ml` and `# 155-MM N.E. SHELL, M107`, quoted as stored) and four section/definition strings, each grepped at authoring and confirmed to return exactly one hit at the claimed content.
 
@@ -1989,7 +2008,18 @@ of 22b–22e off the page). Findings registered below.
 `ammunition-series-6-wdss-specs` (§19), `aisi-1335` (§21) and
 `sandia-sand92-0243` (§22) are all re-baselined.
 
-FINDING\[blocking\]: SAND92-0243 is cited as "C_D 1.2-1.7" and 1.2 is used as its low end, but that is the report's general prose sentence; its parameter-range list on the same page gives the span of its own computed data as 1.0 to 1.71, so the cited floor is 0.2 high (affects: experiment/fragmentation-field/challenges/drag-gap-1944/checks/drag-coefficient-calibration.py, experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md, experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range.qmd, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md, experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-02)
+*(Closed 2026-08-08: `drag-coefficient-calibration.py`/`.md`, `b-vs-range.qmd`,
+and `_limitations.qmd` all now cite SAND92-0243's own parameter-range-list
+floor/ceiling (1.0–1.71), not its "1.2 and 1.7" prose sentence.
+`tolch-1938-panel-distance.md` is the one file that still sweeps 1.2/1.7
+internally — but it no longer does so silently: it explicitly states the
+values are the prose sentence, not the data floor/ceiling, that the sweep
+"has not been re-run at 1.0/1.71," and points at `OPEN-FINDINGS.md`. That
+residual — re-sweeping this file's tables at the corrected bounds — is
+separately tracked as its own deferrable marker at
+`tolch-1938-panel-distance.md:144` (its sweep script no longer exists on
+disk), so it is not being silently dropped, just downgraded from a silent
+wrong number to a disclosed, tracked one. Marker deleted.)*
 
 FINDING\[deferrable\]: SAND92-0243 is cited for a velocity-DEPENDENT C_D but states no functional form; its own analyses take "Drag coefficient = variable (Ref. 1)" and Ref. 1 is SAND91-0277, which is not held, so the dependence is cited but unsourced (affects: experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, doc-reference/ww2-shells/sandia-sand92-0243/card.md; since: 2026-08-02)
 
@@ -2207,7 +2237,12 @@ one remaining Phase-3 blocker with real numeric exposure — closed in §24a onc
 the user supplied the scan. `ammunition-series-6-steel-composition` remains open
 from §11; it is uncited, so it gates nothing.
 
-FINDING\[blocking\]: ES-310's "Implications for 79 J Threshold" section, Key Findings bullet 1 and Summary "79–80 J" clause are not on the source page — it never mentions 79 J or 80 J — so a repo argument is published as a DoD/Navy claim (affects: doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md, experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-03)
+*(ES-310's "Implications for 79 J Threshold" section, Key Findings bullet, and
+Summary "79–80 J" clause — fabricated content not on the source page, per the
+finding registered in `fas-es310-damage-criteria.md` — is closed: the section,
+bullet, and clause are removed from that file, and the underlying comparison
+now lives, correctly sourced as a repo argument rather than a DoD/Navy claim,
+in `_limitations.qmd` limitation 14. Marker deleted.)*
 
 *(The Gold 2017 blocking finding registered here — no card, no closure, no
 retained scan, bare-line-number citations — is closed by §24a; its marker is
@@ -3267,6 +3302,13 @@ both at once will net them against each other; two passes will not.
 
 ## 32 · Phase 3 — `count-gap-1938`: the verdict stands, one inference does not
 
+*Historical entry — scores the Tolch-series re-baseline only. The thread's
+verdict has since moved for an unrelated reason (commits 6c1faff / `50b734e`
+changed the shipped $M_\text{case}$, $V_0$ and $\gamma'$, putting the count arm
+at or inside the 2× band). Live text:
+`challenges/count-gap-1938/count-chain.md` §4 "Verdict framing". Nothing in
+this entry's transcription corrections is affected.*
+
 Verdict: `challenges/count-gap-1938/rebaseline-verdict.md`. Of 20 published
 claims: **12 sound, 7 shifted, 1 void.** Retained script:
 `challenges/count-gap-1938/checks/count-chain-rebaseline.py` (~2 s, reads every
@@ -3670,4 +3712,14 @@ FINDING\[note\]: source.pdf's text layer covers this document's tabular pages bu
 
 FINDING\[deferrable\]: the six ordnance-1944 .invariant files anchor TABLE 38/39,48/49,56/57 which are correct against the retained source.pdf (geometry-verified by checks/ordnance-1944-page-geometry.py) but resolve to a DIFFERENT shell in the flattened extraction ordnance-1944.md, which renumbers the same tables 43/44,51/52,59/60; no data is wrong, but nothing warns a reader not to grep TABLE nn against the extraction (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables, experiment/fragmentation-field/challenges/source-data-audit/checks/ordnance-1944-table-number-anchors.py; since: 2026-08-03)
 
-FINDING\[note\]: two retained scripts disagree on the traced page value of DoD-1975 Figure 3 at Mach 1.00 - checks/dod-1975-figure-3-mach1-gridline-probe.py gives ~1.257 (the value review-provenance.md quotes) and checks/dod-1975-figure-3-independent-trace.py gives 1.274; both agree the CSV's 1.233 is wrong and that this is the largest residual on the curve, but the size of the correction is not settled (affects: experiment/fragmentation-field/challenges/source-data-audit/checks/dod-1975-figure-3-independent-trace.py, experiment/fragmentation-field/challenges/source-data-audit/review-provenance.md; since: 2026-08-03)
+*(Resolved 2026-08-08: a third independent script,
+`checks/dod-1975-figure-3-csv-page-residual.py`, sweeps every CSV row with the
+same gridline-avoiding curve-fit family as `-mach1-gridline-probe.py` and
+independently lands at "page 1.257" for Mach 1.00 — 2-of-3 convergence.
+`-independent-trace.py`'s 1.274 is now diagnosed, not just disputed: its `at()`
+reads the single nearest traced column rather than interpolating, the exact
+failure mode `review-provenance.md`'s finding attributed to the committed CSV's
+own producing script. `-independent-trace.py` is left as-is (it is a
+cross-check against a different image, not the CSV's producer, and its own
+diagnostic table shows the M=1.00 residual as its one clear outlier); the
+committed CSV and card.md now read 1.257. Marker deleted.)*

@@ -50,7 +50,7 @@ for V0 in (V0_model, V0_tolch):
         N = mott_N(np.array([m_thr]), N0, mu)[0]
         print(
             f"  E_thr={E_thr:7.1f} J -> m_thr(15ft)={m_thr*1e3:7.3f} g  "
-            f"N={N:7.0f}  N/N0={N/N0:5.2f}  N/700={N/700:5.2f}  N/803={N/803:5.2f}"
+            f"N={N:7.0f}  N/N0={N/N0:5.2f}  N/700={N/700:5.2f}  N/779={N/779:5.2f}"
         )
 
 # (b) sensitivity of N0 to the velocity that sets the fracture spacing x0.
@@ -79,7 +79,7 @@ for f in (1.0, 0.9, 0.8, 0.7, 0.6):
         N = mott_N(np.array([m_thr]), N0_f, mu_f)[0]
         print(
             f"  f={f:4.2f}  E_thr={E_thr:6.1f} J ({label:24s})  "
-            f"m_thr={m_thr*1e3:7.3f} g  N={N:7.0f}  N/700={N/700:5.2f}  N/803={N/803:5.2f}"
+            f"m_thr={m_thr*1e3:7.3f} g  N={N:7.0f}  N/700={N/700:5.2f}  N/779={N/779:5.2f}"
         )
 
 # (c) how much of N0 sits below Tolch's finest screen cut (0.63 g)
@@ -88,5 +88,6 @@ for cut_g in (0.63, 0.36, 0.13, 0.05):
     N_above = mott_N(np.array([cut_g * 1e-3]), N0, mu)[0]
     print(
         f"  cut {cut_g:5.2f} g: N(>=cut)={N_above:7.0f} "
-        f"({100*N_above/N0:4.1f}% of N0)   [Tolch pit: 803 recovered, mean 6.85 g]"
+        f"({100*N_above/N0:4.1f}% of N0)   [Tolch pit: 779 recovered, mean 7.40 g"
+        f" (re-baselined from a published 803 / 6.85 g, see rebaseline-verdict.md)]"
     )

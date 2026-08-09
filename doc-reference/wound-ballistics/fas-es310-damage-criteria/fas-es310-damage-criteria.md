@@ -8,11 +8,11 @@ topic: wound-ballistics
 
 ## Summary
 
-This DoD/Navy training document defines probabilistic damage criteria for fragmentation warheads using a Probability of Kill (Pk) framework with three discrete levels (light/moderate/heavy). Personnel lethality thresholds are given as 100 J (light, Pk = 0.1), 1,000 J (moderate, Pk = 0.5), and 4,000 J (heavy, Pk = 0.9), derived from comparisons to known small-arms calibers. The document formalizes how fragment count, mass, velocity, and range combine into an expected-hits model, making the 79–80 J fixed threshold appear conservative relative to the DoD's own 100 J "light damage" floor.
+This DoD/Navy training document defines probabilistic damage criteria for fragmentation warheads using a Probability of Kill (Pk) framework with three discrete levels (light/moderate/heavy). Personnel lethality thresholds are given as 100 J (light, Pk = 0.1), 1,000 J (moderate, Pk = 0.5), and 4,000 J (heavy, Pk = 0.9), derived from comparisons to known small-arms calibers. The document formalizes how fragment count, mass, velocity, and range combine into an expected-hits model.
 
 ## Key Findings
 
-- The DoD light-damage threshold for personnel is **100 J** (Pk = 0.1), not 79–80 J; the 79 J value falls *below* even the lightest defined damage level
+- The DoD light-damage threshold for personnel is **100 J** (Pk = 0.1)
 - Moderate personnel kill criterion is **1,000 J** (Pk = 0.5, ".357 jacketed soft-point" equivalent)
 - Heavy personnel kill criterion is **4,000 J** (Pk = 0.9, sufficient to "penetrate body armor")
 - Lethality is computed probabilistically via expected fragment hits, not a binary energy pass/fail
@@ -64,15 +64,19 @@ At 5 m:
 
 - Nhits = 0.6 → Pk ≈ 0.50 (lethal range boundary)
 
-### Implications for 79 J Threshold
-
-The 79 J value commonly cited as the "hazardous fragment energy" threshold in military vulnerability analyses sits below the DoD's own 100 J light-damage floor (Pk = 0.1). This means the fixed 79 J criterion is a minimum-incapacitation floor, not a Pk = 0.5 lethality criterion. Using it as a binary kill threshold in HE fragmentation models will overestimate lethality at short range and misrepresent the probabilistic nature of fragment casualties.
-
 ## Findings from the 2026-08-03 re-fetch
 
 Do not renumber or reflow the sections above: `updates/pkill-poisson-field/derivation.md` cites this file by bare line number (L16, L42–46, L51–55), which is why finding 3 exists. See `card.md` for the full divergence list and the closure that admits the personnel row.
 
-FINDING\[blocking\]: the "Implications for 79 J Threshold" section, Key Findings bullet 1 and the Summary's "79–80 J" clause are not on the source page — it never mentions 79 J or 80 J — so a repo argument is published here as a DoD/Navy claim (affects: doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md, experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-03)
+The "Implications for 79 J Threshold" section, a Key Findings bullet, and a
+Summary clause about "79–80 J" previously published here have been removed:
+the source page never mentions 79 J or 80 J (confirmed by targeted re-fetch),
+so that comparison was a repo argument published as a DoD/Navy claim. The
+comparison itself is not lost — it belongs, and already lives, as a modelling
+claim in `experiment/fragmentation-field/_limitations.qmd` (limitation 14),
+where it is reviewed as an argument rather than inherited as a source premise.
+See `card.md`, "The 'Implications for 79 J Threshold' section is not from
+this source", for the full account.
 
 FINDING\[deferrable\]: the "Personnel Damage Criteria Table" is not a table on the page — it is Table 3's personnel row transposed, with the aircraft and armored-vehicle rows dropped and a "Caliber Reference" column welded on from prose; read tables/table-3-fragmentation-damage-criteria.csv instead (affects: doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md; since: 2026-08-03)
 

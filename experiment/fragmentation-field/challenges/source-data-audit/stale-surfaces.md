@@ -64,9 +64,13 @@ Numbers stale in the same paragraph:
 | 803 pit-recovered              | **779**    | `tables/pit-screen-recovery.csv`   |
 | (mean 6.85 g quoted elsewhere) | **7.40 g** | `checks/count-chain-rebaseline.py` |
 
-$N_0 = 3627$ is unaffected and still falls between Tolch's two totals, so the
-bracketing argument itself survives — only the conclusion drawn from it does
-not.
+$N_0$ is unaffected by the 803 → 779 re-baseline and still falls between
+Tolch's two totals, so the bracketing argument itself survives — only the
+conclusion drawn from it does not. (Written against $N_0 = 3627$; shipped
+$N_0$ is now **3016** after `50b734e` re-sourced the 75 mm `mass_deductions`
+and `6c1faff` re-anchored $\gamma'$/$V_0$. The bracket 779 < $N_0$ < 5000
+holds at 3016 with the same wide margin, so nothing in this row turns on
+which value is used.)
 
 ______________________________________________________________________
 
@@ -115,14 +119,14 @@ The sweep above was written when four threads had ruled. `mach-dependent-fragmen
 following. Two of them outrank everything in Tier 1, because they sit in
 **shipped code** rather than in a notebook.
 
-| Surface                                                              | Stale claim                                                                                                                                                                           | Exposure                               |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| `src/arty/fragmentation.py:201-203`                                  | Comment on `DragParams.C_D`: the Mach dependence "does not beat this constant on the 1944 Ordnance velocity-decay data" — **false**; the value 1.28 is sound, only the reason is void | shipped                                |
-| `src/arty/zones.py:384-385` (via `derivation.md`)                    | Computes `V0_ogive` / `V0_cyl` from a derivation whose own §6 example contradicts its scoping rationale, previously reconciled by a citation now void                                 | shipped, **which is wrong is unknown** |
-| `updates/frag-field-3d-geometry/scoping.md:61, :65-78, :96-97, :290` | "BRL 126 reports nose-spray fragments averaging 2740 ft/s" — the figure **is** Tolch's, but it is the **side** spray and its companion is 3030 f/s, not 1070 (see below)              | working folder                         |
-| `src/arty/shells.py:58-60`                                           | 75 mm M48 `mass_deductions=0.200` kg is a placeholder against Tolch's stated 2.35 lb M39 P.D. fuze; case metal 5755 g vs the source's 4962 g, ~16% high, and `N0 = M_case/2μ` uses it | shipped                                |
-| `updates/frag-field-3d-geometry/derivation.md:358, :379`             | §6 "range-panel artefact" reconciliation and §7 open-item 2, both built on the same void citation                                                                                     | cited by shipped `zones.py:14`         |
-| `updates/mach-dependent-fragment-drag/derivation.md` §5              | The rejection of the Mach-dependent law, decided by a comparison giving the constant a fitted parameter and the Mach law none                                                         | working folder                         |
+| Surface                                                              | Stale claim                                                                                                                                                                                                                                                                                                                                                     | Exposure                               |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `src/arty/fragmentation.py:201-203`                                  | Comment on `DragParams.C_D`: the Mach dependence "does not beat this constant on the 1944 Ordnance velocity-decay data" — **false**; the value 1.28 is sound, only the reason is void                                                                                                                                                                           | shipped                                |
+| `src/arty/zones.py:384-385` (via `derivation.md`)                    | Computes `V0_ogive` / `V0_cyl` from a derivation whose own §6 example contradicts its scoping rationale, previously reconciled by a citation now void                                                                                                                                                                                                           | shipped, **which is wrong is unknown** |
+| `updates/frag-field-3d-geometry/scoping.md:61, :65-78, :96-97, :290` | "BRL 126 reports nose-spray fragments averaging 2740 ft/s" — the figure **is** Tolch's, but it is the **side** spray and its companion is 3030 f/s, not 1070 (see below)                                                                                                                                                                                        | working folder                         |
+| `src/arty/shells.py:58-60`                                           | ~~75 mm M48 `mass_deductions=0.200` kg is a placeholder against Tolch's stated 2.35 lb M39 P.D. fuze; case metal 5755 g vs the source's 4962 g, ~16% high, and `N0 = M_case/2μ` uses it~~ **FIXED `50b734e`**: `mass_deductions = 0.97522` kg (TM-9-1901 §319.b), `M_case = 4980 g`, +0.4 % vs Tolch. Shipped now: `V₀ = 864.4` m/s, `μ = 0.826` g, `N₀ = 3016` | ~~shipped~~ closed                     |
+| `updates/frag-field-3d-geometry/derivation.md:358, :379`             | §6 "range-panel artefact" reconciliation and §7 open-item 2, both built on the same void citation                                                                                                                                                                                                                                                               | cited by shipped `zones.py:14`         |
+| `updates/mach-dependent-fragment-drag/derivation.md` §5              | The rejection of the Mach-dependent law, decided by a comparison giving the constant a fitted parameter and the Mach law none                                                                                                                                                                                                                                   | working folder                         |
 
 The `src/arty/` rows are **not repairs this audit performs** — the plan
 scopes `src/arty/` to assess-only, and the `zones.py` one is a physics
@@ -175,5 +179,3 @@ when their thread is repaired — `checks/count-chain-decomposition.py:91`
 ("Tolch pit: 803 recovered, mean 6.85 g") and
 `updates/mach-dependent-fragment-drag/checks/tolch-count-post-shape-closure.py:28`
 ("pit test ~803 recovered").
-
-FINDING\[blocking\]: \_limitations.qmd L1 addendum publishes "the Mott stage is exonerated ... The gross fragment population is not the defect", the exact inference the threshold-free cumulative-mass-fraction test in count-gap-1938/rebaseline-verdict.md refutes (model over-counts 1.2-2.7x with the threshold removed entirely); it also quotes 803 pit-recovered against the corrected 779 (affects: experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-03)

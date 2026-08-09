@@ -265,18 +265,27 @@ change → **do not implement**.
 
 ## 7. Limitations (deliverables of this pass, per scoping §5)
 
-**L1 — Tolch's absolute perforating count still over-predicts ~4–6×, and this
+**L1 — Tolch's absolute perforating count still over-predicts ~3–4×, and this
 is not attributed to drag.** At the adopted constant, reproducing Tolch's
 observed 15 ft → 120 ft perforation-density ratio (0.557) requires
-$E_{thr}$ ≈ 2–4 J and yields 3.9–5.6× Tolch's measured ~700–800 perforations
-per shell (scoping §3d). Tolch's own best absolute agreement is near combined
-≈ 1.2. This disagreement is recorded, not resolved, and the Ordnance anchor is
+$E_{thr}$ ≈ 3–6 J and yields 2.8–4.1× Tolch's measured ~700–780 perforations
+per shell (scoping §3d, re-run 2026-08-08). Tolch's own best absolute agreement
+is near combined ≈ 1.2.
+
+> **Re-run note (2026-08-08).** This limitation previously read "~4–6×",
+> $E_{thr}$ 2–4 J, against "~700–800". Two corrections, both folded in above and
+> documented in scoping §3d: the observed pit-recovered count is **779**, not
+> 803 (`challenges/count-gap-1938/rebaseline-verdict.md`) — worth −1.4% and
+> nothing else; and the Mott closure moved when `gamma'` was re-anchored
+> 65 → 54.5 (commit `6c1faff`), which is what actually shifts the band. The
+> limitation itself is unchanged in kind: an unattributed several-fold
+> over-count that must not be re-litigated by re-fitting drag. This disagreement is recorded, not resolved, and the Ordnance anchor is
 followed instead, for four reasons: (i) Tolch is a *compound* test — drag ×
 Mott spectrum × a one-parameter fitted threshold × a perforate/not model — so
 its residual is not attributable to drag, whereas V2 tests retardation alone;
 (ii) a drag-orthogonal ~1.8–2.4× count bias was already recorded pre-closure,
 and a fixed ~3× bias in the count chain leaves Tolch nearly flat over
-1.7–2.67; (iii) ~700–800 is a count above Tolch's *hole-detection* threshold,
+1.7–2.67; (iii) ~700–780 is a count above Tolch's *hole-detection* threshold,
 so the model is biased high at every drag value by an unquantified amount;
 (iv) Tolch's preferred ≈ 1.2 lies below the geometric sphere floor of 1.31
 (§3) and is not an available option at all. **Do not re-litigate this by

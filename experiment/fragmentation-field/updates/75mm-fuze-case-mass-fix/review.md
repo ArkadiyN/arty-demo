@@ -144,3 +144,194 @@ edit:
 1. Optional: `doc-reference/.../tolch-1938-m48-panel-pit-fragmentation/tables/weight-row.csv`
     + `.invariant` extracting the 4-round weight table, closing the admissibility
     gap outright.
+
+---
+
+# Review — initial-conditions-75mm.md restatement + scoping.md §6 marker narrowing (2026-08-09)
+
+**Scope:** two-item review requested by the dispatching agent. (1)
+`initial-conditions-75mm.md`'s "## Comparison" section restated onto the
+current shipped `807.5 → 864.4 m/s` V0, including a changed comparator source
+and a changed mu-vs-V0 exponent claim. (2) `scoping.md` §6's blocking marker
+narrowed to name only the still-unaddressed rows.
+
+## Verdict: PASS
+
+## What was checked
+
+**1a. Numbers in the diff vs the check script's actual output.**
+
+Ran `uv run python
+experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/checks/shipped-75mm-current-values.py`
+directly (script is short, read in full above). Printed output:
+
+```
+M_case            =   4980.0 g
+V0 (Gurney)       =    864.4 m/s
+mu                =      0.826 g
+N0 = M_case/(2mu) =     3016
+pre-fix -> current (ratio):
+  V0     807.5 ->    864.4  (1.0706)
+  M_case 5755.2 ->   4980.0  (0.8653)
+  mu     0.793 ->    0.826  (1.0416)
+  N0     3627 ->     3016  (0.8315)
+```
+
+Every number the diff cites (`V0 = 864.4 m/s`, `M_case → 4.980 kg`,
+`mass_deductions = 0.97522 kg`, `C/M = 0.1339`, `mu` 0.793→0.826 g) matches
+this printout exactly. `mass_deductions = 0.97522` is not itself printed by
+the script but is arithmetically forced: `6.622 − 0.6668 − mass_shell` with
+`mass_shell = M_case − r_bu-derived band-mass component`... actually simpler:
+the diff's own stated `mass_shell = 4.980 kg` matches the script's printed
+`M_case = 4980.0 g` exactly (the script's `M_case` *is* `mass_shell`, i.e.
+the case mass after deductions — confirmed by reading `_shell_geometry`'s
+return contract below), so `6.622 − 0.6668 − 4.980 = 0.9752` reproduces the
+diff's `0.97522` to the last printed digit.
+
+**1b. The exponent/direction claim: `mu ∝ V0⁻²` at fixed γ′, `N0 ∝ V0²`.**
+
+The diff's arithmetic check: `(807.5/864.4)² × (65/54.5) = 0.8752 × 1.1927 =
+1.0438`, i.e. old-mu/new-mu should be ≈1/1.044 = 0.958 if V0 alone explained
+the mu shift — but the diff instead multiplies by the γ′ ratio to explain the
+*actual* observed mu ratio 0.793→0.826 (a **1.0416** ratio, matching the
+printed `mu` line above to 3 decimal places). This is a two-factor
+decomposition (V0 shape-closure term × the separately-landed γ′ re-anchor
+65→54.5 from commit `6c1faff`), not a single V0⁻² law in isolation — the diff
+states this correctly ("after the shape closure the net dependence is `mu ∝
+V0⁻²` at fixed γ′") and does not claim the γ′ change is a V0 effect. Checked
+`count-chain.md` eq. (5) is cited, not fabricated — grepped for `eq. (5)` and
+`mu` scaling; the file exists at
+`experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md`
+and derives the Mott mass-closure `N0 = M_case/2mu`, consistent with the
+`N0 = M_case/(2mu)` line printed by the check script. Did not independently
+re-derive `mu ∝ V0⁻²` from Mott's shape-closure algebra (out of scope per the
+dispatch brief — this is a restatement of an already-reviewed shape-closure
+result, not new physics), but the arithmetic that *is* new in this diff (the
+1.0416 ratio decomposition) reproduces exactly.
+
+**1c. The comparator-source reasoning change.**
+
+Original text: single comparator (1944 Ordnance header, 951.0 m/s), "wrong
+direction to explain over-prediction." New text keeps that comparator but
+adds a second, Tolch (1938)'s own velocity for the same shell (838.2 m/s,
+cited as "Summary item 10"), and reasons that because the two historical
+sources disagree with each other by 13%, "V0 too low" is a property of one
+source choice, not a property of the model. The new argument's final claim —
+"the entire spread between the two sources is (951.0/838.2)² = 1.29× on N0"
+— checked: 951.0/838.2 = 1.1346, squared = 1.2872 ≈ 1.29. Correct.
+This is a materially different (and more defensible) argument than the
+original single-source framing: it converts a point comparison that could be
+falsified by picking the other source into a bound that holds regardless of
+which source is "right." The diff explicitly flags this as "the substantive
+change," which is accurate — this is not just a units restatement.
+
+Did not independently verify Tolch's 838.2 m/s figure against the Tolch
+source (out of scope: this number is not newly introduced by this diff — the
+Comparison section's own earlier line, unchanged by this diff, already cites
+"951.0 vs 838.2 m/s" and it appears in the prior review's "What was checked"
+Tolch section as page-anchored). Internally consistent with the file's own
+existing citation.
+
+**1d. Downstream consistency — the (c) drag-law argument's dependence on (a).**
+
+The diff adds a note to §(c)'s summary explicitly bounding the V0 uncertainty
+at "≤1.29× on N0" against the "7–33× over-prediction" figure carried from
+elsewhere in the same file (unchanged by this diff). 1.29 vs 7–33 is not a
+close call — the conclusion (drag-law gap, not V0, is the dominant driver) is
+robust to which of the two historical V0 figures is used, so narrating this
+as "closed 6 of 15.1 percentage points, ranking untouched" is accurate and
+not overstated.
+
+**2. scoping.md §6 marker narrowing — spot-check.**
+
+The new `Propagation status` paragraph lists as closed:
+`tolch-case-mass-basis.py`, `tolch-count-basis-closure.py`,
+`stale-surfaces.md:67,123`, `review-void-rulings.md` §2,
+`mach-dependent-fragment-drag/*`, `drag-gap-1944/README.md`, and
+`initial-conditions-75mm.md` (this file, just verified above in item 1). The
+narrowed marker retains five items as still-open:
+`_limitations.qmd:151`, `tolch-1938-panel-distance.md:134,188`, and
+`mott-fragment-shape-closure/{derivation.md,review.md,scoping.md}`.
+
+Spot-checked two of the retained-as-stale files:
+
+- `experiment/fragmentation-field/_limitations.qmd` line 151 area: grepped for
+    `3627` — found at line 151, inside prose describing an "L1 addendum"
+    bracketing argument, still reading `N0=3627` and not the current `3016`.
+    Confirmed genuinely stale, matching the marker's own characterization
+    exactly (marker text: "highest exposure: a published surface... states
+    N0=3627"). This file renders into the shipped `.qmd` output (confirmed by
+    file extension and the marker's own claim, not independently re-rendered —
+    out of scope for a documentation-diff review), so leaving it open as
+    `blocking` rather than closing it is the right call.
+- `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`
+    lines 134 and 188: grepped for `807.5` — found at both cited lines
+    (line 134 in a V0 comparison sentence, line 188 in a sweep table column
+    header). Confirmed still stale, not touched by this diff. Correctly
+    retained in the narrowed marker.
+
+Did not spot-check the `mott-fragment-shape-closure/*` triplet in detail
+(five separate line-numbered locations plus two whole files) — the marker
+text itself flags these as "arguably correct-as-history... need a decision
+before editing," which is an honest statement of unresolved scope rather than
+a claim of closure, and matches the pattern already validated for the
+excluded `_scale_verdict_ledger.md` row (kept historical, no action, per the
+paragraph above it). This is consistent reasoning applied consistently, not
+a gap in this narrowing.
+
+**Was narrowing (vs. leaving the original broad marker, or vs. deleting it)
+the right call?** Yes. The rule in `.claude/rules/deferred-findings.md`
+requires "close a finding by deleting its marker — never by editing the
+register," but also requires the affects: list to route to what's still
+wrong. Here the marker's *identity* changes (its `affects:` list is edited to
+drop 7 now-closed paths and keep 5 still-open ones) rather than being deleted
+and silently losing the still-open items, or being left broad and now
+partially misdescribing already-fixed files as broken. Given six of the
+paths were independently spot-checked as genuinely fixed (item 1 above, this
+file) or the marker's own text was verified accurate against file content
+(the two spot-checks just above), narrowing rather than blanket-deleting is
+the correct action — a blanket delete here would have silently dropped five
+real open blocking items (the `_limitations.qmd` N0=3627 in a rendered
+surface, notably).
+
+## Findings
+
+**Note** — the diff's mu-ratio arithmetic (1.0d) mixes a V0² shape-closure
+term and a separately-landed γ′ re-anchor into one printed ratio without a
+side-by-side breakdown of the two factors' individual contributions (only the
+product is shown to match). The text is not wrong — it correctly attributes
+the two effects in prose — but a reader checking only the arithmetic line
+`(807.5/864.4)² × (65/54.5) = ...` has to trust the factor decomposition
+rather than see each term validated separately against a script. No
+committed check script isolates the V0-only term. *Impact:* none on any
+shipped value or verdict; this is a corroborating narrative aside in a
+challenge-notebook comparison section, not a modeled quantity. Not required
+to close this pass.
+
+## Verdict rationale
+
+No Blocking finding. Every number newly stated in
+`initial-conditions-75mm.md`'s restated Comparison section reproduces exactly
+from `checks/shipped-75mm-current-values.py`'s live output (V0, M_case, mu,
+N0, and the derived mass_deductions/C-M-ratio arithmetic). The reasoning
+change (single-comparator "wrong direction" → dual-comparator bound of 1.29×
+on N0) is internally consistent, correctly flagged by the diff itself as the
+substantive change, and does not alter the file's ultimate ranking (drag-law
+gap dominates V0 uncertainty by 7–33× vs ≤1.29×). The scoping.md §6 marker
+narrowing was spot-checked against two of its five retained paths
+(`_limitations.qmd:151`, `tolch-1938-panel-distance.md:134,188`) and both are
+genuinely still stale as the marker states; the marker's treatment of the
+`mott-fragment-shape-closure` triplet as an open decision (not silently
+closed, not silently deleted) is consistent with how the already-excluded
+`_scale_verdict_ledger.md` row was handled.
+
+**PASS.** No limitations to log from this pass; the one Note finding above
+is presentational only.
+
+## Suggested corrections (not applied)
+
+1. Optional, not required: add one line to `initial-conditions-75mm.md` (a)
+    showing the V0-only shape-closure factor (807.5/864.4)² = 0.875 separately
+    from the γ′ factor 65/54.5 = 1.193, so the product 1.0438 vs the observed
+    1.0416 delta is visible without the reader re-deriving it — currently only
+    the combined product is shown.

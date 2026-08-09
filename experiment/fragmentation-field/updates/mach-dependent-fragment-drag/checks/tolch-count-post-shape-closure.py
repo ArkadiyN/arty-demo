@@ -8,7 +8,8 @@ Method reproduces challenges/drag-gap-1944/tolch-1938-panel-distance.md Result 2
 E_thr is the single free parameter, fitted so that the model reproduces Tolch's
 observed Panel A (15 ft) -> Panel D (120 ft) perforation-density ratio 0.557;
 the *absolute* count N(m >= m_thr(15 ft)) is then a prediction, compared with
-Tolch's measured ~700-800 perforations per shell.
+Tolch's measured ~700-780 perforations per shell (panel count ~700; pit-test
+recovery 779, re-baselined from a published 803).
 """
 import numpy as np
 from scipy.optimize import brentq
@@ -25,7 +26,16 @@ from arty.fragmentation import (
 FT = 0.3048
 R_A, R_D = 15 * FT, 120 * FT
 RATIO_OBS = 0.557
-TOLCH_PERFORATIONS = 750.0  # "about 700 perforations"; pit test ~803 recovered
+# Tolch's two independent estimates of the same quantity (perforating fragments
+# per shell at 15 ft): "about 700 perforations" from the panel densities
+# (Summary item 6), and 779 fragments recovered in the pit test (Summary items
+# 1 and 8; "practically all the fragments obtained in pit tests would be
+# perforating fragments in panel tests at 15 ft"). The pit count is 779, NOT
+# the 803 that circulated in earlier artifacts — see
+# challenges/count-gap-1938/rebaseline-verdict.md. Normalise on the midpoint,
+# and report the span too.
+TOLCH_PERF_LO, TOLCH_PERF_HI = 700.0, 779.0
+TOLCH_PERFORATIONS = 0.5 * (TOLCH_PERF_LO + TOLCH_PERF_HI)  # 739.5
 
 SHELL = SHELLS["75mm M48 HE"]
 RHO_S = SHELL.steel.rho
@@ -42,9 +52,12 @@ def ratio_for(E, c, V0, mu, N0):
 def main():
     m_body = _shell_geometry(SHELL)[3]
     print(f"75mm M48 HE, shell body {m_body*1e3:.0f} g, rho_steel {RHO_S:.0f}")
-    print("Tolch observed: ~700-800 perforating fragments per shell at 15 ft\n")
+    print(f"Tolch observed: {TOLCH_PERF_LO:.0f}-{TOLCH_PERF_HI:.0f} perforating "
+          f"fragments per shell at 15 ft (normalising on "
+          f"{TOLCH_PERFORATIONS:.1f})\n")
     print(f"{'V0':>7} {'2mu(g)':>7} {'N0':>7} {'C_DC_s':>7} {'E_thr(J)':>9} "
-          f"{'m_thr15(g)':>11} {'N_perf':>8} {'N/obs':>6}")
+          f"{'m_thr15(g)':>11} {'N_perf':>8} {'N/obs':>6} {'N/779':>6} "
+          f"{'N/700':>6}")
     for V0 in (807.5, 838.2, 951.0):
         mu, N0 = mott_params(SHELL, V0)[:2]
         for c in (0.585, 1.2, 1.7, 2.20, 2.67):
@@ -57,7 +70,8 @@ def main():
                 continue
             _, ma, na = ratio_for(E, c, V0, mu, N0)
             print(f"{V0:7.1f} {2*mu*1e3:7.3f} {N0:7.0f} {c:7.3f} {E:9.2f} "
-                  f"{ma*1e3:11.4f} {na:8.0f} {na/TOLCH_PERFORATIONS:6.1f}")
+                  f"{ma*1e3:11.4f} {na:8.0f} {na/TOLCH_PERFORATIONS:6.1f} "
+                  f"{na/TOLCH_PERF_HI:6.1f} {na/TOLCH_PERF_LO:6.1f}")
         print()
 
 
