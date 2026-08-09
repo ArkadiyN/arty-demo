@@ -1,0 +1,5 @@
+Shell,Drawing,Part,Material_Grade,Spec_Number,Mandatory_Related_Spec,Min_Yield_Strength_psi,Min_Elongation_pct,Min_Reduction_of_Area_pct,Source_Page
+105mm M60 (Chemical),75-4-91A,Body Shell,STEEL (grade not named on this drawing),57-104-2,,65000,15,30,5 (properties)/6 (spec)
+105mm M60 (Chemical),75-4-91D,Adapter,STEEL WDX1314 or WDX1315 (alt: forged WDX1314/WDX1315 spec 57-105),57-107,,,15,35 (Y.A.),5
+105mm M67 (HEAT/AT),75-4-106A,Body Shell,WD.SS-3,57-104-2,57-104-1 (mandatory for material for forging -- note b),,,,14
+155mm M107 (HE),75-4-99A,Body Shell,STEEL (grade not named on this drawing),57-104-2,,65000,15,30,9

@@ -1,0 +1,4 @@
+Zone,Over_lb,Up_to_and_including_lb,Mark
+1,29.9,30.6,uncertain (small stamped symbol, not confidently legible)
+2,30.6,31.2,uncertain (small stamped symbol, not confidently legible)
+3,31.1,31.8,uncertain (small stamped symbol, not confidently legible) -- NOTE: "over" value read as 31.1 does not tile against zone 2's "up to 31.2"; likely a 31.1/31.2 digit misread, not re-verified against source.pdf at higher zoom
