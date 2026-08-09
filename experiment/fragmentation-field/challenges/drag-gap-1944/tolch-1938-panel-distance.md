@@ -132,7 +132,8 @@ observed A→D ratio 0.557, then the intermediate panels and the *absolute*
 count are checked. Swept over combined $C_D C_{shape} \in \{0.585$ (current)$,
 0.878, 1.2, 1.7, 2.93\}$ and $V_0 \in \{838.2$ (Tolch's own measured
 perforating-fragment velocity, 2750 f/s, Summary item 10)$, 807.5$ (model
-Gurney)$, 951.0$ (Ordnance-stated)$\}$ m/s. **1.2 and 1.7 are SAND92-0243's
+Gurney **as of the sweep**, pre-fix — see the as-of note below)$, 951.0$
+(Ordnance-stated)$\}$ m/s. **1.2 and 1.7 are SAND92-0243's
 prose-sentence values ("can vary between 1.2 and 1.7"), not its own
 parameter-range-list data floor/ceiling (1.0–1.71) — the sweep below has not
 been re-run at 1.0/1.71** (OPEN-FINDINGS.md SAND92-0243-citation finding);
@@ -142,6 +143,28 @@ Script: `experiment/_scratch/tolch-panel-distance-check.py`.
 its numbers (`.claude/rules/verification-scripts.md`); the sweep tables below
 cannot currently be reproduced or re-run at the corrected bounds.
 FINDING\[deferrable\]: tolch-1938-panel-distance.md cites a sweep script that no longer exists on disk, so its published tables cannot be reproduced or re-swept at the corrected 1.0/1.71 SAND92-0243 bounds (affects: experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-08)
+
+**As of 2026-08-09 — the 807.5 m/s column is a historical model value.** The
+75 mm M48 fuze/case-mass correction moved the shipped inputs to
+$M_{case} = 4980.0$ g, $V_0 = 864.4$ m/s, $\mu = 0.826$ g, $N_0 = 3016$
+([`../../updates/75mm-fuze-case-mass-fix/checks/shipped-75mm-current-values.py`](../../updates/75mm-fuze-case-mass-fix/checks/shipped-75mm-current-values.py)).
+Every sweep number below was computed at the pre-fix $V_0 = 807.5$ m/s and
+pre-fix spectrum, so the columns are **left as run** rather than relabelled —
+restating the header without re-running would attach current inputs to
+pre-fix outputs. Read the "$V_0 = 807.5$" column as *pre-fix model*; the
+current model velocity, 864.4 m/s, sits between the 838.2 and 951.0 columns
+and closer to the former (+3.1% vs −9.1%). This does not disturb any Result
+below: Result 1 is a *degeneracy* verdict on *ratios*, which the $V_0$ columns
+here already show to be near-invariant across 807.5–951.0. Result 3's absolute
+counts would shift on the current basis in a direction this document cannot
+settle without re-running the (missing) script — $V_0$ up 7.0% raises the
+per-fragment perforating fraction while $N_0$ down 17% lowers the population —
+but the shift is far smaller than the 1.2–2.7× residual at issue, so the
+over-count verdict is unaffected. The counts themselves are superseded — the
+current-basis
+count comparison lives in
+[`../count-gap-1938/rebaseline-verdict.md`](../count-gap-1938/rebaseline-verdict.md),
+not here.
 
 ## Result 1 — the shape test is degenerate: no discriminating power on drag
 
@@ -184,6 +207,10 @@ all the fragments obtained in pit tests would be perforating fragments in
 panel tests at 15 ft").
 
 Model $N(m \ge m_{thr}(15\,\text{ft}))$:
+
+(Sweep as run on the pre-fix 75 mm M48 basis — the "807.5" column is the
+*pre-fix* model $V_0$; the shipped model is now 864.4 m/s with $N_0 = 3016$.
+See the as-of note above.)
 
 | combined $C_D C_{shape}$ | V0 = 807.5 | V0 = 838.2 | V0 = 951.0 |
 | -----------------------: | ---------: | ---------: | ---------: |

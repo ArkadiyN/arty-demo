@@ -177,7 +177,38 @@ marker note below). Rows for `count-chain.md`, `rebaseline-verdict.md` and
 `mott-scale-gap/_scale_verdict_ledger.md` need no action (already re-closed,
 or correctly historical). Remaining rows carry the narrowed marker below.
 
-FINDING[blocking]: five rows of the section 6 table are still unactioned and cite the pre-fix V0=807.5/M_case=5755.2/mu=0.793/N0=3627 against current shipped 864.4/4980.0/0.826/3016 - _limitations.qmd:151 (highest exposure: a published surface, renders into fragmentation-field.html, states N0=3627 for 75mm M48 inside the L1 addendum's bracketing argument; the bracket 779 < N0 < 5000 still holds at 3016 but the digit is wrong), drag-gap-1944/tolch-1938-panel-distance.md:134,188 (the 807.5 model-vs-2750 f/s comparison and the V0 sweep column header), and mott-fragment-shape-closure/derivation.md:149,171,184,200,234 + review.md:57 + scoping.md:69 (these record the shape-closure transition 0.235->0.793 g and 12256->3627 and the 5755.20 g mass-closure integral, so they are arguably correct-as-history like the excluded _scale_verdict_ledger row and most likely need an as-of banner plus the current equivalents rather than a rewrite - decide that before editing) (affects: experiment/fragmentation-field/_limitations.qmd, experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/review.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/scoping.md; since: 2026-08-08)
+**Propagation closed (2026-08-09).** The five remaining rows are discharged,
+by two different treatments, chosen per row on whether the number is a *claim
+about the current model* or a *record of what a past pass computed*:
+
+- **Restated** — `_limitations.qmd:151`. This is a published surface
+    (renders into `fragmentation-field.html`) asserting $N_0$ as the model's
+    present value inside the L1 bracketing argument, so a stale digit there is
+    a wrong shipped number, not history. Now reads **3016**, with the
+    superseded 3597/3627 revisions noted in-line; the bracket
+    779 < $N_0$ < 5000 survives, as predicted.
+- **Annotated as-of, left as run** — `drag-gap-1944/tolch-1938-panel-distance.md`
+    and all of `mott-fragment-shape-closure/{derivation,review,scoping}.md`.
+    Same treatment as the excluded `mott-scale-gap/_scale_verdict_ledger.md`
+    row, and for the same reason: every figure in these is an *output* of a
+    computation actually performed on the then-shipping inputs — a sweep
+    column swept at $V_0$ = 807.5 m/s, a before/after transition
+    (0.235 → 0.793 g, 12 256 → 3 627) that is the very change being recorded,
+    and a mass-closure integral (5755.20 g) that is a *verification recorded
+    as having closed* against that case mass. Relabelling any of them onto
+    4980.0 g/864.4 m/s without re-running would attach current inputs to
+    pre-fix outputs and falsify the record of what was checked. Each file
+    instead carries an as-of banner naming the current shipped quadruple and
+    pointing at
+    [`checks/shipped-75mm-current-values.py`](checks/shipped-75mm-current-values.py),
+    plus a one-line statement of why the *verdict* survives the restatement
+    (the sweep's ratio result is near-invariant in $V_0$ across 807.5–951.0;
+    the shape closure is a relation among `μ`, `N₀`, `M_case` that holds
+    identically on the new mass, and `α`, `γ = α^{-2/3}γ′` and the 4–15×
+    correction ratio are all independent of `M_case`).
+
+No `src/arty/` change and no recomputation: every current-basis figure quoted
+is read from `checks/shipped-75mm-current-values.py`'s output.
 
 ## 7. Librarian
 

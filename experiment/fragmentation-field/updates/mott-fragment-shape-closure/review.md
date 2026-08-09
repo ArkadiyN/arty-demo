@@ -56,6 +56,13 @@ updates.
     Tolch table, the 105/155/60 mm transfer table, the tiling ratios
     1.0000/1.6346, the mass-closure integral 5755.20 g, and the
     tumbling-average `C_shape` values 1.61/1.50) reproduced exactly.
+    (**As of 2026-08-09:** this verification is recorded as run, on the 75 mm
+    M48 case mass shipping at the time. The later M48 fuze/case-mass
+    correction moved that shell to `M_case = 4980.0 g`, `V₀ = 864.4 m/s`,
+    `μ = 0.826 g`, `N₀ = 3016`, so 5755.20 g and the other M48 absolutes here
+    are historical — see the as-of banner at the top of `derivation.md`. The
+    verdict is unchanged: what was checked is a *closure identity*, which
+    holds on either mass.)
 - Confirmed `tests/test_fragmentation.py::test_mott_fragment_count_in_pafrag_range`
     (and `_all_grades`) currently assert the 3000–8000 band, and confirmed
     `_validation.qmd` Check 3 carries both the 3000–8000 model-consistency

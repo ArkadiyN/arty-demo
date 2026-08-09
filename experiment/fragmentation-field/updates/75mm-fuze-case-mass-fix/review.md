@@ -335,3 +335,109 @@ is presentational only.
     from the γ′ factor 65/54.5 = 1.193, so the product 1.0438 vs the observed
     1.0416 delta is visible without the reader re-deriving it — currently only
     the combined product is shown.
+
+## 2026-08-09 — propagation-closure pass (five remaining rows)
+
+Scope: the six files listed in the dispatch brief, closing the FINDING
+(blocking) marker at `75mm-fuze-case-mass-fix/scoping.md` that named five
+still-stale rows (`_limitations.qmd`, `tolch-1938-panel-distance.md`, and the
+`mott-fragment-shape-closure` triplet). Reviewed against the closure note's own
+stated rationale (`scoping.md:180-208`): a number is **restated** if it is a
+*claim about the current model*, and **annotated as-of / left as run** if it is
+a *record of a computation actually performed on then-shipping inputs*.
+
+### Verification performed
+
+- Ran `checks/shipped-75mm-current-values.py` — confirms
+    `M_case=4980.0 g, V₀=864.4 m/s, μ=0.826 g, N₀=3016` (RAP: `V₀/μ` disagree by
+    factors of 1.07 / 1.04 from OLD; `M_case/N₀` by 0.87 / 0.83 — matches every
+    number quoted in the five diffs).
+- Confirmed the closure identity `2·N₀·μ = M_case` holds to full floating-point
+    precision on the current basis (`arty` direct call, not just the rounded
+    print), so `derivation.md`'s "holds identically on the new mass" claim is
+    not just plausible but exact (trivially true by construction of `N₀`, but
+    the claim is correctly stated).
+- Grepped all five changed files plus their un-changed siblings
+    (`mott-fragment-shape-closure/{derivation,review,scoping}.md`,
+    `tolch-1938-panel-distance.md`) for every pre-fix figure
+    (`807.5`, `5755.2`, `0.793`, `3627`, `12256`/`12 256`) to check the as-of
+    banners actually cover every remaining occurrence, not just the lines named
+    in the scoping table:
+    - `_limitations.qmd`: all four pre-fix figures fully replaced (3016, with
+        3597/3627 noted in-line as superseded history) — no stale digit remains.
+    - `derivation.md`: one occurrence not named in the banner text
+        (§7.5's Option-C cross-check table, line 262, `μ=0.793` for 75 mm M48)
+        is still covered by the banner's blanket "every 75 mm M48 number in this
+        document is a record... as it stood then" — consistent, not an omission.
+    - `tolch-1938-panel-distance.md`: Result 3 (line 251, `N₀=12256–20021` for a
+        `5755 g` body — a *third*, even-older pre-shape-closure basis) is
+        explicitly addressed by the as-of banner's "does not disturb any Result
+        below" clause with a per-result caveat for Result 3's absolute counts.
+    - `scoping.md`, `review.md` (mott-fragment-shape-closure): all remaining
+        pre-fix figures are within banner scope.
+- Ran `tests/test_fragmentation.py` (55 passed) — no `src/arty/` change in this
+    pass, as the closure note states, and nothing regressed.
+- Spot-checked the two numeric claims added as banner justification rather
+    than left as bare assertions:
+    - `tolch-1938-panel-distance.md`: "864.4 sits ... closer to 838.2 (+3.1%
+        vs −9.1%)" — checks out ((864.4−838.2)/838.2 = 3.13%,
+        (864.4−951.0)/951.0 = −9.1%). "V₀ up 7.0%... N₀ down 17%" also checks
+        out (864.4/807.5 = 1.070; 3016/3627 = 0.8315). The claim that this net
+        shift is "far smaller than the 1.2–2.7× residual" is not itself
+        computed (no re-run of the perforation-count script against the new
+        basis — the document says as much), but the bound is generous enough
+        (single-digit-to-teens percent shifts vs. a 120–270% residual) that the
+        qualitative claim holds under any plausible combination of the two
+        effects; this is the kind of claim flagged by
+        `derivation_qualitative_claims_need_numeric_check` in reviewer memory,
+        but here the margin is wide enough not to be material.
+    - `_limitations.qmd`: 3016 sits between the stated bracket 779 and 5000 —
+        confirmed by inspection.
+
+### Findings
+
+No Blocking findings. Two Notes:
+
+1. **Note.** `derivation.md`'s §7.5 Option-C cross-check table (line 262)
+    still prints the pre-fix `μ=0.793 g` for 75 mm M48 without a line-level
+    annotation, relying entirely on the document-level banner to cover it.
+    A reader skimming straight to that table (skipping the banner at the top)
+    would not immediately know the number is historical. No output changes —
+    the banner does cover it, and the A/C ratio (0.69) would move to ~0.72 on
+    current μ=0.826 g, not enough to change the "within ~2× pass criterion"
+    verdict. Presentational only.
+1. **Note.** The "far smaller than the residual" claim in
+    `tolch-1938-panel-distance.md` (Result 3 discussion) is asserted rather
+    than computed from a re-run. Given the wide margin between the shift size
+    (~7–17%) and the residual (120–270%), this does not change any rendered
+    output or verdict; if the document is revisited for other reasons, adding
+    the one-line arithmetic bound would remove the need to trust the assertion.
+
+### Verdict rationale
+
+The two treatments applied (restate on a published surface, annotate-as-of on
+a historical computation record) match the closure note's own stated
+criterion exactly, and were applied to every remaining pre-fix figure I could
+find via grep across the five files — not just the lines the scoping table
+named. The `_limitations.qmd` restatement is a correct, exact substitution
+that preserves the bracketing argument it sits inside. The as-of banners are
+factually accurate (checked against a live re-run of the shipped values) and
+correctly scoped to cover figures beyond the ones explicitly named in each
+banner's prose. No `src/arty/` change, no test regression, and the propagation
+table in `scoping.md` is discharged: all five previously-flagged rows are
+either restated or annotated, and the blocking FINDING marker is deleted (not
+edited around), per `.claude/rules/deferred-findings.md`.
+
+**PASS.** No limitations to log from this pass beyond the two presentational
+Notes above, which require no `_limitations.qmd` entry (they concern review
+artifacts and a challenge-notebook document, not a modeled quantity or a
+published claim).
+
+### Suggested corrections (not applied), this pass
+
+1. Add a line-level annotation next to `derivation.md:262`'s `μ=0.793` in the
+    Option-C table (e.g. "(pre-fix value, see banner above)") so the historical
+    status is visible without scrolling to the top banner.
+1. If `tolch-1938-panel-distance.md` is revisited, replace the qualitative
+    "far smaller than the residual" claim with the one-line arithmetic bound
+    (percent shift vs. percent residual) rather than leaving it as assertion.
