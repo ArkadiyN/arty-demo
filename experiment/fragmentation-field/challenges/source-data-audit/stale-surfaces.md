@@ -175,5 +175,3 @@ when their thread is repaired — `checks/count-chain-decomposition.py:91`
 ("Tolch pit: 803 recovered, mean 6.85 g") and
 `updates/mach-dependent-fragment-drag/checks/tolch-count-post-shape-closure.py:28`
 ("pit test ~803 recovered").
-
-FINDING\[blocking\]: \_limitations.qmd L1 addendum publishes "the Mott stage is exonerated ... The gross fragment population is not the defect", the exact inference the threshold-free cumulative-mass-fraction test in count-gap-1938/rebaseline-verdict.md refutes (model over-counts 1.2-2.7x with the threshold removed entirely); it also quotes 803 pit-recovered against the corrected 779 (affects: experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-03)

@@ -5,29 +5,18 @@ ground-burst geometry?
 See experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range.md
 for the reduction formula (Section 2) and study plan (Section 3).
 
-Data source note: the challenge brief cited ordnance-1944.md lines 340-369
-for Table 43, but that range is actually the Hand Grenade Mk. II / 20-mm
-H.E. Shell tables (a stale line reference). The genuine "75-MM H.E. SHELL,
-M48" / "TABLE 43 CASUALTIES" block is at lines 381-411 of that file. The
-page interleaves two tables (43 = casualties, 44 = perforation of 1/8-in.
-mild steel) row-by-row from a two-column OCR scan; the column carrying
-Table 43 is identified by its max range (225 ft), which matches the
-challenge doc's statement that Table 43's max range is 225 ft (vs. 300/400
-ft for the 105mm/155mm tables), and by B(r) being monotonically
-non-increasing in that column -- both column-identity checks agree.
-
-Row-swap note: at r=40 ft (lines 396-397) the two interleaved rows are
-transposed relative to every other row -- "40 386 .0192 .082 2,010" (line
-396) is actually Table 43 (casualties) and "40 750 .0375 .024 1,570" (line
-397) is actually Table 44 (perforation), the reverse of the usual
-first-line/second-line order. This is caught by the same two cross-column
-invariants the 105mm script's r=100 fix relies on: taking line 397 as
-casualties makes N jump 442->750 between r=30 and r=40 (violates monotonic
-N-decrease) and makes B_casualties (.0375) > B_perforation (.0192), the only
-row in the table where that inequality flips. Using line 396 for casualties
-(N=386, B=.0192) restores both invariants across all 10 rows.
+Data source note: an earlier version of this script hand-typed a "Table 43
+CASUALTIES" series that was in fact the interleaved Table 44 PERFORATION-OF-
+1/8-IN-MILD-STEEL column (OPEN-FINDINGS.md's blocking B-vs-range
+column-swap finding; see
+experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range-rebaseline.md).
+This version reads the extracted-once, closure-checked genuine casualties
+series directly from
+doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables/75mm-m48-casualties.csv
+instead of hand-typing it, per .claude/rules/source-data-fidelity.md.
 """
 import numpy as np
+import pandas as pd
 from scipy.interpolate import RegularGridInterpolator
 
 from arty.shells import SHELLS
@@ -40,12 +29,15 @@ FT2_PER_M2 = 1.0 / FT_TO_M**2  # multiply rho_L [m^-2] by FT_TO_M**2 to get ft^-
 FT_LB_TO_J = 1.3558179483314004
 E_LETH_58FTLB_J = 58.0 * FT_LB_TO_J  # ~78.6 J
 
-# Table 43 (CASUALTIES), "75-MM H.E. SHELL, M48", ordnance-1944.md lines 392-411
-# (r [ft], B [effective fragments / sq ft]) -- transcribed directly, see module
-# docstring; r=40 entry is 0.0192 (line 396), not 0.0375 (line 397) -- see the
-# row-swap note above.
-CARD_R_FT = np.array([20, 30, 40, 60, 80, 100, 130, 160, 190, 225], dtype=float)
-CARD_B = np.array([0.106, 0.0391, 0.0192, 0.0066, 0.0030, 0.0016, 0.0006, 0.0003, 0.0001, 0.0001])
+TABLES_DIR = (
+    "doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables"
+)
+
+# Table 43 (CASUALTIES), "75-MM H.E. SHELL, M48" -- read from the extracted-once,
+# closure-checked CSV rather than hand-typed. See module docstring.
+_card = pd.read_csv(f"{TABLES_DIR}/75mm-m48-casualties.csv")
+CARD_R_FT = _card["r_ft"].to_numpy(dtype=float)
+CARD_B = _card["B"].to_numpy(dtype=float)
 
 SHELL_NAME = "75mm M48 HE"
 H_B = 0.0  # ground burst

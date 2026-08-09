@@ -164,15 +164,15 @@ here shows `initial-conditions-155mm-decay.py`'s hand-typed triples match the
 genuine `155mm-m107-casualties.csv` (not the perforation column) — so that
 chain's premise looks independent of this defect. `drag-coefficient- calibration.py`'s 75mm and 155mm triples likewise match their casualties CSVs,
 but its 105mm triple (`r=20..300`, `m_oz` starting `0.035`, `v_fts` starting
-`2700`) is an exact match to `105mm-m1-perforation-1-8in.csv`, not the
+`2700`) was an exact match to `105mm-m1-perforation-1-8in.csv`, not the
 casualties CSV — the same column-swap defect recurring in a script this pass
-was not asked to re-run. Flagging rather than fixing:
-
-FINDING\[blocking\]: 105mm triple in drag-coefficient-calibration.py reads the perforation-of-1/8-in-mild-steel column mislabeled as "Table 51 CASUALTIES" (affects: experiment/fragmentation-field/challenges/drag-gap-1944/checks/drag-coefficient-calibration.py; since: 2026-08-03)
+was not asked to re-run. **Fixed 2026-08-08**: the 105mm triple in
+`drag-coefficient-calibration.py` now reads the full corrected 20-500 ft
+casualties series (`drag-coefficient-calibration.md`).
 
 Since the v0.9.0 `DragParams` anchor itself (`c_shape_from_ballistic_density`)
 was derived from TP-12's own ballistic-density constant, not from this
 calibration script's numeric output, this finding does not by itself put the
-shipped `C_shape` value in question — but the calibration narrative in
+shipped `C_shape` value in question. The calibration narrative in
 `b-vs-range.qmd`'s "Follow-up closed" section that cites this script's 105mm
-row should be re-examined once that script is corrected.
+row has been re-examined against the corrected output and updated.

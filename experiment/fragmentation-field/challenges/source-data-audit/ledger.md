@@ -768,9 +768,7 @@ Its seven anchors are also all bare line numbers (`ordnance-1944.md#L261`,
 `#L340-L369`, …) — the form `.claude/rules/source-data-fidelity.md` forbids, and
 the form that rotted onto the wrong shell's data in the original incident.
 
-The card leg of the mislabelling was closed in `71963fc` — the three shell sections now carry the printed numbers 38/39, 48/49 and 56/57, and the card warns that the extraction renumbers them 43/44, 51/52, 59/60 and that a `TABLE nn` line is not a citable anchor there. The rendered surface still repeats the wrong set:
-
-FINDING\[blocking\]: experiment/fragmentation-field/\_validation.qmd Check 7 labels the three ordnance-1944 shell tables "Tables 43/51/59" on a rendered reader-facing surface, but those are the flattened extraction's renumbering and each points at a neighbouring shell (43 is 81mm M43A1, 51 is 105mm M38A1, 59 is 8in M103); the printed and geometry-verified numbers are 38/39, 48/49, 56/57 (affects: experiment/fragmentation-field/\_validation.qmd; since: 2026-08-02)
+The card leg of the mislabelling was closed in `71963fc` — the three shell sections now carry the printed numbers 38/39, 48/49 and 56/57, and the card warns that the extraction renumbers them 43/44, 51/52, 59/60 and that a `TABLE nn` line is not a citable anchor there. The rendered surface repeated the wrong set until 2026-08-08, when `_validation.qmd` Check 7 was restated to the printed and geometry-verified numbers 38/39, 48/49, 56/57. Marker deleted.
 
 All seven of the card's bare line-number anchors were replaced with verified greppable strings in the same pass — three shell-title headings (including the OCR-damaged `# 105-MM H.E. SHELL,'Ml` and `# 155-MM N.E. SHELL, M107`, quoted as stored) and four section/definition strings, each grepped at authoring and confirmed to return exactly one hit at the claimed content.
 
@@ -2207,7 +2205,12 @@ one remaining Phase-3 blocker with real numeric exposure — closed in §24a onc
 the user supplied the scan. `ammunition-series-6-steel-composition` remains open
 from §11; it is uncited, so it gates nothing.
 
-FINDING\[blocking\]: ES-310's "Implications for 79 J Threshold" section, Key Findings bullet 1 and Summary "79–80 J" clause are not on the source page — it never mentions 79 J or 80 J — so a repo argument is published as a DoD/Navy claim (affects: doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md, experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-03)
+*(ES-310's "Implications for 79 J Threshold" section, Key Findings bullet, and
+Summary "79–80 J" clause — fabricated content not on the source page, per the
+finding registered in `fas-es310-damage-criteria.md` — is closed: the section,
+bullet, and clause are removed from that file, and the underlying comparison
+now lives, correctly sourced as a repo argument rather than a DoD/Navy claim,
+in `_limitations.qmd` limitation 14. Marker deleted.)*
 
 *(The Gold 2017 blocking finding registered here — no card, no closure, no
 retained scan, bare-line-number citations — is closed by §24a; its marker is
@@ -3670,4 +3673,14 @@ FINDING\[note\]: source.pdf's text layer covers this document's tabular pages bu
 
 FINDING\[deferrable\]: the six ordnance-1944 .invariant files anchor TABLE 38/39,48/49,56/57 which are correct against the retained source.pdf (geometry-verified by checks/ordnance-1944-page-geometry.py) but resolve to a DIFFERENT shell in the flattened extraction ordnance-1944.md, which renumbers the same tables 43/44,51/52,59/60; no data is wrong, but nothing warns a reader not to grep TABLE nn against the extraction (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables, experiment/fragmentation-field/challenges/source-data-audit/checks/ordnance-1944-table-number-anchors.py; since: 2026-08-03)
 
-FINDING\[note\]: two retained scripts disagree on the traced page value of DoD-1975 Figure 3 at Mach 1.00 - checks/dod-1975-figure-3-mach1-gridline-probe.py gives ~1.257 (the value review-provenance.md quotes) and checks/dod-1975-figure-3-independent-trace.py gives 1.274; both agree the CSV's 1.233 is wrong and that this is the largest residual on the curve, but the size of the correction is not settled (affects: experiment/fragmentation-field/challenges/source-data-audit/checks/dod-1975-figure-3-independent-trace.py, experiment/fragmentation-field/challenges/source-data-audit/review-provenance.md; since: 2026-08-03)
+*(Resolved 2026-08-08: a third independent script,
+`checks/dod-1975-figure-3-csv-page-residual.py`, sweeps every CSV row with the
+same gridline-avoiding curve-fit family as `-mach1-gridline-probe.py` and
+independently lands at "page 1.257" for Mach 1.00 — 2-of-3 convergence.
+`-independent-trace.py`'s 1.274 is now diagnosed, not just disputed: its `at()`
+reads the single nearest traced column rather than interpolating, the exact
+failure mode `review-provenance.md`'s finding attributed to the committed CSV's
+own producing script. `-independent-trace.py` is left as-is (it is a
+cross-check against a different image, not the CSV's producer, and its own
+diagnostic table shows the M=1.00 residual as its one clear outlier); the
+committed CSV and card.md now read 1.257. Marker deleted.)*

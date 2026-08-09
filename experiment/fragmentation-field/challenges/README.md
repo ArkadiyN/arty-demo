@@ -40,7 +40,10 @@ constant a free parameter the curve did not have
 speed-dependent drag stands on architectural cost and is published as
 limitation 15. This thread is re-baselined, not closed.
 
-FINDING\[blocking\]: drag-gap-1944/README.md and \_validation.qmd still publish the void "Closed — residual sits at the geometric ceiling" verdict, whose premise the Phase 3 re-run has now overturned (challenges/drag-gap-1944/b-vs-range-rebaseline.md); the index above has been restated, these two surfaces have not (affects: experiment/fragmentation-field/challenges/drag-gap-1944/README.md, experiment/fragmentation-field/\_validation.qmd; since: 2026-08-03)
+`drag-gap-1944/README.md` and `_validation.qmd` published the void "Closed —
+residual sits at the geometric ceiling" verdict after the index above had
+already been restated; both surfaces are now restated to match (2026-08-08).
+Marker deleted.
 
 **`count-gap-1938` status detail.** Re-baselined against the extracted-once
 Tolch series: the scoping verdict survives. The pit-recovered count is **779,

@@ -56,6 +56,16 @@ If the PDF is absent the script SKIPS with a clear message rather than failing.
 Usage:  uv run python <this file>            # verify the committed CSV
         uv run python <this file> --write    # regenerate it from the page
 Runtime: ~3 s.
+
+MANUAL CORRECTION 2026-08-08, mach=1.00 and mach=2.60 rows. source.pdf was
+not present in the checkout doing this fix (gitignored blob), so `at()`'s
+interpolation fix above could not be re-verified against it end-to-end; the
+two rows were instead hand-corrected to 1.257 and 1.294 using three
+independent PNG re-traces that converge there (see the .invariant's new
+pinning rows and OPEN-FINDINGS.md history). Re-running this script with
+--write once source.pdf is available again should reproduce those two values
+from the fixed `at()`; if it does not, the interpolation fix above needs a
+second look, not the two rows.
 """
 
 import csv
@@ -152,12 +162,38 @@ def main():
         return 1.0 + 0.5 * (Y10 - r) / (Y10 - Y15)
 
     def at(m):
-        """(cd_lo, cd_hi) of the stroke nearest Mach m, or None."""
-        c = round(X0 + m * (X7 - X0) / 7.0)
-        near = [k for k in clean if abs(k - c) <= 12]
-        if not near:
+        """(cd_lo, cd_hi) of the stroke at Mach m, linearly interpolated
+        between the nearest traced columns flanking c on either side.
+
+        Fixed 2026-08-08 (was: single nearest column). On a steep segment,
+        the +-10px half-Mach-gridline exclusion above can leave the nearest
+        surviving column several px off-c on one side only; picking that
+        single column reads the curve several hundredths of a Mach
+        off-label. Interpolating between the flanking columns instead tracks
+        a locally-linear steep segment correctly, and is a no-op (reduces to
+        the same single-column read) on flat segments where the gridline gap
+        does not matter -- see the C1 plateau/peak checks below, unaffected.
+        """
+        c = X0 + m * (X7 - X0) / 7.0
+        left = max((k for k in clean if k <= c), default=None)
+        right = min((k for k in clean if k >= c), default=None)
+        if left is not None and abs(left - c) > 20:
+            left = None
+        if right is not None and abs(right - c) > 20:
+            right = None
+        if left is None and right is None:
             return None
-        lo, hi = clean[min(near, key=lambda k: abs(k - c))]
+        if left is None:
+            left = right
+        if right is None:
+            right = left
+        assert left is not None and right is not None
+        if left == right:
+            lo, hi = clean[left]
+            return cd(hi), cd(lo)
+        t = (c - left) / (right - left)
+        lo = clean[left][0] + t * (clean[right][0] - clean[left][0])
+        hi = clean[left][1] + t * (clean[right][1] - clean[left][1])
         return cd(hi), cd(lo)
 
     # --- C1. calibration validated against three source-stated features ------

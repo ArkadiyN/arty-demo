@@ -134,25 +134,37 @@ re-opened here:
     anchor, which exercises retardation alone, is followed instead. Do not
     re-litigate this by re-fitting drag — the discriminating test is an
     independent (THOR-type) perforation model.
-    **Addendum to L1 — the Mott stage is exonerated; the residual is localized
-    to the fitted perforation threshold.** A scoping pass
-    (`challenges/count-gap-1938/count-chain.md`) decomposed the 4–6× algebraically:
-    every material/geometric input feeding $N_0$ (case mass, Gurney $V_0$,
-    $\sigma_f$, $\gamma'$, the shape-closure prism) would need to leave its
-    literature bracket by 4–6× to carry the residual alone, and none does
-    (`checks/count-chain-decomposition.py`) — $N_0=3597$ for 75mm M48 in fact
-    falls *between* Tolch's own two totals (5000 issued, 803 pit-recovered).
-    The gross fragment population is not the defect. What is: the model's
-    fitted $E_{thr}$ (1.9–3.6 J) declares 81–85% of fragments perforating where
-    Tolch measures 14% (700/5000); at Tolch's own sourced hole-size bound
-    (126 J) the residual drops to ~1.5–2.2×. The remainder is ranked, not
-    closed — C1 (the fitted threshold itself, the only unbounded term) needs a
-    perforation model `src/arty/` does not have (THOR-type, or a sourced
-    softwood ballistic limit); C2 (`mott_params` evaluates $x_0$ at the
-    terminal Gurney $V_0$ rather than the case's actual break-up-radius
-    velocity, 1.2–2×, right direction) cannot be measured until C1 is fixed,
-    since any change to $N_0$ is currently reabsorbed by the threshold fit.
-    Both are deferred — a perforation model is future scope, not this pass's.
+    **Addendum to L1, corrected — the "Mott stage exonerated" inference was
+    void; the residual is partly in the population after all.** A scoping
+    pass (`challenges/count-gap-1938/count-chain.md`) decomposed the 4–6×
+    algebraically and originally concluded "the residual is in the
+    perforating *fraction*, not the population" — that inference is
+    **withdrawn**
+    ([`count-gap-1938/rebaseline-verdict.md`](challenges/count-gap-1938/rebaseline-verdict.md)):
+    a threshold-free test matching cumulative *mass fraction* instead of
+    imposing a mass cut removes the fitted threshold, the drag chain, and the
+    spray geometry from the comparison entirely, and the model still
+    over-counts by 1.2–2.7×. The residual is **predominantly** in the
+    perforating fraction (~2.1× of the ~3.9× at the fitted threshold), but
+    ~1.2–2.7× of it is a genuine fragment-*spectrum* term that survives with
+    the threshold removed — so the gross fragment population is partly the
+    defect, not exonerated from it. ($N_0=3627$ for 75mm M48 (`count-chain.md`'s
+    own value; corrected here from a stale 3597 in this paragraph) still falls
+    *between* Tolch's own two totals: 5000 issued, **779** pit-recovered
+    (corrected from a published 803 — see `rebaseline-verdict.md`); that
+    bracketing argument survives even though the exoneration drawn from it
+    does not.) The model's fitted $E_{thr}$ (1.9–3.6 J) still declares
+    81–85% of fragments perforating where Tolch measures 14% (700/5000); at
+    Tolch's own sourced hole-size bound (126 J) the fitted-threshold
+    component of the residual drops to ~1.7–2.1×. Ranking is otherwise
+    unchanged — C1 (the fitted threshold itself, the only unbounded term)
+    needs a perforation model `src/arty/` does not have (THOR-type, or a
+    sourced softwood ballistic limit); C2 (`mott_params` evaluates $x_0$ at
+    the terminal Gurney $V_0$ rather than the case's actual break-up-radius
+    velocity, 1.2–2×, right direction) cannot be fully separated from the
+    genuine spectrum term without C1. Both remain deferred — a perforation
+    model and a Mott-spectrum recalibration are future scope, not this
+    pass's.
 - **L2 — arrival-Mach < 0.7 velocities remain unclosed by any admissible drag
     law.** At the longest 75 mm/155 mm stations the *required* combined constant
     falls to 1.76–2.07 (implied C_D below the subsonic plateau of 1.08), and even
@@ -173,7 +185,9 @@ was implemented as a trajectory integration over the digitized TP-12 Fig-3 curve
 and **rejected on evidence**: it scores no better than the corrected constant on
 the same 1944 Ordnance data, which is the source's own recommendation
 (`derivation.md` §5). The wrong-shape reading was an artefact of sweeping only
-the 1.2–1.7 band, which stops short of the geometrically admissible constant.
+the 1.0–1.71 band (SAND92-0243's own parameter-range-list data floor/ceiling,
+not its "1.2 and 1.7" prose sentence — see `drag-coefficient-calibration.md`),
+which stops short of the geometrically admissible constant.
 
 **8 · Lethality model assumes no protection and open ground.**
 The ES-310 Pk|hit curve (FAS/Navy 1998) is calibrated for standing unprotected

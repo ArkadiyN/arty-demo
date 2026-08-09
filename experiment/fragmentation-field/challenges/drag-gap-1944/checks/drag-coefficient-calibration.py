@@ -1,8 +1,10 @@
 """Drag-coefficient calibration check: does raising combined C_D*C_shape into
-the 1.2-1.7 literature range (dod-1975-fragment-debris-hazards card.md ~1.28;
-sandia-sand92-0243 1.2-1.7 velocity-dependent) close the model-vs-source
-velocity-decay gap already found in the three ordnance-1944-initial-
-conditions-check-*.md files?
+the 1.0-1.71 literature range (dod-1975-fragment-debris-hazards card.md ~1.28;
+sandia-sand92-0243 1.0-1.71, the report's own parameter-range-list data floor
+and ceiling, not the "1.2 and 1.7" prose sentence two paragraphs later on the
+same page -- see doc-reference/ww2-shells/sandia-sand92-0243/card.md) close
+the model-vs-source velocity-decay gap already found in the three ordnance-
+1944-initial-conditions-check-*.md files?
 
 Reuses arty.fragmentation.retardation_coeff verbatim (no new formula) with
 substituted DragParams(C_D, C_shape) so the product equals each candidate
@@ -20,8 +22,8 @@ OZ_TO_KG = 0.028349523125
 
 CANDIDATES = {
     "current (0.585)": 0.585,
-    "1.2 (SAND92-0243 low)": 1.2,
-    "1.7 (SAND92-0243 high)": 1.7,
+    "1.0 (SAND92-0243 low)": 1.0,
+    "1.71 (SAND92-0243 high)": 1.71,
 }
 
 
@@ -68,15 +70,19 @@ if __name__ == "__main__":
         np.array([2060, 972, 494], dtype=float),
     )
 
-    # 105mm M1 HE -- full Table 51 CASUALTIES (corrected identification),
-    # reused verbatim from initial-conditions-105mm.md.
+    # 105mm M1 HE -- full Table 51 CASUALTIES (corrected identification).
+    # An earlier version of this triple was an exact digit-for-digit match to
+    # 105mm-m1-perforation-1-8in.csv, not the casualties table (OPEN-FINDINGS.md
+    # blocking finding; see initial-conditions-105mm.md's "Table-identification
+    # correction"). Now reused verbatim from that file's corrected table, which
+    # matches 105mm-m1-casualties.csv.
     run(
         "105mm M1 HE",
         "105mm M1 HE",
         3500.0,
-        np.array([20, 30, 40, 60, 80, 100, 120, 140, 170, 200, 300], dtype=float),
-        np.array([0.035, 0.047, 0.061, 0.095, 0.137, 0.192, 0.255, 0.326, 0.448, 0.580, 1.05]),
-        np.array([2700, 2430, 2220, 1920, 1750, 1550, 1420, 1320, 1200, 1120, 955], dtype=float),
+        np.array([20, 30, 40, 60, 80, 100, 150, 200, 300, 400, 500], dtype=float),
+        np.array([0.010, 0.014, 0.019, 0.030, 0.043, 0.055, 0.083, 0.109, 0.166, 0.232, 0.312]),
+        np.array([2440, 2060, 1770, 1410, 1180, 1040, 846, 738, 598, 507, 438], dtype=float),
     )
 
     # 155mm M107 HE -- full corrected Table 59 CASUALTIES, reused verbatim

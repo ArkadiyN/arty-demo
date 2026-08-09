@@ -1,13 +1,21 @@
 # The count chain vs. Tolch's absolute perforating count — scoping
 
-**Status: Scoped, paused.** §1–2 exonerate the Mott $(\mu, N_0)$ stage and
-localize the residual to the fitted perforation threshold (C1) and,
-secondarily, the break-up-velocity treatment (C2). Closing C1 needs an
-independent perforation model (§5) — out of scope for now; a perforation
-model is future work, not this pass's. Nothing in `src/arty/` changes as a
-result of this thread yet.
+**Status: Scoped, paused; re-baselined 2026-08-08.** §1 exonerates the Mott
+$(\mu, N_0)$ *parameter* stage — no material or geometric input can carry a
+4–6× multiplier — and localizes the residual to the fitted perforation
+threshold (C1) and, secondarily, the break-up-velocity treatment (C2). §2's
+inference that the residual is confined to that threshold ("not the
+population") does **not** survive: a threshold-free test still finds the
+model over-counting 2.15–2.70× on the Tolch-metal basis, so a genuine
+fragment-*spectrum* term (~1.2–2.7×) shares the residual alongside the
+threshold-fit artefact (~2.1×) — see the restated Fact 2 below and
+[`rebaseline-verdict.md`](rebaseline-verdict.md) for the full re-baseline
+(all pit-count-denominated numbers here move from a published 803 to the
+corrected 779). Closing C1 needs an independent perforation model (§5) — out
+of scope for now; a perforation model is future work, not this pass's.
+Nothing in `src/arty/` changes as a result of this thread yet.
 
-FINDING\[blocking\]: this document publishes the pit-recovered count as 803 (true value 779, +3.1% on every N/803 figure), the mean recovered fragment mass as 6.85 g (true 7.40 g), and the two-totals spread as 15% (true 11%); §2 Fact 2's "not the population" inference is void — verdicts and replacement numbers in challenges/count-gap-1938/rebaseline-verdict.md (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-decomposition.py, experiment/fragmentation-field/challenges/README.md; since: 2026-08-03)
+FINDING\[blocking\]: this document's §1–§4 quantitative content (post-fix model $\mu=0.793$ g, $N_0=3627$, $V_0=807.5$ m/s, and every $m_{thr}$/$N$/ratio figure derived from them) was closure-checked against shipped `fragmentation.py` before commit 6c1faff (2026-08-08), which re-anchored $\gamma'$ 65→54.5 and fixed an ogive/cylinder $V_0$ contradiction. Re-running the retained script against current shipped code gives $\mu=0.826$ g, $N_0=3016$, $V_0=864.4$ m/s (Gurney) — none of which match. `rebaseline-verdict.md`'s own closure line ("reproduces §2's stated values exactly") is stale by the same commit. This thread was not in that commit's file list and needs a fresh @modeler pass to re-close §1's sensitivity table and §2–§4's decomposition against current shipped output (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-decomposition.py; since: 2026-08-08)
 
 **Question.** `_limitations.qmd` L1 records that Tolch (1938)'s absolute
 perforating-fragment count is still over-predicted by ~4–6× after both the Mott
@@ -99,36 +107,52 @@ verbatim from a second, unrelated 1944 historical source (the Ordnance Dept.
 card's own stated casualty energy, already used as-is in `../drag-gap-1944/`
 for the Family B comparison) — it is not tuned to Tolch's falloff shape and
 not derived from Tolch's hole-size data the way the 126 J row is. At this
-threshold $N/700 = 2.5\times$ and $N/803 = 2.2\times$ (script output above),
-landing in the same band as Tolch's own hole-size-bound row (2.2×) and well
-inside the fitted-threshold band (4.2–4.4×) that L1 originally reported. Two
-independently-sourced thresholds — one from Tolch's own recovered-fragment
-data, one from an unrelated 1944 ordnance card — now agree with each other on
-the residual (2.2–2.5×) far more closely than either agrees with the fitted
-values. That is added corroboration for the §2 decomposition below, not a
-new number that shifts it: it does not reach the table's own PASS band
-(within 2×) on its own, but it confirms the ~2–2.5× band is not an artifact
-of which independent threshold is chosen.
+threshold $N/700 = 2.5\times$ and $N/779 = 2.3\times$ (**779, not 803** — the
+re-baselined pit-recovered count, `rebaseline-verdict.md`; every $N/803$
+figure below is corrected the same way, ×1.031), landing in the same band as
+Tolch's own hole-size-bound row (2.2×) and well inside the fitted-threshold
+band (4.2–4.4×) that L1 originally reported. Two independently-sourced
+thresholds — one from Tolch's own recovered-fragment data, one from an
+unrelated 1944 ordnance card — now agree with each other on the residual
+(2.2–2.5×) far more closely than either agrees with the fitted values. That is
+added corroboration for the §2 decomposition below, not a new number that
+shifts it: it does not reach the table's own PASS band (within 2×) on its
+own, but it confirms the ~2–2.5× band is not an artifact of which independent
+threshold is chosen.
 
 Two facts follow, and they reframe L1:
 
 1. **$N_0$ is not 4–6× too high.** $N_0 = 3627$ sits *between* Tolch's two own
     totals: ~5000 fragments issuing from the shell (panel extrapolation, item 6)
-    and 803 recovered in the pit at 95.6 % of the metal (items 1, 8). Those two
-    Tolch numbers are mutually consistent — the 4200 non-recovered events carry
-    the missing 4.4 % of mass at ~0.06 g each — and the model's total lies
+    and **779** recovered in the pit at 95.6 % of the metal (items 1, 8) —
+    re-baselined from a published 803 (`rebaseline-verdict.md`; the re-baselined
+    `tables/pit-screen-recovery.csv` closes on 779 and only on 779). Those two
+    Tolch numbers are mutually consistent — the 4221 non-recovered events carry
+    the missing 4.4 % of mass at ~0.0625 g each — and the model's total lies
     inside them. **The gross fragment count is not the defect.**
-1. **The residual is in the perforating *fraction*, not the population.** The
-    model declares 81–85 % of $N_0$ able to perforate 1″ spruce at 15 ft;
-    Tolch measures 700/5000 = **14 %**. That single ratio, ~6×, *is* the L1
-    residual. It is produced by the fitted $E_{thr}$ = 1.9–3.6 J, which the
-    drag update's own scoping (§3d) already flagged as physically impossible
-    (a ~4–14 mg fragment perforating a 1-inch board).
+1. **The residual is predominantly (not entirely) in the perforating
+    *fraction*.** The model declares 81–85 % of $N_0$ able to perforate 1″
+    spruce at 15 ft; Tolch measures 700/5000 = **14 %**. That single ratio,
+    ~6×, *is* the L1 residual, and is produced by the fitted $E_{thr}$ =
+    1.9–3.6 J, which the drag update's own scoping (§3d) already flagged as
+    physically impossible (a ~4–14 mg fragment perforating a 1-inch board).
+    **But this does not mean the residual is confined to the threshold**: a
+    threshold-*free* test (matching cumulative mass fraction instead of
+    imposing a mass cut) still finds the model over-counting 2.15–2.70× on
+    the Tolch-metal basis — a residual that survives deleting the threshold
+    entirely is by definition not "not the population" (the claim published
+    here through 2026-08-03; void, see `rebaseline-verdict.md` §2). The
+    correct statement: the residual is **predominantly** in the perforating
+    fraction (~2.1× of the ~3.9×), but ~1.2–2.7× of it (1.19–1.73× with the
+    coarsest, 15.4%-of-metal screen bin excluded — C4, below) is a genuine
+    fragment-**spectrum** term that survives with the threshold removed.
 
-So the honest decomposition of the 4–6× is: **a factor ~2–3 of it is an
+So the honest decomposition of the 4–6× is: **a factor ~2.1× of it is an
 artefact of fitting $E_{thr}$ to the falloff ratio at the anchor drag**, and a
-residual **~1.5–2.2× is genuine count-chain excess** — visible as $N(\ge0.63\text{ g})
-= 1488$ against Tolch's 803 pit-recovered fragments (mean 6.85 g vs the model's
+residual **~1.6–2.3× is genuine count-chain excess** (independently
+corroborated at 1.2–2.7× by the threshold-free test above) — visible as
+$N(\ge0.63\text{ g}) = 1488$ against Tolch's **779** pit-recovered fragments
+(mean **7.40 g**, re-baselined from a published 6.85 g, vs the model's
 $2\mu$ = 1.59 g).
 
 ______________________________________________________________________
@@ -148,10 +172,11 @@ the 1944 Ordnance Dept. card's own 78.6 J casualty energy (§2 table, not
 tuned to Tolch's data) lands at 2.2–2.5×, matching Tolch's own hole-size-bound
 threshold (126 J → 2.2×) rather than the fitted values (4.2–4.4×). Two
 threshold sources external to (or only weakly coupled to) the falloff fit now
-agree with each other, which tightens confidence in the 2–3× leverage
-estimate below without narrowing it further — it does not by itself resolve
-C1. **Leverage: 2–3× of the residual. This is the biggest single term and the
-only unbounded one.**
+agree with each other, which tightens confidence in the leverage estimate
+below. **Leverage tightens to 1.7–2.1× of the residual** (fitted 1.9 J row
+$N/779 = 3.94$ vs. the 0.63 g threshold-free cut $N/779 = 1.91$ ⇒ 2.06×; vs.
+the sourced 78.6 J row $N/779 = 2.28$ ⇒ 1.73×; `rebaseline-verdict.md` §3).
+Still the biggest single term and the only unbounded one.
 
 **C2 — $V_0$ in (5) is the terminal Gurney velocity, not the case velocity at
 break-up.** `mott_params` evaluates $x_0$ at break-up *radius* $r_{bu}$
@@ -168,12 +193,13 @@ changes only $\alpha$/$\gamma$ and $t_{bu}$).
 126 J), not merely as an $N_0$/$\mu$ ratio.** Sweeping $f\in\{1.0, 0.9, 0.8,
 0.7, 0.6\}$ through `mott_params` and re-solving $m_{thr}$(15 ft) at each $f$
 (script block (b2)) gives, at $E_{thr}$ = 78.6 J: $N/700$ = 2.54 → 2.08 → 1.66
-→ 1.29 → 0.96 and $N/803$ = 2.22 → 1.81 → 1.45 → 1.12 → 0.83 as $f$ falls
+→ 1.29 → 0.96 and $N/779$ = 2.28 → 1.87 → 1.49 → 1.16 → 0.86 (re-baselined
+from a published 803, ×1.031 — `rebaseline-verdict.md`) as $f$ falls
 1.0 → 0.6; at $E_{thr}$ = 126 J: $N/700$ = 2.16 → 1.77 → 1.42 → 1.10 → 0.82
-and $N/803$ = 1.89 → 1.55 → 1.24 → 0.96 → 0.71. **Both non-fitted thresholds
+and $N/779$ = 1.95 → 1.60 → 1.28 → 0.99 → 0.73. **Both non-fitted thresholds
 cross into the §4 PASS band (within 2×) by $f\approx0.85$–0.9, and by
-$f$ = 0.7 the 126 J row matches Tolch's totals almost exactly** ($N/803$ =
-0.96). So C2's leverage is not just directionally plausible — at a *fixed,
+$f$ = 0.7 the 126 J row matches Tolch's totals almost exactly** ($N/779$ =
+0.99). So C2's leverage is not just directionally plausible — at a *fixed,
 sourced* threshold it is by itself large enough to move the 2.2–2.5× residual
 measured at $f$ = 1 into, or past, the PASS band, with no change to C1.
 Physically, $f$ = 0.85–0.9 is unremarkable: it is the fraction of terminal
@@ -201,8 +227,14 @@ only bites through C1** — at a physical threshold ($m_{thr} \gtrsim 0.6$ g) th
 extrapolation is not exercised at all. Do not chase this before C1.
 
 **C4 — mass bookkeeping into $N_0$** (`mass_deductions` = 200 g placeholder,
-fuze/band/base plug, fines below recovery). Bounded at ~5–10 %. **Dismissed as
-a driver**; note only.
+fuze/band/base plug, fines below recovery). **Still not a 4–6× driver, so the
+dismissal-as-a-driver holds — but the bound was understated and this is no
+longer "note only".** The coarsest recovery-screen bin is 6 pieces / 926.7 g =
+**15.4 %** of recovered metal at 154 g mean, against the model's 200 g
+`mass_deductions` (3.3 %). Dropping that bin moves the threshold-free
+population residual (Fact 2's inference fix, above) from 2.15× to **1.19×** —
+it is now the single largest source of spread in the population term
+(`rebaseline-verdict.md` §3, C4).
 
 **C5 — the observed side is detection-limited, not physics-limited** (drag
 scoping §3d, weighing point 3). Tolch's 700 counts holes he could *see*; the
@@ -239,10 +271,14 @@ zero fitted parameters — the test stops being compound.
 
 **Verdict criterion.** Tolch's own quoted probable errors give σ ≈ 0.12–0.15 on
 density values ≈1.5 (i.e. ~10 %), and his two independent totals (700 panel
-perforations, 803 pit fragments) differ by 15 %. Against that:
+perforations, **779** pit fragments — re-baselined from a published 803)
+differ by **11 %**, not the 15 % published here through 2026-08-03
+(779/700 = 1.113; `rebaseline-verdict.md` §4 — the two totals agree *better*
+than previously stated, which tightens rather than loosens this criterion).
+Against that:
 
 - **PASS / count chain exonerated** — predicted 15 ft count within **2×** of
-    700–803 *and* predicted A→D ratio within 0.10 of 0.557. Then L1's 4–6× was
+    700–779 *and* predicted A→D ratio within 0.10 of 0.557. Then L1's 4–6× was
     a threshold-fit artefact, the count chain needs no change, and L1 should be
     rewritten to say so.
 - **FAIL / count chain implicated** — count still ≥ 2× high at a sourced

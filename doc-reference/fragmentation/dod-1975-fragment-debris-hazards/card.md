@@ -23,13 +23,11 @@ caption anchor "Figure 3 Drag Coefficient of Fragments" — single space, verifi
 p.33 = report p.23). Read off the traced curve:
 
 - **Subsonic (M ≤ 0.6):** flat at $C_D = 1.079$.
-- **Transonic (M ≈ 0.7–1.15):** steep rise, 1.09 → 1.32.
-    **Known CSV defect:** the mach=1.00 row (cd=1.233, band 1.222–1.243)
-    undershoots the page value (~1.257) by ~0.024 and the band excludes it —
-    see the blocking finding on `tables/figure-3-drag-coefficient.csv` and its
-    `.invariant`. Do not cite a specific C_D at M=1.0 from this CSV pending
-    correction; the shape of the rise (steep, ending above 1.3 by M≈1.15) is
-    not in question, only the exact value at this one point.
+- **Transonic (M ≈ 0.7–1.15):** steep rise, 1.09 → 1.32; $C_D=1.257$ at
+    M = 1.00 (fixed 2026-08-08 — the CSV's mach=1.00 row previously read
+    1.233, a single-nearest-traced-column misread across the half-Mach
+    gridline exclusion; corrected against three independent PNG re-traces
+    that converge at ~1.257, and now pinned directly in the `.invariant`).
 - **Peak (M = 1.46):** $C_D = 1.400$, ≈9.4% above the supersonic plateau.
     The report itself characterises the whole subsonic-to-supersonic variation
     as "rather modest despite a peak near the sound speed" (verified anchor

@@ -7,24 +7,18 @@ for the reduction formula (Section 2) and study plan (Section 3). Mirrors
 experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-75mm.py, adapted
 for the 105mm shell.
 
-Data source note: "TABLE 51 CASUALTIES" / "105-MM H.E. SHELL, M1" is at
-ordnance-1944.md lines 725-759 (page 133), interleaved row-by-row with
-"TABLE 52" (perforation of 1/8-in. mild steel) from the same two-column OCR
-scan, exactly as found for the 75mm Table 43/44 pair. The two tables have
-different range grids (casualties: 20-300 ft in 11 rows; perforation:
-20-500 ft in 11 rows) that happen to coincide at every r <= 100 ft, which
-identifies the columns: casualties is the column with max range 300 ft
-(matching this shell's ~300 ft max range per the scoping doc), monotonically
-non-increasing B, and B_casualties <= B_perforation at each shared r -- all
-of which hold except at r=100 ft, where the two columns' (N, B, m, v)
-values are transposed in the raw scan (a one-row column swap: without the
-swap, B_casualties(.0070) > B_perforation(.0037), the sole violation of the
-casualties<=perforation and increasing-effective-mass-with-range trends
-elsewhere in both tables). Corrected here by swapping in the perforation
-column's r=100 row (N=470, B=.0037, m=.192, v=1550) for the casualties
-table's r=100 entry, restoring both trends.
+Data source note: an earlier version of this script hand-typed a "Table 51
+CASUALTIES" series that was in fact the interleaved Table 52 PERFORATION-OF-
+1/8-IN-MILD-STEEL column (OPEN-FINDINGS.md's blocking B-vs-range
+column-swap finding; see
+experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range-rebaseline.md).
+This version reads the extracted-once, closure-checked genuine casualties
+series directly from
+doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables/105mm-m1-casualties.csv
+instead of hand-typing it, per .claude/rules/source-data-fidelity.md.
 """
 import numpy as np
+import pandas as pd
 from scipy.interpolate import RegularGridInterpolator
 
 from arty.shells import SHELLS
@@ -37,13 +31,15 @@ FT2_PER_M2 = 1.0 / FT_TO_M**2  # multiply rho_L [m^-2] by FT_TO_M**2 to get ft^-
 FT_LB_TO_J = 1.3558179483314004
 E_LETH_58FTLB_J = 58.0 * FT_LB_TO_J  # ~78.6 J
 
-# Table 51 (CASUALTIES), "105-MM H.E. SHELL, M1", ordnance-1944.md lines 725-759
-# (r [ft], B [effective fragments / sq ft]) -- transcribed with the r=100 column-swap
-# fix, see module docstring.
-CARD_R_FT = np.array([20, 30, 40, 60, 80, 100, 120, 140, 170, 200, 300], dtype=float)
-CARD_B = np.array(
-    [0.194, 0.0816, 0.0424, 0.0155, 0.0071, 0.0037, 0.0022, 0.0014, 0.0007, 0.0004, 0.0001]
+TABLES_DIR = (
+    "doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables"
 )
+
+# Table 51 (CASUALTIES), "105-MM H.E. SHELL, M1" -- read from the extracted-once,
+# closure-checked CSV rather than hand-typed. See module docstring.
+_card = pd.read_csv(f"{TABLES_DIR}/105mm-m1-casualties.csv")
+CARD_R_FT = _card["r_ft"].to_numpy(dtype=float)
+CARD_B = _card["B"].to_numpy(dtype=float)
 
 SHELL_NAME = "105mm M1 HE"
 H_B = 0.0  # ground burst

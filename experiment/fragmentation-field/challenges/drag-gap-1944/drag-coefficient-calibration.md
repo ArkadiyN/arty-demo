@@ -10,7 +10,10 @@ Two literature sources give a higher combined drag value for tumbling
 fragments of this kind:
 
 - `doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md` — combined ≈1.28
-- `doc-reference/ww2-shells/sandia-sand92-0243/index.md` — 1.2–1.7, velocity-dependent
+- `doc-reference/ww2-shells/sandia-sand92-0243/card.md` — 1.0–1.71, velocity-dependent
+    (the report's own parameter-range-list data floor/ceiling, not the "1.2 and
+    1.7" prose sentence two paragraphs later on the same page — the audit found
+    those disagree and the data-floor number is the one this repo should cite)
 
 This check calls `arty.fragmentation.retardation_coeff` unmodified, substituting
 `DragParams(C_D=<combined>, C_shape=1.0)` (the function only ever uses the
@@ -18,7 +21,7 @@ product `C_D · C_shape`), against the three calibers' already-tabulated
 `(m(r), v(r), V0)` triples, reused verbatim from the three check files.
 Script: `experiment/fragmentation-field/challenges/drag-gap-1944/checks/drag-coefficient-calibration.py`.
 
-Candidates tested: current (0.585), 1.2 (SAND92-0243 low end), 1.7
+Candidates tested: current (0.585), 1.0 (SAND92-0243 low end), 1.71
 (SAND92-0243 high end).
 
 ## Results
@@ -29,75 +32,83 @@ source measured at that range).
 
 ### 75mm M48 HE (V0 = 3120 ft/s)
 
-| r (ft) | current (0.585) |  1.2 |  1.7 |
+| r (ft) | current (0.585) |  1.0 | 1.71 |
 | -----: | --------------: | ---: | ---: |
-|     20 |            1.40 | 1.30 | 1.22 |
-|    100 |            2.56 | 2.01 | 1.66 |
-|    400 |            3.53 | 1.92 | 1.17 |
+|     20 |            1.40 | 1.33 | 1.22 |
+|    100 |            2.56 | 2.17 | 1.65 |
+|    400 |            3.53 | 2.34 | 1.16 |
 
 ### 105mm M1 HE (V0 = 3500 ft/s)
 
-| r (ft) | current (0.585) |  1.2 |  1.7 |
+Table 51 CASUALTIES triple corrected 2026-08-08 — an earlier version of this
+row hand-typed the perforation-of-1/8-in.-mild-steel column mislabeled as
+casualties (OPEN-FINDINGS.md blocking finding); see
+`initial-conditions-105mm.md`'s "Table-identification correction" and the
+casualties CSV. The r-grid changes from 20-300 ft to 20-500 ft.
+
+| r (ft) | current (0.585) |  1.0 | 1.71 |
 | -----: | --------------: | ---: | ---: |
-|     20 |            1.23 | 1.16 | 1.10 |
-|     30 |            1.34 | 1.23 | 1.16 |
-|     40 |            1.44 | 1.31 | 1.21 |
-|     60 |            1.62 | 1.43 | 1.29 |
-|     80 |            1.74 | 1.50 | 1.33 |
-|    100 |            1.93 | 1.64 | 1.43 |
-|    120 |            2.08 | 1.73 | 1.50 |
-|    140 |            2.20 | 1.82 | 1.55 |
-|    170 |            2.38 | 1.93 | 1.62 |
-|    200 |            2.51 | 2.00 | 1.66 |
-|    300 |            2.80 | 2.12 | 1.68 |
+|     20 |            1.32 | 1.24 | 1.12 |
+|     30 |            1.52 | 1.40 | 1.22 |
+|     40 |            1.73 | 1.57 | 1.33 |
+|     60 |            2.08 | 1.84 | 1.49 |
+|     80 |            2.41 | 2.08 | 1.62 |
+|    100 |            2.65 | 2.24 | 1.68 |
+|    150 |            3.03 | 2.43 | 1.66 |
+|    200 |            3.24 | 2.48 | 1.56 |
+|    300 |            3.57 | 2.51 | 1.38 |
+|    400 |            3.83 | 2.52 | 1.23 |
+|    500 |            4.10 | 2.55 | 1.13 |
 
 ### 155mm M107 HE (V0 = 3500 ft/s)
 
-| r (ft) | current (0.585) |  1.2 |  1.7 |
+| r (ft) | current (0.585) |  1.0 | 1.71 |
 | -----: | --------------: | ---: | ---: |
-|     20 |            1.32 | 1.21 | 1.12 |
-|     30 |            1.52 | 1.35 | 1.22 |
-|     40 |            1.73 | 1.50 | 1.33 |
-|     60 |            2.08 | 1.73 | 1.49 |
-|     80 |            2.41 | 1.94 | 1.63 |
-|    100 |            2.65 | 2.06 | 1.68 |
-|    150 |            3.03 | 2.18 | 1.67 |
-|    200 |            3.24 | 2.18 | 1.57 |
-|    300 |            3.55 | 2.10 | 1.37 |
-|    400 |            3.84 | 2.07 | 1.25 |
-|    600 |            4.37 | 2.01 | 1.07 |
+|     20 |            1.32 | 1.24 | 1.12 |
+|     30 |            1.52 | 1.40 | 1.22 |
+|     40 |            1.73 | 1.57 | 1.33 |
+|     60 |            2.08 | 1.84 | 1.49 |
+|     80 |            2.41 | 2.08 | 1.62 |
+|    100 |            2.65 | 2.24 | 1.68 |
+|    150 |            3.03 | 2.43 | 1.66 |
+|    200 |            3.24 | 2.48 | 1.56 |
+|    300 |            3.55 | 2.49 | 1.36 |
+|    400 |            3.84 | 2.53 | 1.24 |
+|    600 |            4.37 | 2.59 | 1.06 |
 
 ## Verdict
 
 **75mm.** Raising the combined drag value shrinks the ratio at every range
-point tested, but does not close it uniformly: at 1.7 the ratio is 1.22 at
-r=20 ft, *rises* to a peak of 1.66 at r=100 ft, then falls back through the
-gap to 1.17 at r=400 ft. The model's decay curve has the wrong shape, not
+point tested, but does not close it uniformly: at 1.71 the ratio is 1.22 at
+r=20 ft, *rises* to a peak of 1.65 at r=100 ft, then falls back through the
+gap to 1.16 at r=400 ft. The model's decay curve has the wrong shape, not
 just the wrong scale — a constant bigger drag only happens to cross back near
 unity at the longest range tested.
 
-**105mm.** No candidate closes the gap anywhere in the 20-300 ft range
-tested. Even at 1.7 the ratio never drops below ~1.10 (r=20 ft) and climbs
-monotonically to 1.68 by r=300 ft — still diverging at the far end of the
-table, with no turnover the way 75mm and 155mm show. This caliber's residual
-is the worst-behaved of the three.
+**105mm.** No candidate closes the gap anywhere in the 20-500 ft range now
+tested (corrected grid, see above). Even at 1.71 the ratio never drops below
+~1.12 (r=20 ft), climbs to a peak of 1.68 at r=100 ft, then falls back to
+1.13 by r=500 ft — the same rise-then-fall shape 75mm and 155mm show, not the
+monotonic divergence the stale (perforation-table) triple implied.
 
-**155mm.** Same qualitative pattern as 75mm: ratio rises from ~1.1-1.3 at
-short range to a peak of ~1.63-1.68 around r=100-150 ft, then falls back
-toward unity by r=600 ft (1.07 at 1.7 — the closest any caliber/value
+**155mm.** Same qualitative pattern as 75mm: ratio rises from ~1.1-1.2 at
+short range to a peak of ~1.62-1.68 around r=80-150 ft, then falls back
+toward unity by r=600 ft (1.06 at 1.71 — the closest any caliber/value
 combination gets to a true close). Again the curve shape, not just its
 scale, is wrong.
 
-**Overall.** Raising the combined `C_D·C_shape` from 0.585 to 1.2-1.7 is a
+**Overall.** Raising the combined `C_D·C_shape` from 0.585 to 1.0-1.71 is a
 step in the right direction — it substantially shrinks the ratio everywhere
 — but no single constant value in this range closes the velocity-decay gap
-uniformly, either across calibers or across range within one caliber. 75mm
-and 155mm both show a rise-then-fall ratio shape (overshoot at mid-range,
-approach to unity only at the far range tested); 105mm shows no turnover at
-all within its shorter tested range and keeps diverging. A caliber/range-
-dependent residual remains: because `retardation_coeff`'s exponential decay
-has one fixed rate, it cannot reproduce a `v(r)` curve whose deviation from
-that decay changes sign with range. This is consistent with the Sandia
-source's own framing of 1.2-1.7 as a *velocity-dependent* combined drag, not
-a single constant — closing the gap fully would need a velocity- or
-range-dependent drag term, not merely a larger constant one.
+uniformly, either across calibers or across range within one caliber. All
+three calibers now show the same rise-then-fall ratio shape (overshoot at
+mid-range, approach to unity only at the far range tested) — the 105mm
+"no turnover, worst-behaved" reading in an earlier version of this document
+was an artifact of the mislabeled perforation triple, not a genuine
+caliber-specific difference. A range-dependent residual remains: because
+`retardation_coeff`'s exponential decay has one fixed rate, it cannot
+reproduce a `v(r)` curve whose deviation from that decay changes sign with
+range. This is consistent with the Sandia source's own framing of a
+velocity-dependent combined drag (1.0-1.71 by its own data), not a single
+constant — closing the gap fully would need a velocity- or range-dependent
+drag term, not merely a larger constant one.

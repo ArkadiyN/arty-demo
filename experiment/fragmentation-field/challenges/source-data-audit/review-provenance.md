@@ -99,7 +99,17 @@ transonic-rise shape. But it is a wrong number in a committed artifact, and the
 published band `cd_lo..cd_hi = 1.222..1.243` **excludes** the page value 1.257,
 so the band is wrong there too and cannot be read as covering it.
 
-FINDING\[blocking\]: figure-3-drag-coefficient.csv row mach=1.00 reads cd=1.233 where the page shows ~1.257, and its cd_lo..cd_hi band excludes the page value; cause is the trace's +-10px half-Mach-gridline exclusion sampling ~0.035 Mach off-label on the steepest part of the curve, and the .invariant is blind to it because all three pinned features sit on flat segments (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/tables/figure-3-drag-coefficient.csv, doc-reference/fragmentation/dod-1975-fragment-debris-hazards/tables/figure-3-drag-coefficient.invariant, doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md, experiment/fragmentation-field/challenges/source-data-audit/checks/dod-1975-figure-3-trace.py; since: 2026-08-03)
+*(Closed 2026-08-08, applying the suggested correction below almost exactly:
+`at(m)` now interpolates across the excluded gridline band between flanking
+clean columns instead of snapping to the nearest one; the `.invariant` gained
+two steep/near-plateau pins (mach=1.00 and mach=2.60, the latter found by the
+same residual sweep while closing this finding); `card.md`'s bullet now states
+1.257. One deviation from the suggestion: `source.pdf` was not present in the
+checkout doing this fix (gitignored blob), so `--write` could not be re-run
+end-to-end — the CSV rows were hand-corrected to 1.257/1.294 against three
+independent PNG re-traces that converge there, with a note in the script's
+docstring to reconcile against a `--write` run once the PDF is available
+again. Marker deleted.)*
 
 **Suggested correction (do not apply here).** In `at(m)`, interpolate across
 the excluded gridline band from clean columns on both sides instead of
@@ -145,7 +155,12 @@ while appearing to be transcription. It does not change a rendered number
 today, because the thread landed on constant $C_D = 1.28$ — the direction the
 *source* favours — but it is a wrong attribution in a committed artifact.
 
-FINDING\[blocking\]: card.md's Peak bullet says the transonic peak is "not a minor wiggle" and attributes it to the text, but the source says its variation with Mach is "rather modest despite a peak near the sound speed" - the card asserts the negation of the sentence it cites, and the materiality judgement belongs in derivation.md not a reference card (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md; since: 2026-08-03)
+*(Closed: `card.md`'s Peak bullet now reads exactly along the lines suggested
+below — "rather modest despite a peak near the sound speed", cites the
+verified anchor, and defers the materiality-of-9.4% question to
+`updates/mach-dependent-fragment-drag/derivation.md` rather than asserting it
+itself. `derivation.md` makes no competing claim about the peak. Marker
+deleted.)*
 
 **Suggested correction.** Reduce the bullet to what the page shows — "Peak
 ($M = 1.46$): $C_D = 1.400$, 9.4% above the supersonic plateau. The report
