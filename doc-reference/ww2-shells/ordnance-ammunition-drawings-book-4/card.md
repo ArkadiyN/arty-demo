@@ -2,7 +2,7 @@
 
 **Source:** U.S. Ordnance Dept., Ordnance Ammunition Drawings, Book 4 (WW2-era
 engineering specification and metal-parts/explosives-loading drawings).
-79-page PDF; 8 pages extracted (5, 6, 9, 14, 23, 25, 53, 71).
+79-page PDF; 9 pages extracted (5, 6, 9, 14, 23, 25, 53, 71, 73).
 
 **Pages:** 5 (105mm M60 chemical shell, metal parts assembly, drawing
 75-4-91A), 6 (M60 List of Parts / List of Specifications table), 9 (155mm
@@ -11,7 +11,9 @@ shell, List of Parts / List of Specifications, drawing 75-4-106A), 23 (75mm
 M48 HE shell, explosives loading), 25 (105mm M1 HE shell, explosives
 loading), 53 (155mm M107 HE shell, explosives loading), 71 (Forging for
 Shell H.E., 81mm, M43A1 and Shell, Practice, M43A1, drawing 75-20-72 —
-List of Specifications + Physical Properties block).
+List of Specifications + Physical Properties block), 73 (Forging for Shell
+H.E., 75mm, M48/M48B1 and Shell, Chemical, M64, drawing 75-20-77 — List of
+Specifications + Physical Properties block).
 
 ## Extraction provenance — read this before citing anything below
 
@@ -53,6 +55,15 @@ off the raster in response to a specific user claim, cross-checked at 2x zoom
 crops of the specification table and the physical-properties block before
 transcription. First-pass transcription, no automated draft to distrust.
 
+**Page 73** (`fig9-page73-75mm-m48-specs.jpeg`) was added the same way,
+immediately after page 71, in response to a direct user correction of this
+card's own prior claim that the 75mm M48 was not covered by any primary
+source in this repo — it is, on the next populated page of the same book.
+Same method: rendered from `source.pdf` at 300 dpi, read full-page first,
+then cross-checked at 2x zoom crops of the List of Specifications table and
+the Physical Properties block before transcription. Also first-pass, no
+automated draft to distrust.
+
 ## Headline finding — WD.SS-3 steel, spec 57-104-2, 65,000 psi minimum yield
 
 The user's premise for pulling this volume: "minimum 65,000 psi yield
@@ -69,6 +80,7 @@ WD-SS-3." Both parts confirmed directly against the primary drawings:
 | 105mm M67 (HEAT/AT)            | 75-4-106A | Body Shell          | **WD.SS-3**                            | 57-104-2    | 57-104-1 (mandatory for material for forging — note b)                                | not printed on this page | —             | —            | p.14                        |
 | 155mm M107 (HE)                | 75-4-99A  | Body Shell          | STEEL (no grade named on this drawing) | 57-104-2    | —                                                                                     | 65,000                   | 15 (in 2 in.) | 30           | p.9                         |
 | 81mm M43A1 HE / Practice M43A1 | 75-20-72  | Forging (Type I/II) | STEEL (no grade named on this drawing) | **50-37-1** | 57-104-1 (listed directly on the same List of Specifications table, no footnote link) | **35,000**               | 15            | 30           | p.71                        |
+| 75mm M48/M48B1 HE and M64 Chem | 75-20-77  | Forging             | STEEL (no grade named on this drawing) | 57-104-2    | 57-104-1 (listed directly, same List of Specifications table, both titled distinctly) | 65,000                   | 15            | 30           | p.73                        |
 
 - Page 14 (M67 HEAT List of Parts/Specifications, drawing 75-4-106A) is where
     **WD.SS-3** is explicitly printed against the Body Shell line, tied to
@@ -118,9 +130,45 @@ WD-SS-3." Both parts confirmed directly against the primary drawings:
     grade-to-spec mapping for the 81mm forging is inference from the
     Ammunition Series 6 card's caliber statement, not a direct read off this
     drawing, and should be read as such.
+- **Page 73 (75mm M48/M48B1 HE and M64 Chem forging, drawing 75-20-77)
+    corroborates the same 65,000 psi / spec 57-104-2 figure the 105mm and
+    155mm Body Shell drawings carry — this corrects an earlier claim in this
+    conversation that the 75mm M48 wasn't covered by any primary source in
+    this repo.** It is, on the very next populated page of this same book.
+    The 75mm M48 forging (drawing 75-20-77) lists both **57-104-1** ("STEEL,
+    FORGING FOR SHELL STOCK") and **57-104-2** ("FORGINGS FOR COMMON STEEL
+    SHELL AND SHRAPNEL") directly in its List of Specifications table, and its
+    Physical Properties block states Yield Strength not less than **65,000
+    psi**, Elongation 15%, Reduction of Area 30% — printed as
+    "PHYSICAL PROPERTIES OF TEST SPECIMEN (SEE SPEC. 57-104-2) AND FINISHED
+    MACHINED SHELL," i.e. the drawing itself ties the 65,000 psi figure to
+    57-104-2 by name, not just by table position as on pages 5/9. This is now
+    a fourth, independently-drawn caliber (75mm, alongside 105mm M60, 105mm
+    M67 HEAT, and 155mm M107) landing on the identical spec/figure pair, and
+    the 65,000 psi vs. 35,000 psi split is now evidenced on both sides by a
+    drawing that prints both spec numbers with distinct titles side by side,
+    not just by table position — strengthening the two-tier reading above
+    from "structurally consistent" to "directly titled as two different
+    documents on the same page."
+- **New, unresolved wrinkle from page 73's title text:** page 73 titles spec
+    **57-104-2** as "FORGINGS FOR COMMON STEEL SHELL AND SHRAPNEL." That title
+    closely echoes the title Paine 1929 (`../paine-1929-centrifugal-casting/card.md` footnote 17) gives for the *1924-dated* spec **57-104-1** — "Cast
+    Steel Ingots and Steel, Rolled or Forged, for U.S. Common Steel Shell and
+    Shrapnel." Same subject ("common steel shell and shrapnel"), same rough
+    era, but attached to different basic numbers (57-104-1 in 1924 vs.
+    57-104-2 on this WW2-era drawing) — raising an open question of whether
+    the 57-104-1/57-104-2 numbering was reassigned or renumbered between the
+    two eras/documents, rather than being stable across them. Not
+    investigated further here — flagged, not resolved; does not change
+    anything about the WW2-era two-tier reading above, which rests entirely on
+    what this book's own pages print.
 - **Still open, but not model-relevant today:** whether spec 57-104-2 as cited
     here is the same document as the 1924-dated spec 57-104-2 in
-    `../paine-1929-centrifugal-casting/card.md` footnote 17. Moot for now:
+    `../paine-1929-centrifugal-casting/card.md` footnote 17 — now sharpened by
+    the title-echo wrinkle immediately above, which suggests the answer may be
+    "no, and the WW2-era 57-104-1 is the closer match to Paine's 1924
+    57-104-2" rather than a straightforward same-document identity. Moot for
+    now:
     `src/arty/shells.py` sources the 105mm M1/155mm M107/75mm M48 HE shells'
     steel from `STEELS["WW2 US HE Shell"]` (sigma_f=800 MPa, gamma=54.5, a
     Mott-closure fit — not sourced from spec 57-104-2 or any yield-strength
@@ -128,12 +176,14 @@ WD-SS-3." Both parts confirmed directly against the primary drawings:
     `STEELS["US WW2 WDSS1"]` (grade **1**, not 3), used solely for the 60mm
     M49A2 mortar shell — a different caliber (60mm, not 81mm) and a different
     Ammunition Series 6 table entry, unrelated to this drawing's Body Shell
-    rows. The new 35,000 psi figure on page 71 is additional evidence for the
-    open deferred finding already recorded on
+    rows. The 35,000 psi figure on page 71 and the 65,000 psi figure on page
+    73 (now directly confirmed for 75mm M48, one of the three calibers
+    actually drawing on `STEELS["WW2 US HE Shell"]`) are both additional
+    evidence for the open deferred finding already recorded on
     `../ammunition-series-6-wdss-specs/card.md` that shipped
     `sigma_f = 800 MPa` (≈116,000 psi) has never been compared against any
-    source-stated static yield figure for a WDSS-family grade — it does
-    not change that finding's disposition (still a criterion-match question
+    source-stated static yield figure for a WDSS-family grade — neither
+    changes that finding's disposition (still a criterion-match question
     for @model-reviewer: static yield vs. dynamic fracture stress are not the
     same quantity) and no new finding is opened here. This card remains
     provenance for the user's claims, not an input the model currently
@@ -179,6 +229,52 @@ arithmetic closure applies — single independent figures, not components of a
 stated total).
 
 **Image:** `images/fig8-page71-81mm-mortar-specs.jpeg` (full-page raster,
+300 dpi).
+
+## 75mm M48/M48B1 HE and M64 Chem — Forging Specification (page 73, drawing 75-20-77)
+
+**Title block:** "FORGING FOR SHELL, H.E., 75MM, M48 AND M48B1 AND SHELL,
+CHEM., M64", Class 75, Division 20, Drawing 77 (i.e. 75-20-77), dated Jan. 4,
+1937, supersedes an old tracing per a revision dated Apr. 10, 1940, revised
+through 8-15-45 (revision 12). Single forging, STEEL — a dimensional forging
+blank, not the finished machined shell.
+
+**List of Specifications table** (only 4 of 10 numbered lines are populated;
+blank lines transcribed as blank, not omitted — note this drawing populates
+line 3 where page 71's table populates line 4 for its finished-part spec;
+the two tables are not laid out identically, only analogous in structure):
+
+| Line | Specification                                        | Spec Number  | Required By  |
+| ---- | ---------------------------------------------------- | ------------ | ------------ |
+| 1    | AMMUNITION, EXCEPT SMALL ARMS AMM. GENERAL SPEC. FOR | 50-0-1       | DRG.75-20-77 |
+| 2    | STEEL, FORGING FOR SHELL STOCK                       | 57-104-1     | DRG.75-20-77 |
+| 3    | FORGINGS FOR COMMON STEEL SHELL AND SHRAPNEL         | **57-104-2** | DRG.75-20-77 |
+| 8    | METALS, GENERAL SPECIFICATION FOR INSPECTION OF      | QQ-M-151     | 57-104-2     |
+
+**CSV:** `tables/page73-75mm-spec-list.csv`. Unlike page 71 (where 57-104-2
+appears only indirectly, as the "Required By" value for QQ-M-151), this
+drawing lists **57-104-2 directly** as a specification required by the
+drawing itself — printed with its own distinct title, "FORGINGS FOR COMMON
+STEEL SHELL AND SHRAPNEL," alongside 57-104-1's "STEEL, FORGING FOR SHELL
+STOCK" on the same table. Both titles confirmed at 2x zoom crop against
+`source.pdf`.
+
+**Physical Properties block** (printed once, captioned "PHYSICAL PROPERTIES
+OF TEST SPECIMEN (SEE SPEC. 57-104-2) AND FINISHED MACHINED SHELL"):
+
+- Yield Strength — not less than **65,000 lbs. per sq. in.**
+- Elongation in 2 inches — not less than 15%
+- Reduction of Area — not less than 30%
+
+Identical figures to the 105mm M60 (p.5/6) and 155mm M107 (p.9) Body Shell
+requirements, and explicitly captioned as governed by spec 57-104-2 — the
+same spec number those two drawings cite, and the same one page 71's 81mm
+mortar forging does *not* invoke directly.
+
+**Table of Weights:** Forging — 20 lb. max. (single line, forging blank
+weight, not finished/loaded shell weight; no arithmetic closure applies).
+
+**Image:** `images/fig9-page73-75mm-m48-specs.jpeg` (full-page raster,
 300 dpi).
 
 ## 105mm M60 (Chemical) — Metal Parts Assembly (page 5, drawing 75-4-91A)
@@ -369,9 +465,9 @@ uv run python doc-reference/ww2-shells/ordnance-ammunition-drawings-book-4/check
 ```
 
 The steel-spec identity tables (`body-shell-steel-specs.csv`,
-`page71-81mm-spec-list.csv`) carry no arithmetic closure — they are
-identity/specification data, not a summable series — and are admissible on
-direct-read provenance alone, consistent with
+`page71-81mm-spec-list.csv`, `page73-75mm-spec-list.csv`) carry no arithmetic
+closure — they are identity/specification data, not a summable series — and
+are admissible on direct-read provenance alone, consistent with
 `../ammunition-series-6-wdss-specs/card.md`.
 
 ## Not extracted / out of scope
@@ -387,7 +483,10 @@ direct-read provenance alone, consistent with
     geometry) and the six blank numbered lines (2, 3, 5, 6, 9, 10) of its List
     of Specifications table — only the populated rows and the Physical
     Properties block were transcribed.
-- Pages other than 5, 6, 9, 14, 23, 25, 53, 71 (71 of 79 pages).
+- Page 73's forging dimensional callouts and the six blank numbered lines
+    (4, 5, 6, 7, 9, 10) of its List of Specifications table — only the
+    populated rows and the Physical Properties block were transcribed.
+- Pages other than 5, 6, 9, 14, 23, 25, 53, 71, 73 (70 of 79 pages).
 
 ## Source
 
@@ -395,7 +494,7 @@ direct-read provenance alone, consistent with
 WW2 era)
 **File:** originally at `/mnt/f/Projects/TMP/Docs/Ordnance Ammunition Drawings, Book 4.pdf`; retained as `source.pdf` beside this card (176 MB,
 gitignored per `.gitignore:58` — re-acquire from the original location)
-**Pages:** 79 total; 8 extracted (5, 6, 9, 14, 23, 25, 53, 71)
+**Pages:** 79 total; 9 extracted (5, 6, 9, 14, 23, 25, 53, 71, 73)
 **SHA256:** `0e5a061d0319e7dd19e0ab644ae83392b44de20226dad62fa5f9feaf35da1c5c`
-**Images:** `images/fig1.jpeg`–`fig8-page71-81mm-mortar-specs.jpeg` (8 total;
+**Images:** `images/fig1.jpeg`–`fig9-page73-75mm-m48-specs.jpeg` (9 total;
 see Extraction provenance above)

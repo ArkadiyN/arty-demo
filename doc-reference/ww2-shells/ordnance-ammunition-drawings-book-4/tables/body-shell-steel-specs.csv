@@ -4,3 +4,4 @@ Shell,Drawing,Part,Material_Grade,Spec_Number,Mandatory_Related_Spec,Min_Yield_S
 105mm M67 (HEAT/AT),75-4-106A,Body Shell,WD.SS-3,57-104-2,57-104-1 (mandatory for material for forging -- note b),,,,14
 155mm M107 (HE),75-4-99A,Body Shell,STEEL (grade not named on this drawing),57-104-2,,65000,15,30,9
 81mm M43A1 HE / Practice M43A1,75-20-72,Forging (Type I/II),STEEL (grade not named on this drawing),50-37-1,57-104-1 (listed directly, same List of Specifications table -- not tied by a footnote as on page 14),35000,15,30,71
+75mm M48/M48B1 HE and M64 Chem,75-20-77,Forging,STEEL (grade not named on this drawing),57-104-2,57-104-1 (listed directly, same List of Specifications table, both titled distinctly: 57-104-1 "Steel Forging for Shell Stock", 57-104-2 "Forgings for Common Steel Shell and Shrapnel"),65000,15,30,73
