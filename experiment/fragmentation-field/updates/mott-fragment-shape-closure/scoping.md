@@ -39,9 +39,9 @@ Read from source (not cards):
 | Fact | Source |
 | --- | --- |
 | `x₀ = (2σ_F/ργ′)^{1/2}·r/V`, called "the average circumferential length"; `γ′` = material fracture constant | Gold 2017 eq. (2) + preamble (`…conwep/1-s2.0-S221491471730079X-main.md:56-60`) |
-| Fragments are prisms idealized as a **parallelepiped** `l₀ × x₀ × t₀`; `μ = ½αρx₀³`, `α = (l₀/x₀)(t₀/x₀)` | Gold eq. (4), lines 70-76 |
+| Fragments are prisms idealized as a **parallelepiped** `l₀ × x₀ × t₀`; `μ = ½αρx₀³`, `α = (l₀/x₀)(t₀/x₀)` | Gold 2017 eq. (4), `…conwep/1-s2.0-S221491471730079X-main.md`, anchor `\tag{4}`, with the parallelepiped premise at anchor `idealized with simple geometric shapes like a parallelepiped` |
 | `γ ≡ α^{-2/3}γ′`, then eq. (7) ≡ eq. (16) — the shape-absorbed form the code uses | Gold eqs. (6)-(7), (16) |
-| `μ` is **one half the average fragment mass**; `N₀ = M/2μ` | Gold line 54. So the closure is exactly `mean mass = ρ·l₀·x₀·t₀`, and the code's `N₀ = M/2μ` is **correct** (Gold's own eq. (17) `N₀ = m/μ` contradicts his line 54 and is a typo — do not follow it) |
+| `μ` is **one half the average fragment mass**; `N₀ = M/2μ` | Gold 2017, anchor `is defined as one half of the average fragment mass` (the same sentence states `N₀ = M/2μ`). So the closure is exactly `mean mass = ρ·l₀·x₀·t₀`, and the code's `N₀ = M/2μ` is **correct** (Gold's own eq. (17) `N₀ = m/μ` contradicts that definition and is a typo — do not follow it) |
 | Gold's `γ` is **calibrated against explosive CJ pressure**, not composition; he runs `γ = 50` for HF-1/Comp-B and 20–50 across regions | lines 190, 212, 218 |
 | Mott's own statistic: fragment lengths mostly `x₀…2x₀`, **average ≈ 1.5x₀** | Mott 1947 finding (1), `…gurney-equations-fragmentation/`, p.305, anchor `The fragments have lengths most of which lie` |
 | Mott's `x₀` is a *circumferential* spacing from a 1-D ruled-line simulation; he never converts it to a mass | Mott lines 156-187 |

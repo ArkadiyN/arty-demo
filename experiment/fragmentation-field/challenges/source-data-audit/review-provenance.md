@@ -201,9 +201,9 @@ measured is DoD-1975 paraphrasing **Dunn & Porter, BRL MR 915 (1955)**, which
 is not in `doc-reference/`. The card presents it as method fact. Per the
 provenance gate this must be **marked secondhand** in the card ("as reported by
 DoD-1975 from ref. 10; BRL MR 915 not held"), not corrected — the attribution
-chain is internally consistent, it is simply unverified at the primary.
-
-FINDING\[note\]: card.md states Figure 3's experimental method and shape-factor provenance as fact, but all of it is DoD-1975 paraphrasing Dunn and Porter BRL MR 915 (1955), which is not held in doc-reference; mark the Source and Test Conditions section secondhand rather than correcting it (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md; since: 2026-08-03)
+chain is internally consistent, it is simply unverified at the primary. **Status
+2026-08-09: card.md now carries this marking in its "Source and Test Conditions"
+section.**
 
 ### 1e. Anchors
 
@@ -221,7 +221,10 @@ Neither was done here.
 `supersonic value of 1.28` (L339) is the one anchor in the folder that is a
 real greppable string and resolves correctly. Use it as the model.
 
-FINDING\[deferrable\]: DoD-1975 card.md uses four bare line-number anchors (L293-L315, L320-L327, L346, L550) of which three point at the wrong content, and the figure-caption anchor "Figure 3 Drag Coefficient of Fragments" is written with a double space and greps to zero hits in the extraction - it is repeated verbatim in the .invariant and in dod-1975-figure-3-trace.py's docstring (affects: doc-reference/fragmentation/dod-1975-fragment-debris-hazards/card.md, doc-reference/fragmentation/dod-1975-fragment-debris-hazards/tables/figure-3-drag-coefficient.invariant, experiment/fragmentation-field/challenges/source-data-audit/checks/dod-1975-figure-3-trace.py; since: 2026-08-03)
+**Status 2026-08-09:** The bare line-number anchors have been replaced with
+greppable strings in card.md, and the double-space figure-caption anchor has
+been corrected to single-space in figure-3-drag-coefficient.invariant and
+dod-1975-figure-3-trace.py docstring. All anchors now resolve correctly.
 
 ______________________________________________________________________
 
@@ -642,3 +645,134 @@ ______________________________________________________________________
 | 1. DoD-1975 Figure 3 drag coefficient | PARTIALLY | yes — the *Peak* bullet's materiality judgement → `updates/mach-dependent-fragment-drag/derivation.md`                         |
 | 2. Gold 2017 eq. (6) shape-absorbed γ | YES       | partly — code-verification verdicts and computed counts → `derivation.md`; the source's own eq.(1)/eq.(17) contradiction stays |
 | 3. Tolch 1938 "Drag Model Relevance"  | **NO**    | **yes — whole section** → `challenges/drag-gap-1944/tolch-1938-panel-distance.md`, leaving a referral                          |
+
+______________________________________________________________________
+
+## 2026-08-09 — Re-review: greppable-anchor closures + four `_limitations.qmd` closure notes
+
+Scope: the diff closing the bare-line-number anchor findings (DoD-1975 in
+`src/arty/fragmentation.py` and `mach-dependent-fragment-drag/derivation.md`;
+ES-310/FAS in `pkill-poisson-field/derivation.md`; Gold 2017 in
+`mott-fragment-shape-closure/derivation.md`/`scoping.md`) and four
+`_limitations.qmd` caveat rewrites (posture-dimensions provenance, the 1944
+B(r) angular-averaging note, the Mach-drag comparison-data framing, plus the
+undischargeable-caveat wording). Per `collect-findings.py --for experiment/fragmentation-field/challenges/source-data-audit`, two pre-existing
+findings remain open and are untouched by this diff (ordnance-1944 table
+renumbering; Gold 2017 substitution-closure gap) — correctly not closed here,
+out of this diff's stated scope.
+
+**Verdict: PASS-with-limitations.**
+
+### Findings
+
+**1. [Deferrable] The retained verification script has a path-resolution bug
+and does not run as committed.**
+`checks/verify-greppable-anchors.py:15` sets `ROOT = Path(__file__).resolve().parents[2]`, which from
+`experiment/fragmentation-field/challenges/source-data-audit/checks/` resolves
+to `experiment/fragmentation-field/challenges/` — three levels short of the
+repo root. Running it as documented (`uv run python experiment/fragmentation-field/challenges/source-data-audit/checks/verify-greppable-anchors.py`)
+throws `FileNotFoundError` on the first anchor; it cannot reach "19/19
+passing" from a clean checkout, contradicting the state described in this
+task's brief. Fix is `parents[5]`, or better, walk upward for a repo marker
+(e.g. `.git`) to be robust to the file moving. This violates
+`.claude/rules/verification-scripts.md`'s "runnable standalone" requirement.
+**Impact:** none on any shipped number — I re-ran the anchor logic with the
+path corrected (script written to scratch, not committed) and confirmed all
+19 anchors *do* resolve to exactly one line each in their source files (DoD-1975
+10/10, ES-310 2/2, Gold 2017 7/7); every spot-check I did by hand (see below)
+agrees. So the citations themselves are sound — only the checked-in script
+that is supposed to prove that, for the next reader, is broken. Suggested
+correction: fix the `parents[]` index (or root-finding logic) in
+`checks/verify-greppable-anchors.py`, one line, no re-derivation needed.
+
+**2. [Note] Anchor transcription spot-checked and correct.** Hand-verified
+against `10-F-0806_Fragment_and_Debris_Hazards.md`,
+`fas-es310-damage-criteria.md`, and
+`1-s2.0-S221491471730079X-main.md`: all quoted anchor strings in the diff
+(`similar, the mass m and presented area A are related by`, `value of 660 grains/in.3 (2.60 g/cm3) has been recommended`, `take the drag coefficient as constant at its` / `supersonic value of 1.28.`, `Aggregate Pk from multiple hits:`, `Moderate personnel kill criterion is`, Gold's `\tag{4}`/`\tag{6}`/
+`\tag{7}`/`\tag{16}` and its three prose anchors) appear verbatim, once, at
+the line the diff or script claims. The DoD-1975 `figure-3-drag-coefficient.invariant`
+double-space-to-single-space anchor fix (`"Figure 3  Drag..."` →
+`"Figure 3 Drag..."`) also now matches the extraction's actual single space.
+No transcription defect found. No impact — confirms fidelity, no correction
+needed.
+
+**3. [Note] ES-310 personnel-row re-citation correctly avoids pre-empting the
+sibling open finding.** `pkill-poisson-field/derivation.md`'s 1000 J /
+Pk = 0.5 anchor was moved off the extraction's reconstructed "Personnel Damage
+Criteria Table" onto `tables/table-3-fragmentation-damage-criteria.csv`'s
+`personnel` row (`pk_moderate=0.5`, `energy_moderate_kJ=1`), which is exactly
+the right dodge — that table's own `.invariant` passes
+(3 rows / 7 checks, `uv run src/utils/check-table-invariants.py doc-reference/wound-ballistics/fas-es310-damage-criteria/tables/table-3-fragmentation-damage-criteria.invariant`),
+and the closure note explicitly says the transposed-table finding "carries its
+own open finding" rather than closing it — confirmed still open via
+`collect-findings.py --for doc-reference/wound-ballistics/fas-es310-damage-criteria`.
+No impact — correct handling, no correction needed.
+
+**4. [Deferrable] The posture-dimensions closure note in `_limitations.qmd`
+leans on a doc-reference file with no provenance apparatus at all — a
+materially weaker basis than its AEP-55 Vol. 3 sibling in the same
+paragraph.** `_limitations.qmd`'s rewritten posture-box caveat (around the old
+"Posture box-body dimensions... not present in doc-reference/" line) now
+asserts, as apparently first-hand fact, that Cunniff (2014) "states no
+tabulated standing/crouching/prone silhouette." That specific claim does check
+out against `doc-reference/wound-ballistics/cunniff-2014/cunniff-2014.md`
+(its own §"No explicit posture-dependent silhouette areas given", line 372-373:
+*"The paper does not provide tabulated projected areas for standing/crouching/
+prone soldiers... Figure 7 (p. 62) describes the computational approach... but
+not the resulting area values"*) — so the claim is not fabricated. But
+`cunniff-2014.md` itself is not a citable primary surface by this project's
+own standard: it has **no `card.md`, no retained `source.pdf`, and no
+verification search script** (contrast the AEP-55 Vol. 3 citation two lines
+later in the same `_limitations.qmd` paragraph, which has all three, including
+a 106-page zero-hit search script at
+`checks/aep-55-vol3-scope-check.py`). Its frontmatter `source_url` is a Google
+Scholar *search query* (`scholar.google.com/scholar?q=Cunniff+armor...`), not
+a link to the actual paper, and its body reads as an interpretive analysis
+("PRIMARY DATA GAP SOLUTION", "Key takeaway") rather than a transcription.
+This is the exact "no card.md at all" worst case
+`.claude/rules/source-data-fidelity.md`'s "Triage on 'no card'" section calls
+out as the highest-exposure gap category — pre-existing (added in `902cc44`,
+untouched by this diff), but this diff is what newly leans on it for a
+stronger, more confident closure claim ("Both references... *are* collected...
+collecting further references cannot discharge this caveat") than the prior
+"not present, treat as pending" wording. **Impact:** none on any rendered
+number — the ±25% posture engineering-estimate framing in the caveat is
+unchanged either way, only the narrative justification changed, and the one
+factual claim I could check against the file is correct. This is why it's
+Deferrable, not Blocking. **Suggested limitation-log wording:** *"The Cunniff
+(2014) doc-reference entry (`wound-ballistics/cunniff-2014/cunniff-2014.md`)
+has no `card.md`, no retained source PDF, and no search/verification script;
+its 'no tabulated posture silhouette' claim, while checked here against its
+own text, has not been checked against the primary and should be treated as
+secondhand until a card.md + source.pdf are added."* Suggested correction (not
+applied): either add a minimal `card.md` + retained `source.pdf` for Cunniff
+2014 (matching the AEP-55 Vol. 3 pattern already in the same paragraph), or
+soften the `_limitations.qmd` wording to mark the Cunniff claim as resting on
+an unverified secondary summary rather than stating it as settled fact.
+
+**5. [Note] The 1944 B(r) angular-averaging addendum and the Mach-drag
+comparison-data framing note both check out against what they cite.** The
+B(r) note's claim that the card's B column is `N_eff/(4πr²)` "by construction"
+matches the confirmed isotropic identity already established in this
+project's own prior review pass (per project memory: `ordnance_1944_B_is_isotropic` —
+B==N/(4πr²) exactly), and both new `_limitations.qmd` paragraphs correctly
+cross-reference `review-criterion-match.md` §1b′ and §2d rather than
+re-arguing the criterion-match question inline. The Mach-drag paragraph's
+claim that the 1944 comparison data are "the source's own period variable-drag
+ballistic calculation, not arrival-velocity measurements" is consistent with
+what `updates/mach-dependent-fragment-drag/derivation.md` §7 already
+documents (the λm^(1/3) drift down the casualties columns vs. flat-to-5% on
+the perforation columns). No impact — correct closure, no correction needed.
+
+### Summary
+
+No Blocking findings. Two Deferrable items to log:
+
+- Finding 1 (broken `verify-greppable-anchors.py` path resolution) — trivial
+    one-line fix, recommend fixing promptly since it is cheap, but data behind
+    it is confirmed correct so it does not block.
+- Finding 4 (Cunniff 2014 doc-reference entry lacks card.md/source.pdf/search
+    script, and `_limitations.qmd` now cites it with more confidence than its
+    provenance apparatus supports) — log as a limitation per the suggested
+    wording above; no rendered output changes either way.

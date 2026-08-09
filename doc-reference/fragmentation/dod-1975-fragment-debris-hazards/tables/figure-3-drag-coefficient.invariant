@@ -1,6 +1,6 @@
 csv:     figure-3-drag-coefficient.csv
 source:  ../source.pdf p.33 = report page 23, the figures section
-anchor:  Figure 3  Drag Coefficient of Fragments
+anchor:  Figure 3 Drag Coefficient of Fragments
 anchor:  supersonic value of 1.28
 
 # PROVENANCE. Not typed by hand and not read by eye: produced by

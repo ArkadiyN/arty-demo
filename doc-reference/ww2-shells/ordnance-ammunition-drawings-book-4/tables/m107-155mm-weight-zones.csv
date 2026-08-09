@@ -1,0 +1,6 @@
+Zone,Over_lb,Up_to_and_including_lb,Mark
+1,,,not legible in source raster
+2,90.0,91.3,two marks
+3,91.1,92.4,three marks -- NOTE: "over" value read as 91.1 does not tile against zone 2's "up to 91.3"; same digit-misread pattern as m1-105mm-weight-zones.csv, not re-verified against source.pdf at higher zoom
+4,92.2,93.5,four marks
+5,93.3,94.6,five marks

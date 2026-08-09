@@ -48,13 +48,16 @@ validation results scoping §5 requires. No `src/arty/` edit is made here; §6
 specifies it for the implementation pass.
 
 **Source.** `doc-reference/fragmentation/dod-1975-fragment-debris-hazards/`
-`10-F-0806_Fragment_and_Debris_Hazards.md`, "Ballistic Properties"
-(pp. 7–9, lines 299–373) and `figure-3-digitized.md`.
+`10-F-0806_Fragment_and_Debris_Hazards.md`, sect. "Ballistic Properties"
+(printed pp. 7–9) and `figure-3-digitized.md`. Passages below are cited by
+greppable quoted string; the extraction is OCR-noisy, so quotes are given
+exactly as stored, one line at a time.
 
 ## 1. Governing equations
 
 Velocity-squared drag on a fragment of mass *m* with mean presented area *A*,
-gravity neglected (source lines 328–331, 340–346):
+gravity neglected (source: "velocity-squared law"; "of motion can be integrated
+in the case of a constant drag coefficient"):
 
 $$m v \frac{dv}{ds} = -\tfrac12 \rho_{air} C_D A v^2
 \;\Longrightarrow\;
@@ -93,7 +96,8 @@ $\rho_{steel}$ exactly. **Fragment retardation depends on the ballistic
 density *k*, not on the steel density** — $\rho_{steel}$ appears in arty's form
 only because `C_shape` is defined relative to it. `C_shape` is therefore not a
 free fudge factor: it is a restatement of a *measured* quantity (icosahedron-gage
-area/mass measurements on recovered fragments, lines 302–312), and it is
+area/mass measurements on recovered fragments — "the average is taken as the
+mean presented area"), and it is
 **bounded** by geometry, because no body of given volume presents less area
 than a sphere.
 
@@ -101,8 +105,8 @@ than a sphere.
 
 | Symbol | Meaning | Unit | Adopted | Source |
 | --- | --- | --- | --- | --- |
-| $C_D$ | drag coefficient, supersonic plateau | – | **1.28** | line 339 ("constant at its supersonic value of 1.28") |
-| $k$ | ballistic density, forged steel projectiles & frag bombs | kg/m³ | **2600** (660 gr/in³) | line 321 (recommended average) |
+| $C_D$ | drag coefficient, supersonic plateau | – | **1.28** | "supersonic value of 1.28." |
+| $k$ | ballistic density, forged steel projectiles & frag bombs | kg/m³ | **2600** (660 gr/in³) | "value of 660 grains/in.3 (2.60 g/cm3) has been recommended" |
 | $C_{shape}$ | arty shape factor, **derived** from (4) at $\rho_{steel}$ = 7850 | – | **2.089** | identity (4) |
 | $\rho_{air}$ | air density | kg/m³ | 1.225 (unchanged) | ISA sea level |
 | $\rho_{steel}$ | shell steel density | kg/m³ | 7850 (registry) | `arty.shells` |
@@ -238,7 +242,8 @@ limitation L3.
 Rejected in scoping §4 Option 3 on evidence, not convenience: the digitized
 Fig-3 $C_D(M)$ curve integrated along each trajectory scores RMS 0.259 / 0.072
 against the best *constant*'s 0.250 / 0.047 — it does not beat a constant on
-this data, which is the source's own advice (line 338). The structural cost
+this data, which is the source's own advice ("take the drag coefficient as
+constant at its"). The structural cost
 would be large: λ enters `min_lethal_mass`'s bisection and both field builders
 in closed form, so a Mach-dependent $C_D$ replaces an algebraic λ with a
 per-fragment ODE integration. Negative accuracy return for an architectural
@@ -247,7 +252,9 @@ change → **do not implement**.
 ## 6. Specification for the implementation pass
 
 1. `DragParams`: `C_D: float = 1.28`, `C_shape: float = 2.0890`, with the
-     docstring/comment naming (4), *k* = 2.60 g/cm³ and source lines 321, 339.
+     docstring/comment naming (4), *k* = 2.60 g/cm³ and the source quotes
+     "value of 660 grains/in.3 (2.60 g/cm3) has been recommended" /
+     "supersonic value of 1.28."
      Do **not** leave `C_shape` documented as a "presented-area shape factor"
      with no provenance — that framing is what allowed 0.90 to persist.
 1. Add a module-level helper `c_shape_from_ballistic_density(k, rho_steel)`
@@ -299,7 +306,7 @@ admissible drag law, and gravity is not the explanation.** At 75mm 400 ft and
 full Fig-3 integration under-predicts velocity by up to 2.4× (155mm 600 ft:
 49.6 vs 116.7 m/s). Free-fall terminal velocity $(gL)^{1/2}$ at these points is
 20–23 m/s against observed 117–154 m/s, so the DoD gravity perturbation
-(lines 360–373) cannot account for it — gravity cannot hold a fragment up at
+("considering the effects of both drag and gravity") cannot account for it — gravity cannot hold a fragment up at
 5–7× its terminal velocity. These arrivals are already below the casualty
 threshold, so this is outside the fidelity bar. Leading untested candidate: the
 source's tabulated m(r) at long range is set by *its own* lethality criterion
@@ -326,13 +333,16 @@ before the fragment must be denser than a solid steel cube.
 ## 8. Assumptions
 
 - Geometric similarity across the fragment spectrum: a single *k* for all
-  masses from one shell. This is the source's own assumption (line 316) and is
+  masses from one shell. This is the source's own assumption ("similar, the
+  mass m and presented area A are related by") and is
   what makes λ ∝ m^{−1/3}.
-- One global *k* = 2.60 g/cm³ for all calibers. The source notes *k* "differs
-  from one weapon to another" (line 319) and the per-point required constants
+- One global *k* = 2.60 g/cm³ for all calibers. The source notes "the value of
+  k differs from one weapon to" another and the per-point required constants
   do show caliber structure; per-caliber *k* is deferred (scoping §6).
 - Constant $\rho_{air}$ = 1.225 kg/m³ — no altitude or burst-height variation.
-- Gravity neglected; trajectories treated as straight (source lines 340–342).
+- Gravity neglected; trajectories treated as straight (source: "If the force of
+  gravity is neglected, however, the equation").
   Justified for the lethal band by L2's terminal-velocity comparison.
 - $C_D$ constant at the supersonic plateau across the whole Mach range
-  (line 338–339), validated numerically in §5.
+  ("take the drag coefficient as constant at its" / "supersonic value of
+  1.28."), validated numerically in §5.

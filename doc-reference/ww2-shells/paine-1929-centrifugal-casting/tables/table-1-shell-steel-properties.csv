@@ -1,0 +1,29 @@
+Designation and Form,C (%),Mn (%),P (%),S (%),Si (%),Ni (%),Cr (%),Cu (%),Ultimate Strength (lbs/in²),Elastic Limit (lbs/in²),Yield Point (lbs/in²),Elongation (%),Reduction of Area (%)
+W.D. 1045 Carbon Steel (a d),0.40-0.50,0.50-0.80,0.045,0.050,0.15-0.35,,,,70000-80000,35000-40000,,20-16,20-33
+W.D. 1050 Carbon Steel (a d),0.45-0.55,0.50-0.80,0.045,0.050,0.15-0.35,,,,70000-80000,35000-40000,,20-16,20-33
+W.D. 1055 Carbon Steel (a d),0.50-0.60,0.40-0.70,0.045,0.050,0.15-0.35,,,,70000-80000,35000-40000,,20-16,20-33
+W.D. 1065 Carbon Steel (a d p),0.60-0.70,0.40-0.70,0.040,0.050,0.15-0.35,,,,80000,45000,,25,45
+Common Steel Shell under 8 in. ingot quality annealed (c),0.45-0.55,0.60-0.80,0.040,0.045,0.35,,,,75000,37500,,21*,
+Common Steel Shell under 8 in. quenched and drawn (c),0.45-0.55,0.60-0.80,0.040,0.045,0.35,,,,100000-90000,60000-50000,,15*,17*
+Common Steel Shell 8 in. and larger annealed (c),0.50-0.60,0.60-0.80,0.040,0.045,0.35,,,,75000,37500,,21*,
+Common Steel Shell 8 in. and larger quenched and drawn (c),0.50-0.60,0.60-0.80,0.040,0.045,0.35,,,,90000-100000,50000-60000,,17*,15*
+W.D. 3250 Nickel-Chrome Steel (a d p),0.45-0.55,0.30-0.60,0.040,0.040,0.15-0.35,1.50-2.00,0.90-1.25,,170000,140000,,12,35
+Steel Castings Annealed (m),0.55,,,,,,,,,92500,43000,10.2,
+Steel Castings Heat Treated (m),0.55,,,,,,,,,114000,65000,9.9,
+Typical Group of Steel Castings untreated cooled quickly (k),0.40-0.60,,,,,,,,,84000,41500,12,15
+Typical Group of Steel Castings untreated cooled slowly (k),0.40-0.60,,,,,,,,,80500,40500,22,26.5
+Steel Castings unannealed (e),0.53,,,,,,,,,90121,,2.35,
+Steel Castings annealed (e),0.53,,,,,,,,,106415,,9.80,
+Steel Castings unannealed (e),0.37,,,,,,,,,85540,,8.20,
+Steel Castings annealed (e),0.37,,,,,,,,,82228,,21.80,
+Steel Castings Hard (f g),0.40,0.40-0.80,0.07,0.05,,,,,85000,38250,,15*,20
+Electric Steel Castings untreated (m),0.46,,,,,,,,,102740,66480,3*,4.9
+Electric Steel Castings air cooled from Ac3 (m),0.46,,,,,,,,,104270,72860,18*,27.1
+Steel Castings annealed (h),0.42,0.73,,0.46,,,,,82100,45990,,8.41*,9.79
+Steel Castings annealed (h),0.44,0.59,,0.38,,,,,76170,42990,,14.64*,15.11
+Steel Castings annealed (h),0.48,0.71,,0.42,,,,,76730,42750,,12.05*,15.81
+Steel Castings annealed (h),0.47,0.73,,0.56,,,,,79590,44020,,10.94*,11.49
+Steel Castings annealed (h),0.43,0.65,,0.46,,,,,73200,40200,,12.5*,16.4
+Hard Resistant Castings (m),0.50-0.70,0.60-0.80,,,0.35,,,,71000-100000,40000,,,
+Acid open-hearth Casting Steel 2-ton ingot as cast (n),0.49,0.63,0.06,0.02,0.28,,,,94600,,,5.5,
+Acid open-hearth or Stock converter shell steel no treatment (o),0.55,0.40-1.00,0.40,0.40,0.30-0.50,,0.10,,78000-110000,,43000,20*,

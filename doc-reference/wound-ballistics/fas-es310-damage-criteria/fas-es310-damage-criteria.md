@@ -80,4 +80,12 @@ this source", for the full account.
 
 FINDING\[deferrable\]: the "Personnel Damage Criteria Table" is not a table on the page — it is Table 3's personnel row transposed, with the aircraft and armored-vehicle rows dropped and a "Caliber Reference" column welded on from prose; read tables/table-3-fragmentation-damage-criteria.csv instead (affects: doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md; since: 2026-08-03)
 
-FINDING\[deferrable\]: pkill-poisson-field/derivation.md anchors this source by bare line number (L16, L42–46, L51–55), the form .claude/rules/source-data-fidelity.md forbids; they resolve correctly today and will rot on the next edit to this file (affects: experiment/fragmentation-field/updates/pkill-poisson-field/derivation.md; since: 2026-08-03)
+**Closed 2026-08-09.** `pkill-poisson-field/derivation.md` now anchors this
+source on the multi-hit aggregation line (line 42 below) and on the
+0.5-at-1,000-J per-hit criterion line (line 16 above), both grep-verified
+against this file — quoted in full above rather than restated here, so this
+note itself does not collide with either anchor. Its third citation, which
+pointed at the "Personnel Damage Criteria Table" rows, was moved onto the
+`personnel` row of `tables/table-3-fragmentation-damage-criteria.csv` instead —
+so it no longer rests on the reconstructed table flagged directly above, without pre-empting
+that finding.
