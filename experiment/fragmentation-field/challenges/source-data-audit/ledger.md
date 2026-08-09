@@ -3270,6 +3270,13 @@ both at once will net them against each other; two passes will not.
 
 ## 32 · Phase 3 — `count-gap-1938`: the verdict stands, one inference does not
 
+*Historical entry — scores the Tolch-series re-baseline only. The thread's
+verdict has since moved for an unrelated reason (commits 6c1faff / `50b734e`
+changed the shipped $M_\text{case}$, $V_0$ and $\gamma'$, putting the count arm
+at or inside the 2× band). Live text:
+`challenges/count-gap-1938/count-chain.md` §4 "Verdict framing". Nothing in
+this entry's transcription corrections is affected.*
+
 Verdict: `challenges/count-gap-1938/rebaseline-verdict.md`. Of 20 published
 claims: **12 sound, 7 shifted, 1 void.** Retained script:
 `challenges/count-gap-1938/checks/count-chain-rebaseline.py` (~2 s, reads every

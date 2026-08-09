@@ -13,13 +13,13 @@ Layout inside a thread:
 
 ## Threads
 
-| Thread                                              | Question                                                                                         | Status                                                                                                                                                          |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`drag-gap-1944/`](drag-gap-1944/README.md)         | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Re-baselined — headline FAIL void; drag re-adjudication open.** See [`drag-gap-1944/b-vs-range-rebaseline.md`](drag-gap-1944/b-vs-range-rebaseline.md)        |
-| [`mott-scale-gap/`](mott-scale-gap/)                | Is `mott_params` an order of magnitude too small?                                                | **Fix landed — revalidation open** → `updates/mott-fragment-shape-closure/`; see [`mott-scale-gap/rebaseline-verdict.md`](mott-scale-gap/rebaseline-verdict.md) |
-| [`count-gap-1938/`](count-gap-1938/count-chain.md)  | Why is Tolch 1938's absolute perforating-fragment count over-predicted 4–6×?                     | **Re-baselined — verdict stands, one inference void.** See [`count-gap-1938/rebaseline-verdict.md`](count-gap-1938/rebaseline-verdict.md)                       |
-| [`gravity-ke/`](gravity-ke/gravity.qmd)             | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                                                                          |
-| [`source-data-audit/`](source-data-audit/README.md) | Is every external source this model rests on faithfully transcribed, and what breaks if not?     | **Audit complete, repairs open** — 62 findings, 20 blocking. Start at [`source-data-audit/remediation-plan.md`](source-data-audit/remediation-plan.md)          |
+| Thread                                              | Question                                                                                         | Status                                                                                                                                                                     |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`drag-gap-1944/`](drag-gap-1944/README.md)         | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Re-baselined — headline FAIL void; drag re-adjudication open.** See [`drag-gap-1944/b-vs-range-rebaseline.md`](drag-gap-1944/b-vs-range-rebaseline.md)                   |
+| [`mott-scale-gap/`](mott-scale-gap/)                | Is `mott_params` an order of magnitude too small?                                                | **Fix landed — revalidation open** → `updates/mott-fragment-shape-closure/`; see [`mott-scale-gap/rebaseline-verdict.md`](mott-scale-gap/rebaseline-verdict.md)            |
+| [`count-gap-1938/`](count-gap-1938/count-chain.md)  | Why is Tolch 1938's absolute perforating-fragment count over-predicted 4–6×?                     | **Re-baselined, then re-closed post-6c1faff — count arm now met-or-marginal; one inference void.** See [`count-gap-1938/count-chain.md`](count-gap-1938/count-chain.md) §4 |
+| [`gravity-ke/`](gravity-ke/gravity.qmd)             | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                                                                                     |
+| [`source-data-audit/`](source-data-audit/README.md) | Is every external source this model rests on faithfully transcribed, and what breaks if not?     | **Audit complete, repairs open** — 62 findings, 20 blocking. Start at [`source-data-audit/remediation-plan.md`](source-data-audit/remediation-plan.md)                     |
 
 **`drag-gap-1944` status detail.** The Phase-3 re-run has ruled. The published
 "FAIL — over-predicts by 7–34×, growing with range" is **void**: all three
@@ -45,18 +45,38 @@ residual sits at the geometric ceiling" verdict after the index above had
 already been restated; both surfaces are now restated to match (2026-08-08).
 Marker deleted.
 
-**`count-gap-1938` status detail.** Re-baselined against the extracted-once
-Tolch series: the scoping verdict survives. The pit-recovered count is **779,
-not 803** — every $N/803$ figure in `count-chain.md` moves up 3.1 %, and the
-mean recovered fragment mass is 7.40 g, not 6.85 g. No PASS/FAIL row changes
-side. One inference is **void**: §2's "the residual is in the perforating
+**`count-gap-1938` status detail.** Two things happened to this thread, in
+order. (1) Re-baselined against the extracted-once Tolch series: the
+pit-recovered count is **779, not 803** — every $N/803$ figure in
+`count-chain.md` moves up 3.1 %, and the mean recovered fragment mass is
+7.40 g, not 6.85 g. That re-baseline on its own flipped no PASS/FAIL row.
+(2) **Re-closed against shipped code after 6c1faff / `50b734e`, and that
+does flip rows.** With $M_\text{case}$ = 4980 g, $V_0$ = 864.4 m/s,
+$N_0$ = 3016, the two *sourced*-threshold rows move from outside §4's 2× PASS
+band (2.2–2.5×) to at or inside it: 126 J gives $N/779$ = 1.73 / $N/700$ =
+1.92, and 78.6 J gives 2.00 / 2.23. **The count arm of the PASS test is now
+met or marginal, not failed**, so §4's published "FAIL — count chain
+implicated, proceed to C2" is no longer supported and an aggressive C2 would
+over-correct. The falloff-ratio arm (A→D within 0.10 of 0.557) is still
+unmet and still tied to the fitted $E_{thr}$, so the test stays compound and
+C1 stays the gating item — now as *confirmation* of a provisional PASS rather
+than a rescue of a FAIL. Live text: `count-gap-1938/count-chain.md` §4
+"Verdict framing"; `rebaseline-verdict.md` §2–§3 are superseded and marked so.
+One inference is **void**: §2's "the residual is in the perforating
 fraction, *not the population*" — a threshold-free cumulative-spectrum test
-finds the model over-counting 1.2–2.7× with the threshold removed entirely.
-The decomposition restates as ~2.1× threshold-fit artefact × ~1.9× genuine
-count-chain excess. C1 (a sourced perforation threshold, blocked on
-@librarian) remains the recommended first move; C4 (fuze/base mass
-bookkeeping, 15.4 % of recovered metal against a 3.3 % model deduction) is
-promoted from "note only" and now gates C2.
+finds the model over-counting **1.78–2.24×** (Tolch-metal basis, current
+shipped parameters) with the threshold removed entirely. The decomposition of
+the ~3.3–3.7× fitted-threshold over-count restates as ~1.65–2.05×
+threshold-fit artefact × ~1.7–2.0× genuine count-chain excess. C1 (a sourced perforation threshold, blocked on
+@librarian) remains the recommended first move. C4 (fuze/base mass
+bookkeeping) was promoted from "note only" to "gates C2" by the re-baseline
+and has since been **demoted again**: `50b734e` sourced the deduction
+(200 g → 975 g, TM-9-1901 / TM-9-1904) so it is no longer a free knob, and
+dropping the coarsest recovery screen now moves the threshold-free residual
+1.78× → 2.03× (*up*, not down to the 1.19× previously reported — that figure
+came from a numerator/denominator-inconsistent variant, an open finding).
+C4's live question is criterion-match (which metal weight is the right
+spectrum denominator), not magnitude.
 
 ## `mott-scale-gap/`
 

@@ -1,14 +1,61 @@
 # `count-gap-1938` re-baseline verdict — does the count chain's conclusion survive?
 
-**Status: complete.** Of 20 published claims: 12 sound, 7 shifted, 1 void.
-The §3 restatement below has been applied to `challenges/README.md`.
+**Status: complete, but the *model* side of every claim below was evaluated
+against shipped code as of 2026-08-08 *before* commit 6c1faff.** Read the
+re-closure banner first; the re-baseline itself (the Tolch-series side) is
+unaffected.
+
+> **Re-closure banner — model numbers, 2026-08-08 (post-6c1faff / `50b734e`).**
+> This file's §1 closure line and every model-derived figure in the tables
+> below quote $M_\text{case} = 5755$ g, $V_0 = 807.5$ m/s, $\mu = 0.793$ g,
+> $N_0 = 3627$. Commit 6c1faff re-anchored $\gamma'$ 65→54.5 and fixed an
+> ogive/cylinder $V_0$ contradiction; `50b734e` sourced the 75 mm M48
+> `mass_deductions` to TM-9-1901/TM-9-1904. Current shipped code gives
+> **$M_\text{case} = 4980$ g, $V_0 = 864.4$ m/s, $\mu = 0.826$ g,
+> $2\mu = 1.65$ g, $N_0 = 3016$** — so the "reproduces §2's stated values
+> exactly" line below is a closure against the *then*-shipped code, not
+> against today's. `count-chain.md` has been re-closed against current output
+> and is the live document; three verdicts here move with it:
+>
+> - **§2 Fact 2 "void as written" — still void, magnitude restates.** The
+>     threshold-free (E) result is **1.78–2.24×** on the Tolch-13.29 lb basis
+>     (was 2.15–2.70×). The *model-mass* basis of (E) has gone **degenerate**:
+>     $M_\text{case}$ = 4980 g now sits *below* the 5764.3 g recovered metal, so
+>     φ > 1 past the coarsest screen and $m^\ast\to0$. Only the Tolch basis is
+>     quotable.
+> - **§4 "FAIL / count chain implicated" — no longer supported.** At a sourced
+>     threshold the current model gives $N/779$ = 2.00 (78.6 J) and 1.73
+>     (126 J), $N/700$ = 2.23 and 1.92 — at or inside the 2× PASS band on the
+>     count arm. See `count-chain.md` §4's verdict-framing note.
+> - **§3 C4 "single largest source of spread" — no longer holds.** Dropping
+>     the coarsest screen now moves the threshold-free residual from 1.78× to
+>     2.03× (up, not down to 1.19×), and the 1.19× came from the
+>     numerator/denominator-inconsistent fuze-excluded variant already flagged
+>     as an open finding. The derived $f = 1/\sqrt{\text{ratio}}$ corollary
+>     restates to **0.67–0.75** on the Tolch basis.
+>
+> Of 20 published claims: 12 sound, 7 shifted, 1 void — that tally scores the
+> *Tolch-series* re-baseline only and is not restated here.
+>
+> **§2 "Overall status" and §3 "Restatement" below are superseded by this
+> banner.** Both were written against the pre-6c1faff shipped parameters and
+> read as final; §2's "no verdict flips … stands unchanged" and §3's "No
+> PASS/FAIL row changes side" are contradicted by the bullets above and by
+> `count-chain.md` §4's verdict-framing note. Each carries an inline
+> superseding note; `challenges/README.md` was restated to match on
+> 2026-08-08 (this pass) — the earlier claim in this banner that the §3 text
+> had *already* been applied to README was wrong, README then still carried
+> the pre-6c1faff wording.
 
 Block (E)'s arithmetic — the threshold-free test that carries the one void
 verdict — was independently re-derived by the main agent before this file was
 committed: at the finest screen φ = 5764.3/6028 = 0.9562 inverts to u ≈ 0.775,
 giving m\* = μu² = 0.48 g and N = 3627·e^(−0.775) = 1671, against the script's
-printed 0.48 g / 1672 / 2.15×; and f = 1/√ratio reproduces all four printed
-velocity fractions. The refutation stands on its own arithmetic.
+then-printed 0.48 g / 1672 / 2.15×; and f = 1/√ratio reproduces all four
+printed velocity fractions. The identity is unaffected by the parameter
+change: on current shipped values the same screen gives m\* = 0.49 g,
+N = 3016·e^(−0.775) = 1390, ratio 1.78×. The refutation stands on its own
+arithmetic.
 
 Scope: re-run the claims published in
 [`count-chain.md`](count-chain.md) against the re-baselined Tolch-1938
@@ -51,11 +98,11 @@ blocks (A)–(F); it reads the extracted-once CSVs, nothing hand-typed.
 
 ### §1 — the Mott-stage closure argument
 
-| Claim                                                                                              | Verdict                  | Deciding evidence                                                                                                                                                                               |
-| :------------------------------------------------------------------------------------------------- | :----------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Eq. (5) collapse, sensitivity table, "**the Mott parameter stage cannot carry a 4–6× multiplier**" | **sound**                | (C) `M_case = 5755.2 g  V0 = 807.5 m/s  mu = 0.793 g  2mu = 1.587 g  N0 = 3627` — reproduces §2's stated values exactly. No Mott input is a Tolch series, so the re-baseline cannot touch this. |
-| Row "$M_\text{case}$ 5755 g vs Tolch's 6030 g"                                                     | **sound**                | (A) recovered 5764.3 g = 12.708 lb at 95.6 % of 13.29 lb ⇒ Tolch metal 6028 g.                                                                                                                  |
-| Row "$V_0$ model 807.5 vs Tolch's measured 838.2 m/s"                                              | **sound (half-checked)** | (C) gives 807.5 m/s. The 838.2 m/s is a scalar from Tolch Summary item 10, not one of the re-baselined CSV series — **not re-checked in this pass**.                                            |
+| Claim                                                                                              | Verdict        | Deciding evidence                                                                                                                                                                                                                                                                                                                                                     |
+| :------------------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Eq. (5) collapse, sensitivity table, "**the Mott parameter stage cannot carry a 4–6× multiplier**" | **sound**      | (C) reproduced §2's then-stated values exactly (`M_case = 5755.2 g  V0 = 807.5 m/s  mu = 0.793 g  2mu = 1.587 g  N0 = 3627`); current shipped code gives `4980.0 g / 864.4 m/s / 0.826 g / 1.651 g / 3016`, matching `count-chain.md` §2 as re-closed — see banner. No Mott input is a Tolch series, so the re-baseline cannot touch the closure argument either way. |
+| Row "$M_\text{case}$ 5755 g vs Tolch's 6030 g"                                                     | **superseded** | (A) recovered 5764.3 g = 12.708 lb at 95.6 % of 13.29 lb ⇒ Tolch metal 6028 g. Shipped $M_\text{case}$ is now **4980 g** (`50b734e`, sourced to Tolch's own 10.94 lb empty-shell-and-fuze metal); the row's *verdict* (no 4–6× multiplier available) is unaffected, its number is not.                                                                                |
+| Row "$V_0$ model 807.5 vs Tolch's measured 838.2 m/s"                                              | **superseded** | Shipped $V_0$ is now **864.4 m/s** (6c1faff), i.e. 1.03× *above* Tolch rather than below. The 838.2 m/s is a scalar from Tolch Summary item 10, not one of the re-baselined CSV series — **not re-checked in this pass**.                                                                                                                                             |
 
 ### §2 — where the residual sits
 
@@ -120,6 +167,22 @@ ______________________________________________________________________
 
 ## 2. Overall status
 
+> **Superseded in part (2026-08-08, post-6c1faff).** The paragraph below scores
+> the *Tolch-series* re-baseline in isolation, against the then-shipped model
+> parameters. Its "no verdict flips … stands unchanged" holds for that
+> re-baseline and **no longer holds for the thread as a whole**: the
+> 6c1faff / `50b734e` parameter changes move the count arm of §4's PASS test
+> from unambiguously outside the 2× band (2.2–2.5×) to at-or-inside it
+> ($N/779$ = 1.73–2.00, $N/700$ = 1.92–2.23), so §4's FAIL is no longer
+> supported and the C1-is-the-largest-term headline restates. The live
+> statement of the verdict is `count-chain.md` §4's "Verdict framing after the
+> 2026-08-08 re-closure" note; read it in preference to the paragraph below.
+> The A→D falloff-ratio arm of the PASS test remains unmet, so the test as a
+> whole is still compound and still gated on a sourced $E_{thr}$ (C1). The
+> "Net new for the next pass" note below (C4 must be closed before C2) is
+> superseded too — see the banner's third bullet: C4 is no longer the largest
+> source of spread, and C2 is no longer the term that decides the verdict.
+
 **The thread survives the re-baseline: no verdict flips, one inference is
 void, and every pit-count-denominated number moves up 3.1 %.** Of 20 published
 claims, 12 are sound, 7 are shifted (all in the same direction — the model
@@ -138,6 +201,15 @@ bookkeeping — so **C4 must be closed before C2 is derived**, a reordering the
 thread does not currently state.
 
 ## 3. Restatement for `challenges/README.md`
+
+> **Superseded (2026-08-08, post-6c1faff).** The row and status-detail text
+> below were applied to `challenges/README.md` and have since been replaced
+> there, because "verdict stands" / "No PASS/FAIL row changes side" is false
+> under current shipped parameters. **`challenges/README.md` is the live text**
+> — it now reads "Re-baselined, then re-closed post-6c1faff — count arm now
+> met-or-marginal; one inference void" and states which rows move. The block
+> below is retained as the record of what the Tolch-series re-baseline alone
+> concluded; do not re-apply it.
 
 The thread has **no row** in the Threads table. Add one, after the
 `mott-scale-gap/` row:
