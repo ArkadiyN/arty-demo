@@ -164,30 +164,49 @@ Result 2, with post-shape-closure Mott parameters. Method: $E_{thr}$ is the one
 free parameter, fitted per drag constant so the model reproduces Tolch's
 observed Panel A (15 ft) → Panel D (120 ft) perforation-density ratio 0.557;
 the absolute count at 15 ft is then a prediction against Tolch's measured
-~700–800 perforations/shell. 75mm M48, three candidate V₀.
+~700–780 perforations/shell. 75mm M48, three candidate V₀.
 
-| combined $C_D C_{shape}$ | fitted $E_{thr}$ [J] | $m_{thr}$(15 ft) [g] | N/observed |
+> **Re-run 2026-08-08 — two corrections to the table below.** (i) The observed
+> denominator was 750, a midpoint taken between Tolch's panel count (~700) and a
+> pit-recovered count of **803**; the pit count is **779**
+> (`challenges/count-gap-1938/rebaseline-verdict.md`), so the observed band is
+> ~700–780 and the normalisation is 739.5. That alone is a −1.4% shift on
+> N/observed and changes nothing. (ii) Materially, the Mott closure moved under
+> this table when `gamma'` for WW2 US HE steel was re-anchored 65 → 54.5
+> (commit `6c1faff`): $2\mu$ for 75mm M48 is now 1.36–1.89 g and $N_0$
+> 2632–3651, so every column below is a **fresh run** of the retained script,
+> not a rescale of the old one. Net effect on the argument: the over-prediction
+> at 2.67 drops from 3.9–5.6× to **2.8–4.1×**, and the status-quo failure at
+> 0.585 gets *worse* (1–9 counts, not 4–31). Both conclusions below are
+> unchanged in direction and strengthened.
+
+| combined $C_D C_{shape}$ | fitted $E_{thr}$ [J] | $m_{thr}$(15 ft) [g] | N/observed (÷739.5) |
 | --- | --- | --- | --- |
-| **0.585 (current)** | **6500 – 12100** | **14.9 – 38.0** | **0.0 (4–31 counts)** |
-| 1.20 | 140 – 245 | 0.39 – 0.90 | 1.7 – 2.9 |
-| 1.70 | 24 – 42 | 0.09 – 0.19 | 3.0 – 4.5 |
-| 2.20 | 5.9 – 10.8 | 0.03 – 0.07 | 3.6 – 5.3 |
-| **2.67 (DoD)** | **1.9 – 3.6** | **0.018 – 0.035** | **3.9 – 5.6** |
+| **0.585 (current)** | **10 800 – 20 200** | **24.6 – 63.3** | **0.0 (1–9 counts)** |
+| 1.20 | 225 – 395 | 0.61 – 1.41 | 1.1 – 1.9 |
+| 1.70 | 38 – 67 | 0.135 – 0.295 | 2.0 – 3.2 |
+| 2.20 | 9.8 – 17.6 | 0.050 – 0.105 | 2.6 – 3.8 |
+| **2.67 (DoD)** | **3.2 – 6.1** | **0.026 – 0.052** | **2.8 – 4.1** |
+
+Ranges span the three candidate V₀ (807.5 / 838.2 / 951.0 m/s). Normalising on
+the *ends* of the observed band instead of its midpoint widens the 2.67 row to
+2.7× (÷779) – 4.3× (÷700); the choice of denominator is not what makes this
+row disagree.
 
 **This overturns the challenge README's line #6.** With the superseded Mott
 closure, current drag over-counted by 1.8–2.4× and raising drag made it worse,
 so "the absolute count rules *out* raising drag". Post-shape-closure the whole
 family has shifted: the current constant now fails Tolch **catastrophically and
-in the physically impossible direction** — it needs a 6.5–12 kJ threshold to
-perforate 1″ spruce (≈4× a rifle bullet's muzzle energy) and predicts 4–31
-perforations against ~700–800. Tolch is now a **veto on the status quo**, not on
+in the physically impossible direction** — it needs a 10.8–20.2 kJ threshold to
+perforate 1″ spruce (several times a rifle bullet's muzzle energy) and predicts
+1–9 perforations against ~700–780. Tolch is now a **veto on the status quo**, not on
 raising drag. `challenges/drag-gap-1944/README.md` row #6 and its "Where it
 stands" bullets are stale and should be corrected.
 
 **But Tolch does not endorse 2.67 either, and this must not be papered over.**
-Its best absolute agreement is at combined ≈ 1.2 (1.7–2.9×), degrading
-monotonically to 3.9–5.6× at 2.67; and the implied $E_{thr}$ at 2.67 is 2–4 J
-(a ~4–14 mg, ~1 mm fragment perforating 1″ spruce), which the original Tolch
+Its best absolute agreement is at combined ≈ 1.2 (1.1–1.9×), degrading
+monotonically to 2.8–4.1× at 2.67; and the implied $E_{thr}$ at 2.67 is 3–6 J
+(a ~26–52 mg fragment, cross-section ~2–3 mm², perforating 1″ spruce), which the original Tolch
 analysis argued is physically impossible — Tolch's smallest recorded
 perforations have cross-sections ≥ 0.02 in² ≈ 12.9 mm². So Tolch pulls toward
 ~1.2–1.7 while the Ordnance velocity data and the geometric envelope both pull
@@ -204,9 +223,9 @@ non-discriminating rather than contradicting:
 1. **A known, drag-orthogonal count bias.** The pre-closure analysis already
      recorded a ~1.8–2.4× count over-prediction "not a drag effect". A fixed
      ~3× bias in the count chain absorbs most of the 2.67 residual and leaves
-     Tolch nearly flat over 1.7–2.67 — while nothing absorbs a 20–200×
-     shortfall at 0.585.
-1. **An observational cutoff on the observed side.** ~700–800 is a count above
+     Tolch nearly flat over 1.7–2.67 (2.0–3.2× vs 2.8–4.1×) — while nothing
+     absorbs the ~80–800× shortfall at 0.585.
+1. **An observational cutoff on the observed side.** ~700–780 is a count above
      Tolch's hole-detection threshold, not above a physical one. The model
      counts fragments Tolch could not have recorded, so it is biased high at
      *every* drag value by an unquantified amount.
@@ -240,7 +259,7 @@ non-discriminating rather than contradicting:
 
 **Two limitation entries are part of the deliverable, not deferrals:**
 
-1. Tolch's absolute perforating count still over-predicts by ~4–6× at the
+1. Tolch's absolute perforating count still over-predicts by ~3–4× at the
      adopted constant; the residual is attributed to the Mott count chain and
      Tolch's hole-detection cutoff, not to drag (§3d). Record with the
      weighing, so the next reader does not re-litigate it.

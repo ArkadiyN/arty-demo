@@ -26,10 +26,19 @@ field-spreading/geometry error.
 
 ## Model-computed / model-used values (`arty.shells`, `arty.fragmentation`)
 
-- (a) Gurney V0 for 75mm M48: `arty.fragmentation.gurney_velocity(SHELLS["75mm   M48 HE"])` = **807.5 m/s = 2,649 f/s** (Gurney const 2440 m/s for TNT,
-    mass_shell=5.755 kg from mass_total 6.622 − mass_filler 0.6668 −
-    mass_deductions 0.200, C/M = 0.1159). This is **15.1% lower** than the
-    source-stated 3,120 f/s (951.0 m/s).
+> **Restated 2026-08-08 onto current shipped values.** As first written this
+> section used `V₀ = 807.5 m/s`, `M_case = 5755.2 g`, which were superseded by
+> `50b734e` (75 mm `mass_deductions` re-sourced) and `6c1faff` (γ′ re-anchor +
+> ogive/cylinder V₀ fix). Current figures below are from
+> [`../../updates/75mm-fuze-case-mass-fix/checks/shipped-75mm-current-values.py`](../../updates/75mm-fuze-case-mass-fix/checks/shipped-75mm-current-values.py).
+
+- (a) Gurney V0 for 75mm M48:
+    `arty.fragmentation.gurney_velocity(SHELLS["75mm M48 HE"])` =
+    **864.4 m/s = 2,836 f/s** (Gurney const 2440 m/s for TNT,
+    `mass_shell = 4.980 kg` from mass_total 6.622 − mass_filler 0.6668 −
+    mass_deductions 0.97522, C/M = 0.1339). This is **9.1% lower** than the
+    source-stated 3,120 f/s (951.0 m/s). (Was 807.5 m/s = 2,649 f/s, 15.1%
+    low, on the pre-fix `mass_deductions = 0.200` kg.)
 - (b) Minimum lethal fragment mass: `min_lethal_mass()` bisects on
     `ke_at_range()` for a *given* `E_leth`; the b-vs-range challenge already
     passes `E_leth=58 ft-lb ≈ 78.6 J` explicitly
@@ -48,13 +57,35 @@ field-spreading/geometry error.
 
 ## Comparison
 
-**(a) V0 — 15% low, wrong direction to explain over-prediction.** Model
-Gurney V0 = 807.5 m/s vs source-stated 951.0 m/s (3,120 f/s): model is
-**15.1% too low**. A too-low V0 makes fragments *less* energetic at every
-range (lower N0 too, via `mott_params`'s `mu ~ (r_bu/V0)^3`), which would
-bias the model toward *under*-predicting casualties, not over-predicting
-them. This does not explain the observed over-prediction; if anything the
-model over-predicts *despite* this offset working the other way.
+**(a) V0 — 9% low against this source, and too small either way to be the
+driver.** Model Gurney V0 = 864.4 m/s vs source-stated 951.0 m/s (3,120 f/s):
+model is **9.1% too low**. The direction-of-bias reasoning still holds: a
+too-low V0 makes fragments less energetic at every range, and it lowers N0 —
+after the shape closure the net dependence is `mu ∝ V0⁻²` at fixed `γ'`, so
+`N0 = M_case/2mu ∝ V0²` (`../count-gap-1938/count-chain.md` eq. (5); confirmed
+numerically — the observed `mu` 0.793 → 0.826 g is exactly
+(807.5/864.4)² × (65/54.5)). Both terms bias the model toward
+*under*-predicting casualties, so correcting V0 up to the source's 951.0 m/s
+would make the over-prediction **worse**, not better.
+
+Two things change from the original "15.1% too low, wrong direction" wording,
+and one of them matters:
+
+- **Magnitude.** Closing the remaining gap to 951.0 m/s scales N0 by
+    (951.0/864.4)² = **1.21×**; on the pre-fix 807.5 m/s it was 1.39×. Either
+    figure is a rounding error against the 7–33× over-prediction this file is
+    trying to explain, so the ranking below is untouched.
+- **The comparator is not unique, and this is the substantive change.**
+    Against Tolch (1938)'s velocity for the *same* shell (838.2 m/s, Summary
+    item 10) the model is now **1.03× high**, not low — the two historical
+    sources disagree with each other by 13% (838.2 vs 951.0 m/s). So "the
+    model's V0 is too low" is a statement about the 1944 Ordnance header value
+    specifically, not a property of the model, and V0 can **no longer be
+    leaned on as a safely wrong-direction offset** the way the original
+    wording did. What survives, and is what the argument actually needs, is
+    the bound: the entire spread between the two sources is
+    (951.0/838.2)² = **1.29×** on N0. No admissible V0 explains a 7–33×
+    over-prediction, in either direction.
 
 **(b) Energy threshold — already matched, ruled out.** The b-vs-range
 challenge already substitutes the card's 58 ft-lb (78.6 J) threshold for
@@ -62,7 +93,9 @@ challenge already substitutes the card's 58 ft-lb (78.6 J) threshold for
 source and is not the cause.
 
 **(c) Velocity-vs-range — large, range-growing discrepancy; best explanation
-found.** Feeding the model's own `retardation_coeff(m)` the source's own
+found.** *(Unaffected by the V0 restatement in (a): this comparison feeds the
+**source's** V0, 3,120 f/s, to both sides, so no model V0 enters it.)*
+Feeding the model's own `retardation_coeff(m)` the source's own
 per-range lightest-effective-fragment mass `m(r)` and the source's own V0
 (3,120 f/s), the model's predicted `v(r) = V0·exp(-λ(m)·s)` **overshoots
 the source's reported v(r) by a growing factor**: ~1.2–1.4× at r=20-40 ft,
@@ -84,8 +117,9 @@ over-prediction.
 
 The most likely single driver of the reported 7–33× over-prediction
 (growing with range) is **`retardation_coeff`'s drag term being too small**
-for real fragments, not the V0 mismatch (wrong sign/too small to matter) or
-the lethal-energy threshold (already matched). Under-decelerating fragments
+for real fragments, not the V0 mismatch (bounded at ≤1.29× on N0 across the
+full disagreement between the two historical sources — see (a)) or the
+lethal-energy threshold (already matched). Under-decelerating fragments
 means `min_lethal_mass(s, ...)` returns a mass that is systematically **too
 low** at long range (less mass needed to still clear 78.6 J when the model
 thinks velocity decayed less than it really does), so `mott_N` counts more
@@ -103,8 +137,16 @@ fix — quantifying and correcting `C_D`/`C_shape` (or the retardation-law
 form itself) against the source's own fragment velocity-decay data is
 follow-up derivation work, out of scope for this investigation pass.
 
-**Not investigated further here (secondary, smaller effects):** the 15% V0
-shortfall (wrong-direction fix candidate); whether Gurney's constant/C-M
-ratio inputs for the 75mm M48 (mass_deductions=0.200 kg placeholder,
-wall_t estimated) are individually accurate — these are minor next to the
-order-of-magnitude drag-law gap.
+**Not investigated further here (secondary, smaller effects):** the residual
+9.1% V0 shortfall against this source; whether Gurney's constant/C–M ratio
+inputs for the 75 mm M48 are individually accurate — these are minor next to
+the order-of-magnitude drag-law gap.
+
+*One of the two items originally parked here has since been closed.* The
+`mass_deductions = 0.200` kg placeholder named above was re-sourced to
+0.97522 kg (TM-9-1901 §319.b fuze + booster) in `50b734e`
+(`../../updates/75mm-fuze-case-mass-fix/derivation.md`), which is what moved
+V0 from 807.5 to 864.4 m/s and closed 6 of the original 15.1 percentage
+points. `wall_t` remains estimated. Closing that item did **not** change this
+section's ranking, which is the useful result: the drag-law gap is ~3–5.5× on
+λ and survived a 7% correction to V0 untouched.

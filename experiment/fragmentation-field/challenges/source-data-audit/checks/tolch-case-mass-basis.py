@@ -35,8 +35,19 @@ CASE_LB = LOADED_UNFUZED - TNT
 CASE_G = CASE_LB * LB_G
 print(f"  empty shell body (case metal, no fuze, no TNT) = {CASE_LB:.2f} lb = {CASE_G:.1f} g")
 
-M_CASE_MODEL = 5755.2  # printed by count-chain-rebaseline.py block (C)
-MU_G, N0_MODEL = 0.793, 3627.0
+# Read live from shipped code rather than hard-coded: the 75 mm M48 entry's
+# mass_deductions was re-sourced (50b734e) and gamma'/V0 re-anchored (6c1faff),
+# which moved these from the pre-fix 5755.2 g / 0.793 g / 3627 this script
+# originally pinned. See updates/75mm-fuze-case-mass-fix/checks/
+# shipped-75mm-current-values.py.
+from arty.fragmentation import _shell_geometry, gurney_velocity, mott_params  # noqa: E402
+from arty.shells import SHELLS  # noqa: E402
+
+_shell = SHELLS["75mm M48 HE"]
+M_CASE_MODEL = _shell_geometry(_shell)[3] * 1e3
+_mu, _n0 = mott_params(_shell, gurney_velocity(_shell))
+MU_G, N0_MODEL = _mu * 1e3, float(_n0)
+print(f"  shipped mu = {MU_G:.3f} g, N0 = {N0_MODEL:.0f}")
 print(f"  model M_case = {M_CASE_MODEL:.1f} g = {M_CASE_MODEL/LB_G:.2f} lb "
       f"-> model / Tolch case = {M_CASE_MODEL/CASE_G:.3f}")
 

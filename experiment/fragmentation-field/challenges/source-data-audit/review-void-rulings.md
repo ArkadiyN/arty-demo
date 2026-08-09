@@ -109,11 +109,17 @@ of the claim holds.
 φ = cum_w / M_tot makes the **total-mass basis** a free choice, and the script's
 own output shows it has *more* leverage than the threshold it removed:
 
-| basis                   | ratio at finest screen         |
-| ----------------------- | ------------------------------ |
-| model M_case (5755 g)   | 4.66× (φ = 1.0016, degenerate) |
-| Tolch 13.29 lb (6028 g) | 2.15×                          |
-| "fuze-excluded variant" | 1.19×                          |
+| basis                              | ratio at finest screen         |
+| ---------------------------------- | ------------------------------ |
+| then-shipped model M_case (5755 g) | 4.66× (φ = 1.0016, degenerate) |
+| Tolch 13.29 lb (6028 g)            | 2.15×                          |
+| "fuze-excluded variant"            | 1.19×                          |
+
+(Basis-spread figures as of 2026-08-03, i.e. against the then-shipped
+`M_case = 5755 g`. Shipped `M_case` is now **4980 g** (`50b734e`), so the
+fuze-inclusive numerator 5764.3 g gives φ = 1.157 — the model-mass basis is
+*more* degenerate now, not less. The point the table makes, that the basis
+choice has more leverage than the threshold it removed, is unchanged.)
 
 A 1.19×–4.66× spread is not a footnote; the verdict quotes only 1.2–2.7× of it
 and calls that the "genuine" over-count. Worse, **none of the three bases is
@@ -138,43 +144,64 @@ floor. Redone consistently — case metal on both sides, recovered case
 4837.6 g = 97.5% of 4962.3 g, a closure the fuze-inclusive framing never
 achieves:
 
-| screen | φ      | m\* [g] | ratio (model N0=3627) | ratio (N0 from Tolch case mass) |
+| screen | φ      | m\* [g] | ratio (model N0=3016) | ratio (N0 from Tolch case mass) |
 | ------ | ------ | ------- | --------------------- | ------------------------------- |
-| 2      | 0.7723 | 2.14    | 2.58×                 | 2.23×                           |
-| 3      | 0.9289 | 0.71    | 2.67×                 | 2.30×                           |
-| 4      | 0.9622 | 0.42    | 2.61×                 | 2.25×                           |
-| thru4  | 0.9749 | 0.30    | 2.52×                 | 2.18×                           |
+| 2      | 0.7723 | 2.23    | 2.15×                 | 2.14×                           |
+| 3      | 0.9289 | 0.74    | 2.22×                 | 2.21×                           |
+| 4      | 0.9622 | 0.44    | 2.17×                 | 2.17×                           |
+| thru4  | 0.9749 | 0.32    | 2.10×                 | 2.09×                           |
 
-(`experiment/_scratch/tolch-case-mass-basis.py`.) On a fuze-consistent basis
-the threshold-free over-count is **2.2–2.7× at every screen**, with no basis
-choice landing below ~2.2×, and — unlike the published table — it is *flat*
-across screens, which is what a genuine spectrum-scale error should look like.
+([`checks/tolch-case-mass-basis.py`](checks/tolch-case-mass-basis.py), which
+now reads `M_case`, `μ`, `N₀` live from `src/arty` instead of pinning the
+pre-fix 5755.2 g / 0.793 g / 3627.) On a fuze-consistent basis the
+threshold-free over-count is **2.1–2.2× at every screen**, and — unlike the
+published table — it is *flat* across screens, which is what a genuine
+spectrum-scale error should look like. It is also now *basis-independent*: the
+model and Tolch-case-mass columns agree to \<1 %, because shipped `M_case`
+(4980 g) and Tolch's case metal (4962 g) now differ by only 0.4 %. That is a
+strengthening of the ruling — the ≥2× population term no longer depends on
+which mass basis you pick at all.
+
+**Restated from the 2026-08-03 figures.** This table originally read
+2.52–2.67× (model column) against the then-shipped `N₀ = 3627`; the
+case-mass re-sourcing (`50b734e`) and γ′/V₀ re-anchor (`6c1faff`) moved
+`N₀` to 3016, which scales the model column by 3016/3627 = 0.83×. The
+Tolch-case-mass column moved only via `μ` (0.793 → 0.826 g).
 
 **Verdict: upheld, on partly different grounds.** The inference "the residual
-is in the perforating fraction, not the population" is void: a ≥2.2× population
+is in the perforating fraction, not the population" is void: a ≥2.1× population
 term survives with the threshold, the drag chain and the spray geometry all
 deleted. But the verdict's stated band is wrong at its lower end, and that
 matters for the repair: `f = 1/√ratio` in the §2 corollary must restate from
-**0.61–0.92** to **0.61–0.68**, which no longer brackets the thread's assumed
-f ≈ 0.85–0.9 — it excludes it. The C4 ruling ("spread is mass bookkeeping…
-1.19×") must also be restated: the bookkeeping is *closeable* from the source's
-own weight table, not an irreducible spread.
+**0.61–0.92** to **0.67–0.69**, which no longer brackets the thread's assumed
+f ≈ 0.85–0.9 — it excludes it. (Against the 2026-08-03 figures this read
+0.61–0.68; the post-fix band is narrower and sits slightly higher, and the
+exclusion of f ≈ 0.85–0.9 is unchanged.) The C4 ruling ("spread is mass
+bookkeeping… 1.19×") must also be restated: the bookkeeping is *closeable*
+from the source's own weight table, not an irreducible spread.
 
 ### A second defect surfaced by the same weight table
 
 The count-gap verdict rules **sound** the row "$M_\text{case}$ 5755 g vs
 Tolch's 6030 g". That compares the model's fragmenting-steel mass against
 Tolch's *empty shell **and fuze*** weight. Like-for-like, Tolch's case metal is
-4962 g and **the model's case mass is 16.0% high, not 4.5% low** — the sign of
+4962 g and **the model's case mass was 16.0% high, not 4.5% low** — the sign of
 the published comparison reverses. The magnitude is close to the fuze weight
 net of the model's own deduction (1066 − 200 = 866 g vs the 793 g gap), which
 is consistent with the fuze not being deducted from the M48 case mass at all.
 This propagates directly: N0 = M_case/2μ, so 16% of every over-count ratio in
-this thread is a case-mass input error, not a spectrum error. (Confirming
-*where* the model's 5755 g comes from requires `src/arty/shells.py`, outside
-this read set — that is the one grep that closes it.)
+this thread was a case-mass input error, not a spectrum error.
 
-FINDING\[deferrable\]: the "fuze-excluded variant" in count-chain-rebaseline.py block (E) removes screen-1 mass from the numerator but keeps the fuze-inclusive model M_case in the denominator, producing a spurious 1.19x floor; on a fuze-consistent basis the threshold-free band is 2.2-2.7x and the derived velocity fraction restates from f=0.61-0.92 to f=0.61-0.68 (affects: experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md; since: 2026-08-03)
+**Closed.** The grep this section asked for was run and the defect confirmed:
+`src/arty/shells.py` carried an unsourced `mass_deductions = 0.200` kg
+placeholder for the M48 P.D. fuze. `50b734e` re-sourced it to 0.97522 kg
+(TM-9-1901 §319.b fuze + booster), giving `M_case = 4980 g` — **+0.4 %**
+against Tolch's 4962 g, from a disjoint source chain. See
+`updates/75mm-fuze-case-mass-fix/derivation.md`. The 16 % case-mass term is
+therefore no longer present in any current ratio in this thread; the tables
+above have been restated onto the post-fix values.
+
+FINDING\[deferrable\]: the "fuze-excluded variant" in count-chain-rebaseline.py block (E) removes screen-1 mass from the numerator but keeps the fuze-inclusive model M_case in the denominator, producing a spurious 1.19x floor; on a fuze-consistent basis the threshold-free band is 2.1-2.2x post-fix (2.2-2.7x as first written, pre-50b734e) and the derived velocity fraction restates from f=0.61-0.92 to f=0.67-0.69 (affects: experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md; since: 2026-08-03)
 
 ______________________________________________________________________
 

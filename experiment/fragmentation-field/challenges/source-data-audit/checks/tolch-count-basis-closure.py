@@ -97,8 +97,15 @@ m_recovered_g = PRINTED_WT_LB * LB_G
 print(f"  recovered metal {PRINTED_WT_LB} lb = {m_recovered_g:.0f} g (95.6 % of empty shell+fuze)")
 for cand in (779, 803):
     print(f"  mean fragment at N={cand}: {m_recovered_g / cand:.2f} g")
-print("  (committed artifacts quote 6.85 g = 5755 g body x 0.956 / 803)")
-check("  6.85 g re-derived at N=779 from the same 5755 g body",
+# The 6.85 g figure in committed artifacts was built on the THEN-shipped model
+# case mass (5755 g), not on Tolch's own recovered weight. That basis is now
+# superseded (M_case = 4980 g, 50b734e), so the line below reproduces a
+# historical figure and must not be read as a current model quantity; the
+# source-basis value is m_recovered_g / N, printed above.
+print("  (committed artifacts quote 6.85 g = then-shipped 5755 g model body x 0.956 / 803;")
+print("   superseded - shipped M_case is now 4980 g, and the source-basis figure is the")
+print(f"   recovered-metal one above, {m_recovered_g / 779:.2f} g at N=779)")
+check("  6.85 g re-derived at N=779 on that same historical 5755 g basis",
       5755.0 * 0.956 / 779, 7.06, 0.02)
 
 # --- P4. panel-derived count: item 6 self-closes ---------------------------
