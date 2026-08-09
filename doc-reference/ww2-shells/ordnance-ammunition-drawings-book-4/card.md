@@ -75,12 +75,21 @@ WD-SS-3." Both parts confirmed directly against the primary drawings:
     without the explicit "(mandatory for forging material)" footnote link that
     page 14 prints for the HEAT shell's Body Shell row. Recorded as printed;
     not assumed identical in relationship to page 14's note (b).
-- **Not resolved by this card** (routed to @modeler/@model-reviewer as a
-    criterion-match question, per `agents-routing.md` Gate 3): whether spec
-    57-104-2 as cited here is the same document as the 1924-dated spec
-    57-104-2 in `../paine-1929-centrifugal-casting/card.md` footnote 17, and
-    whether WD.SS-3 (this drawing) matches the WDSS-3 grade already catalogued
-    in `../ammunition-series-6-wdss-specs/card.md` (AMCP 706-249 Table 6-1).
+- **WD.SS-3 (this drawing) and WDSS-3** (`../ammunition-series-6-wdss-specs/   card.md`, AMCP 706-249 Table 6-1) are the same designation under two
+    different punctuation conventions, ~20 years apart — not a criterion-match
+    question.
+- **Still open, but not model-relevant today:** whether spec 57-104-2 as cited
+    here is the same document as the 1924-dated spec 57-104-2 in
+    `../paine-1929-centrifugal-casting/card.md` footnote 17. Moot for now:
+    `src/arty/shells.py` sources the 105mm M1/155mm M107/75mm M48 HE shells'
+    steel from `STEELS["WW2 US HE Shell"]` (sigma_f=800 MPa, gamma=54.5, a
+    Mott-closure fit — not sourced from spec 57-104-2 or any yield-strength
+    figure). The only WDSS-grade steel actually wired into the model is
+    `STEELS["US WW2 WDSS1"]` (grade **1**, not 3), used solely for the 60mm
+    M49A2 mortar shell — a different caliber and a different Ammunition
+    Series 6 table entry, unrelated to this drawing's Body Shell rows. This
+    card is provenance for the user's original claim, not an input the model
+    currently consumes.
 
 ## 105mm M60 (Chemical) — Metal Parts Assembly (page 5, drawing 75-4-91A)
 
