@@ -148,12 +148,14 @@ re-opened here:
     perforating fraction (~2.1× of the ~3.9× at the fitted threshold), but
     ~1.2–2.7× of it is a genuine fragment-*spectrum* term that survives with
     the threshold removed — so the gross fragment population is partly the
-    defect, not exonerated from it. ($N_0=3627$ for 75mm M48 (`count-chain.md`'s
-    own value; corrected here from a stale 3597 in this paragraph) still falls
+    defect, not exonerated from it. ($N_0=3016$ for 75mm M48 — the currently
+    shipped value after the M48 fuze/case-mass correction
+    ($M_{case}=4980.0$ g, $V_0=864.4$ m/s, $\mu=0.826$ g; earlier revisions of
+    this paragraph read 3597, then 3627 on the pre-fix case mass) — still falls
     *between* Tolch's own two totals: 5000 issued, **779** pit-recovered
     (corrected from a published 803 — see `rebaseline-verdict.md`); that
-    bracketing argument survives even though the exoneration drawn from it
-    does not.) The model's fitted $E_{thr}$ (1.9–3.6 J) still declares
+    bracketing argument survives the restatement even though the exoneration
+    drawn from it does not.) The model's fitted $E_{thr}$ (1.9–3.6 J) still declares
     81–85% of fragments perforating where Tolch measures 14% (700/5000); at
     Tolch's own sourced hole-size bound (126 J) the fitted-threshold
     component of the residual drops to ~1.7–2.1×. Ranking is otherwise

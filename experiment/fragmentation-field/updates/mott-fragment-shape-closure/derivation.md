@@ -5,6 +5,24 @@ parameter `μ` in `mott_params()`. Option A is approved in `scoping.md`; this
 pass settles §4's two factor questions, fixes the closed form, and runs §7's
 checks. No `src/arty/` edits here.
 
+> **As of 2026-08-09 — every 75 mm M48 number in this document is a
+> record of the shape-closure transition as it stood then, not a current
+> model value.** A later change (the M48 fuze/case-mass correction) re-sourced
+> that shell's `mass_deductions`, moving the shipped inputs to
+> `M_case = 4980.0 g`, `V₀ = 864.4 m/s`, `μ = 0.826 g`, `N₀ = 3016`
+> ([`../75mm-fuze-case-mass-fix/checks/shipped-75mm-current-values.py`](../75mm-fuze-case-mass-fix/checks/shipped-75mm-current-values.py)).
+> The historical figures below — `V₀ = 807.5 m/s` (§6 heading), the mass-closure
+> integral `5755.20 g` (§7), and the `μ`: 0.235 → 0.793 g / `N₀`: 12 256 →
+> 3 627 transition (§8 and its table) — are **deliberately left as recorded**.
+> They document *this* change's before/after on *its own* case mass, and the
+> 5755.20 g mass-closure identity is a verification that closed against that
+> mass; restating either onto 4980.0 g would falsify the record of what was
+> checked. The closure itself is unaffected: it is a relation between `μ`,
+> `N₀` and `M_case` that holds identically on the new mass (2·3016·0.826 g =
+> 4982 g ≈ `M_case`), and the shape factor `α`, the `γ = α^{-2/3}γ′`
+> redefinition, and the 4–15× correction ratio are all independent of
+> `M_case`. Only the absolute g/count figures moved.
+
 ## 1. Governing equations (sourced)
 
 | # | Equation | Source |

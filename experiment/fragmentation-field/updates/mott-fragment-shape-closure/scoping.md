@@ -70,6 +70,13 @@ Scoping-grade numbers for 75 mm M48 (`x₀ = 3.91 mm`, `t = 6.00 mm`,
 derivation, not authoritative here. Tolch anchors: `μ = 0.95 g`
 (mass-constrained) to `3.46 g` (large-fragment-weighted).
 
+**As of 2026-08-09:** these 75 mm M48 inputs, and the `μ` column below, are
+the pre-fix values this scoping was written against; the shipped shell is now
+`M_case = 4980.0 g`, `V₀ = 864.4 m/s`, `μ = 0.826 g`, `N₀ = 3016` (M48
+fuze/case-mass correction). Left as recorded — the option *comparison* here is
+what mattered and its ranking is unaffected. See the as-of banner in
+`derivation.md`.
+
 | Option | `μ` (75 mm) | vs Tolch |
 | --- | --- | --- |
 | **current** (cube, `α=1`) | 0.235 g | 4–15× low |
