@@ -81,6 +81,19 @@ binary `data`, which makes plain `grep` silently return zero hits on searches
 that should match (including both anchors above) — not evidence the text is
 absent. Use `grep -a` against this file.
 
+## Footnotes 16/17 (p.122) — Metal Specifications 57-0 / 57-104-1 / 57-104-2
+
+Anchor: `Specifications 57-0, (Feb. 13, 1924); Specifications 57-104-1, (April 21, 1924); and Specifications 57-104-2, (Dec. 18, 1924)` (paine-1929.md, line 1196 — merged with footnote 16 in the flattened two-column extraction; see below)
+
+Confirmed directly against `source.pdf` p.122 (not just the markdown, which runs footnotes 16 and 17 together on one line): these are **two distinct footnotes**.
+
+- **Footnote 16** (on "Fig. 2"): "This figure is constructed from information compiled from the following sources: ... Ordnance Department drawings 75-20-41, 75-4-25, and 75-4-36 **for 155-mm. Common Steel Shell**."
+- **Footnote 17** (on the body sentence "United States Army Ordnance Department Metal Specifications¹⁷ provide 'Sufficient discard shall be taken from each ingot to insure freedom from injurious piping and undue segregation...'"): "Specifications 57-0, (Feb. 13, 1924); Specifications 57-104-1, (April 21, 1924); and Specifications 57-104-2, (Dec. 18, 1924)."
+
+The 155-mm caliber reference belongs to footnote 16's drawing list, not to the three specs in footnote 17 — those three are cited together only as the general Ordnance "Metal Specifications" behind an ingot discard-percentage rule (not caliber- or composition-specific in what this paper says about them).
+
+**What this establishes:** Specification 57-104-2 is a real, dated (Dec 18, 1924) U.S. Army Ordnance Department metal spec, issued ~8 months after 57-104-1 — the same 57-104-1 that Table I's footnote (c) ties to "Cast Steel Ingots and Steel, Rolled or Forged, for U.S. Common Steel Shell and Shrapnel." Paine does not state what 57-104-2 itself covers. Whether it is the same document a later (WW2-era) drawing cites for WDSS-3 shell-body steel remains a criterion-match question, not resolved by this paper.
+
 ## Not Extracted
 
 - **Mathematical derivation of centrifugal parabola** (paine-1929.md, lines ~300–450) — equations for the free surface of molten metal in rotating molds; relevant to physics of the process but not to steel selection
