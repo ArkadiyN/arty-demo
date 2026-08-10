@@ -218,7 +218,13 @@ It hardcodes `mass_deductions=0.75`, so it will silently keep the old number
 after this update. Fix is to import the registry entry — presentation-layer
 work, not physics, and not part of this update.
 
-FINDING[deferrable]: _parameters.qmd:22-25 inlines a literal ShellParams copy of the 105mm M1 registry entry instead of importing SHELLS, and has already drifted (wall_t 0.011 vs registry 0.009208); it also hardcodes mass_deductions=0.75 so it will not follow the shell-case-mass-basis update (affects: experiment/fragmentation-field/_parameters.qmd, src/arty/shells.py; since: 2026-08-08)
+**Closed 2026-08-10.** `_parameters.qmd` now imports `mass_total`,
+`mass_filler`, `mass_deductions`, `caliber`, `filler` and `steel` from
+`arty.shells.SHELLS["105mm M1 HE"]`, so those fields can no longer drift from
+the registry. `wall_t=0.011` remains a deliberate override (documented
+in-place) for the historical TM 9-1901 cylindrical wall the single-cylinder
+model uses, distinct from the drawing-derived registry geometry the
+four-zone section uses — this was never drift, only under-documented.
 
 ## 8. Assumptions to log (not to derive)
 

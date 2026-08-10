@@ -86,7 +86,7 @@ weight-row cross-check rests on `tolch-1938.md`, a surface its own card
 disqualifies for citation, pending a `tables/weight-row.csv` extraction or a
 librarian ruling on the disqualification's scope.
 
-FINDING[deferrable]: Tolch 1938 weight-row (12.50/1.56/2.35/13.29 lb) cited in derivation.md §2 rests on tolch-1938.md, which tolch-1938-m48-panel-pit-fragmentation/card.md:22 states is not a citable surface absent a tables/*.csv + .invariant; no such extraction exists for this table (affects: experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/derivation.md, doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/; since: 2026-08-08)
+Closed 2026-08-10: weight-row extraction exists at `doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/round-weights.csv` with passing closure invariant (`round-weights.invariant`)
 
 **Note** — `mass_deductions` provenance for 75 mm now diverges structurally
 from the still-unsourced 105 mm/155 mm placeholders (see "What was checked"

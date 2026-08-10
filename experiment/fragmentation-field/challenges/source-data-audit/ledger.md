@@ -1978,6 +1978,17 @@ the projectile drawing (§20c). Both were found the same way: by asking what the
 cited document *itself* says, rather than treating a card's summary as the
 source.
 
+**Acquisition search, 2026-08-10.** A @librarian pass checked OSTI, DTIC,
+Google Scholar, Google web search, ResearchGate, and sandia.gov for
+"SAND91-0277" / "Vigil ... Explosively Driven Missile Trajectory Parameters."
+The document is confirmed to exist (cited by SAND92-0243 and referenced on
+ResearchGate) but is not digitized/posted anywhere searched — it is not merely
+hard to find, it appears absent from every public archive. Reconstruction from
+SAND92-0243's own trajectory outputs (computed *with* Ref. 1's variable C_D)
+is the only avenue short of a direct request to Sandia. Re-running this same
+search is not expected to find it; a future pass on this finding should start
+from that reconstruction option instead.
+
 The asterisk in "a function of initial fragment velocity\*" has **no footnote
 text**. Checked against raw block order rather than reading-order extraction —
 a footnote lost to reading order would still appear as a block; the only block
@@ -2475,7 +2486,10 @@ anchors that replace them are now tabulated on the card.
 
 FINDING\[note\]: Gold 2017 eq. (17) (N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a factor of 2; src/arty follows eq. (1), which is the self-consistent reading since mu is defined as HALF the average fragment mass, and a future pass that "corrects" the code toward eq. (17) would double every fragment count with a citation to back it (affects: src/arty/fragmentation.py, src/arty/zones.py, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
 
-FINDING\[note\]: the closure that admits Gold 2017 is algebraic, not tabular — the committed .md's equations are vision-reconstructed LaTeX and the raw text layer encodes the minus as a non-printable char it also uses for hyphens, so neither surface settles eq. (6)'s alpha^(-2/3) and only substituting eq. (2) into eq. (4) fixes the sign; .claude/rules/source-data-fidelity.md lists four forms of closure invariant and none of them covers "an equation the source states is a substitution of two others", which is worth adding in Phase 8 (affects: .claude/rules/source-data-fidelity.md, experiment/fragmentation-field/challenges/source-data-audit/ledger.md; since: 2026-08-03)
+**Closed 2026-08-10.** `.claude/rules/source-data-fidelity.md` now lists a
+fifth closure-invariant form, "A stated equation is the substitution its
+source says it is," with the caveat that it is algebra rather than mechanical
+comparison — covering exactly this case.
 
 FINDING\[deferrable\]: scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that (affects: src/utils/scan-extraction-quality.py, .claude/rules/source-data-fidelity.md, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
 
@@ -2736,7 +2750,10 @@ Two things surfaced in doing it, and neither was the defect being repaired:
 - **The `ammunition-series-6` source blob was retained all along** — see §11
     above, where the finding that said otherwise is closed.
 
-FINDING\[deferrable\]: the m49a2-60mm-mortar-shell document work was never finished, so its card.md is mid-work state and must not be treated as adjudicated — its "Design Intent and Context" section speculates on the body-shell material ("Likely ductile-steel", "most probable"); exposure is low and bounded — the shell is a recently added catalog entry with no model physics derived from it (user, 2026-08-03), it appears downstream only as one row in mott-fragment-shape-closure's cross-shell sweep, and updates/wdss1-steel-grade/derivation.md A6 sources the composition to Ammunition Series 6 Table 6-1 instead, explicitly declining the drawing; Phase 2.5d issued no verdict on the card and none should be inferred (affects: doc-reference/ww2-shells/m49a2-60mm-mortar-shell/card.md, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md; since: 2026-08-03)
+**Closed 2026-08-10.** `doc-reference/ww2-shells/m49a2-60mm-mortar-shell/card.md`
+now carries an explicit "INCOMPLETE — not adjudicated" banner up front, so a
+reader landing on the card directly (not via this ledger) gets the caveat
+too.
 
 ______________________________________________________________________
 
@@ -3732,9 +3749,12 @@ prose pages, and nothing about the extraction advertises the gap. A
 plausibility check on the layer's overall size or on a few known-present words
 does not detect it.
 
-FINDING\[note\]: source.pdf's text layer covers this document's tabular pages but not its prose pages - pdftotext extracts ~186k chars and resolves SHELL 149x, FRAGMENT 206x, Ordnance 22x while returning zero for SOURCES OF DATA, retardation, Army, Navy and proving, all demonstrably on the page - so a full-text PDF search returning nothing is not evidence of absence for this source and has already produced one false fabricated-content verdict; check ordnance-1944.md or the page image instead (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md, doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/ordnance-1944.md, .claude/rules/source-data-fidelity.md; since: 2026-08-03)
-
-FINDING\[deferrable\]: the six ordnance-1944 .invariant files anchor TABLE 38/39,48/49,56/57 which are correct against the retained source.pdf (geometry-verified by checks/ordnance-1944-page-geometry.py) but resolve to a DIFFERENT shell in the flattened extraction ordnance-1944.md, which renumbers the same tables 43/44,51/52,59/60; no data is wrong, but nothing warns a reader not to grep TABLE nn against the extraction (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables, experiment/fragmentation-field/challenges/source-data-audit/checks/ordnance-1944-table-number-anchors.py; since: 2026-08-03)
+**Closed 2026-08-10 (both markers below).** Both caveats are already in
+`card.md`: the text-layer coverage gap at "Do not use `source.pdf`'s text
+layer to establish that something is absent" (~line 173), and the
+`TABLE nn` renumbering warning at "Anchor on the shell-title headings below,
+never on a `TABLE nn` line" (~line 41). Neither needed new writing — the
+markers here had simply outlived the fix.
 
 *(Resolved 2026-08-08: a third independent script,
 `checks/dod-1975-figure-3-csv-page-residual.py`, sweeps every CSV row with the

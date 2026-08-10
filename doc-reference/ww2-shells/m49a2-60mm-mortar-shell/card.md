@@ -1,5 +1,13 @@
 # Card: M49A2 60mm Mortar Shell — Ordnance Drawing Extract
 
+**⚠️ INCOMPLETE — not adjudicated.** This card captures only page 1 of a
+multi-page drawing; the steel-grade designation itself is illegible in this
+extraction ("Design Intent and Context" below speculates on it). No pass has
+issued a verdict on this card and none should be inferred from its presence
+in `doc-reference/`. Composition used by the model is sourced elsewhere —
+`updates/wdss1-steel-grade/derivation.md` A6 uses *Ammunition Series 6* Table
+6-1 instead, explicitly declining this drawing.
+
 **Source:** Ordnance drawing M49A2 (SHELL, HE, 60MM., M49A2 AND PRACTICE, 60MM M50A2, METAL PARTS SHIPPING ASSEMBLY)\
 **Document Type:** Military ordnance manufacturing drawing (multi-page)\
 **Relevance:** Direct manufacturer specification for 60mm mortar shell body steel; provides empirical evidence of which WDSS grade (or equivalent) was actually called out for production
