@@ -35,17 +35,20 @@ TABLE = (
 
 
 def wood_props(species: str, condition: str) -> tuple[float, float]:
-    """Return (rho [lb/ft^3], H [lb]) for a Table 5-5 row, correcting the swap.
+    """Return (rho [lb/ft^3], H [lb]) for a Table 5-5 row.
 
-    The committed CSV (and card.md) label the two numeric columns backwards:
-    the page image shows column 1 = Density (lbs./ft3), column 2 = Hardness
-    (pounds).  See derivation.md section 1.1.  This reader reverses them.
+    The CSV headers were originally backwards (page image shows column 1 =
+    Density, column 2 = Hardness, but the committed header row said the
+    opposite); commit 10303e0 corrected the header labels in place, so the
+    columns now read directly with no reversal.  See derivation.md section
+    1.1 and review.md Finding 1 (this reader carried a stale double-swap
+    after that fix, since corrected here).
     """
     with TABLE.open() as fh:
         for row in csv.DictReader(fh):
             if row["species"] == species and row["condition"] == condition:
-                rho = float(row["hardness_pounds"])  # actually density
-                hardness = float(row["density_lbs_per_ft3"])  # actually hardness
+                rho = float(row["density_lbs_per_ft3"])
+                hardness = float(row["hardness_pounds"])
                 return rho, hardness
     raise KeyError(f"{species}/{condition} not in {TABLE}")
 
@@ -76,7 +79,7 @@ def e_thr_J(m_kg: float, t_in: float, rho: float, hard: float) -> float:
 
 def main() -> None:
     rho_p, h_p = wood_props("Pine", "Dry")
-    print(f"Table 5-5 Pine/Dry (swap-corrected): rho = {rho_p} lb/ft3, H = {h_p} lb")
+    print(f"Table 5-5 Pine/Dry: rho = {rho_p} lb/ft3, H = {h_p} lb")
 
     # -- closure invariant on Table 5-5 itself (see derivation.md 1.1) --------
     with TABLE.open() as fh:
@@ -84,13 +87,13 @@ def main() -> None:
     ok_rho = ok_h = True
     for i in range(0, len(rows), 2):
         dry, wet = rows[i], rows[i + 1]
-        # column 1 (labelled hardness) behaves as density: wet >= dry
-        ok_rho &= float(wet["hardness_pounds"]) >= float(dry["hardness_pounds"])
-        # column 2 (labelled density) behaves as hardness: wet <= dry, bar Pine/Balsa
+        # density_lbs_per_ft3: wet >= dry for all species
+        ok_rho &= float(wet["density_lbs_per_ft3"]) >= float(dry["density_lbs_per_ft3"])
+        # hardness_pounds: wet <= dry, hardwoods only (bar Pine/Balsa, softwoods)
         if dry["species"] not in ("Pine", "Balsa"):
-            ok_h &= float(wet["density_lbs_per_ft3"]) <= float(dry["density_lbs_per_ft3"])
-    print(f"  col1 non-decreasing dry->wet (density-like): {ok_rho}")
-    print(f"  col2 non-increasing dry->wet (hardness-like, hardwoods): {ok_h}")
+            ok_h &= float(wet["hardness_pounds"]) <= float(dry["hardness_pounds"])
+    print(f"  density non-decreasing dry->wet (all species): {ok_rho}")
+    print(f"  hardness non-increasing dry->wet (hardwoods): {ok_h}")
 
     # -- check 1: forward closure on cases outside/inside calibration domain --
     print("\nCHECK 1 - forward T_w [in], dry pine unless noted")

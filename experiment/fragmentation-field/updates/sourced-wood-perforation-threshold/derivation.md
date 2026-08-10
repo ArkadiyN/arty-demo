@@ -62,9 +62,13 @@ exactly at that boundary.
 The page image shows the column order **Species | Density (lbs./ft³) |
 Hardness (pounds)** — Pine/Dry is $\rho$ = 23.5 lb/ft³, $H$ = 38.7 lb. Both
 `card.md` (§"Table 5-5") and `tables/table-5-5-wood-properties.csv` (headers
-`hardness_pounds,density_lbs_per_ft3`) carry them **reversed**. This is the
-column-inversion failure `.claude/rules/source-data-fidelity.md` exists to
-prevent; the check script reads the CSV and reverses the two fields explicitly.
+originally `hardness_pounds,density_lbs_per_ft3`) carried them **reversed**.
+This is the column-inversion failure `.claude/rules/source-data-fidelity.md`
+exists to prevent. **Correction applied 2026-08-09** (below) fixed the CSV/card
+headers in place; the check script originally compensated by reversing the two
+fields on read, which became a stale double-swap once the headers were fixed —
+caught and corrected 2026-08-10, see `review.md` Finding 1. The script now
+reads the CSV directly, with no reversal.
 
 A closure invariant settles it without the image, and the `.invariant` file's
 claim that "no closure check is applicable" is wrong: **wet ≥ dry in column 1
