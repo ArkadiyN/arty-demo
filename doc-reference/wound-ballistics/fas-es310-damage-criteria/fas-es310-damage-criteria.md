@@ -46,7 +46,13 @@ If Nhits > 1:  Pk = 1 - (1 - Pk|hit)^Nhits
 If Nhits < 1:  Pk ≈ Nhits × Pk|hit
 ```
 
-### Personnel Damage Criteria Table
+### Personnel Damage Criteria (reconstructed, not a table on the page)
+
+**This is not a table on the source page.** It is Table 3's personnel row
+transposed into its own table, with the aircraft and armored-vehicle rows
+dropped and a "Caliber Reference" column welded on from prose elsewhere on
+the page. Cite `tables/table-3-fragmentation-damage-criteria.csv` (the
+personnel row) instead of this reconstruction.
 
 | Damage Level | Pk  | Kinetic Energy Threshold | Caliber Reference         |
 | ------------ | --- | ------------------------ | ------------------------- |
@@ -78,7 +84,10 @@ where it is reviewed as an argument rather than inherited as a source premise.
 See `card.md`, "The 'Implications for 79 J Threshold' section is not from
 this source", for the full account.
 
-FINDING\[deferrable\]: the "Personnel Damage Criteria Table" is not a table on the page — it is Table 3's personnel row transposed, with the aircraft and armored-vehicle rows dropped and a "Caliber Reference" column welded on from prose; read tables/table-3-fragmentation-damage-criteria.csv instead (affects: doc-reference/wound-ballistics/fas-es310-damage-criteria/fas-es310-damage-criteria.md; since: 2026-08-03)
+**Closed 2026-08-10.** The "Personnel Damage Criteria Table" section above is
+now labeled as a reconstruction with a pointer to the CSV, so a reader hitting
+it directly (not through `pkill-poisson-field/derivation.md`'s line anchors)
+also gets the caveat.
 
 **Closed 2026-08-09.** `pkill-poisson-field/derivation.md` now anchors this
 source on the multi-hit aggregation line (line 42 below) and on the

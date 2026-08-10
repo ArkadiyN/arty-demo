@@ -2736,7 +2736,10 @@ Two things surfaced in doing it, and neither was the defect being repaired:
 - **The `ammunition-series-6` source blob was retained all along** — see §11
     above, where the finding that said otherwise is closed.
 
-FINDING\[deferrable\]: the m49a2-60mm-mortar-shell document work was never finished, so its card.md is mid-work state and must not be treated as adjudicated — its "Design Intent and Context" section speculates on the body-shell material ("Likely ductile-steel", "most probable"); exposure is low and bounded — the shell is a recently added catalog entry with no model physics derived from it (user, 2026-08-03), it appears downstream only as one row in mott-fragment-shape-closure's cross-shell sweep, and updates/wdss1-steel-grade/derivation.md A6 sources the composition to Ammunition Series 6 Table 6-1 instead, explicitly declining the drawing; Phase 2.5d issued no verdict on the card and none should be inferred (affects: doc-reference/ww2-shells/m49a2-60mm-mortar-shell/card.md, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md; since: 2026-08-03)
+**Closed 2026-08-10.** `doc-reference/ww2-shells/m49a2-60mm-mortar-shell/card.md`
+now carries an explicit "INCOMPLETE — not adjudicated" banner up front, so a
+reader landing on the card directly (not via this ledger) gets the caveat
+too.
 
 ______________________________________________________________________
 
@@ -3732,9 +3735,12 @@ prose pages, and nothing about the extraction advertises the gap. A
 plausibility check on the layer's overall size or on a few known-present words
 does not detect it.
 
-FINDING\[note\]: source.pdf's text layer covers this document's tabular pages but not its prose pages - pdftotext extracts ~186k chars and resolves SHELL 149x, FRAGMENT 206x, Ordnance 22x while returning zero for SOURCES OF DATA, retardation, Army, Navy and proving, all demonstrably on the page - so a full-text PDF search returning nothing is not evidence of absence for this source and has already produced one false fabricated-content verdict; check ordnance-1944.md or the page image instead (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md, doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/ordnance-1944.md, .claude/rules/source-data-fidelity.md; since: 2026-08-03)
-
-FINDING\[deferrable\]: the six ordnance-1944 .invariant files anchor TABLE 38/39,48/49,56/57 which are correct against the retained source.pdf (geometry-verified by checks/ordnance-1944-page-geometry.py) but resolve to a DIFFERENT shell in the flattened extraction ordnance-1944.md, which renumbers the same tables 43/44,51/52,59/60; no data is wrong, but nothing warns a reader not to grep TABLE nn against the extraction (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables, experiment/fragmentation-field/challenges/source-data-audit/checks/ordnance-1944-table-number-anchors.py; since: 2026-08-03)
+**Closed 2026-08-10 (both markers below).** Both caveats are already in
+`card.md`: the text-layer coverage gap at "Do not use `source.pdf`'s text
+layer to establish that something is absent" (~line 173), and the
+`TABLE nn` renumbering warning at "Anchor on the shell-title headings below,
+never on a `TABLE nn` line" (~line 41). Neither needed new writing — the
+markers here had simply outlived the fix.
 
 *(Resolved 2026-08-08: a third independent script,
 `checks/dod-1975-figure-3-csv-page-residual.py`, sweeps every CSV row with the

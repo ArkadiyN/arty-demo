@@ -48,7 +48,11 @@ page supports is the tabulated 310 MPa / 45000 psi yield above. **Whether that
 figure is the provenance of any specific number in `src/arty/` is a
 criterion-match question, unsettled here and not answered by this file.**
 
-FINDING\[note\]: all three AZoM extractions close with a "## Remarks" section that is the extractor answering this repo's questions, not the AZoM page, and none marks the transition — each opens with the same meta-statement about what the reference does not mention (which a reference cannot say about itself) and aisi-1045.md additionally cross-references this repo's own fragmentation catalog; the aisi-1045 and aisi-1020 cards had attributed it to the source and no longer do, the aisi-1335 card never did, but the extractions themselves still read as source text to anyone opening them directly (affects: doc-reference/azom-steel-grades/aisi-1045/aisi-1045.md, doc-reference/azom-steel-grades/aisi-1020/aisi-1020.md, doc-reference/azom-steel-grades/aisi-1335/aisi-1335.md; since: 2026-08-03)
+**Closed 2026-08-10.** All three raw extractions (`aisi-1045.md`,
+`aisi-1020.md`, `aisi-1335.md`) now open their `## Remarks` section with an
+explicit marker that everything below it is extractor commentary, not AZoM
+page content — so the transition is visible to a reader who opens the
+extraction directly, not just to a reader who reaches it via `card.md`.
 
 ## Provenance of this card
 

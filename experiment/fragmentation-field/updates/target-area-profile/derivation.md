@@ -225,12 +225,13 @@ g_\text{new}(s,\Theta;,A_p,\delta)
 $$
 
 > **Note on the $\sin\Theta$ factor.** $\sin\Theta$ is retained here to match
-> the §6.5 belt-Jacobian notation of eq. (15). For the equatorial belt
-> ($\delta \le 15°$), $\sin\Theta \approx 1$ and the numerical difference
-> from the pure P3 form (without $\sin\Theta$) is < 3.5 %. The two forms are
-> equivalent at $\Theta = 90°$.
-
-FINDING[deferrable]: the "< 3.5 %" bound above holds only for the δ ≤ 15° it is stated for — the deviation is 1/sin(90°−δ) − 1, which reaches ~15.5 % at δ = 30°, the maximum the app's belt half-angle slider exposes (app/sensitivity.py:131); either bound the slider or restate the error over the full exposed range (affects: experiment/fragmentation-field/updates/target-area-profile/derivation.md, app/sensitivity.py, experiment/fragmentation-field/_limitations.qmd; since: 2026-08-03)
+> the §6.5 belt-Jacobian notation of eq. (15). The deviation of the pure P3
+> form (without $\sin\Theta$) from this one is $1/\sin(90°-\delta)-1$: 3.5 %
+> at the app's default $\delta = 15°$, rising to ≈15.5 % at $\delta = 30°$,
+> the maximum the app's belt half-angle slider exposes
+> (`app/sensitivity.py:131`). The two forms are equivalent at $\Theta = 90°$
+> and at $\delta = 0$; the bound was previously stated only for
+> $\delta \le 15°$ — see `_limitations.qmd` for the same restated bound.
 
 This is the direct replacement for the old $g$ in eq. (20).
 
