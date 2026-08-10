@@ -101,34 +101,49 @@ ogive/cylinder $V_0$ contradiction, and after `50b734e`, which sourced the
 75 mm M48 `mass_deductions`): $V_0 = 864.4$ m/s, $M_\text{case} = 4980$ g,
 $\mu = 0.826$ g, $2\mu = 1.65$ g, $N_0 = 3016$.
 
-| $E_{thr}$ [J] | source of the value                                                                               | $m_{thr}$(15 ft) [g] | $N(\ge m_{thr})$ | as % of $N_0$ | vs Tolch 700 |
-| ------------: | :------------------------------------------------------------------------------------------------ | -------------------: | ---------------: | ------------: | -----------: |
-|           1.9 | fitted to the 0.557 A→D falloff ratio                                                             |                0.020 |             2577 |          85 % |     **3.7×** |
-|           3.6 | fitted (upper $V_0$ case)                                                                         |                0.032 |             2478 |          82 % |     **3.5×** |
-|          78.6 | 1944 Ordnance Dept. card's own casualty threshold, 58 ft-lb (`../drag-gap-1944/b-vs-range.md` §2) |                0.359 |             1560 |          52 % |     **2.2×** |
-|           126 | Tolch's own smallest-hole bound, $m\ge0.36$ g at 838 m/s                                          |                0.538 |             1346 |          45 % |     **1.9×** |
-|         294.5 | pre-anchor fitted $E_{thr}$                                                                       |                1.134 |              934 |          31 % |     **1.3×** |
+| $E_{thr}$ [J] | source of the value                                                                                                                                                                 | $m_{thr}$(15 ft) [g] | $N(\ge m_{thr})$ | as % of $N_0$ | vs Tolch 700 |
+| ------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------: | ---------------: | ------------: | -----------: |
+|           1.9 | fitted to the 0.557 A→D falloff ratio                                                                                                                                               |                0.020 |             2577 |          85 % |     **3.7×** |
+|           3.6 | fitted (upper $V_0$ case)                                                                                                                                                           |                0.032 |             2478 |          82 % |     **3.5×** |
+|          78.6 | 1944 Ordnance Dept. **personnel-casualty (incapacitation)** criterion, 58 ft-lb — *not a wood-perforation criterion; plausibility probe only, not a sourced threshold for this arm* |                0.359 |             1560 |          52 % |       (2.2×) |
+|           126 | Tolch's own smallest-hole bound, $m\ge0.36$ g at 838 m/s — **the one criterion-matched sourced row**                                                                                |                0.538 |             1346 |          45 % |     **1.9×** |
+|         294.5 | pre-anchor fitted $E_{thr}$                                                                                                                                                         |                1.134 |              934 |          31 % |     **1.3×** |
 
-**The 78.6 J row is an independent cross-check, not a fit.** It is lifted
-verbatim from a second, unrelated 1944 historical source (the Ordnance Dept.
-card's own stated casualty energy, already used as-is in `../drag-gap-1944/`
-for the Family B comparison) — it is not tuned to Tolch's falloff shape and
-not derived from Tolch's hole-size data the way the 126 J row is. At this
-threshold $N/700 = 2.23\times$ and $N/779 = 2.00\times$ (**779, not 803** — the
-re-baselined pit-recovered count, `rebaseline-verdict.md`; every $N/803$
-figure below is corrected the same way, ×1.031), landing in the same band as
-Tolch's own hole-size-bound row (1.92× / 1.73×) and well inside the
-fitted-threshold band (3.5–3.7×) that L1 originally reported. Two
-independently-sourced thresholds — one from Tolch's own recovered-fragment
-data, one from an unrelated 1944 ordnance card — now agree with each other on
-the residual (1.7–2.2×) far more closely than either agrees with the fitted
-values. **Under the current shipped parameters both sourced-threshold rows
-reach, or sit on, §4's own PASS band (within 2× of 700–779)**: the 126 J row
-is inside it on both denominators, the 78.6 J row is inside it on the 779
-denominator and 12 % outside on the 700 one. That is a change of verdict
-direction relative to the pre-6c1faff numbers (2.2–2.5×, unambiguously
-outside), and it is driven by shipped physics, not by anything re-argued here
-— see the "verdict framing" note at the end of §4.
+**The 78.6 J row is a plausibility probe, not an admissible sourced
+perforation threshold.** It is lifted verbatim from a second, unrelated 1944
+historical source (the Ordnance Dept. card's own stated casualty energy,
+already used as-is in `../drag-gap-1944/` for the Family B comparison), so it
+is at least not tuned to Tolch's falloff shape. But it measures a *different
+physical quantity*: its own source defines 58 ft-lb as the energy at which a
+hit produces a **personnel casualty** ("It is incapacitation and not
+necessarily death"), stated mass-independently and never in connection with
+wood — the perforation figures in that same section are for 1/8-, 1/4-, 3/8-
+and 1/2-in. **mild steel**. Soft-tissue penetration depth and softwood
+plug shear-out are different failure mechanisms, so feeding 78.6 J to the
+perforate/no-perforate step is a criterion mismatch under
+`.claude/rules/source-data-fidelity.md`, and this row is **not counted as a
+sourced threshold** for the count arm
+([`../../updates/sourced-wood-perforation-threshold/review-criterion-check.md`](../../updates/sourced-wood-perforation-threshold/review-criterion-check.md)).
+It is retained in the table only to show where the count sits at that energy.
+At this threshold $N/700 = 2.23\times$ and $N/779 = 2.00\times$ (**779, not
+803** — the re-baselined pit-recovered count, `rebaseline-verdict.md`; every
+$N/803$ figure below is corrected the same way, ×1.031); that this lands
+within ~15 % of Tolch's own hole-size-bound row is two probes of different
+quantities converging, not corroboration of the perforation model.
+
+**The admissible sourced row is 126 J alone** — Tolch's own
+smallest-perforating-hole bound, computed from the same experiment the model
+is scored against, and therefore already a wood-perforation quantity.
+**Under the current shipped parameters it sits inside §4's own PASS band
+(within 2× of 700–779) on both denominators**: $N/700 = 1.92\times$ and
+$N/779 = 1.73\times$, well inside the fitted-threshold band (3.5–3.7×) that L1
+originally reported. That is a change of verdict direction relative to the
+pre-6c1faff numbers (2.2–2.5×, unambiguously outside), and it is driven by
+shipped physics, not by anything re-argued here — see the "verdict framing"
+note at the end of §4. Note the evidentiary strength this leaves: **one**
+criterion-matched sourced measurement, unconfirmed — not two independent ones
+agreeing. C1 (an independent, THOR-type or sourced-softwood perforation
+threshold) is what would confirm it.
 
 Two facts follow, and they reframe L1:
 
@@ -192,16 +207,17 @@ factor; and because $n(m)$ rises steeply toward small $m$, the location of the
 step dominates the answer (table in §2: a 155× span in $E_{thr}$ moves $N$ by
 2.8×). $E_{thr}$ is currently *fitted to the very falloff curve the test is
 meant to check*, which is what makes Tolch a compound test rather than an
-anchor. An independently-sourced threshold now exists to test this without
-fitting: the 1944 Ordnance Dept. card's own 78.6 J casualty energy (§2 table,
-not tuned to Tolch's data) lands at 2.00–2.23×, matching Tolch's own
-hole-size-bound threshold (126 J → 1.73–1.92×) rather than the fitted values
-(3.2–3.7×). Two threshold sources external to (or only weakly coupled to) the
-falloff fit now agree with each other, which tightens confidence in the
-leverage estimate below. **Leverage: 1.65–2.05× of the residual** (fitted
-1.9 J row $N/779 = 3.31$ vs. the 0.63 g threshold-free cut $N/779 = 1.62$
-⇒ 2.05×; vs. the sourced 78.6 J row $N/779 = 2.00$ ⇒ 1.65×;
-`rebaseline-verdict.md` §3).
+anchor. One criterion-matched non-fitted threshold now exists to test this
+without fitting: Tolch's own smallest-hole bound (126 J, §2 table), which
+lands at 1.73–1.92× rather than at the fitted values (3.2–3.7×). The 78.6 J
+figure is *not* a second such source — it is a personnel-casualty criterion,
+not a perforation one (§2), so its landing nearby (2.00–2.23×) is a
+plausibility observation and not independent corroboration. **Leverage:
+1.65–2.05× of the residual** (fitted 1.9 J row $N/779 = 3.31$ vs. the 0.63 g
+threshold-free cut $N/779 = 1.62$ ⇒ 2.05×; vs. the 78.6 J casualty-criterion
+probe $N/779 = 2.00$ ⇒ 1.65×; `rebaseline-verdict.md` §3). On the
+criterion-matched 126 J row alone ($N/779 = 1.73$) the same ratio is 1.91×,
+inside that band, so the estimate does not depend on the mismatched probe.
 Still the biggest single term and the only unbounded one.
 
 **C2 — $V_0$ in (5) is the terminal Gurney velocity, not the case velocity at
@@ -215,18 +231,19 @@ Explicitly *not* touched by the shape-closure fix (`../mott-scale-gap/_scale_ver
 §4 item 2 raised it and deferred it; `updates/mott-fragment-shape-closure/derivation.md`
 changes only $\alpha$/$\gamma$ and $t_{bu}$).
 
-**Measured directly against the two non-fitted thresholds (§2, 78.6 J and
-126 J), not merely as an $N_0$/$\mu$ ratio.** Sweeping $f\in\{1.0, 0.9, 0.8,
+**Measured directly against the two non-fitted probes (§2, 126 J — the
+criterion-matched one — and 78.6 J, casualty-criterion, shown for context
+only), not merely as an $N_0$/$\mu$ ratio.** Sweeping $f\in\{1.0, 0.9, 0.8,
 0.7, 0.6\}$ through `mott_params` and re-solving $m_{thr}$(15 ft) at each $f$
 (script block (b2)) gives, at $E_{thr}$ = 78.6 J: $N/700$ = 2.23 → 1.82 → 1.46
 → 1.13 → 0.84 and $N/779$ = 2.00 → 1.64 → 1.31 → 1.01 → 0.75 (re-baselined
 from a published 803, ×1.031 — `rebaseline-verdict.md`) as $f$ falls
 1.0 → 0.6; at $E_{thr}$ = 126 J: $N/700$ = 1.92 → 1.57 → 1.26 → 0.98 → 0.73
 and $N/779$ = 1.73 → 1.41 → 1.13 → 0.88 → 0.65. **Under the current shipped
-parameters both non-fitted thresholds are already at or inside the §4 PASS
-band (within 2×) at $f$ = 1**, so C2 is no longer needed to reach it: the only
-row still outside is 78.6 J on the 700 denominator (2.23×), which crosses by
-$f\approx0.95$. By $f$ = 0.7 the 78.6 J row matches Tolch's totals almost
+parameters the criterion-matched 126 J threshold is already inside the §4 PASS
+band (within 2×) on both denominators at $f$ = 1**, so C2 is no longer needed
+to reach it; the context-only 78.6 J row sits outside on the 700 denominator
+(2.23×) and would cross by $f\approx0.95$. By $f$ = 0.7 the 78.6 J row matches Tolch's totals almost
 exactly ($N/779$ = 1.01) and the 126 J row has gone *under* (0.88), i.e. an
 aggressive $f$ now risks over-correcting. So C2's leverage remains
 directionally right, but it is no longer the term that decides the verdict —
@@ -288,13 +305,14 @@ unbounded share, and it is the term that makes the test compound (L1's own
 words). **Correction to this paragraph's original claim:** "C2 cannot be
 measured against anything until C1 is decoupled" is true only against the
 *fitted* $E_{thr}$ rows (1.9–3.6 J), where a refit reabsorbs any $N_0$ change
-by construction. It does **not** hold against the two non-fitted thresholds
-(78.6 J, 126 J) — C2's leverage is directly measurable there (above), and on
+by construction. It does **not** hold against a non-fitted threshold held
+fixed (§2's criterion-matched 126 J row, and the 78.6 J context probe) —
+C2's leverage is directly measurable there (above), and on
 its own is large enough to close most or all of the 1.7–2.2× residual left
 after $E_{thr}$ is fixed. C1 is still recommended first because it remains
 the larger, unbounded term and the one that makes the comparison compound;
 but C2 is not blocked on C1 the way originally stated — it could equally be
-run first, or the two combined and cross-checked, against either non-fitted
+run first, or the two combined and cross-checked, against the fixed 126 J
 threshold. Implementing C2 still requires deriving $v_{bu}$ or sourcing $f$
 (new physics, see above), so it does not change what's scoped for the next
 pass.
@@ -334,10 +352,13 @@ ensemble-mean continuum model.
 
 **Verdict framing after the 2026-08-08 re-closure — read before reusing this
 thread's conclusion.** The criterion above is unchanged, but the shipped
-model has moved *into* it without C1 or C2 being done. At a sourced
-threshold the current code predicts $N/779$ = 1.73 (126 J) to 2.00 (78.6 J)
-and $N/700$ = 1.92 to 2.23 — i.e. **the count arm of the PASS test is now
-met or marginal, not failed**. What is *not* yet met is the second PASS
+model has moved *into* it without C1 or C2 being done. At the one
+criterion-matched sourced threshold (126 J) the current code predicts
+$N/779$ = 1.73 and $N/700$ = 1.92 — i.e. **the count arm of the PASS test is
+now met or marginal, not failed**. (The 78.6 J casualty-criterion probe, which
+earlier versions of this section reported alongside it as a second sourced
+threshold at 2.00 / 2.23, is criterion-mismatched and no longer counted — §2.
+It was the weaker row, so excluding it does not move this verdict.) What is *not* yet met is the second PASS
 condition, the A→D falloff ratio within 0.10 of 0.557, which is still tied to
 the fitted $E_{thr}$ and therefore still compound. So:
 

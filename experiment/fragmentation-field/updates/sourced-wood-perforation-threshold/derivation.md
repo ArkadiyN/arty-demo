@@ -382,7 +382,6 @@ Blocking regardless of transcription fidelity. The arithmetic is right; the word
 "sourced" is what is not, and it is on a published surface. §7.3 supplies the
 criterion-correct replacement, so the fix is available, not merely the diagnosis.
 
-FINDING[blocking]: 78.6 J / 126 J are described as "sourced" perforation thresholds for the Tolch 1-in wood-panel count arm, but 58 ft-lb is a personnel-casualty criterion (criterion mismatch, see derivation.md 7.1); a published PASS-arm verdict rests on it (affects: experiment/fragmentation-field/_limitations.qmd, experiment/fragmentation-field/challenges/README.md, experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py; since: 2026-08-09)
 
 ### 7.2 §6's areal form (7) is the wrong mechanism — superseded
 

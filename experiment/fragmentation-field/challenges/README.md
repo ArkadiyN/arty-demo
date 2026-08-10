@@ -52,12 +52,20 @@ pit-recovered count is **779, not 803** — every $N/803$ figure in
 7.40 g, not 6.85 g. That re-baseline on its own flipped no PASS/FAIL row.
 (2) **Re-closed against shipped code after 6c1faff / `50b734e`, and that
 does flip rows.** With $M_\text{case}$ = 4980 g, $V_0$ = 864.4 m/s,
-$N_0$ = 3016, the two *sourced*-threshold rows move from outside §4's 2× PASS
-band (2.2–2.5×) to at or inside it: 126 J gives $N/779$ = 1.73 / $N/700$ =
-1.92, and 78.6 J gives 2.00 / 2.23. **The count arm of the PASS test is now
+$N_0$ = 3016, the *sourced*-threshold row moves from outside §4's 2× PASS
+band (2.2–2.5×) to inside it: 126 J — Tolch's own smallest-perforating-hole
+bound, the only criterion-matched sourced probe — gives $N/779$ = 1.73 /
+$N/700$ = 1.92. **The count arm of the PASS test is now
 met or marginal, not failed**, so §4's published "FAIL — count chain
 implicated, proceed to C2" is no longer supported and an aggressive C2 would
-over-correct. The falloff-ratio arm (A→D within 0.10 of 0.557) is still
+over-correct. (A second probe, 78.6 J = 58 ft-lb, was previously reported
+alongside 126 J as a sourced-threshold row at 2.00 / 2.23. It is the Ordnance
+Dept. 1944 personnel-casualty **incapacitation** criterion — not a
+wood-perforation threshold — so it is criterion-mismatched for this arm and is
+no longer counted as sourced:
+`updates/sourced-wood-perforation-threshold/review-criterion-check.md`. It was
+the weaker of the two rows; dropping it does not move the verdict.) The
+falloff-ratio arm (A→D within 0.10 of 0.557) is still
 unmet and still tied to the fitted $E_{thr}$, so the test stays compound and
 C1 stays the gating item — now as *confirmation* of a provisional PASS rather
 than a rescue of a FAIL. Live text: `count-gap-1938/count-chain.md` §4
