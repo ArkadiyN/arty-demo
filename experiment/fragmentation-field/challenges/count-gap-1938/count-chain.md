@@ -145,6 +145,51 @@ criterion-matched sourced measurement, unconfirmed — not two independent ones
 agreeing. C1 (an independent, THOR-type or sourced-softwood perforation
 threshold) is what would confirm it.
 
+### The criterion-correct row: mass-dependent plug shear (2026-08-10)
+
+Every row above is a **mass-independent scalar** $E_{thr}$, which no
+perforation mechanism actually is. C1 has since been discharged:
+[`../../updates/sourced-wood-perforation-threshold/derivation.md`](../../updates/sourced-wood-perforation-threshold/derivation.md)
+§7.3 derives a plug-shear threshold
+$E_{thr}(m) = \tfrac12\,\tau\,\pi D(m)\,t^2$ — $\tau$ = 8.96 MPa from Sanborn
+2019 Table 2 (ASTM D143 solid-wood coupon), $t$ = Tolch's 1″ panel,
+$D(m)$ the compact-fragment closure — with **no free parameter and nothing
+fitted to Tolch**. It is shipped as
+`arty.perforation.perforation_threshold_energy`. Re-running *this* chain
+through it (derivation.md §7.4 Check 4, pre-registered before the run;
+script [`checks/count-chain-plug-shear.py`](checks/count-chain-plug-shear.py)):
+
+| variant                                           | $m_{thr}$(15 ft) [g] |         $N$ |      $N/700$ |      $N/779$ |
+| ------------------------------------------------- | -------------------: | ----------: | -----------: | -----------: |
+| **SPF-S, $\eta$ = ½ — central, the reported row** |            **0.166** |    **1925** |    **2.75×** |    **2.47×** |
+| SPF-S ∓1σ on $\tau$, $\eta$ = ½                   |        0.118 / 0.218 | 2067 / 1804 | 2.95 / 2.58× | 2.65 / 2.32× |
+| SYP, $\eta$ = ½                                   |                0.210 |        1821 |        2.60× |        2.34× |
+| $\eta$ = 1 rigid bound (SPF-S / SYP)              |        0.370 / 0.474 | 1545 / 1414 | 2.21 / 2.02× | 1.98 / 1.82× |
+
+**The count arm FAILS on the criterion-correct threshold: 2.47× on /779, 2.75×
+on /700, outside §4's within-2× PASS band on both denominators.** The whole
+$\eta$ = ½ band is outside it; only the $\eta$ = 1 rigid bound falls inside,
+and per assumption A8 $\eta$ is geometry and may **not** be moved to buy the
+pass, so the central row is what is reported.
+
+The direction was pre-registered and is confirmed: the plug-shear $m_{thr}$
+arrives at the panel at 612 m/s, above the 243 m/s crossover where plug shear
+becomes *more permissive* than the 78.6 J constant, so $m_{thr}$ drops
+0.359 → 0.166 g and $N$ rises 1.23×.
+
+**What this changes.** The 126 J row's near-pass (1.73×) above was partly the
+threshold being too strict for the wrong reason — it is a whole-fragment
+hole-size bound applied mass-independently, so it over-charges the light end
+where most of the count is. With a mechanism-correct, mass-dependent criterion
+the perforating-fraction residual is **larger**, not smaller. That does not
+indict the threshold (its own checks 1–3 and its ±27% $\tau$ sensitivity all
+pass — derivation.md §7.4); it relocates the residual back onto the velocity
+fraction $f$, Mott $\mu$, or the recovery census. This row also inherits the
+standing block-(D) caveat below — energy-thresholded whole-shell count over a
+size-thresholded recovery census — so the criterion-clean spectrum figure
+(~2.15×, §(E)) remains the better-conditioned statement of the same gap, and
+the plug-shear row now sits close to it rather than below it.
+
 Two facts follow, and they reframe L1:
 
 1. **$N_0$ is not 4–6× too high.** $N_0 = 3016$ sits *between* Tolch's two own
@@ -349,6 +394,16 @@ Against that:
 Factor 2 is the right band here (and matches `../drag-gap-1944/b-vs-range.md`'s
 criterion): a 1938 four-round average, hole-counted by eye, against an
 ensemble-mean continuum model.
+
+> **Superseded in part, 2026-08-10 — read this first.** The paragraph below was
+> written when 126 J was the only criterion-matched threshold available. C1 has
+> since been discharged by a sourced, mass-dependent plug-shear threshold (§2,
+> "The criterion-correct row"), and on **that** threshold the count arm
+> **FAILS**: $N/779$ = 2.47, $N/700$ = 2.75 at central parameters, outside the
+> within-2× band. The "provisional PASS" reading below therefore no longer
+> holds; what survives is that $N_0$ itself is not the defect, and that the
+> falloff-ratio arm is still compound. The residual is *larger* than the 126 J
+> row suggested, not smaller.
 
 **Verdict framing after the 2026-08-08 re-closure — read before reusing this
 thread's conclusion.** The criterion above is unchanged, but the shipped

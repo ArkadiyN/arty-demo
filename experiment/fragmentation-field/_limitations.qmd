@@ -127,8 +127,9 @@ fragment measured by icosahedron gage, whereas 0.90 sat below even the sphere.
 ([`derivation.md`](updates/mach-dependent-fragment-drag/derivation.md) §7), not
 re-opened here:
 
-- **L1 — Tolch's absolute perforating count, re-closed post-6c1faff: the count
-    arm is now met or marginal; the falloff-ratio arm is not.** Tolch (1938) is
+- **L1 — Tolch's absolute perforating count: on a sourced, mass-dependent
+    perforation threshold the count arm FAILS at ~2.5×; the falloff-ratio arm is
+    still compound.** Tolch (1938) is
     a *compound* test (drag × Mott spectrum × a fitted energy threshold × a
     perforate/not model). A scoping pass
     ([`challenges/count-gap-1938/count-chain.md`](challenges/count-gap-1938/count-chain.md)
@@ -163,6 +164,26 @@ re-opened here:
     C1 is an independent (THOR-type) perforation model; this re-framing is a
     consequence of shipped physics changes, not a new argument in the thread
     (`count-chain.md` §4, "Verdict framing after the 2026-08-08 re-closure").
+    **Update 2026-08-10 — C1 is discharged, and it turns the count arm back to
+    FAIL.** A sourced, mass-*dependent* wood-perforation threshold now exists:
+    plug shear-out, $E_{thr}(m) = \tfrac12\tau\pi D(m)t^2$ with $\tau$ = 8.96 MPa
+    (Sanborn 2019 ASTM D143 coupon) and $t$ = Tolch's 1″ panel, shipped as
+    `arty.perforation.perforation_threshold_energy`
+    ([`updates/sourced-wood-perforation-threshold/derivation.md`](updates/sourced-wood-perforation-threshold/derivation.md)
+    §7.3). Nothing in it is fitted to Tolch. Re-running the same count chain
+    through it (§7.4 Check 4, direction pre-registered before the run) gives
+    $N/779$ = **2.47** and $N/700$ = **2.75** at central parameters — **outside**
+    the 2× PASS band on both denominators, where the 126 J scalar row sat inside
+    it at 1.73 / 1.92. The whole $\tau$-uncertainty band at $\eta$ = ½ is outside
+    (2.32–2.65 on /779); only the $\eta$ = 1 rigid geometric bound (1.82–1.98)
+    falls inside, and $\eta$ is geometry, not a free parameter, so it is not
+    moved to buy the pass. The 126 J row's near-pass was partly a scalar
+    threshold over-charging the light end of the spectrum; with a
+    mechanism-correct criterion the perforating-fraction residual is **larger**,
+    not smaller, and the remaining candidates are the velocity fraction $f$, the
+    Mott $\mu$, or the recovery census itself. This does not indict the new
+    threshold — its independent-regime, monotonicity and order-of-magnitude
+    checks all pass and it is only ±27 % sensitive to $\tau$.
 
     FINDING\[deferrable\]: "essentially all of it the threshold fit" quotes count-chain.md's Verdict-framing note verbatim, but is in tension with that same document's own top banner, which decomposes the 3.2-3.7x fitted-threshold total into a threshold-fit artefact (~1.65-2.05x) and a comparable genuine spectrum residual (~1.7-2.0x, matching the sourced-threshold figures stated two sentences earlier) - "essentially all" overstates the threshold-fit's share (affects: experiment/fragmentation-field/_limitations.qmd, experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-09)
     FINDING\[note\]: the "carried from that update's own limitations (derivation.md §7), not re-opened here" intro is technically inaccurate for L1, which was substantially reworked relative to derivation.md §7 and no longer matches it - harmless since L1's own body cites count-chain.md §4, flagged for wording only (affects: experiment/fragmentation-field/_limitations.qmd; since: 2026-08-09)

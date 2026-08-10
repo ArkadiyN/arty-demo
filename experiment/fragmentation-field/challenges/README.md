@@ -68,8 +68,23 @@ the weaker of the two rows; dropping it does not move the verdict.) The
 falloff-ratio arm (A→D within 0.10 of 0.557) is still
 unmet and still tied to the fitted $E_{thr}$, so the test stays compound and
 C1 stays the gating item — now as *confirmation* of a provisional PASS rather
-than a rescue of a FAIL. Live text: `count-gap-1938/count-chain.md` §4
-"Verdict framing"; `rebaseline-verdict.md` §2–§3 are superseded and marked so.
+than a rescue of a FAIL.
+**(3) C1 is now discharged, and it flips the count arm back to FAIL
+(2026-08-10).** A sourced *mass-dependent* threshold exists — plug shear-out,
+$E_{thr}(m)=\tfrac12\tau\pi D(m)t^2$, $\tau$ = 8.96 MPa from Sanborn 2019
+(ASTM D143), shipped as `arty.perforation.perforation_threshold_energy`
+(`updates/sourced-wood-perforation-threshold/derivation.md` §7.3). Nothing in
+it is fitted to Tolch. On it the chain gives $N/779$ = **2.47** / $N/700$ =
+**2.75** (§7.4 Check 4, direction pre-registered; script
+`count-gap-1938/checks/count-chain-plug-shear.py`) — **outside** the 2× band,
+where the 126 J scalar row was inside at 1.73 / 1.92. The $\eta$ = ½ band
+spans 2.32–2.65 on /779; only the $\eta$ = 1 rigid geometric bound
+(1.82–1.98) lands inside, and $\eta$ is not free to be tuned. So the
+"provisional PASS" reading in (2) does not survive: the residual is larger
+than the 126 J row implied, and it relocates to $f$ / Mott $\mu$ / the
+recovery census. Live text: `count-gap-1938/count-chain.md` §2 "The
+criterion-correct row" and the banner over §4 "Verdict framing";
+`rebaseline-verdict.md` §2–§3 are superseded and marked so.
 One inference is **void**: §2's "the residual is in the perforating
 fraction, *not the population*" — a threshold-free cumulative-spectrum test
 finds the model over-counting **1.78–2.24×** (Tolch-metal basis, current

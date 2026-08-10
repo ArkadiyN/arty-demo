@@ -497,17 +497,58 @@ planes. **This check uses no Tolch data at all**, which is the point.
 in $\tau$: a ±27% COV on $\tau$ is ±27% on $E_{thr}$, inside the ±50% fidelity
 target. Under Option A the same class of input error entered at power 4.86.
 
-**Check 4 — count-chain §4 re-run — still NOT RUN**, deferred to the
-implementation pass as §4.4 set out. **The direction is predictable and is
-stated now, before the run, so it cannot be back-fitted:** (9) is *more
-permissive* than a constant 78.6 J at the arrival velocities in play. Equating
-the two puts the $m_{min}$ crossover at $v$ = 243 m/s; above it (9) admits
-lighter fragments — at 1000 m/s, $m_{min}$ = 0.038 g against 0.157 g for the
-constant probe. Since $N(\ge m)$ is steep in $m$, **A″ will raise the predicted
-count relative to the 78.6 J probe run**, whose $N/779$ was already 1.73–2.00.
-A″ may therefore *fail* the factor-2 count arm. That is a legitimate outcome of
-a zero-free-parameter prediction and must not be tuned away; it is exactly the
-information the compound-test objection was suppressing.
+**Check 4 — count-chain §4 re-run.** *Pre-registration, written before the run
+so it could not be back-fitted:* (9) is *more permissive* than a constant
+78.6 J at the arrival velocities in play. Equating the two puts the $m_{min}$
+crossover at $v$ = 243 m/s; above it (9) admits lighter fragments — at
+1000 m/s, $m_{min}$ = 0.038 g against 0.157 g for the constant probe. Since
+$N(\ge m)$ is steep in $m$, **A″ will raise the predicted count relative to the
+78.6 J probe run**, whose $N/779$ was already 1.73–2.00. A″ may therefore
+*fail* the factor-2 count arm. That is a legitimate outcome of a
+zero-free-parameter prediction and must not be tuned away.
+
+**RUN 2026-08-10 — the pre-registered direction is CONFIRMED, and the count arm
+is FAILED at central parameters.** Script:
+[`../../challenges/count-gap-1938/checks/count-chain-plug-shear.py`](../../challenges/count-gap-1938/checks/count-chain-plug-shear.py)
+(< 2 s), same chain, same denominators, as `count-chain-rebaseline.py` block (D)
+with the scalar threshold replaced by the callable.
+
+| variant | $m_{thr}$(15 ft) [g] | $E_{thr}(m_{thr})$ [J] | $N$ | $N/700$ | $N/779$ |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| **SPF-S, $\eta$ = ½ — central** | **0.166** | **31.2** | **1925** | **2.75×** | **2.47×** |
+| SPF-S −1σ, $\eta$ = ½ | 0.118 | 20.3 | 2067 | 2.95× | 2.65× |
+| SPF-S +1σ, $\eta$ = ½ | 0.218 | 43.3 | 1804 | 2.58× | 2.32× |
+| SYP, $\eta$ = ½ | 0.210 | 41.5 | 1821 | 2.60× | 2.34× |
+| SPF-S, $\eta$ = 1 (rigid bound) | 0.370 | 81.4 | 1545 | 2.21× | 1.98× |
+| SYP, $\eta$ = 1 (band max) | 0.474 | 108.8 | 1414 | 2.02× | 1.82× |
+| *(ref)* 78.6 J constant probe | 0.359 | — | 1560 | 2.23× | 2.00× |
+| *(ref)* 126 J constant probe | 0.538 | — | 1346 | 1.92× | 1.73× |
+
+The observed crossover reproduces the pre-registered 243 m/s exactly, and the
+plug-shear $m_{thr}$ arrives at the panel at **612 m/s** — well above it — so
+A″ admits lighter fragments: $m_{thr}$ falls 0.359 → 0.166 g and $N$ rises
+**1.23×** against the 78.6 J probe, as predicted. Central $N/779 = 2.47$ is
+**outside** §4's PASS band (within 2× of the 700/779 denominators) on both
+denominators; the whole $\eta$ = ½ band (2.32–2.65 on /779) is outside, and only
+the $\eta$ = 1 rigid-bound rows (1.82–1.98) fall inside.
+
+**A8 binds here.** $\eta$ = ½ is geometry, and the $\eta$ = 1 rows are the
+*upper bound of the pre-registered band*, not a selectable variant — that they
+happen to land inside the PASS band is not a licence to adopt them. The
+reported Check-4 result is the central one: **2.47× on /779, FAIL.**
+
+*What this does and does not indict.* It does **not** overturn A″ as the
+criterion-correct threshold: §7.4's checks 1–3 and the sensitivity check all
+pass, and 2.47× against a zero-free-parameter prediction is decade-level
+agreement on the *threshold*. What it says is that with the criterion mismatch
+removed, the count arm's apparent near-pass at 126 J (1.73×) was partly the
+threshold being too strict for the wrong reason. The residual over-count is
+therefore **larger, not smaller**, than the 126 J row suggested, and its
+explanation (velocity fraction $f$, Mott $\mu$, or the recovery census itself)
+still sits outside this aspect. Note also that this whole arm inherits the
+standing block-(D) caveat — an energy-thresholded whole-shell count over a
+size-thresholded recovery census — so the criterion-clean (E) figure (~2.15×)
+remains the better-conditioned statement of the same gap.
 
 **Check 5 — `E_LETH_DEFAULT` regression — unchanged**, per §4.5: the
 implementation is a threshold *callable* defaulting to today's scalar compare,
@@ -576,14 +617,11 @@ e^{-2Cm^{-1/3}s}` is still monotone increasing; that condition is documented on
 Sanborn's *nominal* 12.7 mm sphere diameter, while `src/arty` always derives
 `D` from mass (12.683 mm for the same 8.4 g sphere).
 
-**Check 4 is still NOT RUN** and is the next pass. It is a validation pass over
-`challenges/count-gap-1938/checks/count-chain-rebaseline.py` (the `N/779` chain),
-not an `src/arty/` pass — that chain now needs to be re-run passing
-`E_thr=perforation_threshold_energy`. §7.4's pre-registered direction (A″ raises
-the count relative to the 78.6 J probe run; the factor-2 arm may fail, and
-`eta` may not be moved to rescue it — A8) stands and must not be revised after
-seeing the number. Nothing is wired into the zone/lethality pipeline by this
-pass: the `E_thr` argument is opt-in and no caller passes it.
+**Check 4 was run in the following (presentation) pass, 2026-08-10** — see the
+table in §7.4. It confirmed the pre-registered direction and **failed** the
+factor-2 count arm at central parameters (2.47× on /779); `eta` was not moved,
+per A8. Nothing is wired into the zone/lethality pipeline by either pass: the
+`E_thr` argument is opt-in and no shipped caller passes it.
 
 **§7.1's criterion mismatch — resolved, not by this pass.** This paragraph
 originally reported the `_limitations.qmd`/`challenges/README.md` FINDING as
