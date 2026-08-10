@@ -1,0 +1,9 @@
+Table 5-5 is a reference catalog of wood species properties (density and hardness under dry and wet conditions) used as input parameters to Equations 5-1 and 5-2. The source document (UFC 4-023-07, Section 5-3.4.2.1.1, source.pdf p.41 marked "5-10") states no explicit mathematical closure criterion, but physical principles apply:
+
+**Closure Invariants:**
+
+1. **Density (lbs/ft³):** wet ≥ dry for every species. Physical basis: water absorption increases mass; saturated wood is denser than dry wood.
+
+2. **Hardness (pounds):** wet ≤ dry for every hardwood (Maple, Green Oak, Hickory). Physical basis: water plasticizes wood, reducing hardness when saturated. This check applies conservatively to the hardwood species; softwoods (Pine, Balsa, Fir plywood) and engineered species (Marine plywood) are not assumed to follow this pattern.
+
+Verification basis: Direct transcription from source.pdf, verified against page image (page 40, marked "5-10"). Closure checks validated by @librarian 2026-08-09.

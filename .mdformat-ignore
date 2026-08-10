@@ -8,3 +8,8 @@
 # tasks.md/design.md and in archived specs/ snapshots under changes/archive/.
 experiment/**/updates/**/*.md
 openspec/**/*.md
+
+# Raw OCR extraction whose garbled scan noise trips mdformat's own round-trip
+# check ("Formatted Markdown renders to different HTML than input Markdown" --
+# a bug in mdformat/its plugins, not a real formatting issue in the file).
+doc-reference/fragmentation/kennedy1970-gurney-energy/source.md

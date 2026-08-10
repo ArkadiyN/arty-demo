@@ -28,3 +28,4 @@
 - [Fixed-geometry sweep is drag-degenerate](fixed_geometry_sweep_drag_degenerate.md) — a sweep that doesn't vary R, plus a fitted threshold, has exactly zero power to calibrate drag; check before accepting any calibration anchor
 - [Gold 2017 eq(17) N0 typo](gold_2017_eq17_N0_typo.md) — eq(17) N0=m/mu contradicts the paper's own line 54/eq(1) N0=M/2mu; follow the factor-of-2 form
 - [tolch-1938.md not a citable surface](tolch_md_not_citable_surface.md) — its own card.md bans citing it without a tables/*.csv; check for CSV backing before trusting an inline closure alone
+- [Header-only CSV fix double-swap](header_only_csv_fix_double_swap.md) — a column-swap fix that only renames headers leaves any reader with a manual compensating reversal double-swapped; grep all consumers

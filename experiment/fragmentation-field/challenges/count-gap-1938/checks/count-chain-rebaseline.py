@@ -82,12 +82,20 @@ print(f"M_case = {M_case*1e3:.1f} g   V0 = {V0:.1f} m/s   C_D*C_shape = {drag.C_
 print(f"mu = {mu*1e3:.3f} g   2mu = {2*mu*1e3:.3f} g   N0 = {N0:.0f}")
 
 # ------------------------------- (D) threshold rows, old vs re-baselined denom
+# NOTE on admissibility: only the 126 J row is a criterion-matched sourced
+# perforation threshold (Tolch's own smallest perforating hole, same experiment
+# the model is scored against). The 78.6 J = 58 ft-lb figure is the Ordnance
+# Dept. 1944 *personnel-casualty (incapacitation)* criterion — a different
+# failure mechanism, never stated for wood — so its row is printed as a
+# plausibility probe only and must NOT be cited as a sourced perforation
+# threshold. See ../../../updates/sourced-wood-perforation-threshold/
+# review-criterion-check.md.
 print("\n=== (D) E_thr rows: N vs 700 perforating and vs re-baselined 779 ===")
 E_rows = [
     (1.9, "fitted lo"),
     (3.6, "fitted hi"),
-    (78.6, "1944 Ordnance card casualty, 58 ft-lb"),
-    (126.0, "Tolch hole-size bound"),
+    (78.6, "1944 Ordnance casualty criterion, 58 ft-lb - NOT a perforation thr"),
+    (126.0, "Tolch hole-size bound (criterion-matched sourced threshold)"),
     (294.5, "pre-anchor fitted"),
 ]
 for E_thr, label in E_rows:

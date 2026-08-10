@@ -52,16 +52,39 @@ pit-recovered count is **779, not 803** — every $N/803$ figure in
 7.40 g, not 6.85 g. That re-baseline on its own flipped no PASS/FAIL row.
 (2) **Re-closed against shipped code after 6c1faff / `50b734e`, and that
 does flip rows.** With $M_\text{case}$ = 4980 g, $V_0$ = 864.4 m/s,
-$N_0$ = 3016, the two *sourced*-threshold rows move from outside §4's 2× PASS
-band (2.2–2.5×) to at or inside it: 126 J gives $N/779$ = 1.73 / $N/700$ =
-1.92, and 78.6 J gives 2.00 / 2.23. **The count arm of the PASS test is now
+$N_0$ = 3016, the *sourced*-threshold row moves from outside §4's 2× PASS
+band (2.2–2.5×) to inside it: 126 J — Tolch's own smallest-perforating-hole
+bound, the only criterion-matched sourced probe — gives $N/779$ = 1.73 /
+$N/700$ = 1.92. **The count arm of the PASS test is now
 met or marginal, not failed**, so §4's published "FAIL — count chain
 implicated, proceed to C2" is no longer supported and an aggressive C2 would
-over-correct. The falloff-ratio arm (A→D within 0.10 of 0.557) is still
+over-correct. (A second probe, 78.6 J = 58 ft-lb, was previously reported
+alongside 126 J as a sourced-threshold row at 2.00 / 2.23. It is the Ordnance
+Dept. 1944 personnel-casualty **incapacitation** criterion — not a
+wood-perforation threshold — so it is criterion-mismatched for this arm and is
+no longer counted as sourced:
+`updates/sourced-wood-perforation-threshold/review-criterion-check.md`. It was
+the weaker of the two rows; dropping it does not move the verdict.) The
+falloff-ratio arm (A→D within 0.10 of 0.557) is still
 unmet and still tied to the fitted $E_{thr}$, so the test stays compound and
 C1 stays the gating item — now as *confirmation* of a provisional PASS rather
-than a rescue of a FAIL. Live text: `count-gap-1938/count-chain.md` §4
-"Verdict framing"; `rebaseline-verdict.md` §2–§3 are superseded and marked so.
+than a rescue of a FAIL.
+**(3) C1 is now discharged, and it flips the count arm back to FAIL
+(2026-08-10).** A sourced *mass-dependent* threshold exists — plug shear-out,
+$E_{thr}(m)=\tfrac12\tau\pi D(m)t^2$, $\tau$ = 8.96 MPa from Sanborn 2019
+(ASTM D143), shipped as `arty.perforation.perforation_threshold_energy`
+(`updates/sourced-wood-perforation-threshold/derivation.md` §7.3). Nothing in
+it is fitted to Tolch. On it the chain gives $N/779$ = **2.47** / $N/700$ =
+**2.75** (§7.4 Check 4, direction pre-registered; script
+`count-gap-1938/checks/count-chain-plug-shear.py`) — **outside** the 2× band,
+where the 126 J scalar row was inside at 1.73 / 1.92. The $\eta$ = ½ band
+spans 2.32–2.65 on /779; only the $\eta$ = 1 rigid geometric bound
+(1.82–1.98) lands inside, and $\eta$ is not free to be tuned. So the
+"provisional PASS" reading in (2) does not survive: the residual is larger
+than the 126 J row implied, and it relocates to $f$ / Mott $\mu$ / the
+recovery census. Live text: `count-gap-1938/count-chain.md` §2 "The
+criterion-correct row" and the banner over §4 "Verdict framing";
+`rebaseline-verdict.md` §2–§3 are superseded and marked so.
 One inference is **void**: §2's "the residual is in the perforating
 fraction, *not the population*" — a threshold-free cumulative-spectrum test
 finds the model over-counting **1.78–2.24×** (Tolch-metal basis, current

@@ -127,46 +127,66 @@ fragment measured by icosahedron gage, whereas 0.90 sat below even the sphere.
 ([`derivation.md`](updates/mach-dependent-fragment-drag/derivation.md) §7), not
 re-opened here:
 
-- **L1 — Tolch's absolute perforating count still over-predicts ~4–6×, and this
-    is not attributed to drag.** Tolch (1938) is a *compound* test (drag × Mott
-    spectrum × a fitted energy threshold × a perforate/not model), so its
-    residual is not attributable to the retardation law; the Ordnance velocity
-    anchor, which exercises retardation alone, is followed instead. Do not
-    re-litigate this by re-fitting drag — the discriminating test is an
-    independent (THOR-type) perforation model.
-    **Addendum to L1, corrected — the "Mott stage exonerated" inference was
-    void; the residual is partly in the population after all.** A scoping
-    pass (`challenges/count-gap-1938/count-chain.md`) decomposed the 4–6×
-    algebraically and originally concluded "the residual is in the
-    perforating *fraction*, not the population" — that inference is
-    **withdrawn**
-    ([`count-gap-1938/rebaseline-verdict.md`](challenges/count-gap-1938/rebaseline-verdict.md)):
-    a threshold-free test matching cumulative *mass fraction* instead of
-    imposing a mass cut removes the fitted threshold, the drag chain, and the
-    spray geometry from the comparison entirely, and the model still
-    over-counts by 1.2–2.7×. The residual is **predominantly** in the
-    perforating fraction (~2.1× of the ~3.9× at the fitted threshold), but
-    ~1.2–2.7× of it is a genuine fragment-*spectrum* term that survives with
-    the threshold removed — so the gross fragment population is partly the
-    defect, not exonerated from it. ($N_0=3016$ for 75mm M48 — the currently
-    shipped value after the M48 fuze/case-mass correction
-    ($M_{case}=4980.0$ g, $V_0=864.4$ m/s, $\mu=0.826$ g; earlier revisions of
-    this paragraph read 3597, then 3627 on the pre-fix case mass) — still falls
-    *between* Tolch's own two totals: 5000 issued, **779** pit-recovered
-    (corrected from a published 803 — see `rebaseline-verdict.md`); that
-    bracketing argument survives the restatement even though the exoneration
-    drawn from it does not.) The model's fitted $E_{thr}$ (1.9–3.6 J) still declares
-    81–85% of fragments perforating where Tolch measures 14% (700/5000); at
-    Tolch's own sourced hole-size bound (126 J) the fitted-threshold
-    component of the residual drops to ~1.7–2.1×. Ranking is otherwise
-    unchanged — C1 (the fitted threshold itself, the only unbounded term)
-    needs a perforation model `src/arty/` does not have (THOR-type, or a
-    sourced softwood ballistic limit); C2 (`mott_params` evaluates $x_0$ at
-    the terminal Gurney $V_0$ rather than the case's actual break-up-radius
-    velocity, 1.2–2×, right direction) cannot be fully separated from the
-    genuine spectrum term without C1. Both remain deferred — a perforation
-    model and a Mott-spectrum recalibration are future scope, not this
-    pass's.
+- **L1 — Tolch's absolute perforating count: on a sourced, mass-dependent
+    perforation threshold the count arm FAILS at ~2.5×; the falloff-ratio arm is
+    still compound.** Tolch (1938) is
+    a *compound* test (drag × Mott spectrum × a fitted energy threshold × a
+    perforate/not model). A scoping pass
+    ([`challenges/count-gap-1938/count-chain.md`](challenges/count-gap-1938/count-chain.md)
+    §4) originally published a "FAIL — count chain implicated" verdict at
+    ~4–6× over-prediction, then a threshold-free re-test found a residual
+    1.2–2.7× band once the fitted threshold, drag chain, and spray geometry
+    were removed from the comparison. **Both headline numbers are now stale.**
+    Re-closing the same test against the currently shipped model
+    (`fragmentation.py`, post-6c1faff's $\gamma'$ re-anchor/$V_0$ fix and
+    `50b734e`'s sourced $M_\text{case}$) moved the count arm of the PASS
+    criterion *into* the 2× band: at the one admissible sourced (non-fitted)
+    energy threshold — 126 J, Tolch's own smallest-perforating-hole bound, the
+    only probe measuring the same quantity the model computes — the model
+    predicts $N/779$ = 1.73 and $N/700$ = 1.92 — **met or marginal, not
+    failed**. (A second probe, 78.6 J = 58 ft-lb, was previously reported
+    alongside it; it is *not* a wood-perforation threshold but the Ordnance
+    Dept. 1944 personnel-casualty **incapacitation** criterion, so it is
+    criterion-mismatched for this arm and is no longer counted as a sourced
+    threshold — see
+    [`updates/sourced-wood-perforation-threshold/review-criterion-check.md`](updates/sourced-wood-perforation-threshold/review-criterion-check.md).
+    Dropping it removes the *weaker* of the two rows and does not move the
+    verdict.) The 4–6× headline is stale as a
+    description of the shipped model at a sourced threshold; at the *fitted*
+    threshold it is now 3.2–3.7×, essentially all of it the threshold fit. What
+    is **not** met is the PASS criterion's other arm — the A→D falloff ratio
+    within 0.10 of 0.557 — which is still tied to the fitted $E_{thr}$ and
+    therefore still compound. C1 (a sourced perforation threshold — the only
+    unbounded term; needs a perforation model `src/arty/` does not have,
+    THOR-type or a sourced softwood ballistic limit) remains the gating item,
+    now as *confirmation* of a provisional PASS rather than a rescue of a FAIL.
+    Do not re-litigate this by re-fitting drag — the discriminating test for
+    C1 is an independent (THOR-type) perforation model; this re-framing is a
+    consequence of shipped physics changes, not a new argument in the thread
+    (`count-chain.md` §4, "Verdict framing after the 2026-08-08 re-closure").
+    **Update 2026-08-10 — C1 is discharged, and it turns the count arm back to
+    FAIL.** A sourced, mass-*dependent* wood-perforation threshold now exists:
+    plug shear-out, $E_{thr}(m) = \tfrac12\tau\pi D(m)t^2$ with $\tau$ = 8.96 MPa
+    (Sanborn 2019 ASTM D143 coupon) and $t$ = Tolch's 1″ panel, shipped as
+    `arty.perforation.perforation_threshold_energy`
+    ([`updates/sourced-wood-perforation-threshold/derivation.md`](updates/sourced-wood-perforation-threshold/derivation.md)
+    §7.3). Nothing in it is fitted to Tolch. Re-running the same count chain
+    through it (§7.4 Check 4, direction pre-registered before the run) gives
+    $N/779$ = **2.47** and $N/700$ = **2.75** at central parameters — **outside**
+    the 2× PASS band on both denominators, where the 126 J scalar row sat inside
+    it at 1.73 / 1.92. The whole $\tau$-uncertainty band at $\eta$ = ½ is outside
+    (2.32–2.65 on /779); only the $\eta$ = 1 rigid geometric bound (1.82–1.98)
+    falls inside, and $\eta$ is geometry, not a free parameter, so it is not
+    moved to buy the pass. The 126 J row's near-pass was partly a scalar
+    threshold over-charging the light end of the spectrum; with a
+    mechanism-correct criterion the perforating-fraction residual is **larger**,
+    not smaller, and the remaining candidates are the velocity fraction $f$, the
+    Mott $\mu$, or the recovery census itself. This does not indict the new
+    threshold — its independent-regime, monotonicity and order-of-magnitude
+    checks all pass and it is only ±27 % sensitive to $\tau$.
+
+    FINDING\[deferrable\]: "essentially all of it the threshold fit" quotes count-chain.md's Verdict-framing note verbatim, but is in tension with that same document's own top banner, which decomposes the 3.2-3.7x fitted-threshold total into a threshold-fit artefact (~1.65-2.05x) and a comparable genuine spectrum residual (~1.7-2.0x, matching the sourced-threshold figures stated two sentences earlier) - "essentially all" overstates the threshold-fit's share (affects: experiment/fragmentation-field/_limitations.qmd, experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-09)
+    FINDING\[note\]: the "carried from that update's own limitations (derivation.md §7), not re-opened here" intro is technically inaccurate for L1, which was substantially reworked relative to derivation.md §7 and no longer matches it - harmless since L1's own body cites count-chain.md §4, flagged for wording only (affects: experiment/fragmentation-field/_limitations.qmd; since: 2026-08-09)
 - **L2 — arrival-Mach < 0.7 velocities remain unclosed by any admissible drag
     law.** At the longest 75 mm/155 mm stations the *required* combined constant
     falls to 1.76–2.07 (implied C_D below the subsonic plateau of 1.08), and even

@@ -1703,3 +1703,257 @@ carried forward as logged limitations rather than blocking defects.
 ## Suggested corrections (not applied) — this pass
 
 None. I1 is fully resolved; no further action needed on this thread.
+
+---
+---
+
+### Re-review — 2026-08-09 (criterion-match adjudication: static-YS sources vs. shipped `sigma_f = 800 MPa`)
+
+**Reviewer:** model-reviewer agent
+**Scope:** narrow, dispatched question — does newly-carded primary-source data
+(`doc-reference/ww2-shells/ordnance-ammunition-drawings-book-4/card.md`)
+change the disposition of the open deferred finding marker at
+`doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md:145`
+("AMCP 706-249 §6-14 states 60,000–80,000 psi... shipped `sigma_f = 800 MPa`
+has never been compared against it")? Not a re-derivation of the γ-anchor or
+any of F1–I4 above; those are unaffected and out of scope here. No `src/`
+recompute needed — this is a provenance/criterion-match question, answered by
+reading the two cards and `derivation.md` §3/A4/A6/A8 and
+`_limitations.qmd` §13 against each other.
+
+**Verification method:** read both card.md's headline sections in full
+(`ammunition-series-6-wdss-specs/card.md` §6-14 prose and its "What consumes
+this document" section; `ordnance-ammunition-drawings-book-4/card.md`'s
+headline finding table and its own closing paragraph, which already reaches a
+disposition on this exact question); read `derivation.md` §3 and assumptions
+A4/A6/A8 and `_limitations.qmd` §13 in full; cross-checked the shipped
+`STEELS` dict (`src/arty/fragmentation.py:74–104`) to confirm which grades
+actually carry `sigma_f = 800e6` and that `gamma` for both entries is sourced
+independently of any yield-strength figure (Mott 1947 composition table only)
+— i.e. that a change in the sigma_f/static-YS relationship could not
+silently be masked by gamma already absorbing it.
+
+## Verdict: **PASS-with-limitations** — finding is **closeable**, marker deleted
+
+The new Book 4 data does not, and cannot, validate or refute
+`sigma_f = 800 MPa` by direct comparison — it is the wrong criterion, and both
+cards already say so explicitly (the Book 4 card's own closing paragraph
+reaches this same disposition and correctly declines to open a new finding).
+But the *substance* of the deferred finding — "has never been compared" — is
+no longer true: the comparison has now been made, twice, by two independent
+primary sources, and the answer is a reasoned "not directly comparable, and
+here is why, and here is what it does support." That is a real closure, not a
+non-answer, so the marker comes down. Two follow-up documentation edits (not
+applied by me — flagged for @modeler) should carry the reasoning into
+`_limitations.qmd` and `derivation.md`.
+
+---
+
+## Findings
+
+### J1 — Static tensile-test yield strength and Mott's `sigma_f` are different criteria; AMCP §6-14 and Book 4 both confirm this without contradicting the shipped convention (Deferrable → closes the open marker)
+
+**Criterion mismatch, confirmed independently.** `derivation.md` §3 already
+states the governing distinction: "$\sigma_F$ in (1) is a dynamic flow stress
+at ε̇ ~ 10⁴ s⁻¹," whereas every figure in both new sources is a static/
+quasi-static tensile-test **minimum** — AMCP 706-249 §6-14's 60,000–80,000 psi
+and Book 4's per-drawing 65,000 psi / 35,000 psi are all "MINIMUM PHYSICAL
+PROPERTIES" from acceptance-test specifications (spec 57-104-2, spec 50-37-1),
+not values measured under explosive-loading strain rates. This is not a new
+determination I am making from scratch — it is standard fragmentation-model
+practice (a static/quasi-static test and a ~10⁴ s⁻¹ dynamic fracture event are
+different loading regimes for any structural steel, with well-documented
+strain-rate hardening between them) and it is the same distinction
+`derivation.md` §3 already draws for Mott's own quasi-static UTS/YS columns
+(530–805 MPa). A table of static minimums, however well-sourced, cannot serve
+as a pass/fail criterion for a dynamic fracture-stress convention — scoring
+`sigma_f = 800 MPa` against 65,000 psi as if they were the same measurement
+would be exactly the criterion-match error this review's mandate exists to
+catch, just running in the opposite direction (rejecting a source instead of
+wrongly accepting one).
+
+**What the comparison *does* establish, now that it has actually been made:**
+
+- **AMCP §6-14's own text excludes WDSS 1/2 from the 60–80 ksi figure.**
+    §6-14, read directly: *"in which the yield strengths vary from 60,000 psi
+    to 80,000 psi"* — "this applies to the 'other grades' — WDSS 3, 5, 6, 7 —
+    ... not to WDSS 1/2." WDSS-1 is the grade actually catalogued in
+    `src/arty/fragmentation.py` under `"US WW2 WDSS1"`; the 60–80 ksi range was
+    never applicable to it in the first place, independent of the
+    static-vs-dynamic question. This was already correctly recorded in the
+    `ammunition-series-6-wdss-specs/card.md` prose itself (§6-14 excerpt); the
+    deferred marker's framing ("states yield strengths... for
+    artillery-caliber shell steels") is accurate to the source but the marker
+    text did not carry the WDSS-1-exclusion caveat forward — worth noting in
+    the follow-up edit.
+- **Book 4 gives a caliber-matched, higher-confidence static baseline for the
+    grade that *does* carry `sigma_f = 800 MPa`.** `STEELS["WW2 US HE Shell"]`
+    is the entry actually wired to the 105 mm M1, 155 mm M107, and 75 mm M48
+    HE shells (`src/arty/shells.py`, confirmed by the Book 4 card's own closing
+    paragraph). Book 4's primary forging drawings (pages 5/6, 9, 73 — not the
+    handbook prose AMCP 706-249 is) independently confirm **65,000 psi min
+    yield / 15 % elongation / 30 % reduction of area** for all three of those
+    calibers, tied to spec 57-104-2, on four separately-drawn pages. This is a
+    materially stronger source than the handbook range it corroborates (a
+    primary acceptance-test drawing vs. a secondary handbook's summary prose),
+    and it lands inside AMCP's 60–80 ksi band, consistent rather than
+    conflicting.
+- **Book 4 also gives 35,000 psi for the 81 mm mortar forging** (spec
+    50-37-1, drawing 75-20-72) — structurally analogous to, but not the same
+    drawing as, WDSS-1's actual application (60 mm M49A2). The card is careful
+    to flag this as inference-by-caliber-class, not a direct read for WDSS-1
+    itself, and I confirm that framing is accurate — no drawing in this book
+    names a WDSS grade against a mortar-caliber physical-properties block.
+
+**A concrete, bounded plausibility observation (not a validation).** Because
+`sigma_f = 800 MPa` (≈116,000 psi) is shared as a convention across both
+catalogued grades (§3, A4), the two new static anchors give two different
+implied dynamic/static ratios: ≈1.8× against the gun-shell-grade 65,000 psi
+figure (the grade that actually carries this `sigma_f`), and ≈3.3× against the
+mortar-adjacent 35,000 psi figure (the caliber class WDSS-1 is used in, though
+not WDSS-1's own drawing). A ≈1.8×–3.3× dynamic-increase spread for
+mild/structural steel between quasi-static and ε̇~10⁴ s⁻¹ loading is not
+implausible on general strain-rate-hardening grounds (this is the same
+qualitative point the shipped code comment already makes: "800 MPa is the low
+end of the 800–1000 MPa dynamic flow-stress range... quasi-static ~600 MPa,"
+an implied ≈1.3× the code already assumed with no citation at all). I am
+**not** treating this ratio as a validated literature bound — I have not
+located a citable steel dynamic-increase-factor source in `doc-reference/`,
+and asserting "1.8–3.3× is within literature bounds" without one would repeat
+exactly the kind of uncited quantitative claim this project's own source-data
+rules exist to prevent. Flagged below as a concrete `@librarian` task rather
+than something to write into `_limitations.qmd` as settled.
+
+**Impact on any computed number: zero.** `gamma` for both catalogued grades
+is sourced independently from Mott's composition-vs-γ table (1947, §3), not
+from any yield-strength figure (confirmed by re-reading the `STEELS` dict
+comments, `fragmentation.py:60–98` — no static-YS number appears anywhere in
+either grade's provenance chain for `gamma`). `sigma_f` is degenerate with
+`gamma` through the observable ratio `R = sigma_f/gamma` (§1, C2 — bit-exact
+identifiability, already verified in F9/F18/H1 above), so nothing in this
+finding proposes or implies a numeric change to either `sigma_f` or `gamma`.
+This closes the marker as "compared and found not directly comparable," not
+as "compared and confirmed correct."
+
+**Why this is the right disposition, not a wider Blocking finding:** the
+premise a Blocking finding would need — a shipped number shown wrong, or a
+qualitative trend reversed — is absent. `derivation.md` §3/A4 already
+correctly hedges `sigma_f = 800 MPa` as "a convention, not a claim," and
+already states the exact caveat (σ_F should vary with composition, shared
+value overstates the γ-only contrast) that the new data now gives a concrete
+number for. Nothing here overturns that hedge; it corroborates it.
+
+**Bonus corroboration, out of this finding's direct scope but worth
+recording:** the prior review's F1 (line 34 above, this file) flagged an
+ambiguity in a *parent-supplied* static min-YS pair (65 ksi baseline / 35 ksi
+"WD55") over which carbon-ranking reading (ordinary vs. inverted) it
+supported, and judged the "ordinary correlation" reading (baseline =
+higher-carbon, higher-YS) more plausible without a primary source to confirm
+it. The Book 4 figures now independently reproduce that exact pair from
+primary drawings — 65,000 psi for the gun-shell-caliber grade that maps to
+the higher-carbon baseline entry, 35,000 psi for the mortar-caliber class
+WDSS-1 belongs to — which is the **ordinary-correlation** reading F1 favored,
+not the inverted one. This does not newly close gap G2/A8 (the baseline's
+`WD-X1335 ≈ AISI 1335` composition identification is still an unconfirmed
+name-based inference, per F5/A8, and Book 4 does not bear on that specific
+question), but it is one more independent data point pointing the same
+direction as the shipped `gamma` ordering, for whichever future pass revisits
+F1/G2.
+
+**Required follow-up (not applied — flag for a documentation pass, either
+@modeler or a direct doc edit; no `src/arty/` change implied):**
+
+1. `_limitations.qmd` §13's "Mechanical properties are unsourced for both
+     grades (A6)" bullet is now partly stale: mechanical properties **are**
+     sourced (Book 4, primary drawings) for the calibers that draw on
+     `STEELS["WW2 US HE Shell"]` (105 mm M1/M60, 155 mm M107, 75 mm M48 — all
+     65,000 psi min YS) and, by caliber-class analogy, for WDSS-1's
+     application class (81 mm mortar, 35,000 psi). Reword from "unsourced" to
+     something like: *"Static tensile-test yield-strength minimums are now
+     sourced for both caliber classes (AMCP 706-249 §6-14; Book 4 primary
+     forging drawings, `doc-reference/ww2-shells/ordnance-ammunition-drawings-book-4/card.md`)
+     — 65,000 psi for the gun-shell-caliber class, 35,000 psi for the
+     mortar-caliber class — but these are quasi-static acceptance-test
+     minimums, not the ε̇~10⁴ s⁻¹ dynamic fracture stress `sigma_f` represents
+     in Mott's closure (derivation.md §3), so they cannot directly validate or
+     refute the shared `sigma_f = 800 MPa` convention. They do sharpen A4's
+     existing qualitative caveat with a concrete number: the two caliber
+     classes differ by ≈1.86× in static yield, one more piece of evidence that
+     a single shared `sigma_f` across both catalogued grades likely overstates
+     the pure-γ-channel contrast."*
+2. `derivation.md` §3/A4: add a citation to both cards
+     (`ammunition-series-6-wdss-specs/card.md` §6-14, and
+     `ordnance-ammunition-drawings-book-4/card.md`'s headline table) alongside
+     the existing Mott-quasi-static-UTS citation, with the same
+     static-vs-dynamic caveat spelled out above. Do not change `sigma_f` or
+     `gamma` — nothing here supports a specific replacement value, only a
+     tighter-worded convention.
+3. (Low priority, @librarian) A citable steel dynamic-increase-factor source
+     for structural/mild steel at ε̇~10³–10⁵ s⁻¹ would let a future pass turn
+     the ≈1.8×/3.3× plausibility observation above into an actual bound check
+     instead of an unsourced aside. Not required to close this finding — the
+     criterion-mismatch conclusion holds regardless of whether such a source
+     is ever found.
+4. (Cosmetic) `fragmentation.py:393–395`'s comment on the baseline entry
+     currently reads "min YS 65 ksi, 15 % elong... is carried over uncited...
+     and is NOT supplied by the AISI 1335 card or any other source in
+     `doc-reference/`... nothing here depends on it." That figure is now
+     independently confirmed, almost digit-for-digit (65,000 psi / 15 %
+     elongation), by Book 4's 105 mm M60 and 155 mm M107 drawings — coincidence
+     or genuine institutional memory, either way the comment's "not supplied
+     by... any source" clause is now false and should be updated to cite Book 4,
+     even though (as the comment correctly notes) nothing in the physics
+     depends on this figure.
+
+**Action taken this pass:** deleted the deferred finding marker at
+`doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md:145` per
+`.claude/rules/deferred-findings.md` ("close a finding by deleting its
+marker"). The `[note]` marker on the same card (grade misdating, "US WW2
+WDSS1" vs. WDSS being post-war) is a separate, unrelated finding and was left
+untouched.
+
+---
+
+## Checklist pass-through (this pass)
+
+- **Criterion match:** this pass's entire subject. Verdict: static YS and
+    dynamic `sigma_f` are different criteria; neither AMCP 706-249 nor Book 4
+    can serve as a pass/fail check against the shipped 800 MPa value, and both
+    source cards already say so. No table was scored against the wrong
+    tabulated criterion — the opposite risk (scoring against a criterion that
+    looks related but isn't) was the one live here, and it was avoided rather
+    than committed.
+- **Provenance:** Book 4's own card is transparent about its extraction
+    history (automated vision pass failed, hand-re-transcribed from rasters,
+    closure via cross-page consistency across four independently-drawn
+    calibers landing on the same 65,000 psi / spec 57-104-2 pair) — read in
+    full, not spot-checked; no reason to distrust the headline table. AMCP
+    706-249 §6-14's WDSS-1-exclusion clause was verified by reading the card's
+    own quoted prose, not inferred.
+- **Interpretive claims:** the Book 4 card's closing paragraph on this exact
+    question ("still a criterion-match question for @model-reviewer... no new
+    finding is opened here") is correctly kept as a referral, not a
+    recommendation — it does not overstep into `card.md`-as-modelling-claim
+    territory; it names the question and routes it here, which is exactly
+    what `.claude/rules/source-data-fidelity.md`'s card-provenance section
+    asks for.
+- **Layering:** N/A — no `.qmd`/`src/` edits proposed or made; this pass only
+    deletes a finding marker in `doc-reference/`.
+- **Limitations/constraints:** the follow-up edits above (J1, items 1–2) are
+    what should land in `_limitations.qmd`/`derivation.md`; not applied by
+    this pass per the dispatch brief's explicit instruction.
+
+---
+
+## Suggested corrections (not applied) — this pass
+
+1. Reword `_limitations.qmd` §13's A6 bullet per J1 item 1.
+2. Add the AMCP 706-249 / Book 4 citations and static-vs-dynamic caveat to
+     `derivation.md` §3/A4 per J1 item 2.
+3. (Optional, @librarian) source a citable steel dynamic-increase-factor
+     reference per J1 item 3.
+4. (Cosmetic) update `fragmentation.py:393–395`'s "not supplied by... any
+     source" clause per J1 item 4.
+
+None of the above changes any shipped `sigma_f`, `gamma`, or derived
+fragmentation number.

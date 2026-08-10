@@ -140,9 +140,14 @@ Two things the page says that a consumer of that entry should read:
     grades. Whether that bears on the shipped `sigma_f = 800 MPa` (116,000 psi)
     is a criterion-match question — a static yield range and a dynamic fracture
     stress are not the same quantity — and is @model-reviewer's call, not this
-    card's.
-
-FINDING\[deferrable\]: AMCP 706-249 §6-14 states yield strengths of 60,000-80,000 psi for artillery-caliber shell steels; `_limitations.qmd` §13 (A6) and prior cards asserted the source gives none, so shipped `sigma_f = 800 MPa` has never been compared against it (affects: experiment/fragmentation-field/\_limitations.qmd, src/arty/fragmentation.py, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md; since: 2026-08-02)
+    card's. This comparison has since been made explicitly by @model-reviewer
+    (`experiment/fragmentation-field/updates/wdss1-steel-grade/review.md`,
+    finding J1, 2026-08-09): static yield and dynamic `sigma_f` are different
+    criteria, so neither this range nor Book 4's 65,000/35,000 psi figures can
+    validate or refute the shipped 800 MPa convention directly — but the
+    comparison itself is no longer outstanding, which is what the finding
+    below tracked. Closed; see J1 for the full reasoning and the follow-up
+    documentation edits it flags for `_limitations.qmd`/`derivation.md`.
 
 FINDING\[note\]: `src/arty/fragmentation.py` names the grade `US WW2 WDSS1`, but AMCP 706-249 dates table 6-1 to 17 Feb 1953 and titles §6-11/§6-13 "Steel Used Early in World War II" (X-1340) / "Steels Used After World War II" - WDSS is post-war, so the identifier misdates the grade (affects: src/arty/fragmentation.py, experiment/fragmentation-field/\_parameters.qmd, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md; since: 2026-08-02)
 
