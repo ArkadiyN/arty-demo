@@ -34,8 +34,12 @@ A_SOUND = 340.3
 K_DOD = 2600.0
 CD_PLATEAU = 1.28
 
-# V0 [ft/s] as used by every prior script in this thread.  NOTE: not present in
-# the processed Ordnance source; carried over unverified (see verdict, Note V0).
+# V0 [ft/s] as used by every prior script in this thread. NOTE: the literal
+# figures appear verbatim as "INITIAL FRAGMENT VELOCITY 3,120/3,500 F/S" table
+# headers in six doc-reference/.../tables/*.invariant anchors -- but whether
+# that table-caption occurrence constitutes *provenance* for V0_FTS as used
+# here (a stated derivation, not just a repeated caption) is an open question;
+# see verdict, Note V0 / OPEN-FINDINGS.md.
 V0_FTS = {"75mm M48 HE": 3120.0, "105mm M1 HE": 3500.0, "155mm M107 HE": 3500.0}
 CSVS = {
     "75mm M48 HE": "75mm-m48",

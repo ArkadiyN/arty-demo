@@ -2475,7 +2475,10 @@ anchors that replace them are now tabulated on the card.
 
 FINDING\[note\]: Gold 2017 eq. (17) (N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a factor of 2; src/arty follows eq. (1), which is the self-consistent reading since mu is defined as HALF the average fragment mass, and a future pass that "corrects" the code toward eq. (17) would double every fragment count with a citation to back it (affects: src/arty/fragmentation.py, src/arty/zones.py, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
 
-FINDING\[note\]: the closure that admits Gold 2017 is algebraic, not tabular — the committed .md's equations are vision-reconstructed LaTeX and the raw text layer encodes the minus as a non-printable char it also uses for hyphens, so neither surface settles eq. (6)'s alpha^(-2/3) and only substituting eq. (2) into eq. (4) fixes the sign; .claude/rules/source-data-fidelity.md lists four forms of closure invariant and none of them covers "an equation the source states is a substitution of two others", which is worth adding in Phase 8 (affects: .claude/rules/source-data-fidelity.md, experiment/fragmentation-field/challenges/source-data-audit/ledger.md; since: 2026-08-03)
+**Closed 2026-08-10.** `.claude/rules/source-data-fidelity.md` now lists a
+fifth closure-invariant form, "A stated equation is the substitution its
+source says it is," with the caveat that it is algebra rather than mechanical
+comparison — covering exactly this case.
 
 FINDING\[deferrable\]: scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that (affects: src/utils/scan-extraction-quality.py, .claude/rules/source-data-fidelity.md, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
 

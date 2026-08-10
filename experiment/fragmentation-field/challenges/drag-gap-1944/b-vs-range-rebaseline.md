@@ -2,7 +2,10 @@
 
 **Context.** `b-vs-range-75mm.py`, `-105mm.py`, `-155mm.py` and their write-up
 (`b-vs-range.md`, `b-vs-range.qmd`) hand-typed a `CARD_B` series per shell that
-each script's own docstring labels "Table 43/51/59 CASUALTIES." Comparing those
+each script's own docstring labels "Table 43/51/59 CASUALTIES" (the printed
+anchors are actually TABLE 38/48/56 — see the `.invariant` files under
+`doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables/`).
+Comparing those
 series against the now re-baselined, closure-checked CSVs in
 `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/tables/`
 shows every one of those hand-typed series is an **exact digit-for-digit match
@@ -16,7 +19,7 @@ the genuine casualties column from CSV
 (`checks/b-vs-range-rebaseline.py`, `uv run python experiment/fragmentation-field/challenges/drag-gap-1944/checks/b-vs-range-rebaseline.py`,
 runtime ~2.7 s) and classifies what the published verdict becomes.
 
-## 75mm M48 HE (Table 43 CASUALTIES, genuine)
+## 75mm M48 HE (TABLE 38 CASUALTIES, genuine)
 
 | r (ft) |   B_model | B_card (old, = perforation) | B_card (new, = casualties) | ratio (new) |
 | -----: | --------: | --------------------------: | -------------------------: | ----------: |
@@ -57,7 +60,7 @@ curve remain monotonically non-increasing (shape check unaffected).
 - Shape check (both curves monotonic non-increasing): **sound**, holds under
     either column.
 
-## 105mm M1 HE (Table 51 CASUALTIES, genuine)
+## 105mm M1 HE (TABLE 48 CASUALTIES, genuine)
 
 |  r (ft) |   B_model | B_card (old, = perforation) | B_card (new, = casualties) | ratio (new) |
 | ------: | --------: | --------------------------: | -------------------------: | ----------: |
@@ -87,7 +90,7 @@ under-predicting (not over-predicting) beyond ~250 ft.
 **Classification:** same as 75mm on every claim — headline over-prediction
 claim **void**, "ratio grows with range" **void**, shape check **sound**.
 
-## 155mm M107 HE (Table 59 CASUALTIES, genuine)
+## 155mm M107 HE (TABLE 56 CASUALTIES, genuine)
 
 |  r (ft) |   B_model | B_card (old, = perforation) | B_card (new, = casualties) | ratio (new) |
 | ------: | --------: | --------------------------: | -------------------------: | ----------: |

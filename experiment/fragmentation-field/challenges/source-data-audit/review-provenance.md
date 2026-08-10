@@ -619,7 +619,10 @@ the third digit; this concerns the derivation chain behind all four.
 
 The card leg was closed in `bab141a` — it now states the two figures are a geometric inference computed from the change in sidespray angle, not measured, with all three source anchors. The second surface still carries the defect:
 
-FINDING\[deferrable\]: challenges/drag-gap-1944/tolch-1938-panel-distance.md:134 calls the 838.2 m/s value "Tolch's own measured perforating-fragment velocity", but the source states three times (tolch-1938.md:146, :1658, :1698) that it was computed from the change in the sidespray angle with remaining velocity - it is a geometric inference off the burst-geometry axis and carries no drag or independent-Gurney content, so calling it measured is what makes it look like an independent check (affects: experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md; since: 2026-08-03)
+**Closed 2026-08-10.** `tolch-1938-panel-distance.md` no longer calls 838.2 m/s
+"measured" — it now says "Tolch's own value... a geometric inference from the
+change in sidespray angle with remaining velocity... not a measurement,"
+citing the three tolch-1938.md line anchors this finding named.
 
 ### 3g. What in the section does check out
 
