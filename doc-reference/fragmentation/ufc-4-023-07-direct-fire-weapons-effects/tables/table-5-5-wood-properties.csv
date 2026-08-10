@@ -1,0 +1,15 @@
+species,condition,hardness_pounds,density_lbs_per_ft3
+Pine,Dry,23.5,38.7
+Pine,Wet,30.0,51.1
+Maple,Dry,35.0,76.9
+Maple,Wet,40.0,72.0
+Green Oak,Dry,55.0,88.1
+Green Oak,Wet,55.0,72.1
+Marine plywood,Dry,37.0,68.7
+Marine plywood,Wet,37.0,58.8
+Balsa,Dry,6.0,21.0
+Balsa,Wet,6.0,61.5
+Fir plywood,Dry,30.0,75.0
+Fir plywood,Wet,30.0,68.9
+Hickory,Dry,50.0,74.3
+Hickory,Wet,55.0,63.5
