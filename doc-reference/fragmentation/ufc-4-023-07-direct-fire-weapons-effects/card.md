@@ -131,9 +131,11 @@ The document does **not** cite a specific historical test program, ballistic lab
 
 ______________________________________________________________________
 
-## Next Steps for Sanborn Comparison
+## Open Transfer Question
 
-The discrepancies identified above are **not resolvable from the Sanborn card alone** — the primary source (UFC 4-023-07 PDF page 41, marked "5-10") must be re-read to confirm whether the density and hardness exponents in Equation 5-1 are as Sanborn transcribed or as indicated by the incomplete text extraction. A re-extraction of source.pdf pages 40–41 using vision-based OCR (rather than embedded text layer) is recommended to resolve the equation form definitively before any recalibration work begins on the Sanborn model.
+The discrepancies identified above are **not resolvable from the Sanborn card alone**. The transfer question for whoever next relies on Equation 5-1's $\rho$ and $H$ exponents: does the UFC source's embedded text layer (partially garbled on source.pdf pages 40–41, marked "5-9"/"5-10") state exponents 1.0/0.5414, or does it match Sanborn's transcribed 0.5414/2.0? This is a criterion-match question for whoever next depends on this equation to resolve, not a call this card makes.
+
+FINDING\[blocking\]: UFC 4-023-07 Eq 5-1 rho/H exponents unresolved — embedded-text extraction disagrees with Sanborn 2019's transcription (1.0/0.5414 vs 0.5414/2.0) and neither has been confirmed against a vision-OCR re-read of source.pdf p.40-41 (affects: doc-reference/fragmentation/ufc-4-023-07-direct-fire-weapons-effects/card.md, experiment/fragmentation-field/updates/sourced-wood-perforation-threshold/; since: 2026-08-09)
 
 ______________________________________________________________________
 
@@ -151,4 +153,4 @@ ______________________________________________________________________
 **Card compiled:** 2026-08-09\
 **Extraction method:** Heuristic PDF text layer (equations and table partially garbled; source.pdf retained for re-extraction with vision OCR if needed)\
 **Quality check status:** Pending `scan-extraction-quality.py` run on full markdown output\
-**Critical action:** Resolve density and hardness exponents in Eq. 5-1 via direct PDF page inspection before finalizing Sanborn comparison.
+**Open finding:** blocking, logged above under "Open Transfer Question" — Eq. 5-1 density/hardness exponents unresolved.
