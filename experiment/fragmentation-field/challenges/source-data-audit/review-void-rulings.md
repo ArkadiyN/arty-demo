@@ -289,7 +289,7 @@ against the shipped `compute_shell_zones` output.
 
 The hedge was landed in `bab141a` — the card now says the third digit is unreadable on this surface and that 2,750 is not to be treated as an exact source value. What remains is the read that would actually resolve the digit:
 
-FINDING\[note\]: the four-digit perforating-fragment velocity renders as "27^0 f/s" at tolch-1938.md:146,1658,1698 with the third digit lost, and no surface in the repo resolves it - the card carries the hedge but the digit itself needs a read of the retained source.pdf at those three pages, which nobody has done (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md, doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md; since: 2026-08-03)
+Blocked 2026-08-10: source.pdf is missing from `doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/` (sha256 `13e110d70b1cb686771d6f2e36523d9c9201551d41c7b3b9eb27685d71f90c92` per card.md:75), preventing vision recovery of the garbled "27^0 f/s" digits at tolch-1938.md:146, 1658, 1698. Task cannot proceed without source re-fetch from DTIC AD0702233.
 
 ______________________________________________________________________
 
