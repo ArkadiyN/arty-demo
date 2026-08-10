@@ -13,7 +13,7 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
 
 - **SAND92-0243 is cited for a velocity-DEPENDENT C_D but states no functional form; its own analyses take "Drag coefficient = variable (Ref. 1)" and Ref. 1 is SAND91-0277, which is not held, so the dependence is cited but unsourced**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md`, `experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md`, `doc-reference/ww2-shells/sandia-sand92-0243/card.md`
-    - raised: 2026-08-02 (8d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2034`
+    - raised: 2026-08-02 (8d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2045`
 - **Gold 2017 attributes to "Mott (1943)" both a constant fragment breadth:length ratio and an average cross-sectional area proportional to (r/V)^2, and this derivation inherits the first as the premise that A = l/x is one constant across shells; the primary (Mott & Linfoot, A.C. 3348, now retained at doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/) states the opposite twice ("we have not been able to find a theory to account for the average length of the splinters", p.2; "our theory ... does not account for the length of splinters from shells, but only for their breadth", p.4) and where sect. 3 treats length it makes it independent of breadth, while the (r/V)^2 area scaling is Mott 1947's, not 1943's — only the parallelepiped attribution survives, so the 1.6 VALUE is fine (it is Felix 2022 Table 4, ledger sect. 16) but the structural premise is not primary-backed and the Phase-3 pass on this thread should say so rather than repeat Gold's citation**
     - affects: `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md`, `experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md`, `src/arty/fragmentation.py`, `doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/card.md`
     - raised: 2026-08-02 (8d) in `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md:37`
@@ -22,7 +22,7 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/mott-scale-gap/rebaseline-verdict.md:107`
 - **scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that**
     - affects: `src/utils/scan-extraction-quality.py`, `.claude/rules/source-data-fidelity.md`, `doc-reference/fragmentation/fragment-size-distribution-conwep/card.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2483`
+    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2494`
 - **count-chain (D) divides an energy-thresholded whole-shell count by a size-thresholded recovery census (m_thr=0.403 g sits below the finest screen bucket mean 0.61 g, census count-incomplete there) and by a perforation-thresholded panel count (700); quote the criterion-clean section (E) figure 2.15x instead of (D)'s 2.28x**
     - affects: `experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py`, `experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md`
     - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/review-criterion-match.md:337`
@@ -58,13 +58,13 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - raised: 2026-08-02 (8d) in `doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md:152`
 - **SAND92-0243's C_D is defined for tumbling plate/disk fragments and enters its range formula only as a product with the shape factor Re and thickness factor Sf, never alone; whether a bare C_D in src/arty measures the same quantity is an open criterion-match question for @model-reviewer**
     - affects: `src/arty/fragmentation.py`, `doc-reference/ww2-shells/sandia-sand92-0243/card.md`
-    - raised: 2026-08-02 (8d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2036`
+    - raised: 2026-08-02 (8d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2047`
 - **pk_given_hit interpolates ES-310's three anchors in log10(E), a scheme the source never states; at the one point the page works it gives 0.817 against a stated 0.8, where linear-in-E gives 0.767 — agreement on a single point, not a derivation**
     - affects: `src/arty/fragmentation.py`, `doc-reference/wound-ballistics/fas-es310-damage-criteria/card.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2272`
+    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2283`
 - **Gold 2017 eq. (17) (N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a factor of 2; src/arty follows eq. (1), which is the self-consistent reading since mu is defined as HALF the average fragment mass, and a future pass that "corrects" the code toward eq. (17) would double every fragment count with a citation to back it**
     - affects: `src/arty/fragmentation.py`, `src/arty/zones.py`, `doc-reference/fragmentation/fragment-size-distribution-conwep/card.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2476`
+    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2487`
 - **C11's Shock-B table headlines the per-band-refit row (0.199/0.052) whose Fig-3 scale varies 0.85-1.05 between bands; the zero-free-parameter perforation result (Fig-3 0.069 vs adopted constant 0.098) is a stronger and simpler void and should lead**
     - affects: `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/rebaseline-verdict.md`
     - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/review-void-rulings.md:84`

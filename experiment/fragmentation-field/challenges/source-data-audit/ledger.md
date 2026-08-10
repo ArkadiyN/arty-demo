@@ -1978,6 +1978,17 @@ the projectile drawing (§20c). Both were found the same way: by asking what the
 cited document *itself* says, rather than treating a card's summary as the
 source.
 
+**Acquisition search, 2026-08-10.** A @librarian pass checked OSTI, DTIC,
+Google Scholar, Google web search, ResearchGate, and sandia.gov for
+"SAND91-0277" / "Vigil ... Explosively Driven Missile Trajectory Parameters."
+The document is confirmed to exist (cited by SAND92-0243 and referenced on
+ResearchGate) but is not digitized/posted anywhere searched — it is not merely
+hard to find, it appears absent from every public archive. Reconstruction from
+SAND92-0243's own trajectory outputs (computed *with* Ref. 1's variable C_D)
+is the only avenue short of a direct request to Sandia. Re-running this same
+search is not expected to find it; a future pass on this finding should start
+from that reconstruction option instead.
+
 The asterisk in "a function of initial fragment velocity\*" has **no footnote
 text**. Checked against raw block order rather than reading-order extraction —
 a footnote lost to reading order would still appear as a block; the only block
