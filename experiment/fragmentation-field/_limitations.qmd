@@ -128,8 +128,8 @@ fragment measured by icosahedron gage, whereas 0.90 sat below even the sphere.
 re-opened here:
 
 - **L1 — Tolch's absolute perforating count: on a sourced, mass-dependent
-    perforation threshold the count arm FAILS at ~2.5×; the falloff-ratio arm is
-    still compound.** Tolch (1938) is
+    perforation threshold the count arm FAILS at ~2.3× (2.5× before the
+    break-up-velocity fix); the falloff-ratio arm is still compound.** Tolch (1938) is
     a *compound* test (drag × Mott spectrum × a fitted energy threshold × a
     perforate/not model). A scoping pass
     ([`challenges/count-gap-1938/count-chain.md`](challenges/count-gap-1938/count-chain.md)
@@ -184,6 +184,42 @@ re-opened here:
     Mott $\mu$, or the recovery census itself. This does not indict the new
     threshold — its independent-regime, monotonicity and order-of-magnitude
     checks all pass and it is only ±27 % sensitive to $\tau$.
+    **Update 2026-08-10 — C2 (the break-up-velocity fraction) is now
+    implemented; it moves the count arm the right way but does not clear the
+    band.** Mott's $V$ is the case velocity *at the instant of fracture*, not the
+    terminal fragment velocity the shipped model was feeding it (Gold 2017's
+    source-stated definition; PAFRAG supplies it from a hydrocode at break-up
+    time). `mott_params` now evaluates the $x_0$/$\mu$ chain at
+    $v_{bu} = f\,V_0$ with $f = 0.943$ (band 0.899–0.953), from
+    `arty.fragmentation.breakup_velocity_fraction`; terminal $V_0$ is untouched
+    in `gurney_velocity` and `min_lethal_mass` — two instants, one model
+    ([`updates/breakup-velocity-fraction/derivation.md`](updates/breakup-velocity-fraction/derivation.md)
+    §5, §8, checks in
+    [`checks/f-breakup-limits.py`](updates/breakup-velocity-fraction/checks/f-breakup-limits.py)).
+    Re-running the plug-shear count chain through it takes $N/779$ from **2.47×
+    to 2.25×** (2.09–2.29× across the whole $f$ band) — direction-right and
+    real, but still **outside** the 2× PASS band at every admissible $f$. Note
+    $N$ does **not** scale as $f^{-2}$: $N_0\propto f^2$ falls while
+    $\mu\propto f^{-2}$ rises, and the larger $\mu$ raises the survival factor,
+    so realised leverage is 1.096× against the naive 1.125× (§8). The
+    double-count gate passes — $f<1$ makes fragments heavier *and* fewer, so the
+    mean-fragment-mass gap against Tolch's pit census closes by ~11 % at the same
+    time as the count residual drops ~9 % (§6). **What stays open is that this
+    correction is not independently falsifiable from data in hand.** $f$ enters
+    $\mu$ degenerately with Mott's $\gamma'$: the $\gamma'$ reproducing the same
+    $\mu$ at $f=1$ is $\gamma'_\text{eq}$ = 48.5 ($f$ = 0.943) or 44.0
+    ($f$ = 0.899), and **both sit inside the tabulated 42–67 span**, consistent
+    with only $R=\sigma_f/\gamma'$ being identifiable in this model. So the case
+    for C2 rests on the source definition of $V$, *not* on the count improvement
+    it produces, and C2 may not be cited as an independent validation win — if
+    the carbon-content $\gamma'$ table were itself calibrated against terminal
+    velocities (unestablished: Mott/Linfoot's own 1943 worked example pairs the
+    burst radius with "the velocity of the fragments, 2500 ft/sec" — §7 A5),
+    applying $f$ on top is a re-anchoring of $\gamma'$ in disguise. The deciding
+    term for this arm therefore remains the threshold/spectrum side
+    (`count-chain.md` C1/C3), not the velocity basis; and the over-correcting
+    $f$ = 0.7–0.8 rows should be dropped from the thread's framing, as no source
+    read supports $f<0.90$.
 
     FINDING\[deferrable\]: "essentially all of it the threshold fit" quotes count-chain.md's Verdict-framing note verbatim, but is in tension with that same document's own top banner, which decomposes the 3.2-3.7x fitted-threshold total into a threshold-fit artefact (~1.65-2.05x) and a comparable genuine spectrum residual (~1.7-2.0x, matching the sourced-threshold figures stated two sentences earlier) - "essentially all" overstates the threshold-fit's share (affects: experiment/fragmentation-field/_limitations.qmd, experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-09)
     FINDING\[note\]: the "carried from that update's own limitations (derivation.md §7), not re-opened here" intro is technically inaccurate for L1, which was substantially reworked relative to derivation.md §7 and no longer matches it - harmless since L1's own body cites count-chain.md §4, flagged for wording only (affects: experiment/fragmentation-field/_limitations.qmd; since: 2026-08-09)
