@@ -541,3 +541,57 @@ $t$ = 25.4 mm, $D(m) = (6m/\pi\rho_s)^{1/3}$, $\rho_s$ = 7850 kg/m³ — as a
 `min_lethal_mass` / `build_mmin_table` taking a threshold callable defaulting to
 the present `>= E_LETH_DEFAULT` scalar compare. Then run check 4 and report
 whatever it gives.
+
+### 7.7 What the implementation pass delivered (2026-08-10)
+
+**`src/arty/perforation.py`** (new module — target response, not fragment
+generation, so it does not go in `fragmentation.py`):
+
+- `WoodPanelTarget(tau, t, eta, rho_steel)`, frozen dataclass; defaults are
+    §7.6's — `TAU_SPFS` = 1300 psi, `t` = 25.4 mm, `eta` = ½, 7850 kg/m³.
+    `TOLCH_1IN_SOFTWOOD` is that default instance. `TAU_SYP`, `TAU_SPFS_COV`,
+    `TAU_SYP_COV`, `ETA_RIGID` are exported so the §7.4 band is reproducible
+    without re-entering source numbers.
+- `compact_fragment_diameter(m, rho_steel)` — the §5.1 sphere closure, array-safe.
+- `perforation_threshold_energy(m, target=TOLCH_1IN_SOFTWOOD)` — eq. (9).
+- `ballistic_limit_velocity(m, target=...)` — eq. (10).
+
+`tau` is stored as `1300 * 6894.757` Pa, not the printed 8.96 MPa: the psi
+column is primary and the printed SI agrees to ≤0.29% (§7.3 admissibility). This
+is what makes the module reproduce the check script's table digit-for-digit.
+
+**`src/arty/fragmentation.py`** — `min_lethal_mass` and `build_mmin_table` gain
+an optional `E_thr` callable, default `None` = today's scalar `>= E_leth`
+compare. Check 5 (§4.5) is discharged by test, not by construction: the default
+and an explicit constant callable are `np.array_equal`-identical, and the 137
+existing fragmentation/zone/pkill tests pass unchanged. The bisection stays
+valid under a mass-dependent threshold because `KE/E_thr ∝ m^{2/3}
+e^{-2Cm^{-1/3}s}` is still monotone increasing; that condition is documented on
+`min_lethal_mass` and bounds what callables are admissible.
+
+**Confirmation**: `tests/test_perforation.py` (12 tests) pins the §7.4 table
+(`D`, `v_50`, `E_thr` at all six masses), the eq. (10) exponents, the linear-in-
+`tau` sensitivity, check 1's forward CLT panel, and the check-5 no-op. One
+0.09% offset is expected and asserted as such: check 1 in the check script feeds
+Sanborn's *nominal* 12.7 mm sphere diameter, while `src/arty` always derives
+`D` from mass (12.683 mm for the same 8.4 g sphere).
+
+**Check 4 is still NOT RUN** and is the next pass. It is a validation pass over
+`challenges/count-gap-1938/checks/count-chain-rebaseline.py` (the `N/779` chain),
+not an `src/arty/` pass — that chain now needs to be re-run passing
+`E_thr=perforation_threshold_energy`. §7.4's pre-registered direction (A″ raises
+the count relative to the 78.6 J probe run; the factor-2 arm may fail, and
+`eta` may not be moved to rescue it — A8) stands and must not be revised after
+seeing the number. Nothing is wired into the zone/lethality pipeline by this
+pass: the `E_thr` argument is opt-in and no caller passes it.
+
+**§7.1's criterion mismatch — resolved, not by this pass.** This paragraph
+originally reported the `_limitations.qmd`/`challenges/README.md` FINDING as
+unfiled (a stale read: this implementation pass was scoped out of `.qmd` files
+and read them before the fix below landed). It has since been closed —
+`_limitations.qmd`, `challenges/README.md`, `count-gap-1938/count-chain.md` and
+its rebaseline check were all corrected to demote 78.6 J from a sourced
+threshold to a labeled plausibility probe, and the blocking finding marker
+that stood at the top of this document was deleted on confirmation (commit
+`2c135a3`). §7.3's plug-shear threshold is the criterion-correct replacement
+those surfaces now point to.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 import numpy as np
@@ -418,32 +419,50 @@ def min_lethal_mass(
     m_lo: float = 1e-6,
     m_hi: float = 2.0,
     tol: float = 1e-9,
+    E_thr: Callable[[np.ndarray | float], np.ndarray | float] | None = None,
 ) -> float:
     """Minimum lethal fragment mass [kg] at range s [m] via bisection on KE.
 
     s       : range from burst [m]
     V0      : initial fragment velocity [m/s]
-    E_leth  : lethal kinetic-energy threshold [J]
+    E_leth  : lethal kinetic-energy threshold [J], used when E_thr is None
     drag    : DragParams
     rho_steel : steel density [kg/m³]
+    E_thr   : optional mass-dependent threshold callable, m [kg] -> E [J]
 
     Returns m_hi if even the heaviest fragment is sub-lethal at this range,
     or m_lo if even the lightest fragment is lethal (very close range).
+
+    With ``E_thr=None`` (default) the criterion is the mass-independent scalar
+    compare ``KE(m) >= E_leth``, i.e. today's ES-310 personnel path, unchanged.
+    Passing a callable — e.g. ``arty.perforation.perforation_threshold_energy``
+    for the plug-shear wood-panel criterion of
+    ``updates/sourced-wood-perforation-threshold/derivation.md`` §7.3 — switches
+    to ``KE(m) >= E_thr(m)``.
+
+    Bisection stays valid because the *ratio* ``KE(m)/E_thr(m)`` is monotone
+    increasing in m for both cases: ``KE ∝ m·exp(−2 C m^(−1/3) s)`` rises in m,
+    and ``E_thr`` is constant (scalar) or ``∝ m^(1/3)`` (plug shear), so the
+    ratio ``∝ m^(2/3) exp(−2 C m^(−1/3) s)`` still rises. A threshold callable
+    growing faster than KE would break that and is not supported.
     """
+
+    def _thr(m: float) -> float:
+        return E_leth if E_thr is None else float(E_thr(m))
 
     def _ke(m: float) -> float:
         lam = retardation_coeff(np.array([m]), drag, rho_steel)[0]
         return ke_at_range(np.array([m]), V0, np.array([lam]), np.array([s]))[0]
 
-    if _ke(m_hi) < E_leth:
+    if _ke(m_hi) < _thr(m_hi):
         return m_hi
-    if _ke(m_lo) >= E_leth:
+    if _ke(m_lo) >= _thr(m_lo):
         return m_lo
 
     lo, hi = m_lo, m_hi
     for _ in range(80):
         mid = 0.5 * (lo + hi)
-        if _ke(mid) >= E_leth:
+        if _ke(mid) >= _thr(mid):
             hi = mid
         else:
             lo = mid
@@ -596,6 +615,7 @@ def build_mmin_table(
     E_leth: float,
     drag: DragParams,
     rho_steel: float,
+    E_thr: Callable[[np.ndarray | float], np.ndarray | float] | None = None,
 ) -> np.ndarray:
     """Minimum lethal fragment mass m_min(s) [kg] on a 1D slant-range grid [m].
 
@@ -606,14 +626,23 @@ def build_mmin_table(
 
     s_grid    : monotone slant-range grid [m]
     V0        : zone initial fragment velocity [m/s]
-    E_leth    : binary lethal kinetic-energy threshold [J]
+    E_leth    : binary lethal kinetic-energy threshold [J], used when E_thr is None
     drag      : DragParams
     rho_steel : steel density [kg/m³]
+    E_thr     : optional mass-dependent threshold callable, m [kg] -> E [J]
 
     Vectorised bisection over all grid nodes at once; bit-identical to the
     per-node scalar :func:`min_lethal_mass` (same [m_lo, m_hi] bracket, same
     80-iteration / tol early stop, replicated per element by freezing a node
-    once its bracket narrows below ``tol``).
+    once its bracket narrows below ``tol``) — for the same criterion, i.e. the
+    same ``E_thr``.
+
+    ``E_thr=None`` (default) keeps the scalar ``KE(m) >= E_leth`` compare and is
+    unchanged. A callable switches to ``KE(m) >= E_thr(m)`` — see
+    :func:`min_lethal_mass` for the monotone-ratio condition that keeps the
+    bisection valid. The callable must be array-capable: the trial mass is a
+    per-node array (each node's bracket narrows independently), so it is called
+    once per iteration on the whole grid, not once per node.
     """
     s = np.asarray(s_grid, dtype=float)
     m_lo, m_hi, tol = 1e-6, 2.0, 1e-9
@@ -624,8 +653,11 @@ def build_mmin_table(
         lam = C * m ** (-1.0 / 3.0)
         return 0.5 * m * (V0 * np.exp(-lam * s)) ** 2
 
-    hi_sub = ke(m_hi) < E_leth      # heaviest fragment sub-lethal → m_hi
-    lo_leth = ke(m_lo) >= E_leth    # lightest fragment lethal → m_lo
+    def thr(m: float | np.ndarray) -> float | np.ndarray:
+        return E_leth if E_thr is None else E_thr(np.asarray(m, dtype=float))
+
+    hi_sub = ke(m_hi) < thr(m_hi)    # heaviest fragment sub-lethal → m_hi
+    lo_leth = ke(m_lo) >= thr(m_lo)  # lightest fragment lethal → m_lo
     lo = np.full_like(s, m_lo)
     hi = np.full_like(s, m_hi)
     active = ~(hi_sub | lo_leth)
@@ -633,7 +665,7 @@ def build_mmin_table(
         if not active.any():
             break
         mid = 0.5 * (lo + hi)
-        ge = ke(mid) >= E_leth
+        ge = ke(mid) >= thr(mid)
         hi = np.where(active & ge, mid, hi)
         lo = np.where(active & ~ge, mid, lo)
         active = active & ((hi - lo) >= tol)
