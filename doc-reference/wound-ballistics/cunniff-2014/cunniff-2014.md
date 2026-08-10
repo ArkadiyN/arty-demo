@@ -17,6 +17,20 @@ Cunniff's 2014 work establishes a statistical framework for fragment penetration
 
 FINDING\[deferrable\]: this extraction has no card.md, no retained source.pdf, and no verification search script, and its `source_url` above is a Google Scholar search query rather than a direct link to the paper — cited claims (e.g. "no tabulated posture silhouette") are checked against this extraction's own text, not against the primary, and should be treated as secondhand until a card.md + source.pdf are added (affects: experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-09)
 
+**Acquisition search, 2026-08-10.** A @librarian pass confirmed the paper's
+identity — *28th International Symposium on Ballistics*, Atlanta, GA,
+2014-09-22/26, published by DEStech Publications (two-volume proceedings,
+ISBN 978-1-60595-149-2) — but found no free or open-access copy (not on
+arXiv/OSTI/DTIC; ResearchGate lists it but gates the PDF behind
+authentication). It is a paywalled proceedings paper (roughly USD 220 for the
+set through DEStech, or via International Ballistics Society membership), not a
+missing/undigitized document like the SAND91-0277 case elsewhere in this
+project. The pass's claim of having "verified" the posture-silhouette claim
+against the primary is **not** a primary-source check — it only re-confirmed
+the claim against this extraction's own §4 text, which the marker above
+already treats as secondhand; that caveat still stands. Acquisition, not
+search, is the remaining blocker.
+
 ______________________________________________________________________
 
 ## Key Findings
