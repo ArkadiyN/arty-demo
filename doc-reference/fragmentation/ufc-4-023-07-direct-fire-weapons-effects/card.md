@@ -99,27 +99,27 @@ ______________________________________________________________________
 
 $$T_w = \frac{9,837 \, v^{0.4113} w^{1.4897}}{D^{1.3596} \rho^{0.5414} H^2}$$
 
-**Comparison with UFC Equation 5-1:**
+**Comparison with UFC Equation 5-1 (confirmed against page image):**
 
-| Element         | UFC Source (5-1)                                    | Sanborn "Eq. 2" | Match?                                                |
-| --------------- | --------------------------------------------------- | --------------- | ----------------------------------------------------- |
-| Constant        | 9,837                                               | 9,837           | ✓ Yes                                                 |
-| $v$ exponent    | 0.4113                                              | 0.4113          | ✓ Yes                                                 |
-| $w$ exponent    | 1.4897                                              | 1.4897          | ✓ Yes                                                 |
-| $D$ exponent    | 1.3596                                              | 1.3596          | ✓ Yes                                                 |
-| $\rho$ exponent | 1.0 (implied: $\rho$ in denominator to first power) | 0.5414          | ✗ **Discrepancy**                                     |
-| $H$ exponent    | 0.5414 (apparent from source text)                  | 2.0             | ✗ **Discrepancy**                                     |
-| $D$ term form   | $(\pi D^2 / 4)^{1.3596}$                            | $D^{1.3596}$    | ✗ **Discrepancy** (cross-sectional area vs. diameter) |
+| Element         | UFC Source (5-1)                         | Sanborn "Eq. 2" | Match?                                    |
+| --------------- | ---------------------------------------- | --------------- | ----------------------------------------- |
+| Constant        | 9,837                                    | 9,837           | ✓ Yes                                     |
+| $v$ exponent    | 0.4113                                   | 0.4113          | ✓ Yes                                     |
+| $w$ exponent    | 1.4897                                   | 1.4897          | ✓ Yes                                     |
+| $D$ exponent    | 1.3596                                   | 1.3596          | ✓ Yes                                     |
+| $\rho$ exponent | **1.0** ✓ (confirmed from page image)    | 0.5414          | ✗ **Sanborn error**                       |
+| $H$ exponent    | **0.5414** ✓ (confirmed from page image) | 2.0             | ✗ **Sanborn error**                       |
+| $D$ term form   | $(\pi D^2 / 4)^{1.3596}$                 | $D^{1.3596}$    | ✗ (area vs. diameter; Sanborn simplified) |
 
 **Critical findings:**
 
-1. **Density exponent differs:** UFC source shows $\rho$ with exponent ~1.0 (appears in denominator without explicit exponent); Sanborn transcribes 0.5414. The UFC text definition lists $\rho = $ wood density (lbs/ft³) with notation "(see Table 5-5)" but does not clearly state the exponent in running text. The equation formatting in the UFC PDF is broken by OCR; the precise exponent requires re-reading the page image (source.pdf p.41).
+1. **Density exponent confirmed as 1.0:** Vision inspection of source.pdf page 40 (printed page 5-9) confirms that ρ appears in the denominator without an explicit exponent marker, meaning exponent = 1.0. Sanborn's transcription of ρ^{0.5414} is **incorrect**.
 
-1. **Hardness exponent differs sharply:** UFC source suggests $H^{0.5414}$ (square root regime); Sanborn has $H^2$ (quadratic, much stronger dependence on hardness). This is a **2.5× difference** in exponent magnitude and **opposite direction** of effect sensitivity. Sanborn's form makes hardness far more influential on required thickness.
+1. **Hardness exponent confirmed as 0.5414:** Vision inspection of source.pdf page 40 clearly shows H^{0.5414} as a superscript. Sanborn's transcription of H^2 is **incorrect** — this is a **3.7× error** in exponent magnitude and reverses the sensitivity direction (UFC predicts hardness has weak effect; Sanborn's form makes it dominant).
 
-1. **Diameter term:** UFC shows $(\pi D^2 / 4)^{1.3596}$ (projectile cross-sectional area); Sanborn simplifies to $D^{1.3596}$. If simplified, this assumes the $\pi/4$ factor absorbed into the constant 9,837—but that is not explicitly stated in Sanborn's paper.
+1. **Diameter term:** UFC shows $(\pi D^2 / 4)^{1.3596}$ (projectile cross-sectional area); Sanborn simplifies to $D^{1.3596}$. If simplified, this assumes the $\pi/4$ factor absorbed into the constant 9,837—not explicitly stated in Sanborn's paper and inconsistent with the UFC form.
 
-1. **Sanborn's flag as BLOCKING:** Sanborn's card notes this equation "overpredicts required thickness significantly—not acceptable for CLT design" when compared to experimental CLT penetration data. The exponent discrepancies identified above may partially explain the mismatch between UFC predictions and CLT empirical results.
+1. **Consequence for CLT prediction:** Sanborn's card notes its form "overpredicts required thickness significantly—not acceptable for CLT design" when compared to experimental data. The large exponent errors (especially H^2 vs. H^{0.5414}) explain why Sanborn's predictions diverge from UFC perforation predictions; Sanborn's form is fundamentally different, not merely a rearrangement of UFC's.
 
 ______________________________________________________________________
 
@@ -131,11 +131,14 @@ The document does **not** cite a specific historical test program, ballistic lab
 
 ______________________________________________________________________
 
-## Open Transfer Question
+## Vision-Confirmed Exponents (Blocking Finding Resolved)
 
-The discrepancies identified above are **not resolvable from the Sanborn card alone**. The transfer question for whoever next relies on Equation 5-1's $\rho$ and $H$ exponents: does the UFC source's embedded text layer (partially garbled on source.pdf pages 40–41, marked "5-9"/"5-10") state exponents 1.0/0.5414, or does it match Sanborn's transcribed 0.5414/2.0? This is a criterion-match question for whoever next depends on this equation to resolve, not a call this card makes.
+The exponent discrepancies have been **confirmed against the source page image** (vision inspection of source.pdf pages 40–41, PDF page numbers shown as "5-9" and "5-10" at page bottom). The page image clearly shows:
 
-FINDING\[blocking\]: UFC 4-023-07 Eq 5-1 rho/H exponents unresolved — embedded-text extraction disagrees with Sanborn 2019's transcription (1.0/0.5414 vs 0.5414/2.0) and neither has been confirmed against a vision-OCR re-read of source.pdf p.40-41 (affects: doc-reference/fragmentation/ufc-4-023-07-direct-fire-weapons-effects/card.md, experiment/fragmentation-field/updates/sourced-wood-perforation-threshold/; since: 2026-08-09)
+- **ρ exponent = 1.0** (appears in denominator without explicit exponent notation)
+- **H exponent = 0.5414** (marked as superscript)
+
+This matches the UFC embedded-text extraction exactly and contradicts Sanborn et al. (2019)'s transcription. The UFC equation is the authoritative form for this standard. Sanborn's significant exponent errors (ρ^{0.5414} and H^2) account for the divergence between UFC and Sanborn's CLT penetration predictions noted in Sanborn's own card.
 
 ______________________________________________________________________
 
@@ -153,4 +156,4 @@ ______________________________________________________________________
 **Card compiled:** 2026-08-09\
 **Extraction method:** Heuristic PDF text layer (equations and table partially garbled; source.pdf retained for re-extraction with vision OCR if needed)\
 **Quality check status:** Pending `scan-extraction-quality.py` run on full markdown output\
-**Open finding:** blocking, logged above under "Open Transfer Question" — Eq. 5-1 density/hardness exponents unresolved.
+**Blocking finding status:** Resolved via vision inspection of pages 40–41 (2026-08-09) — Eq. 5-1 exponents confirmed as ρ^{1.0}, H^{0.5414}.
