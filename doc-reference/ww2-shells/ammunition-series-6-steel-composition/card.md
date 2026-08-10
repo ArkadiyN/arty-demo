@@ -152,4 +152,7 @@ ______________________________________________________________________
     composition row plus §6-13's replacement composition — a small extraction,
     and now an unblocked one.
 
-FINDING\[note\]: this document was recorded as un-re-baselineable for want of a retained source, but the page is in the repo — Ammunition Series 6 section 6-11 sits at PDF page 11 of doc-reference/ww2-shells/ammunition-series-6-wdss-specs/source.pdf, the same book filed under the sibling slug; the miss came from looking only inside this directory, so a per-directory "no source.pdf" check under-reports whenever one book is split across two doc-reference entries (affects: doc-reference/ww2-shells/ammunition-series-6-steel-composition/card.md, doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md; since: 2026-08-03)
+**Closed 2026-08-10.** The Provenance section above now states the sibling
+`source.pdf` location, page, and sha256 directly and says explicitly that the
+`/mnt/f/...` image path "is **not** the only path back to the page" — so this
+card no longer reads as un-re-baselineable to anyone who reaches it.

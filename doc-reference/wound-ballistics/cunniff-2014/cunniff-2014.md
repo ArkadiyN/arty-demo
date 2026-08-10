@@ -2,7 +2,7 @@
 title: A Method to Describe the Statistical Aspects of Armor Penetration, Human Vulnerability and Lethality due to Fragmenting Munitions
 authors: Philip M. Cunniff
 year: 2014
-source_url: https://scholar.google.com/scholar?q=Cunniff+armor+penetration+statistical+aspects
+source_url: see card.md — retained source.pdf, DEStech Publications proceedings, ISBN 978-1-60595-149-2
 doi:
 topic: wound-ballistics
 ---
@@ -15,7 +15,7 @@ Cunniff's 2014 work establishes a statistical framework for fragment penetration
 
 ## Provenance note
 
-FINDING\[deferrable\]: this extraction has no card.md, no retained source.pdf, and no verification search script, and its `source_url` above is a Google Scholar search query rather than a direct link to the paper — cited claims (e.g. "no tabulated posture silhouette") are checked against this extraction's own text, not against the primary, and should be treated as secondhand until a card.md + source.pdf are added (affects: experiment/fragmentation-field/\_limitations.qmd; since: 2026-08-09)
+**Closed 2026-08-10:** Source PDF acquired and retained at `source.pdf`. Card.md written with full provenance and verified anchor for critical claim. See `card.md` for source metadata, equations, and verification of "no tabulated posture silhouette" claim against Figure 7 (source.pdf pp. 16–17).
 
 ______________________________________________________________________
 

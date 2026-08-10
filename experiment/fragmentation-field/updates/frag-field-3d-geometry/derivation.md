@@ -406,15 +406,17 @@ supports; it says nothing about nose-vs-side velocity ordering.
 
 **Ogive spray angle (Tier-1):**
 
-Using the arc-centre formula for M1 CRH 6.02: $\theta^o \approx 79.5°$ ∈ [75°, 88°] ✓
-
-FINDING[deferrable]: this 79.5° figure is stale — it matches the Tier-2 tangent-ogive formula (90° - arcsin(sqrt(CRH-0.25)/2CRH) at CRH~6.02 gives ~78.5°) rather than the Tier-1 arc-centre code path M1 actually uses; `ZoneParams.spray_deg` from the shipped `_ogive_arc_centre` integration (checks/zone-v0-ogive-vs-cylinder.py) gives 83.5° for the M1 ogive zone, confirmed by hand-evaluating zones.py's arc-centre formula with the M1 drawing constants; zero shipped-output impact since nothing reads this printed figure, but the same class of drift the 2026-08-08 V0 pass was dispatched to fix (affects: experiment/fragmentation-field/updates/frag-field-3d-geometry/derivation.md; since: 2026-08-08)
+Using the shipped `_ogive_arc_centre` integration for M1 CRH 6.02 (Tier-1, the
+code path M1 actually uses — not the Tier-2 tangent-ogive formula, which gives
+$\approx 78.5°$): $\theta^o \approx 83.5°$ ∈ [75°, 88°] ✓
+(`checks/zone-v0-ogive-vs-cylinder.py`, hand-confirmed against `zones.py`'s
+arc-centre formula with the M1 drawing constants).
 
 **Spray angles summary for M1:**
 
 | Zone     | $\theta^z$ |
 | -------- | ----------- |
-| Ogive    | 79.5° (stale — shipped value 83.5°, see FINDING above) |
+| Ogive    | 83.5°       |
 | Cylinder | 90.0°       |
 | Boattail | 94.6°       |
 | Base     | 165.0°      |

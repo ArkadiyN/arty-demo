@@ -16,12 +16,21 @@ from arty.fragmentation import (
     ke_at_range, min_lethal_mass, pk_given_hit, expected_kills, p_kill,
     _shell_geometry, _PK_E, _PK_VAL,
 )
+from arty.shells import SHELLS
 
 # --- 105 mm M1 HE (single-cylinder model shell) ---
-# wall_t = 11 mm (TM 9-1901 cylindrical wall); mass deductions = fuze + band.
+# Mass, caliber, filler and steel are imported from the registry so this
+# struct can never silently drift from it (arty.shells.SHELLS). wall_t is the
+# one deliberate override: this single-cylinder model uses the historical
+# TM 9-1901 cylindrical wall (11 mm), not the drawing-derived registry
+# geometry the four-zone section further down uses.
+_registry_105 = SHELLS["105mm M1 HE"]
 shell = ShellParams(
-    caliber=0.105, wall_t=0.011,
-    mass_total=14.97, mass_filler=2.18, mass_deductions=0.75,
+    caliber=_registry_105.caliber, wall_t=0.011,
+    mass_total=_registry_105.mass_total,
+    mass_filler=_registry_105.mass_filler,
+    mass_deductions=_registry_105.mass_deductions,
+    filler=_registry_105.filler, steel=_registry_105.steel,
 )
 drag   = DragParams()      # C_D=1.28, C_shape=(rho_steel/k)^(2/3), rho_air=1.225
 target = TargetParams()    # presented width w = 0.5 m

@@ -61,6 +61,11 @@ PCT_METAL = wt_g.sum() / (13.29 * LB_G)
 print(f"recovered / 13.29 lb       = {100*PCT_METAL:.1f} %  (source: 95.6 %)")
 
 # --------------------------------------------------- Tolch A->D falloff ratio
+# NOTE: perf(D)/perf(A) below understates the true fragment-density ratio A->D
+# -- both panels apply the same fixed perforation threshold, and a fixed
+# threshold rejects proportionally more of the softer (lower-energy) part of
+# the spectrum at D than at A, so the perforating-count ratio is biased toward
+# 1 relative to the density ratio it stands in for.
 side = load("side-spray-density")
 static = {r["panel"]: r for r in side if float(r["v_fps"]) == 0}
 ratio_AD = float(static["D"]["perf"]) / float(static["A"]["perf"])

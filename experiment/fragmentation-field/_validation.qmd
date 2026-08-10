@@ -6,10 +6,9 @@ reimplemented in the notebook.
 ### Check 1: Gurney velocity in published bracket
 
 HE artillery shells (M/C = 4–8) produce Gurney velocities of 900–1 400 m/s
-(Carlucci & Jacobson, *Ballistics: Theory and Design*, Table 5-1).
-
-<!-- FINDING[deferrable]: Check 1 asserts against a 900-1400 m/s bracket attributed to Carlucci & Jacobson Table 5-1, but that source is not in doc-reference/ at all — so a rendered PASS on this surface rests on a bracket nobody can check against a page; collect the source or downgrade the assert to a reported comparison (affects: experiment/fragmentation-field/_validation.qmd, doc-reference/; since: 2026-08-03) -->
-
+(Carlucci & Jacobson, *Ballistics: Theory and Design*, Table 5-1) — **this
+source is not held in `doc-reference/`**, so the bracket below is reported as
+a comparison, not asserted as a validated PASS.
 
 ```{python}
 print("Gurney velocity vs. M/C:")
@@ -17,8 +16,7 @@ for mc in [4.0, 5.0, 5.6, 6.0, 7.0, 8.0]:
     print(f"  M/C={mc:.1f}  →  {gurney_const/np.sqrt(mc+0.5):.0f} m/s")
 in_bracket = 900 <= V0 <= 1400
 print(f"\n  105 mm M1: M/C={mass_shell/mass_filler:.2f}  V0={V0:.0f} m/s  "
-      f"{'✓ in bracket' if in_bracket else '⚠ outside bracket'}")
-assert in_bracket
+      f"{'✓ in bracket (unsourced comparison)' if in_bracket else '⚠ outside bracket (unsourced comparison)'}")
 ```
 
 ### Check 2: Mass conservation

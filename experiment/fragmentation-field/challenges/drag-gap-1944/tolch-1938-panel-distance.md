@@ -130,8 +130,11 @@ $E_{thr}$ is the single free parameter (the wood ballistic limit is not in
 against one parameter makes the test over-determined. Fitted to reproduce the
 observed A→D ratio 0.557, then the intermediate panels and the *absolute*
 count are checked. Swept over combined $C_D C_{shape} \in \{0.585$ (current)$,
-0.878, 1.2, 1.7, 2.93\}$ and $V_0 \in \{838.2$ (Tolch's own measured
-perforating-fragment velocity, 2750 f/s, Summary item 10)$, 807.5$ (model
+0.878, 1.2, 1.7, 2.93\}$ and $V_0 \in \{838.2$ (Tolch's own value for the
+perforating-fragment velocity, 2750 f/s, Summary item 10 — a geometric
+inference from the change in sidespray angle with remaining velocity per
+tolch-1938.md:146,1658,1698, not a measurement, and carrying no drag or
+independent-Gurney content)$, 807.5$ (model
 Gurney **as of the sweep**, pre-fix — see the as-of note below)$, 951.0$
 (Ordnance-stated)$\}$ m/s. **1.2 and 1.7 are SAND92-0243's
 prose-sentence values ("can vary between 1.2 and 1.7"), not its own

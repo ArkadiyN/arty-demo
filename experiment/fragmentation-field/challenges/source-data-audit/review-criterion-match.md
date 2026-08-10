@@ -140,7 +140,10 @@ table the document is actually using, and the numbers differ from the
 perforation tables too — so the label does not even identify the wrong column
 correctly.
 
-FINDING\[note\]: b-vs-range-rebaseline.md cites the casualties tables as "Table 43/51/59"; the re-baselined invariants anchor them as TABLE 38/48/56 (affects: experiment/fragmentation-field/challenges/drag-gap-1944/b-vs-range-rebaseline.md; since: 2026-08-03)
+**Closed 2026-08-10.** `b-vs-range-rebaseline.md`'s three section headings now
+read TABLE 38/48/56, with a note at first mention explaining the scripts'
+own docstrings still say "Table 43/51/59" and pointing at the `.invariant`
+anchors as the correct numbers.
 
 ______________________________________________________________________
 
@@ -200,7 +203,11 @@ The script's comment at line 38 ("not present in the processed Ordnance source;
 carried over unverified") is therefore **stale and understates its own
 footing**. Correcting it is a comment edit, not a numeric change.
 
-FINDING\[note\]: mach-law-rebaseline.py line 38 says V0 is "not present in the processed Ordnance source"; the six .invariant files anchor "INITIAL FRAGMENT VELOCITY 3,120/3,500 F/S" as table headers, matching V0_FTS exactly (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/checks/mach-law-rebaseline.py; since: 2026-08-03)
+**Closed 2026-08-10.** The comment no longer flatly claims V0 is absent from
+the source — it now distinguishes the literal table-caption occurrence (which
+the six `.invariant` anchors do confirm) from open provenance in the
+derivation sense, and points at the still-open deferrable V0_FTS-provenance
+finding (`rebaseline-verdict.md:211`) for that deeper question.
 
 ### 2d. The tabulated `v` is the 1944 source's own drag calculation — Deferrable
 
@@ -340,7 +347,9 @@ threshold rejects a larger share of arrivals at D and the ratio understates the
 true density ratio (i.e. 0.557 is a lower bound on `ρ(D)/ρ(A)`). Directionally
 conservative for a falloff-shape check; no action.
 
-FINDING\[note\]: side-spray perf(D)/perf(A) ratio understates the density ratio because a fixed perforation threshold rejects proportionally more of the softer spectrum at D (affects: experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py; since: 2026-08-03)
+**Closed 2026-08-10.** `count-chain-rebaseline.py` now carries a comment at the
+`ratio_AD` computation stating the bias direction (fixed threshold rejects
+proportionally more of the softer spectrum at D, biasing the ratio toward 1).
 
 ______________________________________________________________________
 

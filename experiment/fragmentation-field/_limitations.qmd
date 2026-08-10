@@ -123,9 +123,12 @@ sphere 1.209 < cube 1.500 < the shape-closure prism's tumbling average 1.61 <
 adopted 2.089 is the expected one for an irregular, non-convex-hull-filling
 fragment measured by icosahedron gage, whereas 0.90 sat below even the sphere.
 
-*What remains open* — carried from that update's own limitations
-([`derivation.md`](updates/mach-dependent-fragment-drag/derivation.md) §7), not
-re-opened here:
+*What remains open* — L1 below has been substantially reworked relative to
+that update's own limitations
+([`derivation.md`](updates/mach-dependent-fragment-drag/derivation.md) §7) as
+later count-gap-1938 passes re-closed; see
+[`count-chain.md`](challenges/count-gap-1938/count-chain.md) §4 for the
+current framing, which this bullet now follows:
 
 - **L1 — Tolch's absolute perforating count: on a sourced, mass-dependent
     perforation threshold the count arm FAILS at ~2.5×; the falloff-ratio arm is
@@ -153,7 +156,10 @@ re-opened here:
     Dropping it removes the *weaker* of the two rows and does not move the
     verdict.) The 4–6× headline is stale as a
     description of the shipped model at a sourced threshold; at the *fitted*
-    threshold it is now 3.2–3.7×, essentially all of it the threshold fit. What
+    threshold it is now 3.2–3.7×, of which roughly half (~1.65–2.05×) is the
+    threshold-fit artefact and the rest (~1.7–2.0×) a comparable genuine
+    spectrum residual, matching the sourced-threshold figures above
+    (`count-chain.md` top banner). What
     is **not** met is the PASS criterion's other arm — the A→D falloff ratio
     within 0.10 of 0.557 — which is still tied to the fitted $E_{thr}$ and
     therefore still compound. C1 (a sourced perforation threshold — the only
@@ -185,8 +191,11 @@ re-opened here:
     threshold — its independent-regime, monotonicity and order-of-magnitude
     checks all pass and it is only ±27 % sensitive to $\tau$.
 
-    FINDING\[deferrable\]: "essentially all of it the threshold fit" quotes count-chain.md's Verdict-framing note verbatim, but is in tension with that same document's own top banner, which decomposes the 3.2-3.7x fitted-threshold total into a threshold-fit artefact (~1.65-2.05x) and a comparable genuine spectrum residual (~1.7-2.0x, matching the sourced-threshold figures stated two sentences earlier) - "essentially all" overstates the threshold-fit's share (affects: experiment/fragmentation-field/_limitations.qmd, experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-09)
-    FINDING\[note\]: the "carried from that update's own limitations (derivation.md §7), not re-opened here" intro is technically inaccurate for L1, which was substantially reworked relative to derivation.md §7 and no longer matches it - harmless since L1's own body cites count-chain.md §4, flagged for wording only (affects: experiment/fragmentation-field/_limitations.qmd; since: 2026-08-09)
+    **Closed 2026-08-10.** Both findings above were wording-only: the "essentially
+    all" overstatement now restates the ~1.65–2.05× / ~1.7–2.0× split from
+    `count-chain.md`'s own top banner, and the "carried from... not re-opened
+    here" intro now says L1 was reworked and points at `count-chain.md` §4 as
+    the current framing.
 - **L2 — arrival-Mach < 0.7 velocities remain unclosed by any admissible drag
     law.** At the longest 75 mm/155 mm stations the *required* combined constant
     falls to 1.76–2.07 (implied C_D below the subsonic plateau of 1.08), and even
@@ -288,11 +297,11 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   [`wound-ballistics/aep-55-vol3/`](../../doc-reference/wound-ballistics/aep-55-vol3/card.md) —
   and **neither carries a quotable man-silhouette presented area**. Cunniff's
   "presented area" is the *fragment's* projected area $A_p$ in the
-  $A_d A_p/m_p$ penetration parameter, and its extraction states no
-  tabulated standing/crouching/prone silhouette — checked against that
-  extraction's own text, not against Cunniff's primary PDF (the extraction
-  carries no card.md or retained source.pdf; see its provenance note), so
-  treat this half of the pairing as secondhand. AEP-55 Vol. 3 is an armoured-vehicle
+  $A_d A_p/m_p$ penetration parameter, and its
+  [`card.md`](../../doc-reference/wound-ballistics/cunniff-2014/card.md)
+  (retained `source.pdf`, primary checked directly) confirms Figure 7
+  (pp. 16-17) describes the burst-viewpoint/phantom computation but tabulates
+  no standing/crouching/prone silhouette area. AEP-55 Vol. 3 is an armoured-vehicle
   IED test standard that assesses occupants with instrumented
   anthropomorphic test devices; a man-silhouette area is not a quantity its
   method uses, and a search of all 106 pages returns zero hits for any
