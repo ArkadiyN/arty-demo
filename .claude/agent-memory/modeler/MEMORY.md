@@ -21,4 +21,6 @@
 - [Mott table non-uniform carbon spacing](gotcha_mott_table_nonuniform_carbon_spacing.md) — real rows are 0/0.1/0.25/0.45 %C, not evenly spaced; re-check brackets, not just endpoint γ
 - [Single-projectile mass exponents](gotcha_single_projectile_mass_exponents.md) — Sanborn 2019 CLT fits print w/D exponents but one projectile was used; they can't supply E_thr(m), use original UFC 4-023-07
 - [UFC wood eq. is not invertible](gotcha_ufc_wood_eq_not_invertible.md) — a thickness design curve with a weak v-exponent gives nonsense v50; 1/0.4113 amplifies every bias
+- [Mott V is the fracture-instant velocity](gotcha_mott_V_is_fracture_instant_velocity.md) — not terminal Gurney; the 1943 worked example uses terminal, Gold 2017 defines fracture-instant, Kennedy's grazing 7x makes it live
+- [Mott count doesn't move as f²](gotcha_mott_count_not_f_squared.md) — a velocity correction in x0 is partly cancelled by the rising mu in the survival exponential; compute N, never scale it
 - [Rebaseline onto validation source](gotcha_rebaseline_onto_validation_source.md) — rebaselining onto the source you validate against makes the cross-check tautological; prefer an independent basis that agrees

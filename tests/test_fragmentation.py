@@ -70,6 +70,7 @@ from arty.fragmentation import (
     ShellParams,
     SteelParams,
     STEELS,
+    breakup_velocity_fraction,
     compute_frag_field,
     compute_frag_field_3d,
     gurney_velocity,
@@ -192,8 +193,11 @@ def test_mott_params_depend_only_on_sigma_f_over_gamma(k):
     )
     mu_0, N0_0 = mott_params(ShellParams(steel=base), V0)
     mu_k, N0_k = mott_params(ShellParams(steel=scaled), V0)
-    assert mu_k == mu_0
-    assert N0_k == N0_0
+    # Exact in algebra; asserted to 1e-12 rather than bit-for-bit because the
+    # chain now evaluates v_bu = f * V0 (breakup_velocity_fraction), one extra
+    # float multiply whose rounding is not k-invariant at k = 137.
+    assert mu_k == pytest.approx(mu_0, rel=1e-12)
+    assert N0_k == pytest.approx(N0_0, rel=1e-12)
 
 
 def test_wdss1_gives_fewer_larger_fragments_than_baseline():
@@ -216,6 +220,11 @@ def test_default_shape_factors_preserve_mott_output():
     # geometry: mu = 1.835 g, N0 = 3281 at its Gurney V0. (Sect. 7.3's 0.793 g /
     # 3627 is the 75 mm M48, a different shell -- do not use it as the default
     # baseline.)
+    # Re-based 2026-08-10 for the break-up velocity fraction f = 0.9428
+    # (updates/breakup-velocity-fraction/derivation.md eq. 4): mu -> 2.064 g
+    # (x 1/f^2 = 1.125) and N0 -> 2917 (x f^2 = 0.8889) EXACTLY, which is itself
+    # the check that the x0 -> alpha -> gamma -> mu exponent chain nets mu ~ V^-2.
+    # The 1.835 g / 3281 pair is now the f_breakup = 1.0 legacy call.
     shell = ShellParams()
     assert shell.aspect_ratio == 1.6
     assert shell.breadth_factor == 1.5
@@ -226,8 +235,57 @@ def test_default_shape_factors_preserve_mott_output():
     )
     assert mu == mu_explicit
     assert N0 == N0_explicit
-    assert mu == pytest.approx(1.835e-3, rel=1e-2)
-    assert N0 == pytest.approx(3281.0, rel=1e-2)
+    assert mu == pytest.approx(2.064e-3, rel=1e-2)
+    assert N0 == pytest.approx(2917.0, rel=1e-2)
+    mu_legacy, N0_legacy = mott_params(shell, V0, f_breakup=1.0)
+    assert mu_legacy == pytest.approx(1.835e-3, rel=1e-2)
+    assert N0_legacy == pytest.approx(3281.0, rel=1e-2)
+
+
+# ---------------------------------------------------------------------------
+# breakup_velocity_fraction
+# ---------------------------------------------------------------------------
+
+
+def test_breakup_velocity_fraction_limits_and_monotonicity():
+    # Limits of f = sqrt(1 - eta^-(gamma_gas-1)): no expansion -> no work -> no
+    # velocity; full expansion -> the terminal Gurney value. Monotone in both
+    # arguments (stiffer isentrope does more work early).
+    # derivation.md sect. 4; checks/f-breakup-limits.py block (1).
+    assert breakup_velocity_fraction(1.0, 3.0) == 0.0
+    assert breakup_velocity_fraction(1.0001, 3.0) == pytest.approx(0.0141, abs=1e-4)
+    assert breakup_velocity_fraction(1e4, 3.0) == pytest.approx(1.0, abs=1e-6)
+    etas = [1.5, 2.0, 3.0, 5.0, 7.0, 100.0]
+    fs = [breakup_velocity_fraction(e, 3.0) for e in etas]
+    assert all(b > a for a, b in zip(fs, fs[1:]))
+    assert breakup_velocity_fraction(3.0, 3.0) > breakup_velocity_fraction(3.0, 2.5)
+
+
+def test_breakup_velocity_fraction_kennedy_bracket():
+    # Kennedy 1970: case acceleration is complete by eta = 7 (grazing) and not by
+    # eta = 2. Eq. (4) is fitted to neither, so this is a real bracket test --
+    # derivation.md sect. 4, checks/f-breakup-limits.py block (2).
+    for gamma_gas in (3.0, 2.5):
+        assert breakup_velocity_fraction(7.0, gamma_gas) > 0.97
+        assert breakup_velocity_fraction(2.0, gamma_gas) < 0.87
+    # Shipped default: eta_bu = 3 (Mott sqrt(3) hoop strain), gamma_gas = 3.
+    assert breakup_velocity_fraction() == pytest.approx(0.9428, abs=5e-4)
+    # Inside the 0.90-0.95 band the two opposite-signed corrections bracket.
+    assert 0.90 <= breakup_velocity_fraction() <= 0.95
+
+
+def test_mott_params_scales_as_f_squared():
+    # mu ~ f^-2 and N0 ~ f^2 EXACTLY: the direct (r_bu/v_bu)^3 factor is partly
+    # undone by gamma = alpha^(-2/3) gamma' with alpha ~ v_bu (derivation.md
+    # sect. 6 / review.md verification item 2). Guards the exponent chain against
+    # a future edit that applies f to x0 only.
+    shell = ShellParams()
+    V0 = gurney_velocity(shell)
+    mu_1, N0_1 = mott_params(shell, V0, f_breakup=1.0)
+    for f in (0.8, 0.9428090415820634, 0.99):
+        mu_f, N0_f = mott_params(shell, V0, f_breakup=f)
+        assert mu_f / mu_1 == pytest.approx(f**-2, rel=1e-12)
+        assert N0_f / N0_1 == pytest.approx(f**2, rel=1e-12)
 
 
 def test_higher_aspect_ratio_gives_larger_mu():

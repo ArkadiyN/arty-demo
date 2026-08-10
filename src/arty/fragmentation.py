@@ -6,6 +6,24 @@ from dataclasses import dataclass
 import numpy as np
 
 # ---------------------------------------------------------------------------
+# Case break-up state (Mott's fracture instant)
+# ---------------------------------------------------------------------------
+
+# Gas-cavity volume expansion ratio at case break-up [-]. Mott's sqrt(3) hoop
+# strain: r_i_bu = sqrt(3) r_i, so eta = (r_i_bu/r_i)^2 = 3 exactly, and
+# `_shell_geometry` is built on the same number. This is the ratio of the volume
+# the detonation products occupy — NOT the registry's r_bu/r_i (1.79-1.83),
+# which mixes a mid-wall radius with a cavity radius and must not be squared
+# into an eta (derivation.md sect. 3).
+ETA_BREAKUP: float = 3.0
+# Detonation-product isentrope (polytropic gas) exponent [-]. Conventional
+# near-CJ value ~3 for TNT/Comp-B products, and the exponent implied by
+# Kennedy's Q = D^2/2(gamma-1). Constant over the expansion is known false
+# (gamma falls sharply at eta = 3-5, Kennedy 1970 App. B); that error is
+# bounded, not modelled — see derivation.md A4.
+GAMMA_GAS: float = 3.0
+
+# ---------------------------------------------------------------------------
 # Parameter structs
 # ---------------------------------------------------------------------------
 
@@ -315,7 +333,7 @@ _PK_VAL = np.array([0.10, 0.50, 0.90])  # corresponding Pk|hit [-]
 def _shell_geometry(shell: ShellParams) -> tuple[float, float, float, float]:
     r_outer = shell.caliber / 2.0
     r_inner = r_outer - shell.wall_t
-    r_inner_bu = r_inner * np.sqrt(3.0)
+    r_inner_bu = r_inner * np.sqrt(ETA_BREAKUP)  # eta_bu = (r_i_bu/r_i)^2 = 3
     r_outer_bu = np.sqrt(r_inner_bu**2 + (r_outer**2 - r_inner**2))
     r_bu = 0.5 * (r_inner_bu + r_outer_bu)
     mass_shell = shell.mass_total - shell.mass_filler - shell.mass_deductions
@@ -332,8 +350,48 @@ def gurney_velocity(shell: ShellParams) -> float:
     return shell.filler.gurney_const / np.sqrt(mass_shell / shell.mass_filler + 0.5)
 
 
-def mott_params(shell: ShellParams, V0: float) -> tuple[float, float]:
-    """Return Mott half-mass mu [kg] and fragment count N0 [-] for a shell at V0 [m/s]."""
+def breakup_velocity_fraction(
+    eta_bu: float = ETA_BREAKUP, gamma_gas: float = GAMMA_GAS
+) -> float:
+    """Return case speed at case break-up as a fraction f = v_bu/V0 [-].
+
+    eta_bu    : gas-cavity volume expansion ratio at break-up [-] (V/V_charge)
+    gamma_gas : detonation-product isentrope (polytropic gas) exponent [-]
+
+    Gurney's energy partition is applied at the break-up instant instead of at
+    infinite expansion. The partition coefficient (M/C + 1/2) is the same at
+    every expansion ratio, so it cancels in the ratio and f depends on the
+    released-energy fraction alone: with p V^gamma_gas = const from the CJ
+    state, W(eta)/W(inf) = 1 - eta^-(gamma_gas-1), hence f = sqrt of that.
+    Derivation: experiment/fragmentation-field/updates/breakup-velocity-fraction/
+    derivation.md eqs. (2)-(4); band 0.90-0.95 at eta_bu = 3.
+
+    NOTE gamma_gas (~3) is the gas isentrope exponent, NOT Mott's fracture
+    constant gamma' (`SteelParams.gamma`, ~54.5) used in `mott_params`.
+    """
+    return float(np.sqrt(1.0 - eta_bu ** (-(gamma_gas - 1.0))))
+
+
+def mott_params(
+    shell: ShellParams, V0: float, f_breakup: float | None = None
+) -> tuple[float, float]:
+    """Return Mott half-mass mu [kg] and fragment count N0 [-] for a shell at V0 [m/s].
+
+    V0        : terminal Gurney velocity [m/s] (`gurney_velocity`)
+    f_breakup : case-velocity-at-break-up fraction v_bu/V0 [-]; default
+                `breakup_velocity_fraction()`. Pass 1.0 for the legacy
+                terminal-velocity form.
+
+    Mott's V is the case velocity *at the instant of fracture* (Gold 2017:
+    "the velocity with which the shell is moving outwards"), which is smaller
+    than the terminal Gurney velocity because only part of the explosive
+    energy has been delivered by eta_bu = 3. Only the fracture chain sees
+    v_bu = f * V0; the fragment *launch* velocity used by `gurney_velocity`
+    and `min_lethal_mass` stays terminal (two instants, one model).
+    """
+    f = breakup_velocity_fraction() if f_breakup is None else float(f_breakup)
+    # Case velocity at break-up [m/s] — the V of Mott's fracture theory.
+    v_bu = f * V0
     r_outer, r_inner, r_bu, mass_shell = _shell_geometry(shell)
     # Wall thickness at break-up. Plane-strain incompressibility of the wall
     # annulus (the r_o_bu^2 - r_i_bu^2 = r_o^2 - r_i^2 line in _shell_geometry)
@@ -344,17 +402,19 @@ def mott_params(shell: ShellParams, V0: float) -> tuple[float, float]:
     x0 = (
         np.sqrt(2.0 * shell.steel.sigma_f / (shell.steel.rho * shell.steel.gamma))
         * r_bu
-        / V0
+        / v_bu
     )
     # Shape closure: the fragment is a parallelepiped l_bar x x_bar x t_bu, not
     # a cube. alpha = (l_bar/x0)(t_bu/x0) = A * kappa_x^2 * t_bu/x0, absorbed
     # into gamma by Gold 2017 eq. (6). alpha = 1 recovers the legacy cube form.
     alpha = shell.aspect_ratio * shell.breadth_factor**2 * t_bu / x0
     gamma = alpha ** (-2.0 / 3.0) * shell.steel.gamma
+    # Net exponent chain: alpha ~ t_bu/x0 ~ v_bu, so gamma ~ v_bu^(-2/3) and
+    # mu ~ gamma^(-3/2) v_bu^(-3) = v_bu^(-2); hence mu ~ f^-2, N0 ~ f^2.
     mu = (
         np.sqrt(2.0 / shell.steel.rho)
         * (shell.steel.sigma_f / gamma) ** 1.5
-        * (r_bu / V0) ** 3
+        * (r_bu / v_bu) ** 3
     )
     N0 = mass_shell / (2.0 * mu)
     return mu, N0

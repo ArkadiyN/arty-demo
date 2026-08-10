@@ -78,6 +78,7 @@ with st.sidebar:
             )
 
         with st.expander("Mott Fragmentation"):
+            # FINDING[deferrable]: gamma slider is degenerate with the new f_breakup default (gamma'_eq = gamma*f^2), no control exists to isolate them (affects: app/sensitivity.py; since: 2026-08-10)
             gamma = st.slider(
                 "γ (Mott parameter)", 53.0, 80.0, float(preset.steel.gamma), step=1.0
             )

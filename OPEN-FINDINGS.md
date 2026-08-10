@@ -47,6 +47,9 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
 - **this L1 (~3-4x, E_thr 2.8-4.1x) was not resynced against the newer count-gap-1938 re-closure (count-chain.md §4, 2026-08-08, post-6c1faff/50b734e), which found the count arm met-or-marginal at sourced thresholds (N/779 1.73-2.00x) with only the falloff-ratio arm still unmet; _limitations.qmd's L1 now carries that newer framing with no forward-pointer back here, so a reader following _limitations.qmd's "carried from derivation.md §7" pointer finds a stale, compound-only framing**
     - affects: `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md`, `experiment/fragmentation-field/_limitations.qmd`
     - raised: 2026-08-09 (1d) in `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md:302`
+- **gamma slider is degenerate with the new f_breakup default (gamma'_eq = gamma*f^2), no control exists to isolate them**
+    - affects: `app/sensitivity.py`
+    - raised: 2026-08-10 (0d) in `app/sensitivity.py:81`
 
 ## Note (8)
 
@@ -74,3 +77,9 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
 - **rotating-band treatment is inconsistent across the registry — 155mm M107 deducts band+plug in mass_deductions, 105mm M1 and 75mm M48 do not, so those two carry ~1.8% non-fragmenting gilding metal inside M_case**
     - affects: `src/arty/shells.py`
     - raised: 2026-08-08 (2d) in `experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/derivation.md:204`
+- **the "carried from that update's own limitations (derivation.md §7), not re-opened here" intro is technically inaccurate for L1, which was substantially reworked relative to derivation.md §7 and no longer matches it - harmless since L1's own body cites count-chain.md §4, flagged for wording only**
+    - affects: `experiment/fragmentation-field/_limitations.qmd`
+    - raised: 2026-08-09 (1d) in `experiment/fragmentation-field/_limitations.qmd:225`
+- **kennedy1970-gurney-energy/card.md "Standard Gurney Equations by Geometry" transcribes the cylinder as sqrt(2E)(1+M/2C)^-1/2 and flat sandwich as (1+M/C)^-1/2; standard Kennedy forms are (M/C+1/2)^-1/2 and (M/C+1/3)^-1/2, and the (M/C+1/2) form is what shipped gurney_velocity uses and what Martineau Table 5.3 closes on**
+    - affects: `doc-reference/fragmentation/kennedy1970-gurney-energy/card.md`
+    - raised: 2026-08-10 (0d) in `experiment/fragmentation-field/updates/breakup-velocity-fraction/scoping.md:331`

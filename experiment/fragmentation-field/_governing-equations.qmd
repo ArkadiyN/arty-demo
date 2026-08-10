@@ -17,7 +17,7 @@ $$
 
 Gurney constants: 2 440 m/s (TNT), 2 700 m/s (Comp-B), 2 930 m/s (RDX).
 
-### 2 · Shell Geometry at Break-up
+### 2 · Shell State at Break-up
 
 The shell expands under detonation pressure before fracturing. Pearson (1990) and
 the PAFRAG methodology set break-up at approximately three times the initial internal
@@ -46,6 +46,37 @@ $$
 | $r_{i,\text{bu}}$, $r_{o,\text{bu}}$ | Inner/outer radii at break-up | m    |
 | $r_{\text{bu}}$                        | Mean shell radius at break-up | m    |
 
+**Case velocity at break-up (eq. 2d).** Eq. (1) is the *terminal* velocity —
+the whole Gurney energy delivered at infinite expansion. The case is still
+accelerating when it fractures at $\eta_{\text{bu}} = V/V_{\text{charge}} \approx
+3$, so the fracture chain of §3 must be evaluated at the smaller
+break-up-instant speed $v_{\text{bu}} = f V_0$. Applying the same partition at
+finite $\eta$ makes the $(M/C + \tfrac12)$ factor cancel in the ratio, leaving
+the released-energy fraction alone; with $pV^{\gamma_g} = \text{const}$ from the
+CJ state,
+
+$$
+f = \frac{v_{\text{bu}}}{V_0}
+  = \sqrt{1 - \eta_{\text{bu}}^{-(\gamma_g - 1)}} \quad (2d)
+$$
+
+| Symbol                | Description                                       | Unit |
+| --------------------- | ------------------------------------------------- | ---- |
+| $\eta_{\text{bu}}$   | Gas-cavity volume expansion ratio at break-up     | —    |
+| $\gamma_g$            | Detonation-product isentrope (gas) exponent       | —    |
+| $f$                   | Case-speed fraction $v_{\text{bu}}/V_0$ at break-up | —  |
+| $v_{\text{bu}}$      | Case speed at break-up                            | m/s  |
+
+$\gamma_g$ (a *gas* isentrope exponent, ~3) is not Mott's fracture constant
+$\gamma'$ (~55) of §3 — the two are ~20× apart and must not be confused. $f$ is
+`breakup_velocity_fraction()` and is printed in §5; the honest band is
+0.90–0.95, taken from a $\gamma_g$ sweep against a completion-ratio variant.
+$f$ enters **only** the fracture chain: the fragment *launch* velocity used by
+the drag, energy, and lethality sections stays the terminal $V_0$ of eq. (1)
+(two instants, one model). Derivation, bracket checks against Kennedy's grazing
+data, and the $\eta$ bookkeeping across the registry:
+`updates/breakup-velocity-fraction/derivation.md`.
+
 ### 3 · Mott: Fragment Mass Distribution
 
 At break-up, stress-release waves arrest further fracture in their wake (Mott 1947).
@@ -60,11 +91,15 @@ fragment mass) from the PAFRAG-Mott formulation (Gold 2017, eq. 16) is:
 
 $$
 \mu = \sqrt{\frac{2}{\rho}}\left(\frac{\sigma_F}{\gamma}\right)^{3/2}
-\left(\frac{r_{\text{bu}}}{V_0}\right)^3 \quad (4)
+\left(\frac{r_{\text{bu}}}{v_{\text{bu}}}\right)^3 \quad (4)
 $$
 
-This is algebraically identical to the form $\frac{1}{2}(2\sigma_F/\rho^{1/3}\gamma)^{3/2}(r/V_0)^3$;
-equation (4) matches the PAFRAG source notation exactly.
+This is algebraically identical to the form $\frac{1}{2}(2\sigma_F/\rho^{1/3}\gamma)^{3/2}(r/V)^3$;
+equation (4) matches the PAFRAG source notation exactly. The $V$ of Mott's
+theory is the case velocity *at the instant of fracture* — Gold (2017): "the
+velocity with which the shell is moving outwards" — so it is $v_{\text{bu}} = f
+V_0$ of eq. (2d), not the terminal $V_0$. Up to v0.11.0 the code substituted
+$V_0$ here ($f = 1$).
 
 **Fragment shape closure (eq. 4a–4c).** The $\gamma$ in eq. (4) is *not* the
 per-grade material constant: it is Gold's (2017) shape-absorbed constant
@@ -75,7 +110,7 @@ the stress-released zone around a fracture (Gold 2017, eq. 2; Mott 1947, after
 eq. 5), evaluated at break-up:
 
 $$
-x_0 = \sqrt{\frac{2\sigma_F}{\rho\,\gamma'}}\;\frac{r_{\text{bu}}}{V_0} \quad (4a)
+x_0 = \sqrt{\frac{2\sigma_F}{\rho\,\gamma'}}\;\frac{r_{\text{bu}}}{v_{\text{bu}}} \quad (4a)
 $$
 
 The fragment is idealised as a parallelepiped $\bar l \times \bar x \times
@@ -99,13 +134,21 @@ Substituting (4a)–(4b) into (4) collapses to a compact equivalent form:
 
 $$
 \mu = A\,\kappa_x^{2}\,\frac{\sigma_F\,t_{\text{bu}}}{\gamma'}
-\left(\frac{r_{\text{bu}}}{V_0}\right)^{2} \quad (4c)
+\left(\frac{r_{\text{bu}}}{v_{\text{bu}}}\right)^{2} \quad (4c)
 $$
 
 so the closure changes the model's *scaling*, not just its magnitude: $\rho$
 cancels exactly, $\mu$ is **linear** in $\gamma'^{-1}$, $r_{\text{bu}}$ and the
-wall thickness $t$, and goes as $V_0^{-2}$ — where the un-shaped cube form gave
-$\gamma'^{-3/2}$, $r_{\text{bu}}^{3}$, $t^{0}$ and $V_0^{-3}$. Setting $A =
+wall thickness $t$, and goes as $v_{\text{bu}}^{-2}$ — where the un-shaped cube
+form gave $\gamma'^{-3/2}$, $r_{\text{bu}}^{3}$, $t^{0}$ and $v_{\text{bu}}^{-3}$.
+Because $f$ and the steel pair enter (4c) only as $\sigma_F/(\gamma' f^{2})$,
+the break-up velocity of eq. (2d) is **degenerate** with the grade: it acts
+exactly like softening $\gamma' \to \gamma' f^{2}$, so $f$ cannot be identified
+from fragment-size data alone (limitation L1). Note also that while $N_0 =
+M_{\text{shell}}/2\mu \propto f^{2}$ exactly, the *thresholded* count $N(>m)$
+does **not**: the rising $\mu$ raises the survival factor in eq. (3) and eats
+back part of the change, so thresholded counts must be recomputed, never
+rescaled. Setting $A =
 \kappa_x = 1$ and $t_{\text{bu}} \to x_0$ gives $\alpha = 1$, $\gamma = \gamma'$
 and recovers the cube idealisation used before v0.8.0.
 

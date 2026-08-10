@@ -1,16 +1,28 @@
 ## Implementation
 
 The model functions live in `src/arty/fragmentation.py` — `gurney_velocity`,
-`mott_params`, `mott_N`, `retardation_coeff`, `ke_at_range`,
-`min_lethal_mass`, `pk_given_hit`, `expected_kills`, and `p_kill`. The
-notebook imports and calls them; no physics is reimplemented here.
+`breakup_velocity_fraction`, `mott_params`, `mott_N`, `retardation_coeff`,
+`ke_at_range`, `min_lethal_mass`, `pk_given_hit`, `expected_kills`, and
+`p_kill`. The notebook imports and calls them; no physics is reimplemented here.
+
+`mott_params` internally evaluates the fracture chain at the break-up-instant
+speed $v_{\text{bu}} = f V_0$ of eq. (2d) — its `f_breakup` argument defaults to
+`breakup_velocity_fraction()`, and passing `f_breakup=1.0` recovers the legacy
+terminal-velocity form. Everything downstream of break-up (drag, arrival energy,
+$m_{\min}$) keeps the terminal $V_0$.
 
 ```{python}
+from arty.fragmentation import breakup_velocity_fraction
+
 V0 = gurney_velocity(shell)
+f_bu = breakup_velocity_fraction()
 mu, N0 = mott_params(shell, V0)
+mu_terminal, N0_terminal = mott_params(shell, V0, f_breakup=1.0)
 
 print("=== Gurney ===")
-print(f"  V0               : {V0:.0f} m/s")
+print(f"  V0 (terminal)    : {V0:.0f} m/s")
+print(f"  f = v_bu/V0      : {f_bu:.3f}")
+print(f"  v_bu (fracture)  : {f_bu*V0:.0f} m/s")
 
 print("\n=== Mott ===")
 print(f"  Half-weight μ    : {mu*1e3:.2f} g")
@@ -26,6 +38,10 @@ print(f"    Doctrinal reference: 25-pdr ≈ 4, ideal ≈ 10")
 print(f"    Higher ratio → more, smaller fragments (lower μ)")
 for m_g in [0.5, 1, 5, 10, 50]:
     print(f"  N(m > {m_g:4.1f} g)   : {mott_N(np.array([m_g*1e-3]), N0, mu)[0]:.0f}")
+
+print("\n=== Legacy terminal-V form (f_breakup=1.0), for contrast ===")
+print(f"  Half-weight μ    : {mu_terminal*1e3:.2f} g   (μ ∝ f⁻²)")
+print(f"  Total frags N0   : {N0_terminal:.0f}       (N0 ∝ f²)")
 ```
 
 ### Grade contrast across the steel catalog
