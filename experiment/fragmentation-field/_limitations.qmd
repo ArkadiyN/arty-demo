@@ -297,11 +297,11 @@ criterion. See §9.2 for the Sturdivan tissue-penetration model as a future repl
   [`wound-ballistics/aep-55-vol3/`](../../doc-reference/wound-ballistics/aep-55-vol3/card.md) —
   and **neither carries a quotable man-silhouette presented area**. Cunniff's
   "presented area" is the *fragment's* projected area $A_p$ in the
-  $A_d A_p/m_p$ penetration parameter, and its extraction states no
-  tabulated standing/crouching/prone silhouette — checked against that
-  extraction's own text, not against Cunniff's primary PDF (the extraction
-  carries no card.md or retained source.pdf; see its provenance note), so
-  treat this half of the pairing as secondhand. AEP-55 Vol. 3 is an armoured-vehicle
+  $A_d A_p/m_p$ penetration parameter, and its
+  [`card.md`](../../doc-reference/wound-ballistics/cunniff-2014/card.md)
+  (retained `source.pdf`, primary checked directly) confirms Figure 7
+  (pp. 16-17) describes the burst-viewpoint/phantom computation but tabulates
+  no standing/crouching/prone silhouette area. AEP-55 Vol. 3 is an armoured-vehicle
   IED test standard that assesses occupants with instrumented
   anthropomorphic test devices; a man-silhouette area is not a quantity its
   method uses, and a search of all 106 pages returns zero hits for any
