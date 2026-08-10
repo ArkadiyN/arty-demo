@@ -1,4 +1,4 @@
-species,condition,hardness_pounds,density_lbs_per_ft3
+species,condition,density_lbs_per_ft3,hardness_pounds
 Pine,Dry,23.5,38.7
 Pine,Wet,30.0,51.1
 Maple,Dry,35.0,76.9

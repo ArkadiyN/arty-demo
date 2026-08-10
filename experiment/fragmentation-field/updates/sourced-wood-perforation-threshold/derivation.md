@@ -68,7 +68,7 @@ Sanity of the scale: $H$ = 38.7 lb for dry pine is ~1/10 of the standard Janka
 side-hardness (≈ 380–870 lbf). **Do not substitute real Janka values into (3)** —
 Eq. 5-1 is a curve fit to the Table 5-5 scale, whatever that scale is.
 
-FINDING[blocking]: UFC Table 5-5 density/hardness columns are transposed in card.md and the CSV (page image: col1=density, col2=hardness) (affects: doc-reference/fragmentation/ufc-4-023-07-direct-fire-weapons-effects/card.md, doc-reference/fragmentation/ufc-4-023-07-direct-fire-weapons-effects/tables/table-5-5-wood-properties.csv, doc-reference/fragmentation/ufc-4-023-07-direct-fire-weapons-effects/tables/table-5-5-wood-properties.invariant; since: 2026-08-09)
+**Correction applied 2026-08-09:** Table 5-5 column transposition verified and corrected against source.pdf page image (page 40, printed 5-10). card.md and CSV now have density/hardness in correct order; invariant file updated with closure checks.
 
 ______________________________________________________________________
 

@@ -56,29 +56,28 @@ ______________________________________________________________________
 
 ## Table 5-5: Wood Properties
 
-**Citation:** Section 5-3.4.2.1.1 (source.pdf page 41, marked "5-10")
+**Citation:** Section 5-3.4.2.1.1 (source.pdf page 41, marked "5-10"). **Tabulated criterion:** Wood species properties (density and hardness) under dry and wet conditions, used as input to Equations 5-1 and 5-2. Linked CSV: [`tables/table-5-5-wood-properties.csv`](tables/table-5-5-wood-properties.csv).
 
-**Purpose:** Provides density and hardness values for wood species used in Equations 5-1 and 5-2.
+| Species        | Condition | Density (lbs./ft³) | Hardness (pounds) |
+| -------------- | --------- | ------------------ | ----------------- |
+| Pine           | Dry       | 23.5               | 38.7              |
+| Pine           | Wet       | 30.0               | 51.1              |
+| Maple          | Dry       | 35.0               | 76.9              |
+| Maple          | Wet       | 40.0               | 72.0              |
+| Green Oak      | Dry       | 55.0               | 88.1              |
+| Green Oak      | Wet       | 55.0               | 72.1              |
+| Marine plywood | Dry       | 37.0               | 68.7              |
+| Marine plywood | Wet       | 37.0               | 58.8              |
+| Balsa          | Dry       | 6.0                | 21.0              |
+| Balsa          | Wet       | 6.0                | 61.5              |
+| Fir plywood    | Dry       | 30.0               | 75.0              |
+| Fir plywood    | Wet       | 30.0               | 68.9              |
+| Hickory        | Dry       | 50.0               | 74.3              |
+| Hickory        | Wet       | 55.0               | 63.5              |
 
-| Species        | Condition | Hardness (pounds) | Density (lbs./ft³) |
-| -------------- | --------- | ----------------- | ------------------ |
-| Pine           | Dry       | 23.5              | 38.7               |
-| Pine           | Wet       | 30.0              | 51.1               |
-| Maple          | Dry       | 35.0              | 76.9               |
-| Maple          | Wet       | 40.0              | 72.0               |
-| Green Oak      | Dry       | 55.0              | 88.1               |
-| Green Oak      | Wet       | 55.0              | 72.1               |
-| Marine plywood | Dry       | 37.0              | 68.7               |
-| Marine plywood | Wet       | 37.0              | 58.8               |
-| Balsa          | Dry       | 6.0               | 21.0               |
-| Balsa          | Wet       | 6.0               | 61.5               |
-| Fir plywood    | Dry       | 30.0              | 75.0               |
-| Fir plywood    | Wet       | 30.0              | 68.9               |
-| Hickory        | Dry       | 50.0              | 74.3               |
-| Hickory        | Wet       | 55.0              | 63.5               |
-
-**Note on "Hardness":** Values are Janka hardness (side hardness), measured in pounds-force (lbf).\
-**Note on "Density":** Dry (at 12% moisture content) and wet (fully saturated) conditions per wood moisture standards.
+**Note on "Density":** Dry (at 12% moisture content) and wet (fully saturated) conditions per wood moisture standards; measured in pounds per cubic foot.\
+**Note on "Hardness":** Values conform to Table 5-5's scale (stated as "lbs" in the source; the source uses this scale for Equations 5-1 and 5-2 and does not equate it to standard Janka hardness).\
+**Closure checks:** (1) Density increases with saturation (wet ≥ dry) on all species — water adds mass. (2) Hardness typically decreases with saturation (wet ≤ dry) on hardwoods; softwoods and engineered species show no universal pattern. See [`tables/table-5-5-wood-properties.invariant`](tables/table-5-5-wood-properties.invariant).
 
 ______________________________________________________________________
 
@@ -156,4 +155,5 @@ ______________________________________________________________________
 **Card compiled:** 2026-08-09\
 **Extraction method:** Heuristic PDF text layer (equations and table partially garbled; source.pdf retained for re-extraction with vision OCR if needed)\
 **Quality check status:** Pending `scan-extraction-quality.py` run on full markdown output\
-**Blocking finding status:** Resolved via vision inspection of pages 40–41 (2026-08-09) — Eq. 5-1 exponents confirmed as ρ^{1.0}, H^{0.5414}.
+**Blocking finding status:** Resolved via vision inspection of pages 40–41 (2026-08-09) — Eq. 5-1 exponents confirmed as ρ^{1.0}, H^{0.5414}.\
+**Correction:** Table 5-5 column headers corrected 2026-08-09 — columns were transposed in initial extraction (Density and Hardness swapped). Verified from source.pdf page image (printed page 5-10). CSV and invariant file updated to match.
