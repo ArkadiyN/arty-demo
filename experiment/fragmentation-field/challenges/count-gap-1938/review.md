@@ -257,3 +257,152 @@ thread's model numbers move, whether to fold the fully-voided 2026-08-08
 bullets into the historical record (e.g. a compact changelog table) rather
 than appending a fourth prose banner. No action required now; no effect on
 current correctness.
+
+## Review (2026-08-10) — C5 closure ("detection-limited, not physics-limited")
+
+**Scope:** the uncommitted C5-discharge diff across `count-chain.md` §3/§4 and
+top-of-doc banner, `checks/count-chain-rebaseline.py` block (G) and block (F)'s
+new dual-denominator prints, `rebaseline-verdict.md`'s third stacked banner,
+and `challenges/README.md` item (5). Verdict reached: FAIL at 2.25×(/779) /
+2.51×(/700), INDETERMINATE clause discharged, C5 dropped from the ranking
+without credit.
+
+**Disclosure — partial verification, stopped on coordinator instruction.** I
+did not get to: independently re-deriving §3's C3/C4 leverage figures (1.49×,
+etc. — unchanged by this diff, not re-checked here); a full re-read of C1/C2's
+own derivations (out of this diff's scope, already reviewed in the section
+above); or a boundary/grazing-case sweep of the plug-shear rescaling in note
+(v) (checked the one printed value only, see below). What follows is what I
+did complete.
+
+### Verified
+
+- **Arithmetic reproduces.** Ran
+    `uv run python checks/count-chain-rebaseline.py`; block (G) prints
+    `N/700 = 2.05x` at the 0.36 g floor, realised leverage `1756/1438 =   1.221x`, matching every quoted figure in `count-chain.md` §3/§4,
+    `rebaseline-verdict.md`'s third banner, and `README.md` item (5) exactly.
+    Block (F)'s new `N/700` column at each cut (0.63→1.68, 0.36→2.05,
+    0.166→2.51) is internally consistent with block (G).
+- **Block (G) uses the same live model state as the rest of the script** — it
+    calls `mott_N(..., N0, mu)` with the `N0, mu` computed once near the top
+    from `mott_params(shell, V0)`, which defaults `f_breakup=None` →
+    `breakup_velocity_fraction()` = 0.943 (C2 active). No hand-typed
+    duplicate of `N0`/`mu`.
+- **Plug-shear rescaling in note (v) checked by hand.** $E_{thr}\propto
+    m^{1/3}$, $\mathrm{KE}=\tfrac12 mv^2$ ⇒ solving for $m$ gives $m_{thr}
+    \propto v^{-3}$ (not $v^{-2}$, since the threshold energy itself depends on
+    $m$) — algebra is correct, and $0.166\times(612/838.2)^3 = 0.065$ g
+    matches the printed value; direction (higher $v$ → lower $m_{thr}$) is
+    physically right.
+- **Claim (i)'s factual premise — that Tolch's table grades every hit into
+    perforation/penetration/dent columns rather than a binary
+    detected/not-detected — is confirmed against the closure-checked table,
+    not just against `card.md`'s prose.** Re-ran
+    `uv run src/utils/check-table-invariants.py   doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/base-spray-density.invariant`:
+    `perf+penet+dents==total` passes on all 17 rows. This is the load-bearing
+    fact under (i)'s argument that the 700 column is perforation-limited by
+    construction (a fragment too weak to perforate lands in an adjacent
+    column, it is not dropped from the census), and it is admissible —
+    CSV-backed, invariant-checked, not a `tolch-1938.md` read.
+- **Criterion-match correction is real and correctly applied.** The
+    diff's central move — quoting C5's bound against `N/700` (panel floor vs.
+    panel perforation count) instead of the pre-existing `N/779` (panel floor
+    vs. pit sand-recovery census) — is the right fix and is explicitly
+    self-flagged as voiding the document's own earlier-same-day 1.85× figure.
+    This is the same basis-mix pattern as the two standing open findings
+    against block (D) and block (E)'s fuze-excluded variant (confirmed both
+    markers are still present, untouched by this diff, at
+    `source-data-audit/review-criterion-match.md` and
+    `.../review-void-rulings.md` — this diff does not close them and does not
+    claim to).
+- **§4's INDETERMINATE gate is applied correctly.** The gate's own stated
+    firing condition ("cannot be bounded below ~1.5×") is compared against the
+    newly bounded 1.221×; 1.221 < 1.5, so non-firing is the right call given
+    that pre-existing threshold. I did not re-derive why 1.5× was chosen (set
+    in an earlier pass, not part of this diff).
+- **Datum admissibility (point iv) is handled correctly, not overclaimed.**
+    `card.md` line 22 does say `tolch-1938.md` "is not a citable surface for
+    any number" and that a number without a CSV "has no admissible surface in
+    this repo" — grepped and confirmed. The diff's own point (iv) discloses
+    this about the 0.36 g / 838.2 m/s datum used in block (G), states the
+    finding is "flagged, not a fabrication verdict" per
+    `source-data-fidelity.md`'s own rule that a null result on a
+    known-unreliable extraction bounds the surface, not the source, and does
+    not hide the caveat in `card.md` — it sits in `count-chain.md`, which is
+    the correct location per that rule's "interpretive claims must not live
+    in `doc-reference/`" clause.
+
+### Findings
+
+**Deferrable — headline verdict numbers partly rest on an admittedly
+inadmissible datum, presented alongside a clean argument that doesn't need
+it.** Point (ii)'s 2.05×/1.221× figures — which are quoted as *the* bound in
+the top-of-document status paragraph, `rebaseline-verdict.md`'s banner, and
+`README.md` item (5) — derive from `M_DET_G = 0.36` g, a value point (iv) itself
+says has no CSV and isn't anchored beyond a reconstructed-not-read 126 J
+figure. Argument (i) (perf/penet/dent grading, CSV-confirmed above) is
+structurally sufficient on its own to discharge the INDETERMINATE clause and
+does not depend on the weak datum, and the document says so ("readings (i) and
+(ii) bracket the answer") — but three of the four surfaces citing this closure
+lead with the numeric 1.221×/2.05× figures rather than with (i)'s
+census-grading argument. Impact: none on the verdict itself (FAIL stands on
+(i) alone), but a reader skimming any of the three status surfaces sees an
+inadmissible-datum-derived number presented with equal prominence to the
+admissible one. Suggested fix: lead each of the three status surfaces with
+argument (i) and demote (ii)'s figures to "even on the weaker, inadmissible
+reading" phrasing (`count-chain.md` top banner lines 40–48, `rebaseline-verdict.md`
+third banner, `README.md` item (5)).
+
+**Deferrable — note (v) (C1 threshold "permissive by 5.6× in mass" at
+near-burst velocity) has no deferred-finding marker.** It's a genuine model-side
+observation touching shipped `arty.perforation`, explicitly caveated as
+resting on the same unanchored 0.36 g datum as above, and explicitly "recorded
+as a note, not actioned here" in the prose — but per
+`.claude/rules/deferred-findings.md` even note-tier items get a one-line
+marker so `collect-findings.py` surfaces them to a future pass; a prose-only
+note in `count-chain.md` won't be found by that mechanism. Impact: no effect
+on any current output or the verdict; risk is this specific observation being
+re-discovered from scratch (or silently dropped) rather than routed, the same
+failure shape `deferred-findings.md` names in its own motivating incident.
+Suggested fix: add a note-tier marker reading "C1 plug-shear threshold rescales
+to 0.065 g at 838 m/s vs. Tolch's smallest observed perforation 0.36 g (5.6x
+permissive in mass); rests on an unanchored datum (affects:
+experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md)"
+using the tag-and-severity format from `.claude/rules/deferred-findings.md`.
+
+**Note — third stacked banner in `rebaseline-verdict.md` matches the
+documentation-debt concern already flagged in this file's 2026-08-10
+re-review** (see above: "a third re-closure would make this file's
+superseding-banner stack three-deep and harder to skim"). That has now
+happened. Still no effect on correctness — every banner is dated and states
+exactly what it supersedes — but the changelog-table suggestion from the prior
+pass is worth acting on before a fourth banner is needed. No action required
+now.
+
+**Note — small (0.06%) discrepancy between block (G)'s hardcoded
+`N_verdict = 1756.0` and block (F)'s computed value at the same nominal cut
+(1757 at `cut=0.166` g).** Traced to `N_verdict` being taken from §2's verdict
+row (computed from the full model chain's un-rounded $m_{thr}$) versus block
+(F) recomputing from the literal rounded `0.166` g. Immaterial (both round to
+the same quoted 2.51× figure) — flagged only so a future reader doesn't
+mistake it for a discrepancy worth chasing.
+
+### Verdict: **PASS-with-limitations**
+
+No Blocking finding. The closure's central physics claim (Tolch's census is
+graded perforation/penetration/dent, not a detection-limited binary) is
+correct and CSV-verified; the arithmetic reproduces exactly; the
+criterion-match self-correction (N/700 vs. the voided N/779) is the right fix
+and is properly disclosed as voiding the document's own same-day earlier
+figure; the INDETERMINATE-gate application is correct against its own
+pre-existing threshold. The two deferrable items above should be logged as
+limitations:
+
+- Log that the C5 closure's headline 1.221×/2.05× figures rest on a datum
+    (0.36 g / 838 m/s) with no CSV backing per `card.md`'s own admissibility
+    rule, and that the closure's real load-bearing argument is (i)
+    (perf/penet/dent census grading), not the numeric bound — the three status
+    surfaces should be reordered to lead with (i).
+- Add the missing note-tier deferred-finding marker for the
+    C1-threshold-permissiveness observation in note (v) so it is tracked by
+    `collect-findings.py` rather than living only in prose.

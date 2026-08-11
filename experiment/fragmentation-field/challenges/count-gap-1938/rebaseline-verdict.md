@@ -1,10 +1,12 @@
 # `count-gap-1938` re-baseline verdict — does the count chain's conclusion survive?
 
 **Status: complete, but the *model* side of every claim below was evaluated
-against shipped code as of 2026-08-08 *before* commit 6c1faff.** Read **both**
-re-closure banners first — the 2026-08-08 one and the 2026-08-10 C1+C2 one
-that supersedes part of it; the re-baseline itself (the Tolch-series side) is
-unaffected.
+against shipped code as of 2026-08-08 *before* commit 6c1faff.** Read **all
+three** re-closure banners first, in order — the 2026-08-08 one, the
+2026-08-10 C1+C2 one, and the 2026-08-10 C5-discharge one that supersedes
+parts of both; the re-baseline itself (the Tolch-series side) is unaffected.
+Standing verdict after all three: genuine **FAIL at 2.25× (/779) / 2.51×
+(/700)**, not INDETERMINATE.
 
 > **Re-closure banner — model numbers, 2026-08-08 (post-6c1faff / `50b734e`).**
 > This file's §1 closure line and every model-derived figure in the tables
@@ -103,6 +105,36 @@ unaffected.
 >
 > `challenges/README.md` was restated to match on 2026-08-10 (item (4) of its
 > `count-gap-1938` status detail).
+
+> **Third re-closure banner — C5 discharged, 2026-08-10 (later pass).** The
+> banner above's "trending INDETERMINATE pending C5" clause is now void. C5
+> has been run and closed: `count-chain.md` §3 "C5" and §4 "The INDETERMINATE
+> clause is now discharged". Two results. **(i)** The premise — that Tolch's
+> 700 column is detection-limited, so a smallest-perforating-hole datum
+> (0.36 g at 838 m/s) supplies an independent detection credit — is wrong:
+> Tolch's census grades every hit as perforation, penetration or dent, so the
+> 700 column is perforation-limited by construction and C5 collapses into C1,
+> which already models that mechanism; there is no separate detection credit
+> to take. **(ii)** Even granting the premise as an upper bound, the maximum
+> credit gives $N/700$ = **2.05×** (the criterion-matched pairing, panel floor
+> against panel count) — still outside the band. Realised leverage is only
+> **1.221×**, well short of the ~1.5× the banner above's INDETERMINATE clause
+> needed to fire. The **1.85× / ~1.22× figures quoted in the banner above are
+> void**: they divided a panel-side detection floor by the pit sand-recovery
+> census (779) — the identical basis-mix defect the standing open finding
+> raises against block (D), here transferred to how C5 quoted it. The
+> census-matched cut against 779 is Tolch's finest screen (0.63 g), which
+> gives $N/779$ = 1.51×, but that is a census-*completeness* correction
+> belonging to C4, not a detection correction, and may not be quoted as C5's.
+>
+> **So the standing verdict is a plain, genuine FAIL at 2.25× (/779) / 2.51×
+> (/700) — not "trending INDETERMINATE".** §4's INDETERMINATE clause fired
+> only if C5's cutoff could not be bounded below ~1.5×; it is bounded at
+> ≤1.221× (and at ~0 on the correct census reading), so the clause does not
+> fire and the FAIL branch is executed to exhaustion. The live recommendation
+> ranking (§3) drops C5, discharged without credit, and becomes **C3 next,
+> then C4**. `challenges/README.md` was restated to match on 2026-08-10, item
+> (5) of its `count-gap-1938` status detail.
 
 Block (E)'s arithmetic — the threshold-free test that carries the one void
 verdict — was independently re-derived by the main agent before this file was

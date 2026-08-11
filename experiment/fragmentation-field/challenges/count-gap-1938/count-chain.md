@@ -37,9 +37,20 @@ pit-count-denominated numbers here move from a published 803 to the corrected
 779). **The overall residual has fallen 4–6× → 2.09–2.41×** through four
 shipped changes: 6c1faff's $\gamma'$ 65→54.5 re-anchor and ogive/cylinder $V_0$
 fix, `50b734e`'s sourced case mass, C1's threshold and C2's break-up velocity.
-The remaining work is a **re-ranking of C3/C4/C5**, given in §3 — and the
-ranking has changed, because C1's magnitude and direction were not what earlier
-passes assumed. Nothing further in `src/arty/` is scoped by this thread.
+**C5 has since been investigated and discharged (§3): it was the only
+candidate that could have absorbed the residual as a comparison-basis
+artefact rather than a model defect, and it does not — bounded at ≤1.221× on
+its most generous reading, and at ~0 on the correct reading of Tolch's census
+(perforation/penetration/dent grading, not a detection floor).** That also
+discharges §4's INDETERMINATE clause, which fired only if C5's cutoff could
+not be bounded below ~1.5×: it is bounded well inside that, so the verdict is
+a plain, genuine **FAIL at 2.25× (/779) and 2.51× (/700)** — not "FAIL
+trending INDETERMINATE" as earlier drafts of this banner had it. The
+remaining work is **C3 next, then C4** (§3) — C5 has dropped off the ranking,
+discharged without credit. Nothing further in `src/arty/` is scoped by this
+thread.
+
+FINDING\[deferrable\]: headline 1.221x/2.05x C5 figures rest on the inadmissible 0.36g/838m/s datum (iv) though the sound census-grading argument (i) alone suffices; three status surfaces lead with the numeric figures instead of (i) (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/README.md; since: 2026-08-10)
 
 **Question.** `_limitations.qmd` L1 records that Tolch (1938)'s absolute
 perforating-fragment count is still over-predicted by ~4–6× after both the Mott
@@ -393,56 +404,108 @@ criterion-match one** (which metal weight — Tolch's 10.94 lb empty-shell-and-f
 or his 13.29 lb pit-recovery basis — is the right spectrum denominator), not a
 magnitude one (`rebaseline-verdict.md` §3, C4).
 
-**C5 — the observed side is detection-limited, not physics-limited. Newly
-quantifiable, and now the best-supported next check** (drag scoping §3d,
-weighing point 3). Tolch's 700 counts holes he could *see*; the model counts
-every fragment above threshold. Through 2026-08-08 this was recorded as an
-"unquantified" bias, which was right when $m_{thr}$ sat at 0.36–1.13 g. **C1
-changed that by putting $m_{thr}$ at 0.166 g**, and a bound is available from a
-datum already in hand and already used in this thread: Tolch's own
-**smallest-perforating-hole** observation, $m\ge0.36$ g at 838 m/s — the same
-measurement that supplied the 126 J row. That is a statement about the smallest
-hole he *recorded*, so as a detection floor it is an upper bound at worst, and
-the shipped model now predicts perforations by fragments a factor 2.2 lighter
-than anything his panels registered.
+**C5 — the observed side is detection-limited, not physics-limited.
+DISCHARGED 2026-08-10: bounded, and it does not clear the band on any
+admissible reading.** The premise recorded here through 2026-08-08 was that
+"Tolch's 700 counts holes he could *see*, the model counts every fragment above
+threshold", with the bound to come from Tolch's own
+**smallest-perforating-hole** datum, $m\ge0.36$ g at 838 m/s (the same figure
+that supplied the 126 J row). The closure below keeps the arithmetic and
+rejects the premise. Block (G) of
+[`checks/count-chain-rebaseline.py`](checks/count-chain-rebaseline.py) is the
+script; block (F) now prints both denominators so the basis cannot be mixed
+silently.
 
-Imposing that floor on the verdict row (block (F) of
-[`checks/count-chain-rebaseline.py`](checks/count-chain-rebaseline.py), re-run
-2026-08-10): $N(\ge0.36\,\text{g}) = 1438$, i.e. $N/779 = 1.85\times$ and
-$N/700 = 2.06\times$. **A ~1.22× detection-limit correction takes the count arm
-from 2.25× to the edge of the PASS band** — inside on the pit denominator,
-marginal on the panel one. When the residual was 4–6× this term was a rounding
-correction; at 2.25× it is the majority of what is left outside the band.
+**(i) The premise is wrong: the 700 column is perforation-limited by
+construction, not detection-limited.** Tolch does not record "holes"; he
+records **perforations, penetrations and dents as three separate columns**, on
+every panel, in every table (`card.md`, base/nose/side-spray table criteria —
+e.g. grep `"Number of perforations, penetrations, and dents of the base spray per unit solid angle."`).
+A fragment too weak to go through is therefore *not lost from the census* — it
+is counted in the adjacent column. The detection floor of that census is the
+smallest **dent** he could see in a softwood plank, which lies far below any
+perforating mass; the binding constraint on the 700 column is the perforation
+mechanism itself. That mechanism is precisely what C1 already models. **C5 is
+not a separate term from C1 — on the correct reading of the census it collapses
+into it**, and there is no independent detection credit to take.
 
-**C3 and C5 bite on the same fragments and are not additive.** Both act on the
-0.166–0.63 g window: C3 says the model may not have that many fragments there,
-C5 says Tolch would not have counted them if it did. Crediting both would
-double-count. C5 must therefore be bounded *first* — it is a
-comparison-basis question, not a model defect, and no `src/arty/` change
-follows from it either way.
+**(ii) Even granting the premise, the bound is an upper bound on the *credit*,
+not a conservative one, and it fails.** The smallest hole Tolch *recorded* is
+$\ge$ the true detection floor, so 0.36 g removes the most fragments any valid
+floor could remove. At that maximum credit,
+$N(\ge0.36\,\text{g}) = 1438$: **$N/700 = 2.05\times$** — the criterion-matched
+pairing, a panel-side floor against the panel perforating count — i.e. still
+outside the 2× band. Realised leverage 1.221×.
 
-### Recommendation, re-reasoned 2026-08-10: **C5 next, then C3, then C4**
+**(iii) The 1.85× headline published here through 2026-08-10 was a mixed
+basis and is void.** It divides a model count carrying a *panel hole-visibility*
+floor by the **pit sand-recovery census** (779), whose own floor is a screen
+aperture, not hole visibility. That is the identical defect the open finding
+raises against block (D), transferred to block (F) by how C5 quoted it. The
+census-matched cut for the 779 denominator is Tolch's finest screen cut,
+0.63 g → $N/779 = 1.51\times$; but that is a *census-completeness* correction
+belonging to C4, not a detection correction, and it may not be quoted as C5's.
+
+**(iv) Admissibility of the 0.36 g datum itself — weak, and the closure does
+not rest on it.** `card.md` states that `tolch-1938.md` "is not a citable
+surface for any number" and that "a number that has no CSV has no admissible
+surface in this repo". **0.36 g has no CSV**, and the word *smallest* does not
+occur anywhere in the extraction; 126 J is reconstructible as
+$\tfrac12(0.36\,\text{g})(838.2\,\text{m/s})^2$ with 838.2 m/s taken from
+Summary item 10's sidespray velocity, so the mass is the primary and its
+provenance is unanchored. Per `.claude/rules/source-data-fidelity.md` a null
+over a known-unreliable extraction bounds the surface, not the source — so this
+is **flagged, not a fabrication verdict**, and `source.pdf` is not retained
+locally to settle it. It does not need settling: readings (i) and (ii) bracket
+the answer, and both leave the arm outside the band.
+
+**(v) A model-side note falls out of (i), and it is C1's, not C5's.** Read as a
+*perforation* observation, 0.36 g at 838 m/s rescales to the 15 ft panel through
+the shipped plug-shear law ($E_{thr}\propto m^{1/3}$ against
+$\text{KE}\propto mv^2 \Rightarrow m_{thr}\propto v^{-3}$): the shipped
+threshold would admit **0.065 g** at 838 m/s against a smallest observed
+perforation of 0.36 g — permissive by 5.6× in mass. That is a statement about
+`arty.perforation`, not about the comparison basis, and it is only as good as
+(iv)'s unanchored datum. Recorded as a note, not actioned here.
+
+FINDING\[note\]: C1 plug-shear threshold rescales to 0.065 g at 838 m/s vs. Tolch's smallest observed perforation 0.36 g (5.6x permissive in mass); rests on an unanchored datum (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-10)
+
+**Consequence for §4's INDETERMINATE clause: discharged.** The clause fires only
+if C5's cutoff "cannot be bounded below ~1.5×". It is bounded at **≤1.221×**,
+and at 0 on reading (i). The verdict is therefore a genuine **FAIL**, not
+INDETERMINATE — and not a PASS.
+
+**C3 and C5 bite on the same fragments and are not additive** — the reason this
+mattered, and why C5 was ordered first. Both act on the 0.166–0.63 g window: C3
+says the model may not have that many fragments there, C5 said Tolch would not
+have counted them if it did. With C5 discharged at ≤1.221× (and at ~0 on the
+graded-census reading), **that window is now C3's alone** and the
+double-counting hazard is gone. C5 was a comparison-basis question throughout;
+no `src/arty/` change followed from it, as scoped.
+
+### Recommendation, re-reasoned 2026-08-10 (C5 now closed): **C3 next, then C4**
 
 The old recommendation ("C1 first, alone") is spent — C1 and C2 are both
-shipped. The new ranking is *not* the old one with the top two struck off,
-because C1's outcome invalidated the reasoning that produced it.
+shipped. The 2026-08-10 morning ranking put **C5 first**; C5 has since been run
+and discharged (above), so the live ranking is C3 then C4.
 
-1. **C5 (detection limit) first.** Three reasons. (i) It is the only remaining
-    candidate that is *bounded by data already in hand* — Tolch's own
-    smallest-hole datum — so it costs a check script, not a derivation, no
-    @librarian and no `src/arty/` change. (ii) Its leverage, ~1.22×, is now
-    known to be enough to decide the verdict (2.25× → 1.85×), which was not
-    true at 4–6×. (iii) §4's own INDETERMINATE clause *already requires* it:
-    no fix may be credited with closing anything until C5 is bounded, and that
-    clause has been un-discharged since the thread opened.
-1. **C3 (sub-gram Mott tail) second**, and only after C5, because they act on
-    the same 0.166–0.63 g window and would otherwise double-count. C3 is now
-    the largest *model-side* term (up to 1.49×) and its earlier dismissal
-    rested on a premise C1 falsified. It is also the term the threshold-free
-    test points at: with the threshold sourced and the velocity basis fixed,
-    what survives is a spectrum-shape claim in a mass range Tolch never
-    measured.
-1. **C4 (mass bookkeeping / census denominator) third**, unchanged in
+1. ~~**C5 (detection limit) first.**~~ **Run and discharged 2026-08-10.** The
+    reasoning that put it first was sound — it was the only candidate bounded by
+    data already in hand, and §4's INDETERMINATE clause required it — but the
+    outcome was negative on both readings: the premise fails (Tolch's census
+    grades hits as perforation/penetration/dent, so the 700 column is
+    perforation-limited, not detection-limited), and even at maximum credit the
+    bound leaves the arm at 2.05× on the criterion-matched denominator. The
+    ~1.22× figure quoted here in the morning was real arithmetic on the wrong
+    denominator (1.85× on /779 mixes a panel-side floor with the pit census).
+1. **C3 (sub-gram Mott tail) first now.** The double-counting hazard that
+    ordered it behind C5 is gone: with C5 discharged the 0.166–0.63 g window is
+    C3's alone. C3 is the largest *model-side* term (up to 1.49×) and its
+    earlier dismissal rested on a premise C1 falsified. It is also the term the
+    threshold-free test points at: with the threshold sourced and the velocity
+    basis fixed, what survives is a spectrum-shape claim in a mass range Tolch
+    never measured.
+1. **C4 (mass bookkeeping / census denominator) second**, unchanged in
     substance: its live question is criterion-match (which metal weight is the
     right spectrum denominator), and the two open findings against
     `checks/count-chain-rebaseline.py` and `rebaseline-verdict.md` are its
@@ -458,8 +521,13 @@ delivered 1.096×. The common cause is estimating leverage from a ratio of
 published $N$ values rather than re-solving the chain: $m_{thr}$, $N_0$ and
 $\mu$ do not move independently, and the exponential survival factor
 systematically eats part of any $N_0$ change. **Leverage figures in the ranking
-above (1.22× for C5, 1.49× for C3) are re-solved counts, not scaled ones** —
+above (1.221× for C5, 1.49× for C3) are re-solved counts, not scaled ones** —
 but they are still upper bounds, because each assumes the others are absent.
+**C5 is the third instance of the same over-estimate**, in a new form: its
+1.22× was arithmetically correct but was quoted against the wrong denominator,
+and the premise generating it did not survive contact with how Tolch's census
+is actually graded. The generalised lesson is now *check the comparison basis
+before quoting the leverage*, not only *re-solve the chain*.
 
 ______________________________________________________________________
 
@@ -492,22 +560,35 @@ Against that:
     with the now-fixed threshold as the invariant that makes the improvement
     measurable.
 - **INDETERMINATE** — if C5's detection cutoff cannot be bounded below ~1.5×,
-    say so and stop; the dataset cannot resolve a 2× claim.
+    say so and stop; the dataset cannot resolve a 2× claim. *(Did not fire —
+    bounded at ≤1.221× on 2026-08-10; see below and §3 C5.)*
 
 **Outcome (2026-08-10): FAIL, and the FAIL branch has been executed to
 exhaustion.** The sourced threshold gave 2.47× (≥ 2×, FAIL); C2 was run as the
 prescribed Workflow-B follow-up against that fixed threshold and returned
 **2.25×** — still ≥ 2×. Both denominators agree on the sign
 ($N/700 = 2.51\times$). So the count arm fails on the criterion the thread set
-itself, and it fails by a factor the *comparison basis* could plausibly account
-for rather than by a factor the model plainly cannot: **the standing verdict is
-FAIL trending INDETERMINATE**, because C5's cutoff — the one clause never
-discharged — is now bounded at ~1.22× (§3), which lands the arm at 1.85× and
-therefore *inside* the band. The dataset's ability to resolve a 2× claim at
-this residual is exactly what is in question. Discharging C5 is what converts
-this into a defensible PASS or a genuine INDETERMINATE; a further model-side
-fix credited before then would be crediting a fix against an unbounded
-comparison bias, which this criterion explicitly forbids.
+itself.
+
+**The INDETERMINATE clause is now discharged, and it did not fire (2026-08-10,
+later pass).** That clause was the last thing standing between "FAIL" and "FAIL
+trending INDETERMINATE": it fires only if C5's detection cutoff *cannot* be
+bounded below ~1.5×. C5 has been run and closed (§3): the cutoff is bounded at
+**≤1.221×** on the datum's most generous reading, and at ~0 on the correct
+reading of Tolch's census, which grades hits as perforation / penetration /
+dent and is therefore perforation-limited rather than detection-limited in the
+700 column. Applying the maximum credit against the criterion-matched
+denominator gives **$N/700 = 2.05\times$ — still outside the band.** *The
+1.85× reading published in this section earlier on 2026-08-10 is void: it
+divided a panel-side detection floor by the pit sand-recovery census, the same
+basis mix the open finding raises against block (D).*
+
+**So the standing verdict is a plain FAIL at 2.25× (/779) and 2.51× (/700), not
+INDETERMINATE.** The dataset *can* resolve a 2× claim at this residual — that
+is what bounding C5 established — and the residual is real. The bar on
+crediting further fixes is correspondingly lifted: C3 may now be worked without
+crediting a model fix against an unbounded comparison bias, which is what the
+criterion forbade.
 
 Factor 2 is the right band here (and matches `../drag-gap-1944/b-vs-range.md`'s
 criterion): a 1938 four-round average, hole-counted by eye, against an
@@ -541,8 +622,14 @@ What stands after both:
 - **$N_0$ is still not the defect** (Fact 1, §2) — it sits between Tolch's own
     two totals, and moved *closer* to the pit census under C2.
 - **The residual has migrated from the threshold to the spectrum/census side**,
-    and the ranking of what to check next changed with it (§3): C5, then C3,
-    then C4.
+    and the ranking of what to check next changed with it (§3). C5 was ranked
+    first and has since been run and **discharged without credit**, so the live
+    ranking is C3, then C4 — and the residual is now attributed
+    predominantly to the *spectrum* term rather than the census one.
+- **The comparison basis is no longer an open excuse.** C5 was the only
+    candidate that could have absorbed the residual without any model being
+    wrong; it cannot. What remains outside the band is a claim about the model's
+    sub-gram spectrum (C3) and about which metal weight denominates it (C4).
 
 This re-framing is a consequence of shipped, independently reviewed physics
 (C1's plug-shear threshold, C2's break-up velocity), not of any new argument in
