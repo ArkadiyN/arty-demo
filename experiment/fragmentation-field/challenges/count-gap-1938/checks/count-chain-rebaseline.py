@@ -159,10 +159,48 @@ for s, cn, cw, p, nm in zip(screens[1:], cum_n2, cum_w2, phi2, N_model2):
     print(f"  {s:>14s} | {cn:5.0f} | {cw:9.1f} | {p:6.4f} | {nm:7.0f} | {nm/cn:5.2f}x")
 
 # ------------- (F) the thread's own 0.63 g cut, re-based 803 -> 779 -----------
+# CRITERION NOTE (2026-08-10, C5 closure). Each cut must be quoted against the
+# denominator whose OWN census floor it is:
+#   * 0.63 g is the pit test's finest screen cut  -> pair with 779 (pit census)
+#   * a panel hole-size floor                     -> pair with 700 (panel perf)
+# Pairing a panel-side floor with the pit denominator (the 0.36 g / 779 = 1.85x
+# cell, quoted as C5's headline through 2026-08-10) is the same basis mix the
+# open finding raises against block (D) and must not be cited.
 print("\n=== (F) thread's fixed-mass cuts, re-based ===")
-for cut_g in (0.63, 0.36, 0.13, 0.05):
+for cut_g in (0.63, 0.36, 0.166, 0.13, 0.05):
     N_above = mott_N(np.array([cut_g * 1e-3]), N0, mu)[0]
     print(
-        f"  cut {cut_g:5.2f} g: N={N_above:7.0f}  N/803(old)={N_above/803:5.2f}  "
-        f"N/779(new)={N_above/N_rec:5.2f}"
+        f"  cut {cut_g:5.3f} g: N={N_above:7.0f}  N/700={N_above/700:5.2f}  "
+        f"N/803(old)={N_above/803:5.2f}  N/779(new)={N_above/N_rec:5.2f}"
     )
+
+# ------------------------------ (G) C5 detection-limit bound -----------------
+# C5 asks whether Tolch's observed side is DETECTION-limited. The floor the
+# thread proposed is the "smallest perforating hole", m >= 0.36 g at 838 m/s
+# (the 126 J row). Two things this block establishes, both cited in
+# count-chain.md sec.3 C5:
+#   (i) 0.36 g is an UPPER bound on any detection floor (the smallest recorded
+#       hole is >= the true floor), so the count it leaves is a LOWER bound on
+#       the residual -- the most favourable number C5 can ever produce.
+#  (ii) Read as a *perforation* datum instead, the same 0.36 g scales to the
+#       panel-arrival condition through the shipped plug-shear law
+#       (E_thr ~ m^(1/3), KE = m v^2/2  =>  m_thr ~ v^-3), which is where it
+#       collides with C1 rather than adding to it.
+print("\n=== (G) C5 detection-floor bound, criterion-matched denominator ===")
+M_DET_G = 0.36  # Tolch smallest recorded perforating hole [g]
+V_DET = 838.2  # m/s, Tolch Summary item 10 sidespray velocity
+N_det = mott_N(np.array([M_DET_G * 1e-3]), N0, mu)[0]
+N_verdict = 1756.0  # sec.2 verdict row, plug-shear m_thr = 0.166 g
+print(f"  verdict row N = {N_verdict:.0f} -> N/700 = {N_verdict/700:.2f}x")
+print(f"  floor {M_DET_G} g   N = {N_det:.0f} -> N/700 = {N_det/700:.2f}x   (MAX C5 credit)")
+print(f"  realised C5 leverage = {N_verdict/N_det:.3f}x  (sec.4 INDETERMINATE gate: < 1.5x)")
+print(f"  mixed-basis cell NOT to be cited: N/779 = {N_det/N_rec:.2f}x")
+# (ii) same datum read as a perforation observation, rescaled to 612 m/s
+m_thr_verdict = 0.166  # g, plug-shear at the 15 ft panel
+v_panel = 612.0  # m/s, arrival velocity of that fragment (sec.2)
+m_model_at_vdet = m_thr_verdict * (v_panel / V_DET) ** 3
+print(
+    f"  plug-shear m_thr rescaled to {V_DET:.0f} m/s = {m_model_at_vdet:.3f} g "
+    f"vs Tolch's smallest observed perforation {M_DET_G} g "
+    f"-> model permissive by {M_DET_G/m_model_at_vdet:.1f}x in mass"
+)
