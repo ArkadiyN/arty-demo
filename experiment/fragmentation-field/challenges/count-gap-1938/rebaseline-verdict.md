@@ -1,8 +1,9 @@
 # `count-gap-1938` re-baseline verdict — does the count chain's conclusion survive?
 
 **Status: complete, but the *model* side of every claim below was evaluated
-against shipped code as of 2026-08-08 *before* commit 6c1faff.** Read the
-re-closure banner first; the re-baseline itself (the Tolch-series side) is
+against shipped code as of 2026-08-08 *before* commit 6c1faff.** Read **both**
+re-closure banners first — the 2026-08-08 one and the 2026-08-10 C1+C2 one
+that supersedes part of it; the re-baseline itself (the Tolch-series side) is
 unaffected.
 
 > **Re-closure banner — model numbers, 2026-08-08 (post-6c1faff / `50b734e`).**
@@ -46,6 +47,62 @@ unaffected.
 > 2026-08-08 (this pass) — the earlier claim in this banner that the §3 text
 > had *already* been applied to README was wrong, README then still carried
 > the pre-6c1faff wording.
+
+> **Second re-closure banner — model numbers, 2026-08-10 (post-C1 + C2).**
+> Two model changes have shipped since the banner above, and they move the
+> count arm back the other way, so **the banner above is itself now partly
+> superseded — read this one for anything about the verdict.** C1: a sourced
+> *mass-dependent* perforation threshold (plug shear-out,
+> $E_{thr}(m)=\tfrac12\tau\pi D(m)t^2$, $\tau$ = 8.96 MPa, Sanborn 2019 ASTM
+> D143) shipped as `arty.perforation.perforation_threshold_energy`
+> (`updates/sourced-wood-perforation-threshold/derivation.md` §7.3). C2: a
+> source-defined break-up velocity fraction $f$ = 0.943 (admissible band
+> 0.899–0.953) shipped as `arty.fragmentation.breakup_velocity_fraction`
+> (`updates/breakup-velocity-fraction/derivation.md` §5). Current shipped code
+> now gives **$V_0 = 864.4$ m/s, $\mu = 0.929$ g, $N_0 = 2681$** at the
+> default $f$ ($M_\text{case} = 4980$ g is unchanged) — so even the "current
+> shipped code gives" line in the banner above is stale. `count-chain.md` has
+> been re-closed a **second** time against this state and remains the live
+> document; two of that banner's three bullets move again:
+>
+> - **§4 "FAIL / count chain implicated" — supported again; the "no longer
+>     supported" ruling in the banner above is void.** That ruling rested on
+>     the 78.6 J / 126 J *scalar* threshold rows ($N/779$ = 2.00 / 1.73), and
+>     both are now demoted: 78.6 J is the Ordnance Dept. 1944 personnel
+>     **incapacitation** criterion, criterion-mismatched for a wood-perforation
+>     arm, and the mass-independent form over-charges the light end. At the
+>     criterion-correct mass-dependent threshold the chain gives $N/779$ =
+>     **2.47** at $f$ = 1 and **2.25** at the shipped $f$ = 0.943 ($N/700$ =
+>     2.75 → 2.51) — **outside** the 2× PASS band, and outside it across the
+>     whole admissible $f$ band (2.29× at 0.953, 2.09× at 0.899) and the whole
+>     $\tau$ ±1σ band (2.12–2.41×). **The standing verdict is FAIL at 2.25×,
+>     trending INDETERMINATE pending C5** (detection cutoff bounded at ~1.22×,
+>     which would land the arm at 1.85× on /779, 2.06× on /700). See
+>     `count-chain.md` §2 "The verdict row" and §4 "Verdict framing after the
+>     2026-08-10 C1+C2 re-closure", which is the authoritative statement.
+> - **§2 Fact 2 "void as written" — still void, magnitude restates again.**
+>     The threshold-free (E) result is **1.59–1.99×** on the Tolch-13.29 lb
+>     basis at $f$ = 0.943 (was 1.78–2.24× at $f$ = 1, and 2.15–2.70× before
+>     6c1faff). The model-mass basis of (E) remains degenerate; only the Tolch
+>     basis is quotable.
+> - **§3 C4 — restated figures only, ruling unchanged.** Dropping the coarsest
+>     screen now moves the threshold-free residual 1.59× → **1.81×** (still
+>     *up*, not down to 1.19×); the 1.19× still comes from the
+>     numerator/denominator-inconsistent fuze-excluded variant, which remains
+>     an **open finding** against `checks/count-chain-rebaseline.py` and this
+>     file and is *not* resolved here. The $f = 1/\sqrt{\text{ratio}}$
+>     corollary (0.67–0.75 above) should no longer be quoted as a
+>     velocity-fraction estimate at all: C2 ships $f$ = 0.943 from an
+>     independent source read, and `count-chain.md` §3 retires the $f$ = 0.7–0.8
+>     rows because no source read supports $f<0.90$.
+>
+> The second standing open finding on this file — that block (D) divides an
+> energy-thresholded count by a size-thresholded census, so the
+> criterion-clean (E) figure is the better-conditioned statement — is likewise
+> untouched by this banner and still open.
+>
+> `challenges/README.md` was restated to match on 2026-08-10 (item (4) of its
+> `count-gap-1938` status detail).
 
 Block (E)'s arithmetic — the threshold-free test that carries the one void
 verdict — was independently re-derived by the main agent before this file was
@@ -182,6 +239,16 @@ ______________________________________________________________________
 > "Net new for the next pass" note below (C4 must be closed before C2) is
 > superseded too — see the banner's third bullet: C4 is no longer the largest
 > source of spread, and C2 is no longer the term that decides the verdict.
+>
+> **Superseded again (2026-08-10, post-C1 + C2).** The "at-or-inside the 2×
+> band (1.73–2.00) / §4's FAIL is no longer supported" clause above is itself
+> void — it quotes the demoted scalar-threshold rows. At the sourced
+> mass-dependent threshold and the sourced $f$ = 0.943 the arm is **FAIL at
+> 2.25× on /779 (2.51× on /700), trending INDETERMINATE pending C5**. Both C1
+> and C2 have shipped, so "still gated on a sourced $E_{thr}$ (C1)" and
+> "C4 must be closed before C2 is derived" (below) are spent as well. See the
+> second re-closure banner at the top of this file and `count-chain.md` §4
+> "Verdict framing after the 2026-08-10 C1+C2 re-closure".
 
 **The thread survives the re-baseline: no verdict flips, one inference is
 void, and every pit-count-denominated number moves up 3.1 %.** Of 20 published
@@ -206,10 +273,12 @@ thread does not currently state.
 > below were applied to `challenges/README.md` and have since been replaced
 > there, because "verdict stands" / "No PASS/FAIL row changes side" is false
 > under current shipped parameters. **`challenges/README.md` is the live text**
-> — it now reads "Re-baselined, then re-closed post-6c1faff — count arm now
-> met-or-marginal; one inference void" and states which rows move. The block
-> below is retained as the record of what the Tolch-series re-baseline alone
-> concluded; do not re-apply it.
+> — it now reads "Re-baselined, then re-closed twice (C1, then C2) — count arm
+> FAILs at 2.25×, trending INDETERMINATE pending C5; one inference void" and
+> states which rows move (row text updated there 2026-08-10; it read
+> "re-closed post-6c1faff — count arm now met-or-marginal" between 2026-08-08
+> and then). The block below is retained as the record of what the
+> Tolch-series re-baseline alone concluded; do not re-apply it.
 
 The thread has **no row** in the Threads table. Add one, after the
 `mott-scale-gap/` row:
