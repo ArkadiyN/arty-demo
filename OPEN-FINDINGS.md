@@ -13,76 +13,76 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
 
 - **SAND92-0243 is cited for a velocity-DEPENDENT C_D but states no functional form; its own analyses take "Drag coefficient = variable (Ref. 1)" and Ref. 1 is SAND91-0277, which is not held, so the dependence is cited but unsourced**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md`, `experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md`, `doc-reference/ww2-shells/sandia-sand92-0243/card.md`
-    - raised: 2026-08-02 (8d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2045`
+    - raised: 2026-08-02 (13d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2045`
 - **Gold 2017 attributes to "Mott (1943)" both a constant fragment breadth:length ratio and an average cross-sectional area proportional to (r/V)^2, and this derivation inherits the first as the premise that A = l/x is one constant across shells; the primary (Mott & Linfoot, A.C. 3348, now retained at doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/) states the opposite twice ("we have not been able to find a theory to account for the average length of the splinters", p.2; "our theory ... does not account for the length of splinters from shells, but only for their breadth", p.4) and where sect. 3 treats length it makes it independent of breadth, while the (r/V)^2 area scaling is Mott 1947's, not 1943's — only the parallelepiped attribution survives, so the 1.6 VALUE is fine (it is Felix 2022 Table 4, ledger sect. 16) but the structural premise is not primary-backed and the Phase-3 pass on this thread should say so rather than repeat Gold's citation**
     - affects: `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md`, `experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md`, `src/arty/fragmentation.py`, `doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/card.md`
-    - raised: 2026-08-02 (8d) in `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md:37`
+    - raised: 2026-08-02 (13d) in `experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md:37`
 - **the ledger's Tolch-comparison tables (§2, §3) cite mott_scale_check.py / mott_shape_closure.py, which were never committed and are permanently lost — those numbers are unauditable and unre-runnable, so any pass relying on them must regenerate the check under checks/**
     - affects: `experiment/fragmentation-field/challenges/mott-scale-gap/_scale_verdict_ledger.md`, `experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/mott-scale-gap/rebaseline-verdict.md:107`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/challenges/mott-scale-gap/rebaseline-verdict.md:107`
 - **scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that**
     - affects: `src/utils/scan-extraction-quality.py`, `.claude/rules/source-data-fidelity.md`, `doc-reference/fragmentation/fragment-size-distribution-conwep/card.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2494`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2494`
 - **count-chain (D) divides an energy-thresholded whole-shell count by a size-thresholded recovery census (m_thr=0.403 g sits below the finest screen bucket mean 0.61 g, census count-incomplete there) and by a perforation-thresholded panel count (700); quote the criterion-clean section (E) figure 2.15x instead of (D)'s 2.28x**
     - affects: `experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py`, `experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/review-criterion-match.md:337`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/challenges/source-data-audit/review-criterion-match.md:337`
 - **the "fuze-excluded variant" in count-chain-rebaseline.py block (E) removes screen-1 mass from the numerator but keeps the fuze-inclusive model M_case in the denominator, producing a spurious 1.19x floor; on a fuze-consistent basis the threshold-free band is 2.1-2.2x post-fix (2.2-2.7x as first written, pre-50b734e) and the derived velocity fraction restates from f=0.61-0.92 to f=0.67-0.69**
     - affects: `experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py`, `experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/review-void-rulings.md:204`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/challenges/source-data-audit/review-void-rulings.md:204`
 - **V0_FTS (75mm 3120, 105mm 3500, 155mm 3500 ft/s) is used by every check script in this thread but has no provenance in the processed 1944 Ordnance source; it is degenerate with the drag constant and the V2 PASS margin (0.096 vs a 0.10 bar) is inside its plausible error**
     - affects: `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md`, `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/checks/`, `experiment/fragmentation-field/challenges/drag-gap-1944/checks/`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/rebaseline-verdict.md:211`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/rebaseline-verdict.md:211`
 - **the aspect's own required validation — the γ-sweep of A_p for standing and prone, and the ground-burst vs airburst hit-count ratio (item 7 above) — is still absent from the notebook; only the γ=0 and γ=π/2 endpoints exist, so the posture crossover the aspect exists to produce is nowhere shown to a reader**
     - affects: `experiment/fragmentation-field/updates/target-area-profile/derivation.md`, `experiment/fragmentation-field/_four-zone-3d.qmd`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/updates/target-area-profile/derivation.md:445`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/updates/target-area-profile/derivation.md:445`
 - **tolch-1938-panel-distance.md cites a sweep script that no longer exists on disk, so its published tables cannot be reproduced or re-swept at the corrected 1.0/1.71 SAND92-0243 bounds**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`
-    - raised: 2026-08-08 (2d) in `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md:148`
+    - raised: 2026-08-08 (7d) in `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md:148`
 - **105mm M1 HE mass_deductions booster (M20/M20A1) weight not sourced anywhere in TM-9-1901; current value bracketed by fuze-only and M21A2-booster-analog but not itself confirmed**
     - affects: `src/arty/shells.py`, `experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md`
-    - raised: 2026-08-08 (2d) in `experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md:122`
+    - raised: 2026-08-08 (7d) in `experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md:122`
 - **155mm M107 HE mass_deductions rests on M51A3/M21A2 fuze+booster weight as a stand-in for the actually-authorized-but-unsourced M51/M21 and M51A1/M21A1 pairs**
     - affects: `src/arty/shells.py`, `experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md`
-    - raised: 2026-08-08 (2d) in `experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md:124`
+    - raised: 2026-08-08 (7d) in `experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md:124`
 - **this L1 (~3-4x, E_thr 2.8-4.1x) was not resynced against the newer count-gap-1938 re-closure (count-chain.md §4, 2026-08-08, post-6c1faff/50b734e), which found the count arm met-or-marginal at sourced thresholds (N/779 1.73-2.00x) with only the falloff-ratio arm still unmet; _limitations.qmd's L1 now carries that newer framing with no forward-pointer back here, so a reader following _limitations.qmd's "carried from derivation.md §7" pointer finds a stale, compound-only framing**
     - affects: `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md`, `experiment/fragmentation-field/_limitations.qmd`
-    - raised: 2026-08-09 (1d) in `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md:302`
+    - raised: 2026-08-09 (6d) in `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md:302`
 - **gamma slider is degenerate with the new f_breakup default (gamma'_eq = gamma*f^2), no control exists to isolate them**
     - affects: `app/sensitivity.py`
-    - raised: 2026-08-10 (0d) in `app/sensitivity.py:81`
+    - raised: 2026-08-10 (5d) in `app/sensitivity.py:81`
 - **headline 1.221x/2.05x C5 figures rest on the inadmissible 0.36g/838m/s datum (iv) though the sound census-grading argument (i) alone suffices; three status surfaces lead with the numeric figures instead of (i)**
     - affects: `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md`, `experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md`, `experiment/fragmentation-field/challenges/README.md`
-    - raised: 2026-08-10 (0d) in `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:53`
+    - raised: 2026-08-10 (5d) in `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:53`
 
 ## Note (10)
 
 - **`src/arty/fragmentation.py` names the grade `US WW2 WDSS1`, but AMCP 706-249 dates table 6-1 to 17 Feb 1953 and titles §6-11/§6-13 "Steel Used Early in World War II" (X-1340) / "Steels Used After World War II" - WDSS is post-war, so the identifier misdates the grade**
     - affects: `src/arty/fragmentation.py`, `experiment/fragmentation-field/_parameters.qmd`, `experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md`
-    - raised: 2026-08-02 (8d) in `doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md:152`
+    - raised: 2026-08-02 (13d) in `doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md:152`
 - **SAND92-0243's C_D is defined for tumbling plate/disk fragments and enters its range formula only as a product with the shape factor Re and thickness factor Sf, never alone; whether a bare C_D in src/arty measures the same quantity is an open criterion-match question for @model-reviewer**
     - affects: `src/arty/fragmentation.py`, `doc-reference/ww2-shells/sandia-sand92-0243/card.md`
-    - raised: 2026-08-02 (8d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2047`
+    - raised: 2026-08-02 (13d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2047`
 - **pk_given_hit interpolates ES-310's three anchors in log10(E), a scheme the source never states; at the one point the page works it gives 0.817 against a stated 0.8, where linear-in-E gives 0.767 — agreement on a single point, not a derivation**
     - affects: `src/arty/fragmentation.py`, `doc-reference/wound-ballistics/fas-es310-damage-criteria/card.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2283`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2283`
 - **Gold 2017 eq. (17) (N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a factor of 2; src/arty follows eq. (1), which is the self-consistent reading since mu is defined as HALF the average fragment mass, and a future pass that "corrects" the code toward eq. (17) would double every fragment count with a citation to back it**
     - affects: `src/arty/fragmentation.py`, `src/arty/zones.py`, `doc-reference/fragmentation/fragment-size-distribution-conwep/card.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2487`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2487`
 - **C11's Shock-B table headlines the per-band-refit row (0.199/0.052) whose Fig-3 scale varies 0.85-1.05 between bands; the zero-free-parameter perforation result (Fig-3 0.069 vs adopted constant 0.098) is a stronger and simpler void and should lead**
     - affects: `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/rebaseline-verdict.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/review-void-rulings.md:84`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/challenges/source-data-audit/review-void-rulings.md:84`
 - **the four-digit perforating-fragment velocity still renders as "27^0 f/s" at tolch-1938.md:146,1658,1698 with the third digit lost - resolving it needs a re-fetch of source.pdf (sha256 13e110d70b1cb686771d6f2e36523d9c9201551d41c7b3b9eb27685d71f90c92 per card.md:75, currently missing from the doc-reference directory) from DTIC AD0702233, then a vision read of those three pages**
     - affects: `doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md`, `doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/challenges/source-data-audit/review-void-rulings.md:292`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/challenges/source-data-audit/review-void-rulings.md:292`
 - **the mixed-column 25-point Ordnance velocity set is discharged in the documents — derivation.md §4 V2 now publishes the per-column re-run and §5 is withdrawn — but checks/required-retardation-vs-mach.py still carries the mixed array as a hard-coded literal; it is retained as the record of what was run, so read it as a record and never as a live series**
     - affects: `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/checks/required-retardation-vs-mach.py`
-    - raised: 2026-08-03 (7d) in `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/rebaseline-verdict.md:163`
+    - raised: 2026-08-03 (12d) in `experiment/fragmentation-field/updates/mach-dependent-fragment-drag/rebaseline-verdict.md:163`
 - **rotating-band treatment is inconsistent across the registry — 155mm M107 deducts band+plug in mass_deductions, 105mm M1 and 75mm M48 do not, so those two carry ~1.8% non-fragmenting gilding metal inside M_case**
     - affects: `src/arty/shells.py`
-    - raised: 2026-08-08 (2d) in `experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/derivation.md:204`
+    - raised: 2026-08-08 (7d) in `experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/derivation.md:204`
 - **C1 plug-shear threshold rescales to 0.065 g at 838 m/s vs. Tolch's smallest observed perforation 0.36 g (5.6x permissive in mass); rests on an unanchored datum**
     - affects: `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md`
-    - raised: 2026-08-10 (0d) in `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:471`
+    - raised: 2026-08-10 (5d) in `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:471`
 - **kennedy1970-gurney-energy/card.md "Standard Gurney Equations by Geometry" transcribes the cylinder as sqrt(2E)(1+M/2C)^-1/2 and flat sandwich as (1+M/C)^-1/2; standard Kennedy forms are (M/C+1/2)^-1/2 and (M/C+1/3)^-1/2, and the (M/C+1/2) form is what shipped gurney_velocity uses and what Martineau Table 5.3 closes on**
     - affects: `doc-reference/fragmentation/kennedy1970-gurney-energy/card.md`
-    - raised: 2026-08-10 (0d) in `experiment/fragmentation-field/updates/breakup-velocity-fraction/scoping.md:331`
+    - raised: 2026-08-10 (5d) in `experiment/fragmentation-field/updates/breakup-velocity-fraction/scoping.md:331`

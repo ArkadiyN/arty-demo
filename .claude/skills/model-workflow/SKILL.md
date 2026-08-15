@@ -230,6 +230,28 @@ next pass reads the artifacts (`scoping.md` / `derivation.md` / `review.md`),
 not the prior instance's live thread.
 Include file paths in each prompt, not conversation summaries.
 
+## Inject open findings into every brief
+
+Before dispatching @modeler or @model-reviewer, run:
+
+```
+uv run python src/utils/collect-findings.py --for <the pass's scope path>
+```
+
+and paste any hits into the brief verbatim, under a `Known open findings touching this scope:` heading. This is the whole point of the register — a
+defect recorded in `initial-conditions-105mm.md` is invisible to the pass that
+later edits `b-vs-range-105mm.py` unless something puts it in front of that
+pass. Nothing else does.
+
+Pasting a finding is **not** the anchoring violation described below: it is an
+external fact the subagent cannot derive (someone already looked, and found
+this), not a pre-built hypothesis about the work you are delegating. Paste the
+finding as recorded and stop there — do not append your own theory of the cause.
+
+If the pass resolves a finding it deletes that `FINDING[...]` marker at its
+source, in the same commit; say so in the brief. *Recording* new findings is
+already binding on every agent via `.claude/rules/deferred-findings.md`.
+
 ## Briefing subagents — problems, not solutions
 
 This applies to both @modeler (investigation/derivation) and @model-reviewer
