@@ -3,10 +3,14 @@
 **Status: C1 and C2 both discharged and shipped; re-closed against shipped code
 2026-08-10 (post `breakup_velocity_fraction`). Verdict: count arm FAILS at
 2.25× (band 2.09–2.41×) — outside the within-2× PASS band, but by far less than
-the 4–6× L1 originally reported.** Both sub-candidates this thread named as
-actionable have since been implemented, reviewed and merged, so this document
-is no longer a scoping document for them; it is the standing record of what the
-count arm now measures and what is left.
+the 4–6× L1 originally reported. C5 then C3 have since been investigated
+(2026-08-10, 2026-08-15) — C5 discharged without credit, C3 real but
+diagnostic-only at 1.324× (see banner below §3's C3 entry and
+[`mott-tail-shape.md`](mott-tail-shape.md)); neither reopens `src/arty/`.**
+Both sub-candidates this thread named as actionable (C1, C2) have since been
+implemented, reviewed and merged, so this document is no longer a scoping
+document for them; it is the standing record of what the count arm now
+measures and what is left.
 
 - **C1** — a sourced, mass-*dependent* wood-perforation threshold (plug shear-out,
     $E_{thr}(m) = \eta\,\tau\,\pi D(m)\,t^2$) now exists as
@@ -45,10 +49,16 @@ its most generous reading, and at ~0 on the correct reading of Tolch's census
 discharges §4's INDETERMINATE clause, which fired only if C5's cutoff could
 not be bounded below ~1.5×: it is bounded well inside that, so the verdict is
 a plain, genuine **FAIL at 2.25× (/779) and 2.51× (/700)** — not "FAIL
-trending INDETERMINATE" as earlier drafts of this banner had it. The
-remaining work is **C3 next, then C4** (§3) — C5 has dropped off the ranking,
-discharged without credit. Nothing further in `src/arty/` is scoped by this
-thread.
+trending INDETERMINATE" as earlier drafts of this banner had it.
+**C3 has since been investigated and discharged (2026-08-15, §3):
+diagnostic-only credit of 1.324× — real, applied to the residual it restates
+2.25× → 1.70× (/779), but every *sourced* alternative spectrum shape moves the
+residual the wrong way, so nothing ships and the count arm may not be
+re-declared PASS on it.** See
+[`mott-tail-shape.md`](mott-tail-shape.md) for the full study. The
+remaining work is **C4** (§3) — C3 and C5 have both dropped off the ranking,
+discharged without credit that can ship. Nothing further in `src/arty/` is
+scoped by this thread.
 
 FINDING\[deferrable\]: headline 1.221x/2.05x C5 figures rest on the inadmissible 0.36g/838m/s datum (iv) though the sound census-grading argument (i) alone suffices; three status surfaces lead with the numeric figures instead of (i) (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/README.md; since: 2026-08-10)
 
@@ -307,7 +317,7 @@ light end — it is the part of the residual that C3 (§3) cannot explain.
 
 ______________________________________________________________________
 
-## 3. Sub-candidates — C1 and C2 discharged, C3/C4/C5 re-ranked
+## 3. Sub-candidates — C1, C2, C3 discharged; C4 remaining
 
 **C1 — the perforation decision was a hard step in KE with a *fitted*
 threshold. DISCHARGED (shipped).** Equation (4) is a Heaviside: every fragment
@@ -368,8 +378,18 @@ $f$ depends on the released-energy fraction alone and closes in one line from
 the CJ isentrope. The lesson for future sub-candidates in this thread is that
 "needs new physics" is not the same as "needs a big model".
 
-**C3 — the single-exponential Mott form in the sub-gram tail. Now the largest
-*model-side* term, and no longer blocked.** $N(\ge m)$ is extrapolated well
+**C3 — the single-exponential Mott form in the sub-gram tail. RUN AND CLOSED
+2026-08-15: real at 1.324×, but not sourced — see
+[`mott-tail-shape.md`](mott-tail-shape.md).** The realised credit is 1.324× of
+the "up to 1.49×" estimated below (the first sub-candidate in this thread whose
+predicted leverage was close to right), restating the residual as **1.70×
+(/779) / 1.89× (/700)**. It is **not actionable**: the only shape that pays is
+a $\lambda$ fitted to Tolch itself; Mott's own 3D exponent $\lambda=1/3$ and the
+literature's power-law tail both move the residual *up* (0.85× and 0.31–0.72×).
+**No `src/arty/` change follows.** The original entry stands below as the
+scoping that was executed.
+
+$N(\ge m)$ is extrapolated well
 below Tolch's finest screen cut (0.63 g) and nothing validates the form there.
 This thread previously dismissed C3 on the premise that "at a physical
 threshold ($m_{thr}\gtrsim0.6$ g) the extrapolation is not exercised at all" —
@@ -483,11 +503,11 @@ graded-census reading), **that window is now C3's alone** and the
 double-counting hazard is gone. C5 was a comparison-basis question throughout;
 no `src/arty/` change followed from it, as scoped.
 
-### Recommendation, re-reasoned 2026-08-10 (C5 now closed): **C3 next, then C4**
+### Recommendation, re-reasoned 2026-08-15 (C3 now closed): **C4**
 
 The old recommendation ("C1 first, alone") is spent — C1 and C2 are both
-shipped. The 2026-08-10 morning ranking put **C5 first**; C5 has since been run
-and discharged (above), so the live ranking is C3 then C4.
+shipped. C5 and C3 have since been run and discharged in turn (above), so C4
+is what remains.
 
 1. ~~**C5 (detection limit) first.**~~ **Run and discharged 2026-08-10.** The
     reasoning that put it first was sound — it was the only candidate bounded by
@@ -498,18 +518,23 @@ and discharged (above), so the live ranking is C3 then C4.
     bound leaves the arm at 2.05× on the criterion-matched denominator. The
     ~1.22× figure quoted here in the morning was real arithmetic on the wrong
     denominator (1.85× on /779 mixes a panel-side floor with the pit census).
-1. **C3 (sub-gram Mott tail) first now.** The double-counting hazard that
-    ordered it behind C5 is gone: with C5 discharged the 0.166–0.63 g window is
-    C3's alone. C3 is the largest *model-side* term (up to 1.49×) and its
-    earlier dismissal rested on a premise C1 falsified. It is also the term the
-    threshold-free test points at: with the threshold sourced and the velocity
-    basis fixed, what survives is a spectrum-shape claim in a mass range Tolch
-    never measured.
-1. **C4 (mass bookkeeping / census denominator) second**, unchanged in
-    substance: its live question is criterion-match (which metal weight is the
-    right spectrum denominator), and the two open findings against
-    `checks/count-chain-rebaseline.py` and `rebaseline-verdict.md` are its
-    concrete form. Resolving them is a prerequisite for quoting any
+1. ~~**C3 (sub-gram Mott tail) first now.**~~ **Run and discharged 2026-08-15
+    — see [`mott-tail-shape.md`](mott-tail-shape.md), reviewed PASS.** Real at
+    1.324× (residual 2.25×→1.70× on /779), but not actionable: the only
+    spectrum shape that pays is a $\lambda$ fitted to the very Tolch census
+    the model is validated against ($\lambda$=0.759 vs shipped 0.5), while
+    every *sourced* alternative — Mott's own 3D exponent $\lambda=1/3$, and a
+    spliced power-law tail per the collected literature — moves the residual
+    the *wrong* way (credit 0.85× and 0.31–0.72× respectively). No
+    `src/arty/` change follows; disposition is a logged limitation, not a
+    Workflow-B change.
+1. **C4 (mass bookkeeping / census denominator) — now the whole remaining
+    story.** With C3 quantified and not actionable, the 1.51× above-0.63 g
+    floor (measured against fragments Tolch's census resolves) is the entire
+    standing residual. Its live question is criterion-match (which metal
+    weight is the right spectrum denominator), and the two open findings
+    against `checks/count-chain-rebaseline.py` and `rebaseline-verdict.md`
+    are its concrete form. Resolving them is a prerequisite for quoting any
     threshold-free number as *the* residual, but they move the figure by tens
     of percent, not by the factor the verdict turns on.
 
@@ -623,13 +648,17 @@ What stands after both:
     two totals, and moved *closer* to the pit census under C2.
 - **The residual has migrated from the threshold to the spectrum/census side**,
     and the ranking of what to check next changed with it (§3). C5 was ranked
-    first and has since been run and **discharged without credit**, so the live
-    ranking is C3, then C4 — and the residual is now attributed
-    predominantly to the *spectrum* term rather than the census one.
+    first and has since been run and **discharged without credit**; C3 ran next
+    and closed at a real but non-actionable 1.324× (2026-08-15,
+    [`mott-tail-shape.md`](mott-tail-shape.md)) — restating the residual
+    2.25×→1.70× (/779) but not clearing it to a PASS, since the credit is
+    unsourced and the falloff-ratio observable is still unrun. **C4 is now the
+    whole remaining story.**
 - **The comparison basis is no longer an open excuse.** C5 was the only
     candidate that could have absorbed the residual without any model being
-    wrong; it cannot. What remains outside the band is a claim about the model's
-    sub-gram spectrum (C3) and about which metal weight denominates it (C4).
+    wrong; it cannot. C3 quantified the model's sub-gram spectrum term at
+    1.324× and found no sourced fix. What remains outside the band is entirely
+    a question of which metal weight denominates the spectrum comparison (C4).
 
 This re-framing is a consequence of shipped, independently reviewed physics
 (C1's plug-shear threshold, C2's break-up velocity), not of any new argument in
