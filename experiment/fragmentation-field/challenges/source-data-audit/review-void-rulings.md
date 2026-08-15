@@ -201,8 +201,6 @@ against Tolch's 4962 g, from a disjoint source chain. See
 therefore no longer present in any current ratio in this thread; the tables
 above have been restated onto the post-fix values.
 
-FINDING\[deferrable\]: the "fuze-excluded variant" in count-chain-rebaseline.py block (E) removes screen-1 mass from the numerator but keeps the fuze-inclusive model M_case in the denominator, producing a spurious 1.19x floor; on a fuze-consistent basis the threshold-free band is 2.1-2.2x post-fix (2.2-2.7x as first written, pre-50b734e) and the derived velocity fraction restates from f=0.61-0.92 to f=0.67-0.69 (affects: experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md; since: 2026-08-03)
-
 ______________________________________________________________________
 
 ## 3. BRL-126 "2740 ft/s" attribution — **REFUTED AS STATED**

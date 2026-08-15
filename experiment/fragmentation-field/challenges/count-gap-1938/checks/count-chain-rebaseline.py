@@ -134,7 +134,18 @@ cum_w = np.cumsum(wt_g)
 # metal is recovered, so the finest cumulative point sits at phi = 0.956, not 1).
 print("\n=== (E) threshold-free spectrum test: matched cumulative mass fraction ===")
 print("basis: model total case mass; Tolch recovered mass is 95.6 % of the metal")
-for basis_name, M_tot in (("model M_case", M_case * 1e3), ("Tolch 13.29 lb", 13.29 * LB_G)):
+# BASIS RULE (2026-08-15, C4 closure -- ../spectrum-mass-basis.py sec.2).
+# The numerator here is the FULL census, which includes screen No.1 -- and
+# Tolch states those 6 pieces are "mostly pieces of fuze". So the full census
+# is a shell+fuze population and may only be divided by a shell+fuze weight
+# (13.29 lb). Dividing it by the fuze-EXCLUDED model M_case (4980 g, with
+# 975 g fuze+booster deducted in src/arty/shells.py) is a basis mix; its tell
+# is phi = 1.16 > 1. That row is printed for the record and is NOT quotable.
+# The criterion-matched pairing is the fuze-excluded variant below.
+for basis_name, M_tot in (
+    ("model M_case  -- INADMISSIBLE basis mix, phi>1, do not quote", M_case * 1e3),
+    ("Tolch 13.29 lb -- fuze-inclusive, internally consistent", 13.29 * LB_G),
+):
     phi = cum_w / M_tot
     xs = invert_phi(phi)
     N_model = N0 * np.exp(-xs)
@@ -149,7 +160,16 @@ for basis_name, M_tot in (("model M_case", M_case * 1e3), ("Tolch 13.29 lb", 13.
 
 # Same test with the No.1 screen removed (the source calls those 6 pieces
 # "mostly pieces of fuze", i.e. not case metal the Mott spectrum describes).
-print("\n  --- fuze-excluded variant (drop No.1 screen from both count and mass) ---")
+# THIS IS THE CRITERION-MATCHED PAIRING (C4 closure, ../spectrum-mass-basis.md):
+# numerator = case metal only (screens 2..thru4), denominator = M_case, which
+# is fuze-EXCLUDED by construction (mass_deductions = 975 g fuze+booster) and
+# matches Tolch's own 10.94 lb empty *unfuzed* shell (4962 g) to 0.4 %. The
+# earlier open finding calling this denominator "fuze-inclusive" was written
+# against the pre-50b734e 200 g placeholder and no longer applies.
+# Sensitivity to the fuze fraction of screen 1, and the mass-closure bound on
+# it, are in ./count-chain-spectrum-basis.py -- quote the band 1.8-2.1x, not
+# the finest-cut cell (it sits at phi -> 1 and is ill-conditioned).
+print("\n  --- fuze-excluded variant: CRITERION-MATCHED (case metal both sides) ---")
 cum_n2 = np.cumsum(n_frag[1:])
 cum_w2 = np.cumsum(wt_g[1:])
 phi2 = cum_w2 / (M_case * 1e3)
