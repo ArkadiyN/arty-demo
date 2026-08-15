@@ -130,9 +130,10 @@ later count-gap-1938 passes re-closed; see
 [`count-chain.md`](challenges/count-gap-1938/count-chain.md) §4 for the
 current framing, which this bullet now follows:
 
-- **L1 — Tolch's absolute perforating count: on a sourced, mass-dependent
-    perforation threshold the count arm FAILS at ~2.3× (2.5× before the
-    break-up-velocity fix); the falloff-ratio arm is still compound.** Tolch (1938) is
+- **L1 — Tolch's absolute perforating count: closed 2026-08-15. Genuine FAIL
+    at 2.25×/2.51× (plug-shear) and 1.8–2.1× (threshold-free); five
+    sub-candidates investigated, none clear the ≤1.5× band, none remain.**
+    Tolch (1938) is
     a *compound* test (drag × Mott spectrum × a fitted energy threshold × a
     perforate/not model). A scoping pass
     ([`challenges/count-gap-1938/count-chain.md`](challenges/count-gap-1938/count-chain.md)
@@ -232,6 +233,22 @@ current framing, which this bullet now follows:
     `count-chain.md`'s own top banner, and the "carried from... not re-opened
     here" intro now says L1 was reworked and points at `count-chain.md` §4 as
     the current framing.
+
+    **Update 2026-08-15 — C5, C3, C4 investigated and discharged; the
+    thread's ranking is exhausted, and the arm closes FAIL.** C5 (Tolch's
+    census being detection-limited) discharged without credit: the census
+    grades every hit as perforation/penetration/dent, so it isn't a
+    detection floor. C3 (sub-gram Mott tail shape) is real but unsourced —
+    1.324× credit restates 2.25×→1.70× (/779) — but every *sourced*
+    alternative shape moves the residual the wrong way, so nothing ships. C4
+    (which metal weight denominates the spectrum comparison) resolves to
+    Tolch's fuze-excluded 10.94 lb case metal, restating the threshold-free
+    residual as 1.8–2.1×. **No candidate remains; the standing verdict is a
+    genuine FAIL at 2.25×/2.51× (plug-shear) and 1.8–2.1× (threshold-free) —
+    every admissible reading sits outside the ≤1.5× band.** Full write-ups:
+    [`count-chain.md`](challenges/count-gap-1938/count-chain.md) §3,
+    [`mott-tail-shape.md`](challenges/count-gap-1938/mott-tail-shape.md),
+    [`spectrum-mass-basis.md`](challenges/count-gap-1938/spectrum-mass-basis.md).
 - **L2 — arrival-Mach < 0.7 velocities remain unclosed by any admissible drag
     law.** At the longest 75 mm/155 mm stations the *required* combined constant
     falls to 1.76–2.07 (implied C_D below the subsonic plateau of 1.08), and even
