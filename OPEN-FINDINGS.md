@@ -43,7 +43,7 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - raised: 2026-08-10 (6d) in `app/sensitivity.py:81`
 - **headline 1.221x/2.05x C5 figures rest on the inadmissible 0.36g/838m/s datum (iv) though the sound census-grading argument (i) alone suffices; three status surfaces lead with the numeric figures instead of (i)**
     - affects: `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md`, `experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md`, `experiment/fragmentation-field/challenges/README.md`
-    - raised: 2026-08-10 (6d) in `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:70`
+    - raised: 2026-08-10 (6d) in `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:74`
 - **source.pdf should be retained per .claude/rules/source-data-fidelity.md § "Retain the source blob"**
     - affects: `doc-reference/fragmentation/ada300526-picatinny-cylinder-test/`
     - raised: 2026-08-16 (0d) in `doc-reference/fragmentation/ada300526-picatinny-cylinder-test/card.md:100`
@@ -100,7 +100,7 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - raised: 2026-08-08 (8d) in `experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/derivation.md:204`
 - **C1 plug-shear threshold rescales to 0.065 g at 838 m/s vs. Tolch's smallest observed perforation 0.36 g (5.6x permissive in mass); rests on an unanchored datum**
     - affects: `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md`
-    - raised: 2026-08-10 (6d) in `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:504`
+    - raised: 2026-08-10 (6d) in `experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:508`
 - **kennedy1970-gurney-energy/card.md "Standard Gurney Equations by Geometry" transcribes the cylinder as sqrt(2E)(1+M/2C)^-1/2 and flat sandwich as (1+M/C)^-1/2; standard Kennedy forms are (M/C+1/2)^-1/2 and (M/C+1/3)^-1/2, and the (M/C+1/2) form is what shipped gurney_velocity uses and what Martineau Table 5.3 closes on**
     - affects: `doc-reference/fragmentation/kennedy1970-gurney-energy/card.md`
     - raised: 2026-08-10 (6d) in `experiment/fragmentation-field/updates/breakup-velocity-fraction/scoping.md:331`

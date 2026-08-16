@@ -173,6 +173,17 @@ final: genuine FAIL at 2.25×/2.51× (plug-shear) and 1.8–2.1× (threshold-fre
 further candidate is under investigation.** Live text:
 `count-gap-1938/spectrum-mass-basis.md`, `count-gap-1938/count-chain.md` §3
 "C4" and `count-gap-1938/rebaseline-verdict.md`'s fourth re-closure banner.
+**(8) An out-of-band avenue was also tried and discharged (2026-08-16): mass-
+dependent fragment shape.** `updates/mass-dependent-fragment-shape/` made the
+aspect-ratio moment correction $c$ per-shell — each shell's own Mott spectrum,
+not Table 3's global 155 mm-weighted value — giving $c$ = 0.99 at 75 mm
+against the shipped-derivation's 1.25. It restates the 75 mm chain at
+**2.54× (/700) / 2.28× (/779)**, marginally worse than the 2.25×/2.51×
+baseline, not better. Not a ranked C1–C5 sub-candidate — its own scoping
+explicitly excluded editing this thread — but reviewed PASS and recorded here
+as a real attempt on the same residual. No `src/arty/` change follows. Live
+text: `updates/mass-dependent-fragment-shape/derivation.md` §7,
+`updates/mass-dependent-fragment-shape/review.md`.
 
 ## `mott-scale-gap/`
 

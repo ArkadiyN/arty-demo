@@ -65,7 +65,11 @@ worth ≈0.2×, not a driver.** See
 [`spectrum-mass-basis.md`](spectrum-mass-basis.md) for the full study. **No
 sub-candidate remains** — C3, C5 and C4 have all dropped off the ranking,
 discharged without credit that can ship. Nothing further in `src/arty/` is
-scoped by this thread.
+scoped by this thread. **One out-of-band avenue outside this ranking was also
+tried and discharged (2026-08-16): a per-shell aspect-ratio moment correction
+restates the 75 mm chain at 2.54×/2.28× — worse than baseline, not better.**
+See §3's closing entry below and
+[`../../updates/mass-dependent-fragment-shape/`](../../updates/mass-dependent-fragment-shape/derivation.md).
 
 FINDING\[deferrable\]: headline 1.221x/2.05x C5 figures rest on the inadmissible 0.36g/838m/s datum (iv) though the sound census-grading argument (i) alone suffices; three status surfaces lead with the numeric figures instead of (i) (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/README.md; since: 2026-08-10)
 
@@ -553,6 +557,22 @@ is exhausted.
     artefact), and the criterion mismatch it flagged is fixed by adopting the
     fuze-excluded pairing. **C4 is a criterion choice worth ≈0.2× within the
     correct family, not a driver. No `src/arty/` change follows.**
+
+**Also tried, out of this ranking: mass-dependent fragment shape (`A(m)`),
+2026-08-16 — discharged, moves the arm the wrong way.** A separate update
+([`../../updates/mass-dependent-fragment-shape/`](../../updates/mass-dependent-fragment-shape/derivation.md))
+tested whether making the aspect-ratio moment correction $c$ mass-dependent —
+solved per shell against each shell's own Mott spectrum, rather than frozen at
+Table 3's global 155 mm-weighted value — would move the 75 mm chain. It does
+not: the per-shell fixed point gives $c$ = 0.99 at 75 mm ($A_\text{eff}$ =
+1.58, vs 2.00/1.76/1.47 for 155/105/60 mm), restating the 75 mm count chain at
+**2.54× (/700) / 2.28× (/779)** — marginally *worse* than the 2.51×/2.25×
+baseline, not better. This was never a ranked sub-candidate of this thread:
+its own `scoping.md` §6 (Action C) explicitly scopes it to not edit
+`count-chain.md`. It is recorded here because it is a real, reviewed (PASS,
+[`../../updates/mass-dependent-fragment-shape/review.md`](../../updates/mass-dependent-fragment-shape/review.md))
+attempt on the same residual, and belongs in this thread's record of what has
+been tried against it. No `src/arty/` change follows.
 
 **What earlier passes got wrong, recorded so it is not repeated.** Both
 sub-candidate leverage estimates in this section were wrong in the same
