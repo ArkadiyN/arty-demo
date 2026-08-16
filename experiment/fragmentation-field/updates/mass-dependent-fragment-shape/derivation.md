@@ -219,6 +219,26 @@ the wrong covariance pairing (§3.2); the derived value is smaller and the
 scoping's own hedge ("realistic value is likely `c ≈ 1.3–1.6`") is still
 slightly high.
 
+**It is a lower bound, for the same structural reason `k` is one (§4).** `c`
+is built from the identical Group-discretized table: every fragment in a
+Group is assigned that Group's single representative mass, so the entire
+measured `⟨A x²⟩` covariance comes from *between*-Group variation only — any
+mass–aspect correlation *within* a Group is structurally invisible to the
+calculation (within a Group, `m` is constant by construction, so its
+within-Group covariance with `A` is exactly zero in the computed statistic).
+By the law of total covariance, `Cov_true(A,m) = Cov_between + E[Cov_within]`;
+if the omitted within-Group term shares the sign of the measured
+between-Group trend — the physically likely case, since the motivating
+hypothesis (large fragments retain plate-like geometry) is a claim about a
+continuous relationship, not a step function at the Group boundaries — then
+`c = 1.25` is *also* a lower bound on the true correction, plausibly sitting
+back toward the `1.3–1.6` band this section just called "still slightly
+high." Unlike `k`'s bound this is not a mathematical certainty — it depends
+on the sign of a covariance the table cannot resolve — so it is carried as a
+directional caveat, not a revised corner band. The 16-corner sweep above
+varies bin edges and conventions, never the group-discretization itself, so
+it does not capture this source of error.
+
 ### 3.5 Assumptions
 
 - **A1 — Group 1 spans 75–150 gr.** Fig. 10 literally prints `GROUP NO 1-75 TO
@@ -263,6 +283,26 @@ slightly high.
     evaluated whether the mass–aspect-ratio trend generalizes past 155mm.
 
 FINDING[deferrable]: c=1.25 is derived from a single 155mm HE M101 test article (Grady Fig. 10 only), narrower than the 3-dataset/casing-type base it corrects, and is applied as one global multiplier across all four SHELLS calibers with no evidence the mass-aspect-ratio trend generalizes beyond 155mm (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md; since: 2026-08-16)
+- **A10 — the two cross-checks in §5 and §6 are not caliber-matched to each
+    other or to the source data.** §5's B(r) corroboration and §3's Table 3
+    source are both 155mm; §6's count-chain re-solve is **75mm M48**
+    (`count-chain.md:144`). A caliber-transfer error in the effective `c` for
+    75mm is at least as plausible an explanation for the 4.5% /700 shortfall
+    (§6.1) as an uncorrected shape-moment residual (§6.2), and this
+    derivation cannot distinguish the two from the data it holds. So the
+    B(r) agreement is same-caliber-family evidence, not a caliber-blind
+    "second, independent surface."
+- **A11 — `c`, like `k` (§4), is likely a lower bound.** `c` is built from
+    the same Group-discretized table as `k`; collapsing each Group to one
+    representative mass makes any within-Group mass–aspect covariance
+    structurally invisible to the calculation. If that omitted covariance
+    shares the sign of the measured between-Group trend — the physically
+    likely case (§3.4) — `c = 1.25` understates the true `x²`-weighted
+    correction. Unlike `k`'s bound this is not a mathematical certainty; it
+    is a directional caveat, not a revised corner band.
+
+FINDING[deferrable]: the B(r) cross-check (155mm, same caliber family as the c=1.25 source data) and the count-chain cross-check (75mm M48) are not caliber-matched to each other, so the count-chain's /700 shortfall may be a caliber-transfer artifact rather than a confirmed uncorrected shape-moment residual (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md, experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-16)
+FINDING[deferrable]: c=1.25 is built from the same Group-discretized Table 3 data as k and is structurally a lower bound (within-Group mass-aspect covariance is invisible to the between-Group calculation), directionally identical to k's disclosed lower-bound caveat but not previously stated for c (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md; since: 2026-08-16)
 
 ---
 
@@ -334,6 +374,11 @@ coefficient (§5's orthogonality, `drag-gap-1944/shape-closure-orthogonality.md`
 
 ## 6. Item 4 — re-solved count-chain leverage
 
+**This chain runs on 75mm M48 HE** (`count-chain.md:144`) — a different
+caliber from §5's 155mm M107 B(r) check and from the 155mm Table 3 data `c`
+is derived from. See §6.2 (A10) for why that matters to how this section's
+result should be read.
+
 `checks/aspect-ratio-moment-leverage.py` (extended in place this pass; the
 `c = 1.00` row still reproduces the shipped baseline — see the limit check
 below). The chain is **re-solved**, not ratioed: `μ = c·μ₀`, `N₀ = N₀₀/c`,
@@ -401,6 +446,18 @@ independent cross-check to buy a target. That is the "rebaseline onto the
 validation source" failure mode (memory
 `gotcha_rebaseline_onto_validation_source`) and this derivation declines it.
 
+**This comparison is not caliber-blind (A10).** §5's B(r) corroboration runs
+on 155mm M107 — the same caliber family Table 3 was measured on — while this
+count chain runs on 75mm M48. A 75mm shell's wall-thickness-to-caliber ratio
+and case geometry differ enough from 155mm that a caliber-transfer error of a
+few percent in the effective `c` for 75mm is at least as plausible an
+explanation for the 4.5% /700 miss as "the residual isn't fully a
+shape-moment artefact" — this derivation does not have the data to
+distinguish the two. So the "real and not closed by this aspect" reading
+above should be understood as *unattributed*, not confirmed: the shortfall
+is cross-caliber, the corroboration is same-caliber-family, and the two are
+not equal-strength evidence.
+
 ---
 
 ## 7. Conclusion and what this update should ship
@@ -415,8 +472,10 @@ Grounds a reviewer can check:
     from Felix 2022 Table 3 weighted by Fig. 10's own printed grain ranges (§3).
 1. Both limit checks pass: no aspect dispersion → `c = 1.000000` exactly;
     `f = 1` reproduces `count-chain.md`'s verdict row (§3.2, §6).
-1. It is **independently corroborated on a second surface**: B(r) fit quality
-    1.23× → 1.06× (§5.1). No prior candidate on this thread had that.
+1. It is corroborated on a second surface: B(r) fit quality 1.23× → 1.06×
+    (§5.1). No prior candidate on this thread had that — but it is
+    **same-caliber-family** corroboration (155mm, like the source data), not
+    a caliber-blind check; see §6.2 (A10).
 1. It moves the count residual `2.51×/2.26×` → `2.09×/1.88×` (§6).
 
 **Verdict on the PASS band, stated plainly:** this does **not** by itself return
@@ -427,7 +486,10 @@ per `scoping.md` §6 Action C — this pass does not edit `count-chain.md`.
 **Follow-up passes (not this one):**
 
 - **`src/arty/` implementation** of `A_eff = 2.00`, plus a `_limitations.qmd`
-    entry for A6 (the modal bins are the analysts' counting defaults).
+    entry covering A6 (modal bins are analyst defaults, not measurements),
+    A9 (single-155mm evidentiary base applied across all four calibers),
+    A10 (the B(r)/count-chain cross-checks are not caliber-matched), and A11
+    (`c` is likely a lower bound, same structural reason as `k`).
 - **A9.1 / `k` is now a live, measurable item** for
     `mott-fragment-shape-closure`: `k ≥ 1.52` from data, vs its
     theory-only `(1,2)` bound, and its stated deferral rationale is void (§2.2).
@@ -438,4 +500,7 @@ per `scoping.md` §6 Action C — this pass does not edit `count-chain.md`.
 
 **Fidelity target** (carried from `scoping.md` §6): tolerable error on a single
 global `A` is ±15 %. The derived `c`'s own corner band is `±7 %` — inside it.
-The unrepresented within-Group mass dependence (A6, A7) is not.
+The unrepresented within-Group mass dependence (A6, A7) is not, and neither
+is the group-discretization lower-bound direction flagged in §3.4 (A11) —
+the `±7 %` band covers only the assumptions it was swept over, not this
+source of error.
