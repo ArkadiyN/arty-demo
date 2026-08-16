@@ -67,3 +67,40 @@ if __name__ == "__main__":
         )
     print()
     print("baseline check c=1.0 should reproduce N=1756, 2.51x, 2.25x")
+
+    # --- Derived values (derivation.md sections 3.3, 3.4, 4) -----------------
+    # c   = 1.254 [1.176, 1.352]  aspect-ratio moment correction (this update)
+    # k   = 1.524 [1.280, 1.839]  A9.1's <x^2>/<x>^2, LOWER bound
+    # c*k = 1.912 [1.506, 2.487]  both factors of the eq.-(2) identity
+    print()
+    print("Re-solved chain at the DERIVED corrections (derivation.md sec 3.3/4)")
+    print("  label                       f      mu[g]   N0     N        N/700   N/779")
+    cases = [
+        ("shipped (no correction)", 1.000),
+        ("c  low  (corner sweep)", 1.176),
+        ("c  DERIVED", 1.254),
+        ("c  high (corner sweep)", 1.352),
+        ("k  alone (A9.1, lower bd)", 1.524),
+        ("c*k low  (corner sweep)", 1.506),
+        ("c*k DERIVED", 1.912),
+        ("c*k high (corner sweep)", 2.487),
+    ]
+    for label, f in cases:
+        mu, n0, n = resolve_chain(f)
+        print(
+            f"  {label:26s} {f:5.3f}  {mu:6.3f}  {n0:6.0f}  {n:7.0f}  "
+            f"{n / TOLCH_LOW:7.2f}x {n / TOLCH_HIGH:7.2f}x"
+        )
+    print()
+    print("  within-2x PASS band is N/700 <= 2.0 AND N/779 <= 2.0")
+    # Smallest f that brings each arm inside 2x, by bisection on the re-solved
+    # chain (N is NOT proportional to 1/f -- see scoping.md sec 4 note 1).
+    for label, denom in (("/779", TOLCH_HIGH), ("/700", TOLCH_LOW)):
+        lo, hi = 1.0, 10.0
+        for _ in range(200):
+            mid = 0.5 * (lo + hi)
+            if resolve_chain(mid)[2] / denom > 2.0:
+                lo = mid
+            else:
+                hi = mid
+        print(f"  f needed to reach 2.00x on the {label} arm: {hi:.3f}")
