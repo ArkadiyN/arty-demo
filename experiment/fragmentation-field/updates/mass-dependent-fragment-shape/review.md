@@ -336,3 +336,282 @@ argued).
 Both fold naturally into A9's existing evidentiary-scope caveat and the
 already-flagged A6 limitation; neither requires reopening the arithmetic this
 pass was told not to redo.
+
+---
+
+# Adversarial review pass — 2026-08-16 (single-constant vs `A(m)` premise)
+
+**Scope of this pass (only):** is the scoping decision "moment correction on a
+single constant `A`, not a per-fragment `A(m)`" defensible on its own terms?
+Does its rejection reasoning foreclose *every* mass-dependent formulation or
+only the literal one considered? Does collapsing to one global constant lose
+something load-bearing across `SHELLS`' four calibers or across the mass
+spectrum within one shell?
+
+Not re-litigated here: H1/H2 (evidentiary scope, cross-check independence), the
+math-verification section, or the three standing `[deferrable]` findings already
+in the register.
+
+**Verdict: FAIL** — one Blocking finding (A1). The single-constant *form* is
+sound and the value is right for 155 mm; what is not defensible is that the
+constant is **global**. `c` is a spectrum-weighted moment, not a material
+constant, and the update's headline count result is computed on the one caliber
+where the spectrum-consistent value is on the wrong side of 1.
+
+Checks written this pass, retained per `.claude/rules/verification-scripts.md`:
+
+- `checks/spectrum-weighted-c-per-shell.py` — reproduces `derivation.md` §3.3
+    exactly (`⟨m⟩=219.04 gr`, `⟨A⟩=1.5681`, `⟨m/A⟩=111.361 gr`, `c=1.2543`,
+    `k=1.5242`) then re-weights the identical Table-3 aspect mix by each
+    `SHELLS` entry's own Mott spectrum.
+- `checks/spectrum-weighted-c-fixedpoint-count-chain.py` — iterates the
+    `μ ↔ c` fixed point to convergence and re-solves the 75 mm count chain.
+
+---
+
+## A1 — **Blocking** — `c` is a spectrum-weighted moment, so a *global* `c` is not well-defined; at 75 mm the consistent value is 0.97, which reverses this update's headline count result
+
+**What the derivation assumes.** A5 (`derivation.md:258`) fixes the weighting:
+"`c` is count-weighted over Table 3's own fragment counts, i.e. the same
+weighting the shipped `⟨A⟩ = 1.6` uses." That justifies *consistency with `⟨A⟩`*
+and is the right choice for making `A → cA` a pure reweighting. It does **not**
+establish that the resulting moment ratio is the one eq. (1) calls for.
+
+**What eq. (1) calls for.** `2μ = ρ t₀ ⟨A x²⟩`, where `⟨·⟩` runs over *the
+shell's own fragment population* — the population whose mean mass is `2μ` by
+construction. `c = ⟨m⟩/(⟨A⟩⟨m/A⟩)` (eq. 4) is therefore a functional of the
+**joint** distribution of `(A, m)`, and the `m`-marginal of that joint is the
+shell's Mott spectrum. The `A|m` relation may plausibly be caliber-transferable
+(that is the physical claim); the *weights* are not — `μ` varies by an order of
+magnitude across `SHELLS`. Freezing `c` freezes the 155 mm spectrum.
+
+**Numbers.** `checks/spectrum-weighted-c-per-shell.py` reproduces §3.3 to all
+printed digits under table weighting, then applies the identical within-Group
+aspect mix with Group weights taken from each shell's own
+`N(≥m) = N₀e^{−√(m/μ)}`.
+`checks/spectrum-weighted-c-fixedpoint-count-chain.py` iterates the
+`μ = c·μ₀` ↔ `c(μ)` loop (it converges in 3–4
+iterations — the "self-reference" of `scoping.md` §2 is contractive here, see A2):
+
+| shell | model `μ` [gr] | `P(Group 0)` | spectrum-consistent `c` |
+| ----- | -------------- | ------------ | ----------------------- |
+| 155 mm M107 | 98.1 | 0.583 | **1.262** |
+| 105 mm M1 | 31.9 | 0.784 | **1.099** |
+| 75 mm M48 | 14.3 | 0.899 | **0.970** |
+| 60 mm M49A2 | 7.6 | 0.957 | **0.906** |
+
+Two things follow, and they cut in opposite directions:
+
+1. **The derived value is vindicated for 155 mm.** 1.262 vs the shipped 1.254 —
+    0.6 % apart. This is a *self-consistency check the derivation should have
+    made and would have passed*: the Table-3 sample's `⟨m⟩ = 219.0 gr` sits
+    within 12 % of the 155 mm model's own `2μ = 196.2 gr`. Table 3's photographic
+    weighting is an excellent proxy for the 155 mm spectrum. That is why `c`
+    works and why the §5 B(r) check (155 mm M107) corroborates it.
+1. **It does not survive transfer to the smaller calibers, and the failure is
+    not a small percentage.** At 75 mm the same table gives `c = 0.970` — below
+    1, i.e. the *opposite sign of correction*. The mechanism is transparent:
+    89.9 % of the 75 mm Mott population falls inside Group 0, where Table 3
+    resolves no `A`-vs-`m` trend at all, so the between-Group covariance that
+    generates `c > 1` is simply not sampled, and the AM–HM floor the derivation
+    itself identified in §3.2 (`c = 0.835` at zero `m`–`A` correlation) takes
+    over.
+
+**Observable output that changes.** `derivation.md` §6 — the update's headline
+result — runs the count chain on **75 mm M48** at `f = c = 1.254`.
+Re-solving that same chain (`checks/spectrum-weighted-c-fixedpoint-count-chain.py`, `μ₀ = 0.929 g`, `N₀ = 2681`,
+`m_thr = 0.166 g`; the `f = 1` row reproduces `count-chain.md`'s 1757 /
+2.51× / 2.26×):
+
+| | `f` | `N(≥m_thr)` | vs 700 | vs 779 |
+| --- | --- | --- | --- | --- |
+| shipped | 1.000 | 1757 | 2.51× | 2.26× |
+| `derivation.md` §6 | 1.254 | 1466 | 2.09× | **1.88× (claimed PASS)** |
+| spectrum-consistent 75 mm | 0.970 | **1795** | **2.56×** | **2.30×** |
+
+So §6.1's "**/779 arm: PASSES**" (`derivation.md:415`) and §7's "the /779 arm
+clears (1.88×)" (`derivation.md:482`) **reverse**: at the weighting eq. (1)
+requires, this update moves the 75 mm count *away* from the band by ~2 %, not
+into it. The direction of the whole update flips on its stated surface. That is
+an in-scope outcome changing qualitatively — Blocking, not deferrable.
+
+Note this is *not* the already-logged A10/H1 caliber-matching caveat restated.
+A10 says the two cross-checks are not caliber-matched and that the 4.5 % /700
+miss might be a transfer artifact. This finding is stronger and different: it
+gives the transfer error a **derived value and a sign** from the update's own
+data, and that value takes the /779 arm from PASS to FAIL. A10 flagged an
+unquantified doubt; this quantifies it and the answer changes the verdict.
+
+**Suggested correction (do not apply).** Do not weaken `c` — make it per-shell.
+The change is small and stays inside the update's own machinery: compute
+`c(μ)` from the same CSV by eq. (4) with Group weights from the shell's Mott
+spectrum, and solve the one-dimensional fixed point `c = c(c·μ₀)` (3–4
+iterations, <1 ms). `ShellParams.aspect_ratio` stays one number *per shell*, so
+nothing about "one constant, no new functional degrees of freedom" is lost —
+`A_eff` becomes 2.02 (155 mm), 1.76 (105 mm), 1.55 (75 mm), 1.45 (60 mm).
+Alternatively, if a per-shell `c` is judged out of scope for this update, then
+`c = 1.25` must be scoped **to 155 mm only** in `src/arty/`, and §6/§7's count
+claims — which are 75 mm — withdrawn. What is not available is shipping 1.25
+globally while quoting a 75 mm PASS obtained with it.
+
+Caveats on my own numbers, stated so they are not over-read: (i) the Group
+collapse means these `c` values inherit A11's lower-bound structure exactly as
+the derivation's does — the *ordering* across calibers is the robust content,
+not the third digit; (ii) they assume the `A|Group` conditional mix is
+caliber-independent, which is a **weaker** assumption than the derivation's
+(which requires the full joint, mass marginal included, to transfer);
+(iii) A6/A7 apply unchanged to both.
+
+
+---
+
+## A2 — **Deferrable** — the "structurally self-referential" ground for rejecting `A(m)` is refuted by this update's own §3.2–§3.3, and by a convergent fixed point
+
+`scoping.md` §2 (lines 143–148) is the load-bearing structural objection, and it
+is recited as ground 1 of the §6 recommendation (line 287) and as the settled
+premise `derivation.md:11` refuses to reopen:
+
+> Writing `A(m)` inside it makes `μ` a function of the mass it is supposed to
+> define — self-referential.
+
+Two independent reasons this does not hold as stated:
+
+1. **The derivation already does the thing the objection forbids.**
+    `derivation.md` §3.2 eq. (3) `x² = m/(ρ t₀ A)` is a *per-fragment* relation
+    evaluated with a *per-fragment, mass-dependent* `A`; eq. (4) and §3.3 then
+    evaluate `⟨m⟩`, `⟨A⟩` and `⟨m/A⟩` over a joint distribution in which `A`
+    varies with `m` (Group 0 at 1.33 → Group 4 at 3.00). The adopted option
+    **is** a mass-dependent formulation of `A`; it differs from the rejected one
+    only in that its result is reported as a scalar. Self-reference was never
+    the discriminator.
+1. **Where genuine self-reference does appear, it is benign.** `c` depends on
+    `μ` through the weighting (A1) and `μ = c·μ₀` — a real fixed point. It
+    converges monotonically in 3–4 iterations for every `SHELLS` entry
+    (`checks/spectrum-weighted-c-fixedpoint-count-chain.py`: 155 mm 1.2404 → 1.2606 → 1.2619 → 1.2620). A
+    contractive one-dimensional fixed point is a solved equation, not an
+    incoherence. The objection would, applied consistently, condemn the shipped
+    option too.
+
+**Impact.** Zero on any current rendered number — this is about the *reason*, not
+the value. It matters because a future pass reading `scoping.md` §2 will treat a
+whole class of formulations as structurally closed when it is not, and because
+under A1 the correct fix *is* in that class. Downgraded from Blocking on that
+basis: no output moves until A1 is acted on.
+
+**Suggested correction.** Amend `scoping.md` §2 to say what is actually true:
+substituting `A(m)` *pointwise inside* the closed-form eq. (2) is a category
+error, because eq. (2) is a mean-value expression; a mass-dependent `A` enters
+legitimately through the moment `⟨A x²⟩`, which is exactly what option 1 does.
+Then restate the real ground for preferring one constant — parsimony and the
+data's inability to support a fitted curve (§1.2b) — which is defensible.
+
+---
+
+## A3 — **Deferrable** — the §6 recommendation recites a ground its own §1.2a retracts, and the two options were not given equal freedom
+
+**(a) A retracted objection is still doing work.** `scoping.md` §1.2a (line 44,
+"CORRECTED 2026-08-16") states plainly: "This is a real, sourced mass axis — the
+'no mass axis' objection to a mass-resolved treatment does not hold." Yet §6
+ground 1 (line 283) rejects `A(m)` because "**the data has no mass axis** and the
+Groups' modal bins are the analysts' own counting defaults", citing §1.2a–b. The
+first clause is the retracted claim, cited to the section that retracts it. It is
+also the ground with the most rhetorical weight in the summary a later reader
+will actually read.
+
+**(b) The surviving objections do not discriminate.** Of the three §6 grounds:
+
+| ground | status |
+| ------ | ------ |
+| "no mass axis" | retracted by §1.2a (above) |
+| "modal bins are analyst defaults" (§1.2b) | **applies equally to `c`** — `derivation.md` A6 (line 260) concedes it verbatim as "the binding limitation on `c`" |
+| "`A` does not enter the drag/area path" (§2) | **verified true** (see A4) but it refutes the *brief's mechanism* and option 4; it says nothing about option 2 |
+| "structurally self-referential" (§2) | refuted (A2) |
+
+That leaves no objection that separates the two options. The genuine
+discriminator — a fitted `A(m) = A₀(m/m₀)^p` curve has free parameters the data
+cannot identify, whereas a moment is a statistic of that same data — is real,
+sufficient, and is nowhere stated.
+
+**(c) Comparison protocol.** Option 1 received a full derivation: a value, a
+16-corner sensitivity sweep, two limit checks and two cross-check surfaces.
+Option 2 was rejected a priori and never evaluated at any parameterisation. The
+checklist's equal-freedom test is not met; the conclusion "reject `A(m)`
+outright" (`scoping.md:278`) rests on a comparison that was never run. As it
+happens the outcome may well survive an equal comparison (per (b) above, on the
+parsimony ground) — which is why this is Deferrable rather than Blocking.
+
+**Impact.** No rendered number moves. The cost is directional: `derivation.md:11`
+declares the scoping decision "settled there and not re-opened", so the
+unevaluated option is now insulated from review by a chain of citations to a
+ground that was withdrawn.
+
+**Suggested correction.** In `scoping.md` §6 ground 1, delete the "no mass axis"
+clause and replace the §2 self-reference clause with the parameter-identifiability
+argument. In `derivation.md`, soften line 11 from "settled there and not
+re-opened" to a pointer at the (corrected) grounds.
+
+---
+
+## A4 — **Note** — the "`A` reaches the count only through `μ`" claim is verified, and it is what makes the single-constant *form* correct within one shell
+
+Checked independently, since three other conclusions rest on it (`scoping.md` §2,
+§5; `derivation.md` §6's holding of `m_thr` fixed). `grep -rn "aspect_ratio"
+src/arty/` returns exactly four hits: the dataclass field
+(`fragmentation.py:198`), a comment (`:135`), and the two `alpha = shell.
+aspect_ratio * shell.breadth_factor**2 * t_bu/x0` lines (`fragmentation.py:410`,
+`zones.py:149`) that feed `μ` alone. It appears nowhere in `retardation_coeff`,
+in any presented-area computation, or in the perforation path. Confirmed.
+
+The consequence is worth stating explicitly because it is the strongest part of
+the single-constant case and the scoping never makes it: **given this code
+structure, `A` has exactly one scalar channel into the model, so any
+mass-dependence of `A` within one shell is *fully absorbed* into the single
+moment `⟨A x²⟩` — nothing is lost by collapsing it.** Within-shell, "one
+constant" is not an approximation, it is exact. That answers half the question
+this pass was asked, in the single constant's favour. What it does not cover is
+the *across-shell* axis, because the moment's weights are shell-dependent —
+which is A1.
+
+---
+
+## Verdict and what to do
+
+**FAIL** on A1. Not because `c = 1.25` is wrong — it is right, to 0.6 %, for the
+caliber it was measured on and for the caliber its B(r) cross-check runs on —
+but because it is presented and scheduled to ship as a caliber-independent
+constant, and on the 75 mm chain that carries the update's headline claim the
+consistent value is 0.97, turning a claimed `1.88×` PASS into a `2.30×` FAIL.
+
+Ranked, for whoever takes the next pass:
+
+1. **A1 (Blocking)** — either make `c` per-shell via the `μ`-weighted moment
+    (recommended; ~10 lines, no new degrees of freedom, `A_eff` = 2.02 / 1.76 /
+    1.55 / 1.45 for 155/105/75/60 mm), or scope `c = 1.25` to 155 mm and withdraw
+    §6/§7's 75 mm count claims. Do not ship 1.25 globally alongside a 75 mm PASS.
+1. **A2, A3 (Deferrable)** — repair the stated grounds in `scoping.md` §2/§6.
+    If A1 is resolved the per-shell way, this is not optional bookkeeping: the
+    fix *is* a mass-dependent formulation, and the document currently declares
+    that class structurally closed.
+1. **A4 (Note)** — no action; consider promoting the within-shell exactness
+    argument into `derivation.md` §1, where it strengthens the case.
+
+**Limitation entries, if the human elects to defer A1 rather than fix it**
+(which would require an explicit human call — an agent may not close a shipped
+global constant known to be spectrum-inconsistent by deferral,
+`.claude/rules/deferred-findings.md`):
+
+- `c = 1.25` is the `x²`-weighting moment of the Felix Table-3 joint `(A, m)`
+    distribution **weighted by that sample's own mass spectrum**, which matches
+    155 mm M107's model spectrum (`⟨m⟩ = 219 gr` vs `2μ = 196 gr`) and no other
+    `SHELLS` entry. Re-weighted by each shell's own Mott spectrum the same table
+    gives `c` = 1.26 / 1.10 / 0.97 / 0.91 for 155 / 105 / 75 / 60 mm. Applying
+    1.25 to the sub-105 mm shells over-corrects `μ` by up to ~38 %, and reverses
+    the sign of the correction at 75 mm and below.
+- The 75 mm count-chain result in `derivation.md` §6 (`2.09× / 1.88×`) is
+    computed at the 155 mm value of `c`; at the 75 mm spectrum-consistent value
+    it is `2.56× / 2.30×`, i.e. marginally worse than shipped.
+
+## Out-of-scope observations
+
+None. All findings above lie inside the premise this pass was asked to
+stress-test.
