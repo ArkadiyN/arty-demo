@@ -107,6 +107,13 @@ expensive failure mode in this project. When dispatching, override the model
 - **Agent default (Opus)** — scoping, derivation, src/ implementation,
     notebook presentation, and any pass that writes or judges physics.
 
+@model-reviewer defaults to Sonnet (mechanical verification: reproduce check
+scripts, trace code paths, confirm cited numbers). **Override to Opus** for
+the adversarial-critique review pass (model-workflow skill, "Two review
+passes") — judging whether a theory holds, not just whether its arithmetic
+does, is the harder reasoning task of the two and the highest-value review
+step; it is where a wrong theory is either caught or shipped.
+
 ## Delegation quick reference
 
 - **@librarian** — any external papers, references, or data lookup; check
