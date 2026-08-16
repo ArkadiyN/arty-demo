@@ -140,14 +140,30 @@ alone. So the brief's mechanism — "a mass-dependent shape shrinks the tail cou
 via presented area" — is not how `A` reaches the count. It reaches it through
 `μ` and `N₀`, i.e. through the **whole** spectrum.
 
-**Consequence: a literal per-fragment `A(m)` is structurally incoherent here.**
-`A` enters a formula whose *output* is `μ`, the single scale parameter defining
-the mass distribution `N(≥m) = N₀ e^{−√(m/μ)}`. Writing `A(m)` inside it makes
-`μ` a function of the mass it is supposed to define — self-referential. Any
-honest version of the idea must instead ask: **which moment of the aspect-ratio
-distribution belongs in that single constant?**
+**Consequence: substituting `A(m)` *pointwise inside* eq. (2) is a category
+error — but mass-dependence itself is not excluded.** (CORRECTED 2026-08-16
+per `review.md` A2; the earlier text called any `A(m)` "structurally
+self-referential" and that ground does not hold.) Eq. (2) is a **mean-value**
+expression: `A` sits where a *moment* of the aspect distribution belongs, so
+writing a per-fragment `A(m)` into it is a type mismatch, not an incoherence.
+A mass-dependent `A` enters legitimately through the moment `⟨A x²⟩`, which is
+exactly what option 1 below does — and `derivation.md` §3.2–§3.3b in fact
+evaluate that moment over a joint `(A, m)` distribution in which `A` varies
+with `m` from 1.33 to 3.00. **The adopted option is a mass-dependent
+formulation of `A`; it differs from the rejected one only in that its result is
+reported as one number per shell.**
 
-That question is answerable from Table 3, and it is where the leverage is.
+Where genuine self-reference does arise it is benign and solved: the moment's
+weights come from the shell's Mott spectrum, whose `μ = c·μ₀` depends on the
+moment, giving a one-dimensional fixed point `c = c(c·μ₀)`. It is contractive
+and converges in 3–4 iterations for every `SHELLS` entry
+(`derivation.md` §3.3b). A solved fixed point is not an incoherence, and the
+objection as originally stated would have condemned the adopted option too.
+
+The real question, then, is not *whether* `A` may depend on mass but **which
+moment of the aspect-ratio distribution belongs in that single constant, and
+over whose mass spectrum it is averaged.** Both are answerable from Table 3,
+and that is where the leverage is.
 
 ### 2.1 The reframed candidate: `A` is a count-weighted mean where the closure
 needs an `x²`-weighted one
@@ -179,8 +195,8 @@ for the Groups to establish its sign, only to pin its size.**
 
 | # | Option | Data needed | Verdict |
 | - | ------ | ----------- | ------- |
-| **1** | **Moment correction on the single constant** (§2.1): replace count-weighted `A = 1.6` with the `x²`-weighted mean implied by Table 3, i.e. `A_eff = c·1.6` with `c = 1 + Cov(A,x²)/(⟨A⟩⟨x²⟩)`. Stays one constant, closed-form, no `A(m)`. | Table 3 (held) for the **sign and a bound**; Group size edges for the **point value** | **Recommended for derivation** — bounded even without the size edges. See §4. |
-| 2 | Fitted per-fragment `A(m) = A₀(m/m₀)^p` in the mass closure. | mass per Group — **now available** (§1.2a, corrected) | Still rejected: the mass-axis objection is gone, but the closure is structurally incoherent regardless (§2 — `A` inside a formula defining `μ` is self-referential), and the modal-bin-is-analyst-default problem (§1.2b) remains. |
+| **1** | **Moment correction on the single constant** (§2.1): replace count-weighted `A = 1.6` with the `x²`-weighted mean implied by Table 3, i.e. `A_eff = c·1.6` with `c = ⟨A x²⟩/(⟨A⟩⟨x²⟩)`. Stays **one number per shell** — no fitted curve, no new functional degree of freedom. | Table 3 (held) for the **sign and a bound**; Group size edges for the **point value**; each shell's own `μ` for the weights | **Recommended for derivation** — bounded even without the size edges. See §4. |
+| 2 | Fitted per-fragment `A(m) = A₀(m/m₀)^p` in the mass closure. | mass per Group — **now available** (§1.2a, corrected) | Rejected on **parameter identifiability**, not structure (revised 2026-08-16, `review.md` A3): `A₀` and `p` are two free parameters fitted to five Group means whose values are the analysts' modal counting defaults (§1.2b), so the curve is not identified by the held data — whereas the option-1 moment is a *statistic* of that same data with no fitted parameter. The earlier "structurally self-referential" ground is withdrawn (§2). Note option 1 already carries the trend's effect: a continuous-`Ā(m)` variant is computed in `derivation.md` §3.4b as a **sensitivity band on `c`**, which is the honest use of a curve the data cannot identify. |
 | 3 | Two-regime step `A = 1.3 / 2.7` about a mass cut. | the cut — not in any held source | Rejected: the cut is the whole answer and it would be invented. |
 | 4 | Per-fragment `A(m)` in the **drag** path via `C_shape(m)`. | as (2), plus reopens §8 | Rejected: `A` does not enter drag today (§2); this would couple two under-identified parameters (§5). |
 | 5 | Physically-derived global ratio from the paper's own strain-rate argument (§4.1.1, `1/r₀ ≈ 1.22`; Morley's 1:2 hoop:longitudinal strain, line 113). | none extra | Not a mass-dependence source — both give one casing-wide ratio. Useful as an independent **cross-check on the value**, not as `A(m)`. |

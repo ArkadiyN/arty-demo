@@ -7,17 +7,30 @@ correction `c = ⟨A x²⟩/(⟨A⟩⟨x²⟩)`, bound it, and re-solve its leve
 `count-gap-1938` residual.
 
 **Scope:** derivation only. No `src/arty/` edit, no notebook edit in this pass.
-Executes Action A of `scoping.md` §6; the scoping decision (moment correction on
-one constant, **not** a per-fragment `A(m)`) is settled there and not re-opened.
+Executes Action A of `scoping.md` §6. The scoping decision — a moment
+correction reported as **one number per shell**, not a fitted per-fragment
+`A(m)` curve — rests on the grounds set out in `scoping.md` §2/§6 (corrected
+2026-08-16 per `review.md` A2/A3); those grounds, not this document, are where
+it should be challenged.
 
-**Status:** derivation pass, 2026-08-16.
+**Status:** derivation pass, 2026-08-16; revised 2026-08-16 (fix cycle) to make
+`c` per-shell after `review.md`'s adversarial pass returned **FAIL** on A1.
+`c` is a spectrum-weighted moment, so a single global `c` is not well-defined
+(§3.3b). The headline §6/§7 count result changed as a consequence.
 
-Checks (both runnable standalone from the repo root, <1 s each):
+Checks (all runnable standalone from the repo root, <2 s each):
 
-- `checks/aspect-ratio-moment-correction.py` — §2, §3, §4 (derives `c`, `k`).
-- `checks/aspect-ratio-moment-leverage.py` — §6 (re-solves the count chain).
+- `checks/aspect-ratio-moment-correction.py` — §2, §3, §4 (derives `c`, `k` at
+    Table-3 weighting).
+- `checks/per-shell-c-and-75mm-count-chain.py` — **§3.3b, §3.4b, §6** (per-shell
+    `c` fixed point under three mass-axis treatments; re-solves the 75 mm chain).
+- `checks/spectrum-weighted-c-per-shell.py`,
+    `checks/spectrum-weighted-c-fixedpoint-count-chain.py` — the independent
+    `review.md` A1 implementations; reproduced here as method A.
+- `checks/aspect-ratio-moment-leverage.py` — the `f`-sweep of the count chain
+    (§6 corner rows).
 - `checks/bofr-at-new-mu.py` — §5 (re-runs the `drag-gap-1944` B(r) fit at the
-    corrected `μ`).
+    corrected `μ`; 155 mm, `A_eff = 2.00`, unchanged by the per-shell fix).
 
 ---
 
@@ -181,7 +194,7 @@ not `c = 1`.** The measured `c > 1` therefore says the positive `m`–`A`
 association in Table 3 is strong enough to overcome a 16 % AM–HM floor, and the
 naive covariance reading would have over-stated the correction by ~20 %.
 
-### 3.3 Result
+### 3.3 Result on Table 3's own weighting
 
 Count-weighted over all 2415 fragments, geometric-mean bin representatives:
 
@@ -190,7 +203,65 @@ Count-weighted over all 2415 fragments, geometric-mean bin representatives:
 c = 219.04 / (1.5681 x 111.361) = 1.2543
 ```
 
-$$\boxed{\;c \;=\; 1.25\;,\qquad A_\text{eff} \;=\; c\,A \;=\; 2.01\;}$$
+This is **not** the number to ship. Eq. (4) is a moment of the *joint* `(A, m)`
+distribution, and its `m`-marginal is the **shell's own fragment population** —
+the population whose mean mass is `2μ` by construction (eq. 1). Weighting by
+Felix Table 3's photographic counts (assumption A5, superseded) freezes the
+mass spectrum of the one article the table was measured on. §3.3b re-weights.
+
+### 3.3b `c` is per-shell, because its weights are the shell's Mott spectrum
+
+`c` is a **statistic of a distribution, not a material constant.** The physical
+content Table 3 supplies is the *conditional* relation `A | m` (Group 0 at
+`Ā = 1.33` rising to Group 4 at `Ā = 3.00`); the *weights* come from
+`N(≥m) = N₀e^{−√(m/μ)}`, and `μ` spans an order of magnitude across `SHELLS`.
+Because `μ = c·μ₀` in turn, this is a one-dimensional fixed point
+`c = c(c·μ₀)`; it is contractive and converges in 3–4 iterations for every
+shell (`checks/per-shell-c-and-75mm-count-chain.py`, and independently
+`checks/spectrum-weighted-c-fixedpoint-count-chain.py`).
+
+Three weightings of the *identical* Table-3 aspect data are computed, all
+holding each Group's own within-Group aspect mix fixed:
+
+| | mass axis inside each Group | what it tests |
+| --- | --- | --- |
+| **A** | geometric-mean bin representative (as §3.3) | Group weights only |
+| **B** | `E[m \| Group]` under the shell's Mott spectrum | self-consistent masses — **central** |
+| **C** | continuous `Ā(m) = 0.677 m^{0.181}` fitted through the five Group centroids, clamped to `[23.7, 4330]` gr | restores the within-Group `m`–`A` covariance that A and B discard (A11) |
+
+| shell | `μ₀` [gr] | `P(Group 0)` | A | **B (central)** | C | **`A_eff = c·1.6`** |
+| ----- | --------- | ------------ | - | --------------- | - | ------------------- |
+| 155 mm M107 | 98.1 | 0.54 | 1.262 | **1.251** | 1.173 | **2.00** |
+| 105 mm M1 | 31.9 | 0.77 | 1.099 | **1.102** | 1.090 | **1.76** |
+| 75 mm M48 | 14.3 | 0.90 | 0.970 | **0.985** | 1.013 | **1.58** |
+| 60 mm M49A2 | 7.6 | 0.96 | 0.906 | **0.920** | 0.950 | **1.47** |
+
+$$\boxed{\;c = 1.25 \;/\; 1.10 \;/\; 0.99 \;/\; 0.92 \quad (155/105/75/60\ \text{mm})\;}$$
+
+**Method B is adopted as central**: it is the only one of the three whose mass
+axis and weights come from the same distribution, and it uses nothing the table
+does not resolve. The A–C spread is carried as the method band (§3.4b).
+
+Three readings, and they cut in different directions:
+
+1. **155 mm is unchanged.** `c = 1.251` (B) against §3.3's 1.2543 — 0.3 % apart,
+    `A_eff = 2.001` vs 2.00. Table 3's photographic sample (`⟨m⟩ = 219 gr`) is an
+    excellent proxy for the 155 mm model spectrum (`2μ = 196 gr`), which is *why*
+    §3.3 worked and why the §5 B(r) cross-check — also 155 mm — corroborates it.
+    **§5's result therefore stands verbatim: the shipped 155 mm `A_eff` is
+    2.00 either way.**
+1. **The correction shrinks monotonically with caliber and reaches ~1 at
+    75 mm.** The mechanism is transparent: 90 % of the 75 mm Mott population
+    falls inside Group 0, where Table 3 resolves no `A`-vs-`m` trend at all, so
+    the between-Group covariance that generates `c > 1` is barely sampled and
+    the AM–HM floor of §3.2 (`c = 0.835` at zero `m`–`A` correlation) takes
+    over. At 60 mm the floor wins outright and `c < 1`.
+1. **At 75 mm the correction is nil, not negative.** The three methods bracket
+    `c₇₅ ∈ [0.970, 1.013]` — straddling 1. The sign is set by whether the
+    within-Group-0 `m`–`A` trend is resolved (method C) or discarded (A, B), and
+    the table cannot settle that. The defensible statement is
+    `c₇₅ = 0.99 ± 0.02`: **the aspect-ratio moment correction does essentially
+    nothing at 75 mm.** §6 is rewritten on that basis.
 
 ### 3.4 Uncertainty
 
@@ -239,6 +310,38 @@ directional caveat, not a revised corner band. The 16-corner sweep above
 varies bin edges and conventions, never the group-discretization itself, so
 it does not capture this source of error.
 
+**Revised 2026-08-16 — the lower-bound direction is caliber-dependent, not
+uniform.** §3.3b method C restores exactly the omitted within-Group covariance
+(a continuous `Ā(m)` through the Group centroids) and the result does **not**
+move `c` uniformly upward: it gives `1.173 / 1.090 / 1.013 / 0.950` against
+method A's `1.262 / 1.099 / 0.970 / 0.906`, i.e. **down** at 155 mm and **up**
+at 75/60 mm. The reason is that the collapse does two things at once —
+it deletes within-Group covariance (which depresses `c`) *and* it evaluates the
+`A`-trend at five widely separated Group centroids rather than at the masses
+the spectrum actually populates (which inflates `c` when the spectrum straddles
+several Groups). The first dominates when the spectrum sits inside one Group
+(75/60 mm); the second dominates when it straddles many (155 mm). So the
+group-discretization error **compresses the caliber spread** rather than
+biasing every shell one way, and "`c` is a lower bound" is true only for the
+sub-105 mm shells. The `k` analogy in §4 is not transferable.
+
+### 3.4b Method band on the per-shell values
+
+The §3.4 16-corner sweep varies bin edges and conventions at Table-3
+weighting; the per-shell values carry a second, larger uncertainty — the
+choice of mass axis inside each Group (§3.3b A/B/C). Taking the min–max over
+the three methods as the band:
+
+| shell | band | central (B) | relative half-width |
+| ----- | ---- | ----------- | ------------------- |
+| 155 mm M107 | [1.173, 1.262] | 1.251 | ±3.6 % |
+| 105 mm M1 | [1.090, 1.102] | 1.102 | ±0.6 % |
+| 75 mm M48 | [0.970, 1.013] | 0.985 | ±2.2 % |
+| 60 mm M49A2 | [0.906, 0.950] | 0.920 | ±2.4 % |
+
+All four bands sit inside the ±15 % fidelity target (§7). The band that
+matters qualitatively is 75 mm's, because it straddles `c = 1`.
+
 ### 3.5 Assumptions
 
 - **A1 — Group 1 spans 75–150 gr.** Fig. 10 literally prints `GROUP NO 1-75 TO
@@ -254,9 +357,15 @@ it does not capture this source of error.
 - **A4 — the open aspect bin `1:4+` is read at 4.0.** Fig. 10 resolves it for
     Group 4 only (`1:4 = 5`, `1:5 = 2` → 4.29); Table 3 lumps these into the CSV's
     `n_1to4plus = 7`. Immaterial here (§3.4).
-- **A5 — `c` is count-weighted over Table 3's own fragment counts**, i.e. the
-    same weighting the shipped `⟨A⟩ = 1.6` uses. This is what makes `c` a pure
-    reweighting and keeps `A → cA` the only code change.
+- **A5 — SUPERSEDED 2026-08-16.** *Was:* "`c` is count-weighted over Table 3's
+    own fragment counts, i.e. the same weighting the shipped `⟨A⟩ = 1.6` uses."
+    That justified consistency with `⟨A⟩` but not with eq. (1), whose average
+    runs over the *shell's* fragment population. **Replaced by A5′.**
+- **A5′ — `c` is weighted by the shell's own Mott spectrum** (§3.3b), solved as
+    the fixed point `c = c(c·μ₀)`. `A → c(shell)·A` is still the only code
+    change and `ShellParams.aspect_ratio` is still one number per shell, so no
+    new functional degree of freedom is introduced. The Table-3-weighted 1.2543
+    survives only as the 155 mm value (to 0.3 %).
 - **A6 — Table 3's modal bins are the analysts' per-Group counting defaults, not
     measurements** (`scoping.md` §1.2b). This is the binding limitation on `c`:
     the `A`-vs-mass trend that produces `c > 1` is substantially the default the
@@ -272,37 +381,40 @@ it does not capture this source of error.
     Mott/Linfoot for it nor repairs it: `c` is a reweighting of Felix 2022's own
     empirical average and stands or falls with that table. The finding marker
     stays.
-- **A9 — `c` narrows the evidentiary base it corrects, and is applied across
-    all calibers.** `A = 1.6` is a mean over three datasets/casing types (Grady
-    ogive, Hiroe cylindrical, Mott cylindrical — `explosion-fragment-model/card.md`
-    Table 4) plus two further corroborating materials; `c = 1.25` is derived
-    from exactly one of those (Grady's Fig. 10) and one test article (155mm HE
-    M101). It is then applied as a single global multiplier on `A_eff` across
-    `SHELLS`' four calibers (60/75/105/155mm) through the same pre-existing
-    single-`A`-across-shells premise A8 flags. Neither this pass nor its review
-    evaluated whether the mass–aspect-ratio trend generalizes past 155mm.
+- **A9 — REVISED 2026-08-16. What transfers across calibers is the conditional
+    `A | m` relation, not `c` itself.** `A = 1.6` is a mean over three
+    datasets/casing types (Grady ogive, Hiroe cylindrical, Mott cylindrical —
+    `explosion-fragment-model/card.md` Table 4); the mass-resolved `A | Group`
+    mix behind `c` comes from exactly one of those (Grady's Fig. 10, 155mm HE
+    M101). §3.3b no longer applies a single global multiplier — each shell gets
+    its own `c` from its own spectrum — so the *weights* are now shell-specific
+    and the only thing assumed caliber-independent is the within-Group aspect
+    mix `A | Group`. That is a **strictly weaker** assumption than a global `c`
+    (which required the mass marginal to transfer too), but it is still
+    unevidenced: no second casing type or caliber in the held literature
+    resolves aspect ratio by mass. Wall-thickness-to-caliber ratio differs
+    across `SHELLS`, and `A | Group` plausibly does too.
 
-FINDING[deferrable]: c=1.25 is derived from a single 155mm HE M101 test article (Grady Fig. 10 only), narrower than the 3-dataset/casing-type base it corrects, and is applied as one global multiplier across all four SHELLS calibers with no evidence the mass-aspect-ratio trend generalizes beyond 155mm (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md; since: 2026-08-16)
-- **A10 — the two cross-checks in §5 and §6 are not caliber-matched to each
-    other or to the source data.** §5's B(r) corroboration and §3's Table 3
-    source are both 155mm; §6's count-chain re-solve is **75mm M48**
-    (`count-chain.md:144`). A caliber-transfer error in the effective `c` for
-    75mm is at least as plausible an explanation for the 4.5% /700 shortfall
-    (§6.1) as an uncorrected shape-moment residual (§6.2), and this
-    derivation cannot distinguish the two from the data it holds. So the
-    B(r) agreement is same-caliber-family evidence, not a caliber-blind
-    "second, independent surface."
-- **A11 — `c`, like `k` (§4), is likely a lower bound.** `c` is built from
-    the same Group-discretized table as `k`; collapsing each Group to one
-    representative mass makes any within-Group mass–aspect covariance
-    structurally invisible to the calculation. If that omitted covariance
-    shares the sign of the measured between-Group trend — the physically
-    likely case (§3.4) — `c = 1.25` understates the true `x²`-weighted
-    correction. Unlike `k`'s bound this is not a mathematical certainty; it
-    is a directional caveat, not a revised corner band.
+FINDING[deferrable]: the mass-resolved A|Group aspect mix behind the per-shell c comes from one test article (155mm HE M101, Grady Fig. 10) and is assumed caliber-independent when applied to the 105/75/60mm shells; no second casing type or caliber in the held literature resolves aspect ratio by fragment mass (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md; since: 2026-08-16)
+- **A10 — RESOLVED 2026-08-16 by the per-shell fix.** The prior version noted
+    that §5's B(r) cross-check (155mm) and §6's count chain (75mm M48) were not
+    caliber-matched, so the /700 shortfall might be a caliber-transfer artifact
+    of applying a 155mm `c` at 75mm. That mechanism is now eliminated by
+    construction: §6 runs at `c₇₅`, derived from the 75mm shell's own spectrum,
+    and §5 runs at `c₁₅₅`. The two surfaces are each self-consistent, and the
+    transfer doubt has been given a value and a sign (§3.3b) rather than left
+    unquantified. What survives is A9's narrower `A | Group` assumption.
+- **A11 — `c` is a lower bound for the sub-105mm shells only.** `c` is built
+    from the same Group-discretized table as `k`; collapsing each Group to one
+    representative mass makes within-Group mass–aspect covariance invisible.
+    §3.4b's method C restores it, and the correction is **not** one-signed:
+    `c` moves down at 155mm and up at 75/60mm (§3.4, "Revised"). So the
+    lower-bound reading holds where the spectrum sits inside one Group and
+    reverses where it straddles several. Unlike `k`'s bound this was never a
+    mathematical certainty, and it is now known not to be uniform. The
+    residual uncertainty is carried as the §3.4b method band.
 
-FINDING[deferrable]: the B(r) cross-check (155mm, same caliber family as the c=1.25 source data) and the count-chain cross-check (75mm M48) are not caliber-matched to each other, so the count-chain's /700 shortfall may be a caliber-transfer artifact rather than a confirmed uncorrected shape-moment residual (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md, experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-16)
-FINDING[deferrable]: c=1.25 is built from the same Group-discretized Table 3 data as k and is structurally a lower bound (within-Group mass-aspect covariance is invisible to the between-Group calculation), directionally identical to k's disclosed lower-bound caveat but not previously stated for c (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md; since: 2026-08-16)
+FINDING[deferrable]: c is built from the same Group-discretized Table 3 data as k; the within-Group mass-aspect covariance is invisible to the between-Group calculation and the continuous-A(m) sensitivity (derivation 3.4b method C) shows the resulting bias is caliber-dependent in sign, not a uniform lower bound as originally stated (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md; since: 2026-08-16)
 
 ---
 
@@ -337,7 +449,11 @@ code would (`dataclasses.replace(shell, aspect_ratio=c·1.6)`), re-solves
 comparison is like-for-like against the same Table 59 casualties CSV.
 155 mm M107, ground burst, AoF 30°, `E_leth = 78.6 J`.
 
-### 5.1 Result — the fit moves, and `c = 1.25` improves it
+**Unaffected by the per-shell fix.** This surface is 155 mm, and the 155 mm
+per-shell value is `c₁₅₅ = 1.251` → `A_eff = 2.001` against the 2.00 the check
+was run at (§3.3b). The table below stands as computed; no re-run was needed.
+
+### 5.1 Result — the fit moves, and `c₁₅₅ = 1.25` improves it
 
 | `c` | `A_eff` | geometric-mean `B_model/B_card` over the 11 card ranges | rows inside the 0.5–2× band |
 | --- | ------- | ------------------------------------------------------ | --------------------------- |
@@ -374,14 +490,14 @@ coefficient (§5's orthogonality, `drag-gap-1944/shape-closure-orthogonality.md`
 
 ## 6. Item 4 — re-solved count-chain leverage
 
-**This chain runs on 75mm M48 HE** (`count-chain.md:144`) — a different
-caliber from §5's 155mm M107 B(r) check and from the 155mm Table 3 data `c`
-is derived from. See §6.2 (A10) for why that matters to how this section's
-result should be read.
+**This chain runs on 75mm M48 HE** (`count-chain.md:144`), so the value that
+enters it is **`c₇₅`, not `c₁₅₅`** — that is the substantive change in this
+revision. §5's B(r) check is 155 mm and runs at `c₁₅₅`; the two surfaces are
+each internally caliber-consistent now (A10).
 
-`checks/aspect-ratio-moment-leverage.py` (extended in place this pass; the
-`c = 1.00` row still reproduces the shipped baseline — see the limit check
-below). The chain is **re-solved**, not ratioed: `μ = c·μ₀`, `N₀ = N₀₀/c`,
+`checks/per-shell-c-and-75mm-count-chain.py` (headline rows) and
+`checks/aspect-ratio-moment-leverage.py` (the `f`-sweep and corner rows). The
+chain is **re-solved**, not ratioed: `μ = f·μ₀`, `N₀ = N₀₀/f`,
 `N = N₀ e^{−√(m_thr/μ)}` with `m_thr = 0.166 g` held (correct — `A` does not
 enter the perforation path, §5's orthogonality; confirmed by the shape result
 in §5.1 that the change is a pure level shift).
@@ -389,18 +505,21 @@ in §5.1 that the change is a pure level shift).
 | correction | `f` | `μ` [g] | `N₀` | `N(≥m_thr)` | vs Tolch 700 | vs Tolch 779 |
 | ---------- | --- | ------- | ---- | ----------- | ------------ | ------------ |
 | shipped | 1.000 | 0.929 | 2681 | 1757 | **2.51×** | **2.26×** |
-| `c` low (corner) | 1.176 | 1.093 | 2280 | 1544 | 2.21× | 1.98× |
-| **`c` derived** | **1.254** | **1.165** | **2138** | **1466** | **2.09×** | **1.88×** |
-| `c` high (corner) | 1.352 | 1.256 | 1983 | 1379 | 1.97× | 1.77× |
+| `c₇₅` method A (band low) | 0.970 | 0.901 | 2765 | 1800 | 2.57× | 2.31× |
+| **`c₇₅` method B (central)** | **0.985** | **0.915** | **2721** | **1777** | **2.54×** | **2.28×** |
+| `c₇₅` method C (band high) | 1.013 | 0.941 | 2647 | 1739 | 2.48× | 2.23× |
+| *superseded:* global `c` = `c₁₅₅` | 1.254 | 1.165 | 2138 | 1466 | 2.09× | 1.88× |
 | `k` alone (A9.1) | 1.524 | 1.416 | 1759 | 1249 | 1.78× | 1.60× |
-| `c·k` low (corner) | 1.506 | 1.399 | 1780 | 1261 | 1.80× | 1.62× |
-| **`c·k` derived** | **1.912** | **1.776** | **1402** | **1033** | **1.48×** | **1.33×** |
-| `c·k` high (corner) | 2.487 | 2.310 | 1078 | 825 | 1.18× | 1.06× |
+| *superseded:* `c₁₅₅·k` | 1.912 | 1.776 | 1402 | 1033 | 1.48× | 1.33× |
 
 **Limit check.** The `f = 1.000` row returns `N = 1757`, `2.51× / 2.26×` against
 `count-chain.md` §5's verdict row `1756`, `2.51× / 2.25×` — agreement to the
-rounding of the cached `μ₀`, `N₀₀` inputs. `c = 1` recovers the shipped closure
+rounding of the cached `μ₀`, `N₀₀` inputs. `f = 1` recovers the shipped closure
 exactly. ✓
+
+The two superseded rows are retained only because they are what the
+pre-revision text quoted; **`f = 1.254` is the 155 mm correction and has no
+standing on a 75 mm chain.**
 
 **Thresholds** (bisection on the re-solved chain, *not* a `1/f` scaling — `N`
 does not move as `1/f`, memory `gotcha_mott_count_not_f_squared`):
@@ -410,97 +529,133 @@ does not move as `1/f`, memory `gotcha_mott_count_not_f_squared`):
 
 ### 6.1 Does this clear the within-2× PASS band?
 
-**Partly — `c` alone clears one arm and misses the other by 4.5 %.**
+**No — and the honest result is that at 75 mm this correction does nothing.**
 
-- **/779 arm: PASSES.** `1.88×` at `c = 1.254`, needing only `f ≥ 1.163`. The
-    entire derived corner band `[1.176, 1.352]` clears it (`1.98×`–`1.77×`).
-- **/700 arm: FAILS, narrowly.** `2.09×` against a 2.00× band, needing
-    `f ≥ 1.327`. The derived `c = 1.254` is **5.5 % short in `f`** (equivalently
-    the count is 4.5 % above the band). Only the top of the corner band
-    (`c = 1.352`) reaches `1.97×`.
-- **With `k` (A9.1) also applied, both arms pass comfortably** — `c·k = 1.912`
-    gives `1.48× / 1.33×`, and even the bottom of the `c·k` corner band
-    (`1.506`) gives `1.80× / 1.62×`, inside on both arms.
+- **Both arms FAIL, essentially unmoved.** `2.54× / 2.28×` at the central
+    `c₇₅ = 0.985`, against a 2.00× band, versus `2.51× / 2.26×` shipped. The
+    entire method band `c₇₅ ∈ [0.970, 1.013]` gives `2.48×–2.57×` /
+    `2.23×–2.31×`: **every corner is outside the band on both arms, and every
+    corner is within 3 % of the shipped count.**
+- **Thresholds unchanged and unreached** (bisection on the re-solved chain,
+    *not* a `1/f` scaling — memory `gotcha_mott_count_not_f_squared`):
+    `f ≥ 1.163` clears /779, `f ≥ 1.327` clears /700. `c₇₅ ≈ 0.99` reaches
+    neither; it is on the wrong side of 1 at the band's lower corner.
+- **`k` (A9.1) is the only factor here with real leverage.** `k = 1.524` alone
+    gives `1.78× / 1.60×` — both arms inside. But `k` is a separate assumption
+    belonging to `mott-fragment-shape-closure`, is not derived per-shell here,
+    and §6.2 explains why stacking it is not free.
 
-**Net movement attributable to this update alone:** `2.51×/2.26×` →
-`2.09×/1.88×`, i.e. `c` removes **~17 % of the count**, closing about **28 % of
-the /700 excess** and **32 % of the /779 excess** above 1×.
+**Net movement attributable to this update at 75 mm: none.** `2.51×/2.26×` →
+`2.54×/2.28×` (central), a `+1 %` count change — inside the rounding of the
+cached chain inputs. The pre-revision claim that `c` "removes ~17 % of the
+count" and closes "28 %/32 % of the excess" was the **155 mm** correction
+applied to a **75 mm** chain and is withdrawn.
 
-### 6.2 The two corrections are cross-constrained, and that is the result
+### 6.2 What the per-shell result actually shows
 
-`c` alone and `c·k` cannot both be preferred, and the two surfaces disagree
-about which:
+The pre-revision reading — "the count surface wants the larger correction, the
+drag surface wants the smaller, and `c` alone is the honest compromise" — was
+built on a comparison between two calibers. With `c` per-shell it collapses:
 
-| | count-gap-1938 | drag-gap-1944 B(r) |
-| --- | --- | --- |
-| `c = 1.25` alone | 2.09× / 1.88× — one arm short | **1.06×** — near-exact |
-| `c·k = 1.91` | **1.48× / 1.33×** — both pass | 0.79× — 26 % under |
+| surface | caliber | `c` used | result |
+| ------- | ------- | -------- | ------ |
+| `drag-gap-1944` B(r) | 155 mm M107 | `c₁₅₅ = 1.25` | 1.23× → **1.06×** — a real, near-exact improvement |
+| `count-gap-1938` chain | 75 mm M48 | `c₇₅ = 0.99` | 2.51× → **2.54×** — no movement |
 
-Neither choice is dominated. The count surface wants the larger correction; the
-drag surface wants the smaller. **The honest reading is that `c ≈ 1.25` is what
-this update's data supports, and that the remaining /700 shortfall is real and
-not closed by this aspect** — the count residual is not fully a shape-moment
-artefact. Applying `c·k` to force both count arms inside the band would trade a
-23 % over-prediction on B(r) for a 21 % under-prediction, i.e. spend a genuinely
-independent cross-check to buy a target. That is the "rebaseline onto the
+**These are no longer in tension; they are answering different questions.** The
+aspect-ratio moment is a genuine, measurable, ~25 % correction *on 155 mm*, and
+it is confirmed on an independent 155 mm surface (Ordnance Dept. 1944
+casualties, a different dataset from Felix 2022 Table 3). At 75 mm the same
+physics predicts no correction at all, because the shell's fragment spectrum
+lies almost entirely inside the one mass Group over which Table 3 resolves no
+aspect trend. **Both are outputs of one model, not a compromise between two.**
+
+The consequence for `count-gap-1938` is unambiguous and negative: **the count
+residual at 75 mm is not a shape-moment artefact.** This is now a *positive*
+result rather than the unattributed shortfall the pre-revision §6.2 recorded —
+the caliber-transfer doubt (A10) that made it unattributable has been given a
+value and a sign, and the answer is that the correction at this caliber is nil.
+Whatever drives the 2.5× 75 mm count excess, it is not the `⟨A x²⟩` weighting.
+
+Stacking `c₇₅·k = 1.50` would put both arms inside the band (`1.80×/1.62×`),
+but that is `k` doing all the work, and `k = 1.524` is itself Table-3-weighted
+and would need the same per-shell treatment before it could be quoted on a
+75 mm chain. Forcing the count arms with a factor whose 155 mm B(r) surface
+rejects it (`c₁₅₅·k → 0.79×`, 26 % under) remains the "rebaseline onto the
 validation source" failure mode (memory
-`gotcha_rebaseline_onto_validation_source`) and this derivation declines it.
-
-**This comparison is not caliber-blind (A10).** §5's B(r) corroboration runs
-on 155mm M107 — the same caliber family Table 3 was measured on — while this
-count chain runs on 75mm M48. A 75mm shell's wall-thickness-to-caliber ratio
-and case geometry differ enough from 155mm that a caliber-transfer error of a
-few percent in the effective `c` for 75mm is at least as plausible an
-explanation for the 4.5% /700 miss as "the residual isn't fully a
-shape-moment artefact" — this derivation does not have the data to
-distinguish the two. So the "real and not closed by this aspect" reading
-above should be understood as *unattributed*, not confirmed: the shortfall
-is cross-caliber, the corroboration is same-caliber-family, and the two are
-not equal-strength evidence.
+`gotcha_rebaseline_onto_validation_source`) and this derivation still declines
+it.
 
 ---
 
 ## 7. Conclusion and what this update should ship
 
-**Ship `c = 1.25`** as a multiplicative correction on the single constant `A`,
-i.e. `A_eff = 2.00` in `mott_params`/`ShellParams.aspect_ratio`. One constant,
-one line, no new degrees of freedom, `C_shape` and §8's deferral untouched.
+**Ship a per-shell `c`** as a multiplicative correction on the single constant
+`A`, i.e. `ShellParams.aspect_ratio = c(shell)·1.6`:
+
+| shell | `c` (central, method B) | `A_eff` |
+| ----- | ----------------------- | ------- |
+| 155 mm M107 HE | 1.25 | **2.00** |
+| 105 mm M1 HE | 1.10 | **1.76** |
+| 75 mm M48 HE | 0.99 | **1.58** |
+| 60 mm M49A2 HE | 0.92 | **1.47** |
+
+Still one number per shell, still no new functional degree of freedom, still
+one field in an existing dataclass; `C_shape` and §8's deferral untouched. What
+changed from the pre-revision recommendation is that the number is no longer
+shared across calibers — `c` is a moment of the shell's own fragment spectrum,
+not a material constant (§3.3b).
 
 Grounds a reviewer can check:
 
-1. `c = ⟨A x²⟩/(⟨A⟩⟨x²⟩) = ⟨m⟩/(⟨A⟩⟨m/A⟩) = 1.254`, corner band `[1.18, 1.35]`,
-    from Felix 2022 Table 3 weighted by Fig. 10's own printed grain ranges (§3).
-1. Both limit checks pass: no aspect dispersion → `c = 1.000000` exactly;
-    `f = 1` reproduces `count-chain.md`'s verdict row (§3.2, §6).
-1. It is corroborated on a second surface: B(r) fit quality 1.23× → 1.06×
-    (§5.1). No prior candidate on this thread had that — but it is
-    **same-caliber-family** corroboration (155mm, like the source data), not
-    a caliber-blind check; see §6.2 (A10).
-1. It moves the count residual `2.51×/2.26×` → `2.09×/1.88×` (§6).
+1. `c = ⟨A x²⟩/(⟨A⟩⟨x²⟩) = ⟨m⟩/(⟨A⟩⟨m/A⟩)` (eq. 4), evaluated on Felix 2022
+    Table 3's `A | Group` mix with Group weights and Group mean masses from each
+    shell's own `N(≥m) = N₀e^{−√(m/μ)}`, solved as the fixed point
+    `c = c(c·μ₀)` (§3.3b). Method band `±0.6–3.6 %` (§3.4b).
+1. All limit checks pass: no aspect dispersion → `c = 1.000000` exactly; zero
+    `m`–`A` correlation → `c = 0.835` (AM–HM floor, §3.2); Table-3 weighting
+    reproduces `⟨m⟩ = 219.04 gr`, `⟨A⟩ = 1.5681`, `c = 1.2543` (§3.3); `f = 1`
+    reproduces `count-chain.md`'s verdict row (§6).
+1. It is corroborated on an independent surface **at the caliber it is largest
+    on**: 155 mm B(r) fit quality 1.23× → 1.06× (§5.1), from the Ordnance Dept.
+    1944 casualty data rather than Felix Table 3. `c₁₅₅ = 1.251` is 0.3 % from
+    the value that check was run at.
+1. It leaves the 75 mm count residual where it was: `2.51×/2.26×` →
+    `2.54×/2.28×` (§6).
 
-**Verdict on the PASS band, stated plainly:** this does **not** by itself return
-`count-gap-1938` to PASS. The **/779 arm clears (1.88×)**; the **/700 arm misses
-at 2.09×**, short by 4.5 %. Whether that reopens the thread is the human's call
-per `scoping.md` §6 Action C — this pass does not edit `count-chain.md`.
+**Verdict on the PASS band, stated plainly:** this update does **not** move
+`count-gap-1938`, on either arm. The **/700 arm stays at 2.54×** and the
+**/779 arm at 2.28×** — both outside the 2× band, both within 3 % of shipped,
+across the whole `c₇₅` method band. The pre-revision claim that the /779 arm
+cleared at 1.88× is **withdrawn**: it was the 155 mm correction evaluated on a
+75 mm chain (`review.md` A1). This aspect is therefore *not* a candidate
+explanation for the 75 mm count excess, and §6.2 states that as a positive
+finding rather than an open doubt. Whether that reopens the thread is the
+human's call per `scoping.md` §6 Action C — this pass does not edit
+`count-chain.md`.
 
 **Follow-up passes (not this one):**
 
-- **`src/arty/` implementation** of `A_eff = 2.00`, plus a `_limitations.qmd`
-    entry covering A6 (modal bins are analyst defaults, not measurements),
-    A9 (single-155mm evidentiary base applied across all four calibers),
-    A10 (the B(r)/count-chain cross-checks are not caliber-matched), and A11
-    (`c` is likely a lower bound, same structural reason as `k`).
+- **`src/arty/` implementation** of the per-shell `A_eff` (2.00 / 1.76 / 1.58 /
+    1.47 for 155/105/75/60 mm), plus a `_limitations.qmd` entry covering A6
+    (modal bins are analyst defaults, not measurements), A9 (the `A | Group`
+    mix is from one 155 mm test article and is assumed caliber-independent),
+    and A11 (the group-discretization bias is caliber-dependent in sign, not a
+    uniform lower bound).
 - **A9.1 / `k` is now a live, measurable item** for
     `mott-fragment-shape-closure`: `k ≥ 1.52` from data, vs its
     theory-only `(1,2)` bound, and its stated deferral rationale is void (§2.2).
     That is a change to *that* document and its `derivation.md` §9 — flagged
-    here, not made here. Its interaction with the B(r) over-shoot (§6.2) is the
-    open question that pass must answer.
+    here, not made here. **`k` is Table-3-weighted exactly as `c` was, so it
+    inherits A1's defect**: `k = 1.52` is the 155 mm value (the same script
+    returns 1.51 / 1.35 / 1.21 / 1.11 for 155/105/75/60 mm under Mott
+    weighting). Any pass that quotes `k` on a non-155 mm chain must re-weight it
+    first. Its interaction with the B(r) over-shoot (§6.2) is the open question.
 - The `[deferrable]` Mott/Linfoot structural-premise finding stays open (A8).
 
-**Fidelity target** (carried from `scoping.md` §6): tolerable error on a single
-global `A` is ±15 %. The derived `c`'s own corner band is `±7 %` — inside it.
-The unrepresented within-Group mass dependence (A6, A7) is not, and neither
-is the group-discretization lower-bound direction flagged in §3.4 (A11) —
-the `±7 %` band covers only the assumptions it was swept over, not this
-source of error.
+**Fidelity target** (carried from `scoping.md` §6): tolerable error on `A` is
+±15 %. The per-shell method band is `±0.6–3.6 %` (§3.4b) and the Table-3-level
+16-corner band is `±7 %` (§3.4) — both inside it. The unrepresented within-Group
+mass dependence (A6, A7) is not covered by either, and the group-discretization
+bias (A11) is covered only to the extent method C bounds it; the bands cover
+the assumptions they were swept over, not those two sources of error.
