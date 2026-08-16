@@ -36,14 +36,17 @@ experiment/
       <thread>/               ← one investigation thread, NOT one loose file
         README.md             ← thread index + current verdict (multi-doc only)
         <question>.md/.qmd    ← the write-ups, in the order they were run
-        review.md             ← @model-reviewer's verdict on this thread
+        review.md             ← REQUIRED; two @model-reviewer passes append
+                                here — adversarial critique, then verification
+                                (see "Two review passes", below)
         checks/*.py           ← the scripts that produced the numbers
     updates/
       <change-slug>/
         scoping.md            ← problem, options, literature audit, recommendation
         derivation.md         ← math + unit checks + self-consistency
-        review.md             ← REQUIRED after every review pass, written by
-                                @model-reviewer (appended on re-review)
+        review.md             ← REQUIRED; two @model-reviewer passes append
+                                here — adversarial critique, then verification
+                                (see "Two review passes", below)
         checks/*.py           ← the scripts that produced the numbers
 ```
 
@@ -117,8 +120,9 @@ is a published verdict; **the main model is not modified**.
     `challenges/<thread>/<question>.qmd` that imports from `arty`, runs it,
     and renders. No physics in the `.qmd`. Any check script it wrote moves from
     `experiment/_scratch/` to `challenges/<thread>/checks/`. Return.
-1. Delegate to @model-reviewer → validates the analysis and the verdict,
-    writing `challenges/<thread>/review.md`.
+1. Delegate to @model-reviewer, **twice** (see "Two review passes: adversarial
+    critique, then verification", below — this applies to Workflow A the same
+    as B) → writes `challenges/<thread>/review.md`.
 1. Main agent links the challenge from the parent `.qmd` "Challenges"
     section if the verdict is reader-relevant, and updates
     `challenges/README.md` (and the thread's own `README.md`, if it has one)
@@ -139,23 +143,30 @@ result into the main `.qmd`. **Each change covers exactly one model aspect**
 1. Main agent reviews scoping. If approved, delegate @modeler **derivation
     pass** → writes `derivation.md` (math, unit checks, self-consistency).
     Return.
-1. Delegate to @model-reviewer → writes `review.md` with
-    PASS / PASS-with-limitations / FAIL and tagged findings (Blocking /
-    Deferrable / Note, each with an impact estimate), and returns a summary.
-    An inline-only verdict is not a completed review pass. **On return, the
-    main agent verifies `review.md` exists on disk** — a background dispatch
-    can silently drop the write (see subagent-harness gotchas); if it is
-    missing, the main agent persists the returned review verbatim to
-    `review.md` before acting on the verdict.
+1. Delegate to @model-reviewer, **twice** — see "Two review passes: adversarial
+    critique, then verification", below; this is not optional. Each writes/
+    appends to `review.md` with PASS / PASS-with-limitations / FAIL and tagged
+    findings (Blocking / Deferrable / Note, each with an impact estimate), and
+    returns a summary. An inline-only verdict is not a completed review pass.
+    **On return of each pass, the main agent verifies `review.md` exists on
+    disk and carries that pass's section** — a background dispatch can
+    silently drop the write (see subagent-harness gotchas); if it is missing,
+    the main agent persists the returned review verbatim before acting on the
+    verdict.
 1. **PASS-with-limitations is a terminal verdict, not a FAIL** — the next
     @modeler pass logs the listed limitation entries (derivation assumptions
     and/or `_limitations.qmd`) as part of its normal work; no re-review of
     those entries is needed.
-1. If FAIL: at most **two** fix cycles (@modeler fix → @model-reviewer
-    re-review, scoped to the flagged items only). **Each fix and each re-review
-    is a new dispatch** — the fix @modeler and the re-review @model-reviewer are
+1. If either pass returns FAIL, or raises a Blocking finding: at most **two**
+    fix cycles total (@modeler fix → re-review by whichever pass raised the
+    finding, scoped to the flagged items only) — the cap is shared across both
+    passes, not two per pass. **Each fix and each re-review is a new
+    dispatch** — the fix @modeler and the re-review @model-reviewer are
     fresh instances briefed from `review.md`, never the same instances continued
-    via `SendMessage` (agents-routing.md Gate 4). Still FAIL after two cycles →
+    via `SendMessage` (agents-routing.md Gate 4). A Blocking finding from the
+    adversarial pass means the derivation changes before the verification pass
+    ever runs — don't spend a verification pass tracing arithmetic that a fix
+    cycle is about to rework. Still FAIL after two cycles →
     stop looping; the main agent triages each open item — convert to a logged
     limitation, or escalate to the human with the reviewer's impact estimates.
     Do not silently start a third cycle.
@@ -206,6 +217,62 @@ The modeler owns a model aspect **end-to-end** (one pass per invocation):
 - When the main model notebook is updated. **Also check that no physics,
     computation, or parameter values leaked into the `.qmd`** — everything must
     be imported from `src/arty/`.
+
+## Two review passes: adversarial critique, then verification
+
+A single @model-reviewer pass tends to converge on one mode — either
+mechanical arithmetic-checking or big-picture critique — depending on how the
+brief is framed, not both. Reproducing check scripts digit-for-digit and
+tracing code paths is a different activity from asking whether the underlying
+theory holds up even when the arithmetic is right (evidentiary scope, hidden
+or quietly-settled assumptions, whether two "independent" cross-checks
+actually share an upstream dependency, whether the criterion measured matches
+the criterion modeled, competing explanations not considered). Getting both
+out of one dispatch means briefing for one and hoping the other happens
+incidentally — it doesn't reliably. **Every review — Workflow A's
+`challenges/<thread>/review.md` and Workflow B's `updates/<slug>/review.md` —
+is two fresh Gate-4 dispatches, always in this order:**
+
+1. **Pass 1 — adversarial critique.** Runs first, on the artifact as
+    @modeler left it — nothing has been independently verified yet, and that
+    is deliberate: reviewing arithmetic that a fundamentally wrong theory
+    would make moot is wasted effort, and telling a reviewer "the math is
+    already confirmed" biases it toward extending that trust to unrelated
+    soundness questions it should be checking cold. Brief it with the
+    **background** (what was added/changed and why) and a **pointer** (the
+    diff, or the derivation's own citations into `src/`) — never a
+    pre-itemized checklist (see "Briefing subagents", below; the same
+    anchoring risk applies here). It may still spot-check a specific fact or
+    number where its argument depends on one (grep a primary, run a check
+    script once) — that is not the same as redoing full verification, and is
+    expected. It appends a clearly dated, clearly headed section to
+    `review.md` — never overwrites a prior pass's section — with its own
+    PASS / PASS-with-limitations / FAIL verdict and tagged findings.
+1. **Pass 2 — verification.** Runs second, briefed that Pass 1 already ran
+    and is not to be redone, pointing it at Pass 1's section of `review.md`
+    for context. Reproduces every check script standalone and confirms its
+    output matches what the derivation reports; traces the load-bearing code
+    path by hand (e.g. how a changed constant reaches the quantities it's
+    claimed to affect, and nothing else); confirms cited numbers against
+    their primaries rather than the derivation's word. Appends its own dated
+    section, own verdict.
+
+**Findings from either pass are the same kind of finding** — a Blocking item
+from Pass 1 gates exactly like a Blocking item from Pass 2 (see the shared
+fix-cycle cap in Workflow B step 5). A Pass 1 Blocking finding means @modeler
+fixes the derivation before Pass 2 ever runs, so Pass 2 always verifies the
+settled version, not one about to be reworked.
+
+**When the order flips:** only when the update's whole correctness question
+*is* a numeric one and adversarial critique has nothing to engage with until
+the numbers exist (e.g., a pure sensitivity/convergence check) — a judgment
+call for the main agent to make and note in the dispatch, not a default.
+
+**Model tier:** Pass 1 (adversarial) overrides to **Opus** — it is the harder
+reasoning task of the two and the highest-value review step, the one where a
+wrong theory is caught or shipped. Pass 2 (verification) stays at
+@model-reviewer's standard default, **Sonnet** — mechanical reproduction and
+code-tracing, not judgment. (`agents-routing.md` "Model tier per pass".)
 
 ## Task sequencing
 
