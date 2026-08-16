@@ -29,3 +29,4 @@
 - [Gold 2017 eq(17) N0 typo](gold_2017_eq17_N0_typo.md) — eq(17) N0=m/mu contradicts the paper's own line 54/eq(1) N0=M/2mu; follow the factor-of-2 form
 - [tolch-1938.md not a citable surface](tolch_md_not_citable_surface.md) — its own card.md bans citing it without a tables/*.csv; check for CSV backing before trusting an inline closure alone
 - [Header-only CSV fix double-swap](header_only_csv_fix_double_swap.md) — a column-swap fix that only renames headers leaves any reader with a manual compensating reversal double-swapped; grep all consumers
+- [Moment correction is spectrum-weighted](moment_correction_is_spectrum_weighted.md) — a ratio-of-moments c from a source table inherits that sample's mass marginal; check model mean vs sample mean before applying across calibers
