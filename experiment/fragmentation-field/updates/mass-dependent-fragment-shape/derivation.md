@@ -252,6 +252,17 @@ slightly high.
     Mott/Linfoot for it nor repairs it: `c` is a reweighting of Felix 2022's own
     empirical average and stands or falls with that table. The finding marker
     stays.
+- **A9 — `c` narrows the evidentiary base it corrects, and is applied across
+    all calibers.** `A = 1.6` is a mean over three datasets/casing types (Grady
+    ogive, Hiroe cylindrical, Mott cylindrical — `explosion-fragment-model/card.md`
+    Table 4) plus two further corroborating materials; `c = 1.25` is derived
+    from exactly one of those (Grady's Fig. 10) and one test article (155mm HE
+    M101). It is then applied as a single global multiplier on `A_eff` across
+    `SHELLS`' four calibers (60/75/105/155mm) through the same pre-existing
+    single-`A`-across-shells premise A8 flags. Neither this pass nor its review
+    evaluated whether the mass–aspect-ratio trend generalizes past 155mm.
+
+FINDING[deferrable]: c=1.25 is derived from a single 155mm HE M101 test article (Grady Fig. 10 only), narrower than the 3-dataset/casing-type base it corrects, and is applied as one global multiplier across all four SHELLS calibers with no evidence the mass-aspect-ratio trend generalizes beyond 155mm (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md; since: 2026-08-16)
 
 ---
 
