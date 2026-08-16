@@ -41,13 +41,22 @@ shipped single constant 1.6 was averaged from.
 
 ### 1.2 Three reasons this is NOT usable as `A(m)` (the decisive finding)
 
-**(a) The Groups have no stated mass, or size, definition.** Nothing in §4.1.2
-(lines 121–130 of the extraction) defines Group 0–4 by mass, by length, or by
-any dimension. They are visual size bands in one photograph. The closure needs
-`A` as a function of fragment **mass** `m`; the source supplies `A` as a
-function of an unquantified ordinal label. Building `A(m)` requires inventing
-the mass edges — which is precisely the "unsourced spectrum shape" that
-`challenges/count-gap-1938/mott-tail-shape.md` was discharged for.
+**(a) CORRECTED 2026-08-16 — the Groups do have a stated mass definition; the
+text extraction the original pass grepped does not carry it.** §4.1.2's prose
+(lines 121–130) is silent on mass, but `images/fig10.jpeg` — the figure the
+table is built from — prints an explicit grain-mass range on every group,
+directly on the image, not as OCR'd body text: Group 0 = 0–75 grains, Group 1 =
+75–150 grains (the print reads "75 TO 75," almost certainly a caption artifact
+of the scan — the boundary implied by Group 2's own "150 TO 750" starting
+edge is the more reliable reading, but this is not itself independently
+confirmed and should be treated as a caveat, not a citation), Group 2 = 150–750
+grains, Group 3 = 750–2500 grains, Group 4 = 2500+ grains. This is a real,
+sourced mass axis — the "no mass axis" objection to a mass-resolved treatment
+does not hold, and building a bin-level `A(m)` (or a moment-correction `c`
+weighted by real bin masses) no longer requires inventing the edges. This
+does **not** rehabilitate option 2 on its own — objections (b) and the
+structural self-reference argument in §2 still block a literal per-fragment
+`A(m)`.
 
 **(b) The per-Group ratios are largely counting *assumptions*, not
 measurements.** The paper's own method, verbatim per Group:
@@ -80,10 +89,15 @@ Fig. 10 is Gardner (LLNL, 2000) [ref 23], reproduced in Grady's *Fragmentation
 of Rings and Shells* [ref 29]; the paper calls it "the Grady paper" but the
 photograph is Gardner's. §4.1.2 says only "the shell in Fig. 10"; the paper
 labels the casing **ogive** (Table 4 row), which is the closest of the three
-datasets to a WW2 US HE shell body. The brief's "155 mm HE M101" attribution is
-**not stated in this extraction** — I could not confirm it from the retained
-`.md`, and `source.pdf` is gitignored. Treat the shell identity as unverified.
-It does not change the recommendation, because (a)–(c) already bind.
+datasets to a WW2 US HE shell body. **CORRECTED 2026-08-16 — the "155 mm HE
+M101" attribution is confirmed.** It is not in the text extraction, but it is
+printed directly on `images/fig10.jpeg` itself ("SHELL, HE 155-MM M101," next
+to a scaled shell silhouette alongside the fragment groups). This is a
+criterion-matched shell type — a real WW2-era US 155 mm HE ogive shell, not
+merely "the closest of three datasets." It does not change the
+recommendation on its own, because (a)–(c)'s other two grounds still bind, but
+it strengthens the case that this dataset is worth using once a sourced mass
+axis (§1.2a, corrected) is in hand.
 
 ### 1.4 Bearing on the open finding (Mott & Linfoot primary)
 
@@ -166,11 +180,11 @@ for the Groups to establish its sign, only to pin its size.**
 | # | Option | Data needed | Verdict |
 | - | ------ | ----------- | ------- |
 | **1** | **Moment correction on the single constant** (§2.1): replace count-weighted `A = 1.6` with the `x²`-weighted mean implied by Table 3, i.e. `A_eff = c·1.6` with `c = 1 + Cov(A,x²)/(⟨A⟩⟨x²⟩)`. Stays one constant, closed-form, no `A(m)`. | Table 3 (held) for the **sign and a bound**; Group size edges for the **point value** | **Recommended for derivation** — bounded even without the size edges. See §4. |
-| 2 | Fitted per-fragment `A(m) = A₀(m/m₀)^p` in the mass closure. | mass per Group — not in any held source | Rejected: structurally incoherent (§2), and the mass axis would be invented — the same defect that discharged `mott-tail-shape.md`. |
+| 2 | Fitted per-fragment `A(m) = A₀(m/m₀)^p` in the mass closure. | mass per Group — **now available** (§1.2a, corrected) | Still rejected: the mass-axis objection is gone, but the closure is structurally incoherent regardless (§2 — `A` inside a formula defining `μ` is self-referential), and the modal-bin-is-analyst-default problem (§1.2b) remains. |
 | 3 | Two-regime step `A = 1.3 / 2.7` about a mass cut. | the cut — not in any held source | Rejected: the cut is the whole answer and it would be invented. |
 | 4 | Per-fragment `A(m)` in the **drag** path via `C_shape(m)`. | as (2), plus reopens §8 | Rejected: `A` does not enter drag today (§2); this would couple two under-identified parameters (§5). |
 | 5 | Physically-derived global ratio from the paper's own strain-rate argument (§4.1.1, `1/r₀ ≈ 1.22`; Morley's 1:2 hoop:longitudinal strain, line 113). | none extra | Not a mass-dependence source — both give one casing-wide ratio. Useful as an independent **cross-check on the value**, not as `A(m)`. |
-| 6 | Commission @librarian for Gardner (LLNL 2000), the primary behind Fig. 10. | new acquisition | **Worth doing** — it is what turns option 1's bound into a point value. See §6. |
+| 6 | Commission @librarian for Gardner (LLNL 2000), the primary behind Fig. 10. | new acquisition | **Downgraded 2026-08-16** — `fig10.jpeg`'s own printed grain-range bins (§1.2a, corrected) already give a sourced-enough mass ladder to bound option 1 without this acquisition. Gardner would refine bin-internal mass resolution further but is no longer a prerequisite. See §6. |
 
 ---
 
@@ -295,20 +309,28 @@ Settling that is the derivation pass's first task, before any value is chosen.
 **Actions, in order:**
 
 - **A. Open a Workflow B derivation on option 1** in this same update folder
-    (`derivation.md` beside this file). Its job: (i) reconcile with A9.1; (ii)
-    derive `c = ⟨A x²⟩/(⟨A⟩⟨x²⟩)` and bound it from Table 3 under an explicit,
-    stated assumption about the Group size ladder — declared as an assumption,
-    **not** presented as sourced; (iii) re-run the `drag-gap-1944` B(r) check at
-    the new `μ` (§5); (iv) re-solve the count chain with
-    `checks/aspect-ratio-moment-leverage.py`.
-- **B. @librarian request — Gardner, S., *Analysis of fragmentation and
-    resulting shrapnel penetration of naturally fragmenting cylindrical bombs*,
-    Lawrence Livermore National Laboratory, 2000** (Felix 2022 ref [23]), the
-    primary behind Fig. 10. Wanted specifically: fragment **mass** tabulated
-    alongside fragment dimensions, and the shell identity (the brief's "155 mm
-    M101" is unverified, §1.3). This is what turns (ii) above from a bounded
-    assumption into a sourced point value, so it is **worth doing before the
-    derivation if cheap** — but the derivation can proceed with a bound if not.
+    (`derivation.md` beside this file). Its job:
+    (i) **reconcile with A9.1, sharpened 2026-08-16.** A9.1's deferral rested
+    on a *projected* ~1.6–1.8× leverage for "the deferred break-up-velocity
+    item" (`mott-fragment-shape-closure/derivation.md` §4). That item has
+    since shipped as C2 (`updates/breakup-velocity-fraction/`) at a **realised**
+    leverage of only 1.096× (`count-chain.md` §3) — materially smaller than the
+    estimate the deferral was weighed against. The derivation must explicitly
+    re-assess how much of A9.1's ≤2× bias remains open given C2's actual,
+    smaller realised effect, before choosing a value for the new moment
+    correction `c` — three same-direction corrections (A9.1, C2, `c`) are now
+    in play and none has been checked against the others for independence;
+    (ii) derive `c = ⟨A x²⟩/(⟨A⟩⟨x²⟩)` from Table 3 weighted by the **real
+    grain-mass ranges now confirmed on `fig10.jpeg`** (§1.2a, corrected) rather
+    than an invented ladder — state the Group-1 boundary ambiguity (75–150 vs.
+    the image's literal "75 TO 75") as an explicit assumption; (iii) re-run the
+    `drag-gap-1944` B(r) check at the new `μ` (§5); (iv) re-solve the count
+    chain with `checks/aspect-ratio-moment-leverage.py`.
+- **B. @librarian request for Gardner (LLNL 2000) — downgraded, optional.**
+    No longer a prerequisite: `fig10.jpeg`'s own printed grain-range bins
+    (§1.2a, corrected) are sufficient to source (ii) above without a new
+    acquisition. Revisit only if the derivation finds the bin-level resolution
+    insufficient.
 - **C. Do not open a challenge thread on `count-gap-1938` or edit
     `count-chain.md`** or its siblings. This is a new update; it references
     count-chain.md's 2.25×/2.51× FAIL as the residual it acts on. If the
