@@ -272,21 +272,37 @@ change → **do not implement**.
 
 ## 7. Limitations (deliverables of this pass, per scoping §5)
 
-**L1 — Tolch's absolute perforating count still over-predicts ~3–4×, and this
-is not attributed to drag.** At the adopted constant, reproducing Tolch's
+**L1 — Tolch's absolute perforating count still over-predicts ~2.5–3.6×, and
+this is not attributed to drag.** At the adopted constant, reproducing Tolch's
 observed 15 ft → 120 ft perforation-density ratio (0.557) requires
-$E_{thr}$ ≈ 3–6 J and yields 2.8–4.1× Tolch's measured ~700–780 perforations
-per shell (scoping §3d, re-run 2026-08-08). Tolch's own best absolute agreement
-is near combined ≈ 1.2.
+$E_{thr}$ ≈ 4.6–8.6 J and yields 2.5–3.6× Tolch's measured ~700–780
+perforations per shell (`scoping.md` §3d, re-run 2026-08-16). Tolch's own best
+absolute agreement is near combined ≈ 1.2.
 
-> **Re-run note (2026-08-08).** This limitation previously read "~4–6×",
-> $E_{thr}$ 2–4 J, against "~700–800". Two corrections, both folded in above and
-> documented in scoping §3d: the observed pit-recovered count is **779**, not
-> 803 (`challenges/count-gap-1938/rebaseline-verdict.md`) — worth −1.4% and
-> nothing else; and the Mott closure moved when `gamma'` was re-anchored
-> 65 → 54.5 (commit `6c1faff`), which is what actually shifts the band. The
-> limitation itself is unchanged in kind: an unattributed several-fold
-> over-count that must not be re-litigated by re-fitting drag. This disagreement is recorded, not resolved, and the Ordnance anchor is
+> **Re-run note (2026-08-16).** This limitation previously read "~2.8–4.1×",
+> $E_{thr}$ 3–6 J. The check script (`checks/tolch-count-post-shape-closure.py`)
+> calls `mott_params` with no `f_breakup` override, so its output silently
+> moved a second time when the count-gap-1938 C2 pass (commit `74abdd7`,
+> 2026-08-10) changed that default from the legacy terminal-velocity form to
+> `f = breakup_velocity_fraction()`; nobody re-ran the script afterward until
+> this restatement (`scoping.md` §3d has the full history). Direction and
+> conclusion are unchanged; the numbers above are current as of 2026-08-16.
+>
+> **This L1 is the same quantity as `_limitations.qmd` L1** (Tolch's absolute
+> perforating count), tracked independently in this update folder because it
+> feeds a different question (does it veto raising drag?) than the main
+> model's L1 (does the count chain need fixing?). `_limitations.qmd` L1 is now
+> **closed** (2026-08-15): count-gap-1938's C1–C5 sub-candidates are all
+> discharged and the count arm's standing verdict is a genuine FAIL at
+> 2.25×/2.51× (plug-shear) and 1.8–2.1× (threshold-free) —
+> `challenges/count-gap-1938/count-chain.md` §3. That closure is on the
+> *current* drag constant (2.67); it does not change this L1's own
+> conclusion, which is about the *veto direction* on drag, not the count
+> chain's residual size. The prior deferrable-finding marker here (pointing at a
+> since-superseded "met-or-marginal" reading of count-chain.md) is resolved by
+> this cross-reference and removed.
+
+This disagreement is recorded, not resolved, and the Ordnance anchor is
 followed instead, for four reasons: (i) Tolch is a *compound* test — drag ×
 Mott spectrum × a one-parameter fitted threshold × a perforate/not model — so
 its residual is not attributable to drag, whereas V2 tests retardation alone;
@@ -298,8 +314,6 @@ so the model is biased high at every drag value by an unquantified amount;
 (§3) and is not an available option at all. **Do not re-litigate this by
 re-fitting drag**; the discriminating test would be an independent (THOR-type)
 perforation model replacing the fitted $E_{thr}$.
-
-FINDING\[deferrable\]: this L1 (~3-4x, E_thr 2.8-4.1x) was not resynced against the newer count-gap-1938 re-closure (count-chain.md §4, 2026-08-08, post-6c1faff/50b734e), which found the count arm met-or-marginal at sourced thresholds (N/779 1.73-2.00x) with only the falloff-ratio arm still unmet; _limitations.qmd's L1 now carries that newer framing with no forward-pointer back here, so a reader following _limitations.qmd's "carried from derivation.md §7" pointer finds a stale, compound-only framing (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, experiment/fragmentation-field/_limitations.qmd; since: 2026-08-09)
 
 **L2 — Long-range / arrival-Mach < 0.7 velocities remain unclosed by any
 admissible drag law, and gravity is not the explanation.** At 75mm 400 ft and
