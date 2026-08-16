@@ -8,7 +8,7 @@
 - **Printed pages:** 246–248, 249–251, 255–257, 259–261
 - **Page count:** 391 pages
 - **SHA256:** fe509d3bb43038ee8b4507ca5046646af56aaa2566ee7bbf6947ae8f02893e3b
-- **Source blob:** `source.pdf` (gitignored, retained on disk)
+- **Source blob:** `source.pdf` — **not present on disk**; reacquirable via `/mnt/f/Projects/TMP/Docs/TM-9-1901.pdf` (corrected 2026-08-16; see Provenance section — the retained-on-disk claim above was wrong, only the four page-range extraction `.md` files exist)
 
 ## Fuze Data
 
@@ -75,3 +75,13 @@ must therefore agree between the two pairs:
 
 Both pairs close on the same 0.74 lb M21A2 booster increment. This is the
 closure invariant for this table.
+
+## Provenance of this card
+
+- **Document:** US Army Technical Manual 9-1901, *Artillery Ammunition* (verified anchor "weight, 1.41 pounds" — `TM-9-1901-p249to250.md:22`, report section 319.b).
+- **`source.pdf`:** Not retained on disk (gitignored; reacquirable via `/mnt/f/Projects/TMP/Docs/TM-9-1901.pdf` per card Source section).
+- **Page count & SHA256:** 391 pages; `sha256: fe509d3bb43038ee8b4507ca5046646af56aaa2566ee7bbf6947ae8f02893e3b` (recorded in Source section).
+- Extraction was partial and page-range segmented (four `.md` files covering sections 319–325). Extraction method (OCR vs. vision) not stated in available metadata.
+- All weights in this card are extracted from TM 9-1901's own product specifications (sections 319–325); no secondhand claims or secondary references cited within the fuze data proper.
+
+FINDING\[deferrable\]: source.pdf not retained in doc-reference/ww2-shells/tm-9-1901-artillery-ammunition/ — only page-range extraction .md files kept; a local reacquisition path is recorded but the blob itself is not retained per source-data-fidelity.md's "Keep source.pdf" (affects: doc-reference/ww2-shells/tm-9-1901-artillery-ammunition; since: 2026-08-16)

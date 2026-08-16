@@ -240,3 +240,11 @@ ______________________________________________________________________
 **Full text markdown:** `source.md` (13 pages)\
 **Figures:** 18 images extracted (images/ directory)\
 **Data tables:** No CSV export (Figure 6–7 are scatter plots, not tabulated); calibration constants tabulated in card above (Tables 5, 7, 8, 9).
+
+## Provenance of this card
+
+- **Document:** K. Sanborn et al., "Ballistic performance of Cross-laminated Timber (CLT)," *International Journal of Impact Engineering*, Vol. 128, pp. 11–23, 2019 (verified anchor "Ballistic performance of Cross-laminated Timber (CLT)" — `source.md:1`, title line; verified anchor "K. Sanborn et al." — `source.md:3`, author line).
+- **DOI:** 10.1016/j.ijimpeng.2018.11.007 (stated in card Source section, confirmed from card.md line 5).
+- **`source.pdf`:** **NOT RETAINED** — PDF blob not preserved in `doc-reference/`. Extraction carried out against the retained DOI. This is a violation of `.claude/rules/source-data-fidelity.md` retention requirement.
+    - **FINDING\[blocking\]:** source.pdf missing from doc-reference/fragmentation/sanborn2019-clt-ballistic-performance/; unable to re-verify extracted figures or scanned tables by page. Markdown extraction (`source.md`) and calibration constants verified via grepped anchor ("The stark difference between the UFC equation and the CLT data", found at source.md line 105, cited in card as line 102 — small offset, likely extraction variance). Figures and detailed tables require source.pdf re-acquisition to resolve re-extraction or re-verification requests. (affects: doc-reference/fragmentation/sanborn2019-clt-ballistic-performance/card.md; since: 2026-08-16)
+- **Extraction method:** PDF text layer heuristic extraction (no vision-assisted OCR); extracted markdown (`source.md`) and 18 figures retained. No secondhand claims — all data reported as first-hand experimental results by Sanborn et al., not attributed to prior sources except where explicitly cited (e.g., Levenberg–Marquardt fitting method, reference [20] for raw data).

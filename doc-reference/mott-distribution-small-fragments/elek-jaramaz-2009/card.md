@@ -45,3 +45,15 @@ The paper cites a "widely applicable power-law distribution" for small fragments
 `Section 3. COMPARISONS WITH EXPERIMENTS` (lines 101–213); `Table 2` goodness of fit (line 227); `Table 3` median errors (line 236).
 
 **PDF**: source.pdf (7 pages, FME Transactions)
+
+## Provenance of this card
+
+- **Document:** Predrag Elek and Slobodan Jaramaz, "Fragment Mass Distribution of Naturally Fragmenting Warheads," *FME Transactions* 37(3):129–135, 2009 (verified anchor "Fragment Mass Distribution of Naturally Fragmenting Warheads" — `elek-jaramaz-2009-warhead-distribution.md:23`).
+- **`source.pdf`:** NOT RETAINED (gitignored). Document is published in FME Transactions (Faculty of Mechanical Engineering, Belgrade); verify-retrievable via the journal or through academic indexing (DOI-based lookup recommended).
+- **Extraction:** elek-jaramaz-2009-warhead-distribution.md is an OCR/heuristic extraction. Numeric values in Table 1 and Table 3 (distribution models and median error rankings) are preserved. No extraction-quality flags reported.
+- **Secondhand vs. primary:** This paper is a *literature review and comparison* — it collates seven theoretical models and fits them to experimental data from five published fragmentation test series (references 19, 13, 15, 10, 11). The assessment that Mott is poor at small masses is Elek & Jaramaz's own judgment, primary to their paper (evident from Table 1's R² rankings on lines 104–113, showing Mott at R² ~0.94, the poorest fit). However, the underlying experimental fragment distributions (the 30 projectile tests) come from cited references and are not re-measured here — they are secondhand from the project's perspective. The ranking (Generalized Grady best, Generalized Mott rank 3) is Elek & Jaramaz's own fitting and ranking, primary.
+- **Critical finding for this project:** The paper explicitly states the power-law distribution "cannot successfully describe the HE projectile fragmentation" (verified anchor on line 101: "cannot successfully describe the HE projectile fragmentation"). This is primary — Elek & Jaramaz's own statement about power-law limitations in warhead fragmentation. Directly falsifies the index.md claim that power-law provides a better model than Mott for HE fragmentation; see the note flagged in index.md at line 45.
+- **Key anchors verified:**
+    - Table 1 caption and Mott fit quality (lines 104–113, showing R² avg ~0.94, poorest performer)
+    - "cannot successfully describe the HE projectile fragmentation" (line 101)
+    - Generalized Grady median error ~5.3% (line 31–32 of card)

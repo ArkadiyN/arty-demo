@@ -87,3 +87,13 @@ ______________________________________________________________________
 ## Remarks
 
 The source lists all authorized fuze configurations for each shell without ranking or preference. Whether the M51 or M51A1 series is appropriate for a given application is a criterion-match question for the modeller and beyond the scope of this manual's stated purpose.
+
+## Provenance of this card
+
+- **Document:** US Army Technical Manual 9-1904, *Artillery Ammunition* (verified anchor "M48 or M54 Fuze" — `fuze-fitting-extraction.md:23`).
+- **`source.pdf`:** Not retained on disk (gitignored; source listed as `/mnt/f/Projects/TMP/Docs/TM-9-1904.pdf` in card Source section).
+- **Page count & SHA256:** 952 pages; `sha256: ea35cd3bfdfe0fc795b86136272dc3e4040ffdba85d6df82651fc987f19c4790` (recorded in Source section). Scanned and OCR'd with ABBYY FineReader, dated 2019-06-09 (per card Source section).
+- **Note on page numbering:** Card cites "source.pdf p.NNN, printed p.NNN" anchors (e.g., p.481/473, p.529/521, p.414/410) — these reflect the OCR'd PDF's internal pagination vs. printed report numbering. Without the retained source.pdf, only the greppable text anchors in `fuze-fitting-extraction.md` are verifiable; PDF page references are retained for re-acquisition if needed.
+- All fuze-to-shell assignments listed are tabulated directly from TM 9-1904's own sections; no secondhand claims.
+
+FINDING\[deferrable\]: source.pdf not retained in doc-reference/ww2-shells/tm-9-1904-fuze-fitting/ — only fuze-fitting-extraction.md kept; a local reacquisition path is recorded but the blob itself is not retained per source-data-fidelity.md's "Keep source.pdf" (affects: doc-reference/ww2-shells/tm-9-1904-fuze-fitting; since: 2026-08-16)
