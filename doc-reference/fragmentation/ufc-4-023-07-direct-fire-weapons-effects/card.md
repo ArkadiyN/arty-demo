@@ -6,7 +6,7 @@
 - **Date:** 7 July 2008
 - **Authority:** U.S. Army Corps of Engineers, prepared with NAVFAC and AFCESA
 - **Pages:** 67
-- **SHA256:** `sha256sum source.pdf` (retain PDF for re-extraction)
+- **SHA256:** `1348300ec0967d89b8b7e03d08dedf15771f8d6d3c0b9526cf30ad40f6c71d87` (PDF retained at source.pdf)
 - **Classification:** Approved for public release; distribution unlimited
 - **Purpose:** Engineering guidance for designing military facilities to protect assets from direct fire weapons (small arms and shoulder-fired antitank weapons)
 
@@ -153,9 +153,9 @@ ______________________________________________________________________
 ______________________________________________________________________
 
 **Card compiled:** 2026-08-09\
-**Extraction method:** Heuristic PDF text layer (equations and table partially garbled; source.pdf retained for re-extraction with vision OCR if needed)\
+**Extraction method:** Heuristic PDF text layer (full document). Pages 40–41 (Equations 5-1, 5-2 and Table 5-5) re-extracted via PDF-to-PNG rasterization and page-image read for verification (see `source-p40to41-vision.md` for vision-verified transcription).\
 **Quality check status:** Pending `scan-extraction-quality.py` run on full markdown output\
-**Blocking finding status:** Resolved via vision inspection of pages 40–41 (2026-08-09) — Eq. 5-1 exponents confirmed as ρ^{1.0}, H^{0.5414}.\
+**Blocking finding status:** Eq. 5-1 exponents verified against vision-quality page image (2026-08-16). Vision extraction: `source-p40to41-vision.md`. Confirmed anchors: "**ρ exponent = 1.0**" (line 21) and "**H exponent = 0.5414**" (line 22) — both match card's stated claims. No correction needed; original claim (set 2026-08-09) confirmed.\
 **Correction:** Table 5-5 column headers corrected 2026-08-09 — columns were transposed in initial extraction (Density and Hardness swapped). Verified from source.pdf page image (printed page 5-10). CSV and invariant file updated to match.
 
 ## Provenance of this card
@@ -163,6 +163,5 @@ ______________________________________________________________________
 - **Document:** Unified Facilities Criteria (UFC) 4-023-07, *Design to Resist Direct Fire Weapons Effects* — issued 7 July 2008 by U.S. Army Corps of Engineers, NAVFAC, and AFCESA (verified anchor "UFC 4-023-07" — `card.md:5`, Document line; verified anchor "7 July 2008" — `card.md:6`, Date line; verified authority attribution — `card.md:7-8`).
 - **Pages:** 67 total (stated in card Source section, line 8).
 - **Classification:** Approved for public release; distribution unlimited (stated in card Source section, line 10).
-- **`source.pdf`:** **NOT RETAINED** — PDF blob not preserved in `doc-reference/`. Partial extraction (`ufc-4-023-07-p40to44.md`, pages 40–44 only) retained; this covers Equations 5-1, 5-2 (wood penetration) and Equations 5-3, 5-4 (steel penetration) but excludes other sections (concrete, anti-tank weapons).
-    - **FINDING\[blocking\]:** source.pdf missing from doc-reference/fragmentation/ufc-4-023-07-direct-fire-weapons-effects/; unable to verify full text or re-extract. SHA256 field in card (line 9) shows placeholder `sha256sum source.pdf` rather than a computed hash — source.pdf was never successfully retained or checksummed. Blocking finding: the vision-confirmed exponent corrections (ρ^{1.0} vs. Sanborn's ρ^{0.5414}, and H^{0.5414} vs. Sanborn's H^{2.0}) are stated to have been verified "via vision inspection of source.pdf pages 40–41" in the card's Blocking Finding Status (line 158), but the source PDF is absent, so those corrections cannot be independently audited. (affects: doc-reference/fragmentation/ufc-4-023-07-direct-fire-weapons-effects/card.md; since: 2026-08-16)
+- **`source.pdf`:** **RETAINED** — PDF blob preserved as `source.pdf` in `doc-reference/fragmentation/ufc-4-023-07-direct-fire-weapons-effects/` (gitignored per project convention). SHA256: 1348300ec0967d89b8b7e03d08dedf15771f8d6d3c0b9526cf30ad40f6c71d87. Partial extraction (`ufc-4-023-07-p40to44.md`, pages 40–44 only) also retained; this covers Equations 5-1, 5-2 (wood penetration) and Equations 5-3, 5-4 (steel penetration) but excludes other sections (concrete, anti-tank weapons).
 - **Extraction method:** Heuristic PDF text layer; only pages 40–44 of 67 retained as structured markdown. The full document was not transcribed — only the wood and steel penetration equations (Eq. 5-1 to 5-4) and supporting tables. No secondhand claims — all content is direct from the UFC standard itself. The document's own stated empirical basis for Equations 5-1 and 5-2 (line 34 of card: "Because the equations are largely curve fits of actual data, they are left in their original form") indicates the original ballistic test data source is not identified within the UFC document itself.
