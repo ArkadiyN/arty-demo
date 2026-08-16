@@ -2,11 +2,13 @@
 
 **Status: complete, but the *model* side of every claim below was evaluated
 against shipped code as of 2026-08-08 *before* commit 6c1faff.** Read **all
-three** re-closure banners first, in order — the 2026-08-08 one, the
-2026-08-10 C1+C2 one, and the 2026-08-10 C5-discharge one that supersedes
-parts of both; the re-baseline itself (the Tolch-series side) is unaffected.
-Standing verdict after all three: genuine **FAIL at 2.25× (/779) / 2.51×
-(/700)**, not INDETERMINATE.
+four** re-closure banners first, in order — the 2026-08-08 one, the
+2026-08-10 C1+C2 one, the 2026-08-10 C5-discharge one that supersedes parts of
+both, and the 2026-08-15 C3+C4 one that closes the ranking; the re-baseline
+itself (the Tolch-series side) is unaffected. Standing verdict after all four:
+genuine **FAIL at 2.25× (/779) / 2.51× (/700)** (plug-shear reading) **and at
+1.8–2.1×** (threshold-free reading), not INDETERMINATE, with no open
+sub-candidate remaining.
 
 > **Re-closure banner — model numbers, 2026-08-08 (post-6c1faff / `50b734e`).**
 > This file's §1 closure line and every model-derived figure in the tables
@@ -135,6 +137,37 @@ Standing verdict after all three: genuine **FAIL at 2.25× (/779) / 2.51×
 > ranking (§3) drops C5, discharged without credit, and becomes **C3 next,
 > then C4**. `challenges/README.md` was restated to match on 2026-08-10, item
 > (5) of its `count-gap-1938` status detail.
+
+> **Fourth re-closure banner — C3 and C4 discharged, 2026-08-15 (both
+> subsequent passes). This closes the ranking; no sub-candidates remain.**
+> C3 ([`mott-tail-shape.md`](mott-tail-shape.md)): the sub-gram Mott tail
+> shape is real but not sourced — credits 1.324× against a $\lambda$ fitted to
+> Tolch's own census, restating the residual **2.25×→1.70× (/779)**, but no
+> *sourced* alternative shape moves it the right way, so no `src/arty/` change
+> follows. C4 ([`spectrum-mass-basis.md`](spectrum-mass-basis.md)) resolves
+> both standing open findings above. **The 1.19× floor never existed on
+> current code**: it was diagnosed against the pre-`50b734e` 200 g
+> `mass_deductions` placeholder, and `50b734e`'s sourced 975 g fuze+booster
+> deduction makes the fuze-excluded variant the *criterion-matched* pairing,
+> not the inconsistent one — first open finding above (block (D) vs (E))
+> resolved by adopting (E)'s figure as the quotable one, corrected to the band
+> below; second open finding (the "spurious 1.19× floor") resolved as
+> superseded by the mass-deduction fix. Both open-finding markers deleted at
+> their source (`review-criterion-match.md`, `review-void-rulings.md`).
+> The corrected, criterion-matched threshold-free figure is **1.8–2.1×**
+> (case metal on both sides, anchored on the well-conditioned screen-2 cut;
+> the finest-cut cell is ill-conditioned near φ→1 and is not a point
+> estimate) — not 1.19×, and not the 2.1–2.2× the second finding predicted,
+> though the top of that band is reached. C4 is a criterion choice worth
+> ≈0.2× inside the correct family, not a driver.
+>
+> **With C1 through C5 all discharged, the count arm's standing verdict is
+> final: genuine FAIL at 2.25× (/779) / 2.51× (/700)** (plug-shear threshold,
+> the headline reading) **and FAIL at 1.8–2.1×** (threshold-free,
+> criterion-matched) **— every admissible pairing this thread has produced
+> sits above the ≤1.5× acceptance band, and no open sub-candidate remains
+> that could move it inside.** `challenges/README.md` was restated to match
+> on 2026-08-15.
 
 Block (E)'s arithmetic — the threshold-free test that carries the one void
 verdict — was independently re-derived by the main agent before this file was

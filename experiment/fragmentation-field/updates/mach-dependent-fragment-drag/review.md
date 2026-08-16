@@ -277,7 +277,20 @@ verified.** Independently re-ran `checks/tolch-count-post-shape-closure.py`;
 its printed table reproduces every number quoted in `derivation.md`'s L1
 re-run note and `scoping.md` §3d exactly (E_thr 3.2–6.1 J / m_thr 0.026–0.052 g
 / N/observed 2.8–4.1× at combined 2.67; 1–9 counts at 0.585; TOLCH_PERF_LO/HI
-= 700/779, midpoint 739.5). The 779 figure itself is source-backed by a
+= 700/779, midpoint 739.5).
+
+> **Superseded 2026-08-16 — this reproduction is stale, not wrong at the
+> time it was written.** The script calls `mott_params` with no `f_breakup`
+> override, so its output silently moved when commit `74abdd7` (2026-08-10,
+> one day *after* this review pass) changed that default. Re-run today the
+> script prints E_thr 4.6–8.6 J / m_thr 0.033–0.067 g / N/observed 2.5–3.6× at
+> combined 2.67 and **0–4 counts** (not 1–9) at 0.585 — see
+> `scoping.md` §3d and `derivation.md` §7 L1, both restated to match. The
+> reproduction claim below no longer holds against current source; the
+> conclusion it was checking (status-quo drag is vetoed by Tolch) is
+> unaffected and, if anything, strengthened by the restatement.
+
+The 779 figure itself is source-backed by a
 passing closure invariant (`doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tables/pit-screen-recovery.invariant`,
 confirmed re-run: "5 rows, 6 checks, ok") that shows 4 of 5 screen rows fail
 their printed percentage under 803 and all close under 779, and by

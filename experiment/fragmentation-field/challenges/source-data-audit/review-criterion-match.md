@@ -334,8 +334,6 @@ in the thread flips. What needs fixing is the *labelling*: (D)'s denominators
 should not read as validation denominators, and the reported agreement should
 be sourced to (E).
 
-FINDING\[deferrable\]: count-chain (D) divides an energy-thresholded whole-shell count by a size-thresholded recovery census (m_thr=0.403 g sits below the finest screen bucket mean 0.61 g, census count-incomplete there) and by a perforation-thresholded panel count (700); quote the criterion-clean section (E) figure 2.15x instead of (D)'s 2.28x (affects: experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-rebaseline.py, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md; since: 2026-08-03)
-
 ### 3d. `ratio_AD` from `side-spray-density.csv` — Note
 
 `ratio_AD = perf(D)/perf(A)` at the static row is used as a spatial falloff

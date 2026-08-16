@@ -86,3 +86,15 @@ Wall velocity varies radially due to conservation of mass (inner wall moves fast
 - No explicit time-dependent formula for velocity during expansion
 - No analytic closure form for v(expansion_ratio) independent of specific test data
 - Terminal velocity (constant velocity region) treated separately
+
+## Provenance of this card
+
+- **Document:** Fuchs, Brian E., *Picatinny Arsenal Cylinder Expansion Test and a Mathematical Examination of the Expanding Cylinder*, Technical Report ARAED-TR-95014, October 1995 (DTIC Accession ADA300526; 31 pages).
+- **`source.pdf`:** NOT RETAINED in directory — was never downloaded after extraction.
+- **Extraction method:** OCR scanning of DTIC source PDF; `ADA300526.md` is the full-document transcription. All quoted anchors verified by `grep` against `ADA300526.md`.
+- **Key verified anchors:**
+    - "The streak photograph records the position of the wall with time" — `ADA300526.md:219`, Section "Analysis"
+    - "This program performs a least-mean-square that fits the data to a fourth order polynomial" — `ADA300526.md:222`, same section
+    - "From the differential of the fitted equation, the velocity can be obtained at any point in time" — `ADA300526.md:222`, same section
+- **Limitation:** No numeric data tables in source; all method is descriptive. Fragment from this source cannot fail a closure invariant because no invariant-checkable series is tabulated.
+- \`FINDING\[deferrable\]: source.pdf should be retained per .claude/rules/source-data-fidelity.md § "Retain the source blob" (affects: doc-reference/fragmentation/ada300526-picatinny-cylinder-test/; since: 2026-08-16)

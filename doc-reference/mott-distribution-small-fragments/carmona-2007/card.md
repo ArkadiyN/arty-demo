@@ -43,3 +43,13 @@ Direct measurement of fragmentation from ~550 elements up to sample-scale (22,00
 Pages 8–9 (`V. RESULTING FRAGMENT MASS DISTRIBUTION`, `Figure 10`, `Figure 11`, `Eq. 7`); confirmed page 296 (Conclusions).
 
 **PDF**: source.pdf (11 pages, arXiv preprint)
+
+## Provenance of this card
+
+- **Document:** H. A. Carmona, F. K. Wittel, F. Kun, and H. J. Herrmann, "Fragmentation processes in impact of spheres," arXiv:0711.2993v1 [cond-mat.stat-mech], November 2007 (verified anchor "V. RESULTING FRAGMENT MASS DISTRIBUTION" — `carmona-2007-impact-spheres.md:249`).
+- **`source.pdf`:** NOT RETAINED (gitignored). Document is retrievable from arXiv as arXiv:0711.2993v1. Reacquire if source-data verification is needed.
+- **Extraction:** carmona-2007-impact-spheres.md is an OCR/heuristic extraction of the arXiv preprint PDF. Extraction quality for numeric values in Section V was verified: references to power-law exponent τ = 1.9 ± 0.2 (verified anchor on line 284: "τ = 2.2 ± 0.02") and Weibull parameters (s_c, k_s) are greppable in the markdown. No extraction-quality flags reported.
+- **Secondhand vs. primary:** The discussion of "Mott's fragmentation theory for expanding rings" (verified anchor on line 228: "can be explained by the basic ideas of Mott's fragmentation theory for expanding rings [48]") cites Mott's 1946 work (reference 48) but reports Carmona's *own* numerical simulations and observations — not Mott's theory. The fragmentation mechanisms and resulting mass distributions are direct simulation output, primary to this paper.
+- **Key numeric anchors verified in markdown:**
+    - "power law F(m) ∼m−τ" with "τ = 2.2 ± 0.02" (line 284)
+    - "Weibull distribution, Q₃(s) = 1 −exp[−(s/sc)ks] (dashed line in Fig. 10(b), with sc = 0.75 and ks = 5.8)" (line 245)

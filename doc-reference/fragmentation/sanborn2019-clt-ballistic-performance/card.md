@@ -58,7 +58,7 @@ $$T_w = \frac{9,837 \, v^{0.4113} w^{1.4897}}{({\pi D^2}/{4})^{1.3596} \rho H^{0
 - $\rho$ = wood density (lb/ft³)
 - $H$ = wood hardness (lb, Janka)
 
-**Status on CLT data:** The original UFC coefficients (C₁=9,837; a=0.411; b=1.490; c=1.360; d=0.541) were calibrated on THOR 1950s data using relatively thin solid wood blocks. When applied to CLT embedment depth (`The stark difference between the UFC equation and the CLT data is a perfect example of this`, source.md line 102), the equation overpredicts required thickness significantly—not acceptable for CLT design. Re-calibration was required.
+**Status on CLT data:** The original UFC coefficients (C₁=9,837; a=0.411; b=1.490; c=1.360; d=0.541) were calibrated on THOR 1950s data using relatively thin solid wood blocks. When applied to CLT embedment depth (`The stark difference between the UFC equation and the CLT data is a perfect example of this`, source.md line 105), the equation overpredicts required thickness significantly—not acceptable for CLT design. Re-calibration was required.
 
 ## Classical Penetration Models (Euler–Robins, Poncelet, Resal)
 
@@ -240,3 +240,14 @@ ______________________________________________________________________
 **Full text markdown:** `source.md` (13 pages)\
 **Figures:** 18 images extracted (images/ directory)\
 **Data tables:** No CSV export (Figure 6–7 are scatter plots, not tabulated); calibration constants tabulated in card above (Tables 5, 7, 8, 9).
+
+## Provenance of this card
+
+- **Document:** K. Sanborn et al., "Ballistic performance of Cross-laminated Timber (CLT)," *International Journal of Impact Engineering*, Vol. 128, pp. 11–23, 2019 (verified anchor "Ballistic performance of Cross-laminated Timber (CLT)" — `source.md:1`, title line; verified anchor "K. Sanborn et al." — `source.md:3`, author line).
+- **DOI:** 10.1016/j.ijimpeng.2018.11.007 (stated in card Source section, confirmed from card.md line 5).
+- **`source.pdf`:** **RETAINED** — PDF blob preserved at `doc-reference/fragmentation/sanborn2019-clt-ballistic-performance/source.pdf` (gitignored per project convention).
+    - **Origin:** `/mnt/f/Projects/TMP/Docs/pubs_clt1.pdf` (user-supplied WSL mount)
+    - **Pages:** 13
+    - **SHA256:** 42164160c28b02352712d42917574b0e87fdb3b8787b1924bd628c63d1af51b3 (verified 2026-08-16)
+    - **Anchor verification:** "The stark difference between the UFC equation and the CLT data" confirmed at source.pdf page 3 (printed), source.md line 105. Card cites source.md line 102 (3-line offset, minor extraction variance).
+- **Extraction method:** PDF text layer heuristic extraction (no vision-assisted OCR); extracted markdown (`source.md`) and 18 figures retained. No secondhand claims — all data reported as first-hand experimental results by Sanborn et al., not attributed to prior sources except where explicitly cited (e.g., Levenberg–Marquardt fitting method, reference [20] for raw data).

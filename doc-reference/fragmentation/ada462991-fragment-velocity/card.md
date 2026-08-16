@@ -62,6 +62,14 @@ where $\theta$ is fragment angle; $v_0$ radial expansion velocity at break-up.
 - **Assumptions**: Instantaneous break-up at V/V₀=3.1; post-break-up velocity gains (escape of detonation products) negligible.
 - **Test basis**: Arena (walling) tests and high-speed photography; flash radiography and sawdust fragment recovery.
 
-## Source
+## Provenance of this card
 
-No closure invariants are checkable in this source — all primary data are presented in figures, not tables, and no numeric series has a stated arithmetic relation. Source PDF not retained in directory.
+- **Document:** Gold, Vladimir M., *Engineering Model for Design of Explosive Fragmentation Munitions*, Technical Report ARAET-TR-07001, February 2007 (DTIC Accession ADA462991).
+- **`source.pdf`:** NOT RETAINED in directory — was never downloaded after extraction.
+- **Extraction method:** OCR scanning of DTIC source PDF; `ADA462991.md` is the full-document transcription. All quoted anchors verified by `grep` against `ADA462991.md`.
+- **Key verified anchors:**
+  - "MOTT CODE FRAGMENTATION MODELS" — `ADA462991.md:128`, section heading
+  - "Jones-Wilkins-Lee (JWL) equation of state" — `ADA462991.md:126`
+  - Material model specification and CALE integration — `ADA462991.md:126`
+- **No closure invariants:** This source presents all primary data in figures (velocity distributions, fragment size distributions), not tabulated numeric series. No arithmetic relation can be checked because no numbers are stated with definitions that would close. Figures cited in card reference the source but cannot be transcribed to CSV without explicit numeric axis values (not provided in extraction).
+- `FINDING[deferrable]: source.pdf should be retained per .claude/rules/source-data-fidelity.md § "Retain the source blob"; also, Figure data cited in this card (Fig. 3, 5, 9, 10) require visual inspection of the PDF to transcribe numeric axis values if exact values are ever needed downstream (affects: doc-reference/fragmentation/ada462991-fragment-velocity/; since: 2026-08-16)`

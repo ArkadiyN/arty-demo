@@ -10,6 +10,14 @@ observed Panel A (15 ft) -> Panel D (120 ft) perforation-density ratio 0.557;
 the *absolute* count N(m >= m_thr(15 ft)) is then a prediction, compared with
 Tolch's measured ~700-780 perforations per shell (panel count ~700; pit-test
 recovery 779, re-baselined from a published 803).
+
+`mott_params(SHELL, V0)` is called with its default `f_breakup` (no override),
+so this script's output moves whenever `breakup_velocity_fraction()` does —
+it silently picked up the count-gap-1938 C2 break-up-velocity-fraction change
+(commit 74abdd7, 2026-08-10) without being re-run, which is why the table
+printed here does not match the one quoted in scoping.md/review.md until this
+script is re-run and the doc restated (2026-08-16 restatement). The resolved
+`f` is now printed below so a future drift is visible without diffing source.
 """
 import numpy as np
 from scipy.optimize import brentq
@@ -18,6 +26,7 @@ from arty.shells import SHELLS
 from arty.fragmentation import (
     DragParams,
     _shell_geometry,
+    breakup_velocity_fraction,
     min_lethal_mass,
     mott_N,
     mott_params,
@@ -52,6 +61,7 @@ def ratio_for(E, c, V0, mu, N0):
 def main():
     m_body = _shell_geometry(SHELL)[3]
     print(f"75mm M48 HE, shell body {m_body*1e3:.0f} g, rho_steel {RHO_S:.0f}")
+    print(f"f_breakup (default, unpinned) = {breakup_velocity_fraction():.4f}")
     print(f"Tolch observed: {TOLCH_PERF_LO:.0f}-{TOLCH_PERF_HI:.0f} perforating "
           f"fragments per shell at 15 ft (normalising on "
           f"{TOLCH_PERFORATIONS:.1f})\n")

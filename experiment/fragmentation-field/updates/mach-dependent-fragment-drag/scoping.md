@@ -173,44 +173,61 @@ the absolute count at 15 ft is then a prediction against Tolch's measured
 > ~700–780 and the normalisation is 739.5. That alone is a −1.4% shift on
 > N/observed and changes nothing. (ii) Materially, the Mott closure moved under
 > this table when `gamma'` for WW2 US HE steel was re-anchored 65 → 54.5
-> (commit `6c1faff`): $2\mu$ for 75mm M48 is now 1.36–1.89 g and $N_0$
-> 2632–3651, so every column below is a **fresh run** of the retained script,
-> not a rescale of the old one. Net effect on the argument: the over-prediction
-> at 2.67 drops from 3.9–5.6× to **2.8–4.1×**, and the status-quo failure at
-> 0.585 gets *worse* (1–9 counts, not 4–31). Both conclusions below are
-> unchanged in direction and strengthened.
+> (commit `6c1faff`), giving $2\mu$ 1.36–1.89 g and $N_0$ 2632–3651 as of that
+> re-run. Net effect at the time: the over-prediction at 2.67 dropped from
+> 3.9–5.6× to 2.8–4.1×, and the status-quo failure at 0.585 got *worse*
+> (1–9 counts, not 4–31).
+>
+> **Restated 2026-08-16 — table below is stale a second time, now fixed.**
+> `mott_params(SHELL, V0)` is called with no `f_breakup` override, so its
+> output silently changed again when the count-gap-1938 C2 pass (commit
+> `74abdd7`, 2026-08-10) moved `mott_params`'s default from the legacy
+> terminal-velocity form to `f = breakup_velocity_fraction()` (≈0.943 for this
+> shell). Nothing re-ran this script after that commit landed — including the
+> reviewer's independent reproduction in `review.md` Finding 2, which was run
+> the day *before* `74abdd7` and so matched the now-superseded (ii) numbers.
+> The table, and every ratio quoted below it, is now a **fresh run** against
+> the current default (script updated to print the resolved `f` so the next
+> drift is visible without diffing source). Both conclusions below are
+> unchanged in direction and, if anything, strengthened.
 
 | combined $C_D C_{shape}$ | fitted $E_{thr}$ [J] | $m_{thr}$(15 ft) [g] | N/observed (÷739.5) |
 | --- | --- | --- | --- |
-| **0.585 (current)** | **10 800 – 20 200** | **24.6 – 63.3** | **0.0 (1–9 counts)** |
-| 1.20 | 225 – 395 | 0.61 – 1.41 | 1.1 – 1.9 |
-| 1.70 | 38 – 67 | 0.135 – 0.295 | 2.0 – 3.2 |
-| 2.20 | 9.8 – 17.6 | 0.050 – 0.105 | 2.6 – 3.8 |
-| **2.67 (DoD)** | **3.2 – 6.1** | **0.026 – 0.052** | **2.8 – 4.1** |
+| **0.585 (current)** | **15 230 – 28 519** | **34.5 – 89.1** | **0.0 (0–4 counts)** |
+| 1.20 | 310 – 544 | 0.82 – 1.92 | 0.8 – 1.6 |
+| 1.70 | 52.7 – 91.8 | 0.179 – 0.392 | 1.7 – 2.7 |
+| 2.20 | 13.6 – 24.4 | 0.065 – 0.137 | 2.2 – 3.3 |
+| **2.67 (DoD)** | **4.6 – 8.6** | **0.033 – 0.067** | **2.5 – 3.6** |
 
 Ranges span the three candidate V₀ (807.5 / 838.2 / 951.0 m/s). Normalising on
 the *ends* of the observed band instead of its midpoint widens the 2.67 row to
-2.7× (÷779) – 4.3× (÷700); the choice of denominator is not what makes this
+2.3× (÷779) – 3.8× (÷700); the choice of denominator is not what makes this
 row disagree.
 
 **This overturns the challenge README's line #6.** With the superseded Mott
 closure, current drag over-counted by 1.8–2.4× and raising drag made it worse,
 so "the absolute count rules *out* raising drag". Post-shape-closure the whole
 family has shifted: the current constant now fails Tolch **catastrophically and
-in the physically impossible direction** — it needs a 10.8–20.2 kJ threshold to
+in the physically impossible direction** — it needs a 15.2–28.5 kJ threshold to
 perforate 1″ spruce (several times a rifle bullet's muzzle energy) and predicts
-1–9 perforations against ~700–780. Tolch is now a **veto on the status quo**, not on
+0–4 perforations against ~700–780. Tolch is now a **veto on the status quo**, not on
 raising drag. `challenges/drag-gap-1944/README.md` row #6 and its "Where it
 stands" bullets are stale and should be corrected.
 
 **But Tolch does not endorse 2.67 either, and this must not be papered over.**
-Its best absolute agreement is at combined ≈ 1.2 (1.1–1.9×), degrading
-monotonically to 2.8–4.1× at 2.67; and the implied $E_{thr}$ at 2.67 is 3–6 J
-(a ~26–52 mg fragment, cross-section ~2–3 mm², perforating 1″ spruce), which the original Tolch
-analysis argued is physically impossible — Tolch's smallest recorded
-perforations have cross-sections ≥ 0.02 in² ≈ 12.9 mm². So Tolch pulls toward
-~1.2–1.7 while the Ordnance velocity data and the geometric envelope both pull
-toward 2.2–2.9. That is a genuine factor-~2 disagreement.
+Its best absolute agreement is at combined ≈ 1.2 (0.8–1.6×), degrading
+monotonically to 2.5–3.6× at 2.67; and the implied $E_{thr}$ at 2.67 is
+4.6–8.6 J (a ~33–67 mg fragment, perforating 1″ spruce), which the original
+Tolch analysis argued is physically implausible for so light a fragment —
+Tolch's smallest recorded perforations have cross-sections ≥ 0.02 in² ≈
+12.9 mm². (The mass figure is restated from the current script run; the
+mass-to-cross-section conversion itself was not redone here, since it is a
+derived geometric quantity and belongs in a modeler pass, not a doc
+restatement — the pre-restatement ~26–52 mg figure mapped to ~2–3 mm².)
+FINDING[note]: mass-to-cross-section conversion at 2.67 not re-derived for the 2026-08-16 restatement (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/scoping.md; since: 2026-08-16)
+So Tolch pulls toward ~1.2–1.7 while the Ordnance velocity
+data and the geometric envelope both pull toward 2.2–2.9. That is a genuine
+factor-~2 disagreement.
 
 **Weighing them.** Four reasons to follow the Ordnance data and treat Tolch as
 non-discriminating rather than contradicting:
@@ -223,8 +240,9 @@ non-discriminating rather than contradicting:
 1. **A known, drag-orthogonal count bias.** The pre-closure analysis already
      recorded a ~1.8–2.4× count over-prediction "not a drag effect". A fixed
      ~3× bias in the count chain absorbs most of the 2.67 residual and leaves
-     Tolch nearly flat over 1.7–2.67 (2.0–3.2× vs 2.8–4.1×) — while nothing
-     absorbs the ~80–800× shortfall at 0.585.
+     Tolch nearly flat over 1.7–2.67 (1.7–2.7× vs 2.5–3.6×) — while nothing
+     absorbs the ≥175× shortfall at 0.585 (undefined at V0=807.5, where the
+     model predicts zero perforations).
 1. **An observational cutoff on the observed side.** ~700–780 is a count above
      Tolch's hole-detection threshold, not above a physical one. The model
      counts fragments Tolch could not have recorded, so it is biased high at
@@ -239,7 +257,7 @@ non-discriminating rather than contradicting:
 | **1** | **Adopt the DoD-1975 anchor: `C_D` = 1.28, `C_shape` = $(\rho_{steel}/k)^{2/3}$ with $k$ = 2.60 g/cm³ → 2.084 (combined 2.67).** One-line parameter change; closed-form λ preserved; both constants individually citable; RMS(M>0.7) 0.710 → 0.092. | **Recommended** |
 | 2 | Numeric best-fit constant (2.20 all-points / 2.94 on M>0.7). RMS marginally better (0.047 vs 0.092), but it is a fit with no citation, and the improvement is inside the ±0.02/±0.1 read uncertainty of the digitized curve and the transonic $C_D$ spread (2.25–2.92). Loses the anchor to buy noise. | Rejected |
 | 3 | Mach-dependent $C_D(M)$ from Fig-3, integrated along the trajectory. **Does not beat a constant** (§3a) while replacing a closed-form exponential with a per-fragment ODE integration — λ is consumed in closed form throughout (`min_lethal_mass` bisection, both field builders), so this is an architectural change, not a parameter change, for a *negative* accuracy return. | **Rejected — do not derive** |
-| 4 | Keep 0.585, treat the gap as a limitation. Fails the Ordnance check (2× velocity error in the lethal band), fails Tolch by 20–200× with an impossible 12 kJ threshold, and implies a fragment 3× denser than steel. | Rejected |
+| 4 | Keep 0.585, treat the gap as a limitation. Fails the Ordnance check (2× velocity error in the lethal band), fails Tolch by ≥175× with an impossible ~15–29 kJ threshold, and implies a fragment 3× denser than steel. | Rejected |
 | 5 | Add a gravity correction (DoD perturbation, lines 360–373) to close the long-range tail. §3b shows the tail is 5–7× above terminal velocity — gravity is not the mechanism. | Rejected |
 
 ## 5. Recommendation
@@ -259,7 +277,7 @@ non-discriminating rather than contradicting:
 
 **Two limitation entries are part of the deliverable, not deferrals:**
 
-1. Tolch's absolute perforating count still over-predicts by ~3–4× at the
+1. Tolch's absolute perforating count still over-predicts by ~2.5–3.6× at the
      adopted constant; the residual is attributed to the Mott count chain and
      Tolch's hole-detection cutoff, not to drag (§3d). Record with the
      weighing, so the next reader does not re-litigate it.

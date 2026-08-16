@@ -13,13 +13,13 @@ Layout inside a thread:
 
 ## Threads
 
-| Thread                                              | Question                                                                                         | Status                                                                                                                                                                                                                                 |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`drag-gap-1944/`](drag-gap-1944/README.md)         | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Re-baselined — headline FAIL void; drag re-adjudication open.** See [`drag-gap-1944/b-vs-range-rebaseline.md`](drag-gap-1944/b-vs-range-rebaseline.md)                                                                               |
-| [`mott-scale-gap/`](mott-scale-gap/)                | Is `mott_params` an order of magnitude too small?                                                | **Fix landed — revalidation open** → `updates/mott-fragment-shape-closure/`; see [`mott-scale-gap/rebaseline-verdict.md`](mott-scale-gap/rebaseline-verdict.md)                                                                        |
-| [`count-gap-1938/`](count-gap-1938/count-chain.md)  | Why is Tolch 1938's absolute perforating-fragment count over-predicted 4–6×?                     | **Re-baselined, then re-closed twice (C1, then C2), then C5 discharged — count arm FAILs at 2.25×/2.51×, genuine FAIL not INDETERMINATE; one inference void.** See [`count-gap-1938/count-chain.md`](count-gap-1938/count-chain.md) §4 |
-| [`gravity-ke/`](gravity-ke/gravity.qmd)             | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                                                                                                                                                 |
-| [`source-data-audit/`](source-data-audit/README.md) | Is every external source this model rests on faithfully transcribed, and what breaks if not?     | **Audit complete, repairs open** — 62 findings, 20 blocking. Start at [`source-data-audit/remediation-plan.md`](source-data-audit/remediation-plan.md)                                                                                 |
+| Thread                                              | Question                                                                                         | Status                                                                                                                                                                                                                                                                                               |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`drag-gap-1944/`](drag-gap-1944/README.md)         | Does Family B reproduce the 1944 Ordnance Dept. B-vs-range data — and if not, is drag the cause? | **Re-baselined — headline FAIL void; drag re-adjudication open.** See [`drag-gap-1944/b-vs-range-rebaseline.md`](drag-gap-1944/b-vs-range-rebaseline.md)                                                                                                                                             |
+| [`mott-scale-gap/`](mott-scale-gap/)                | Is `mott_params` an order of magnitude too small?                                                | **Fix landed — revalidation open** → `updates/mott-fragment-shape-closure/`; see [`mott-scale-gap/rebaseline-verdict.md`](mott-scale-gap/rebaseline-verdict.md)                                                                                                                                      |
+| [`count-gap-1938/`](count-gap-1938/count-chain.md)  | Why is Tolch 1938's absolute perforating-fragment count over-predicted 4–6×?                     | **Re-baselined, then re-closed twice (C1, then C2); C5, C3, and now C4 all discharged — count arm FAILs at 2.25×/2.51× (plug-shear) and 1.8–2.1× (threshold-free, C4's criterion-matched basis); no sub-candidate remains.** See [`count-gap-1938/count-chain.md`](count-gap-1938/count-chain.md) §4 |
+| [`gravity-ke/`](gravity-ke/gravity.qmd)             | Does omitting gravity matter for fragment KE?                                                    | **Closed** — no (≤0.003 % inside the 0–100 m envelope)                                                                                                                                                                                                                                               |
+| [`source-data-audit/`](source-data-audit/README.md) | Is every external source this model rests on faithfully transcribed, and what breaks if not?     | **Audit complete, repairs open** — 62 findings, 20 blocking. Start at [`source-data-audit/remediation-plan.md`](source-data-audit/remediation-plan.md)                                                                                                                                               |
 
 **`drag-gap-1944` status detail.** The Phase-3 re-run has ruled. The published
 "FAIL — over-predicts by 7–34×, growing with range" is **void**: all three
@@ -143,6 +143,36 @@ FAIL at 2.25× (/779) / 2.51× (/700) — not INDETERMINATE.** The live
 recommendation ranking drops C5 (discharged, no credit) and becomes **C3
 next, then C4**. Live text: `count-gap-1938/count-chain.md` §3 "C5" and §4
 "The INDETERMINATE clause is now discharged".
+**(6) C3 is now discharged too (2026-08-15), real but not actionable.** The
+single-exponential Mott form ($\lambda$=1/2) extrapolated into the
+0.166–0.63 g window below Tolch's finest screen cut is credited at
+**1.324×** against an exponent ($\lambda$=0.759) fitted to Tolch's own pit
+census — restating the residual **2.25× → 1.70× (/779)**, **2.51× → 1.89×
+(/700)**. It does not clear the count arm to PASS: every *sourced* alternative
+shape (Mott's own 3D thick-wall exponent $\lambda$=1/3; a power-law tail per
+the literature @librarian collected) moves the residual the *wrong* way, so
+the only shape that pays is fitted to the validation data itself and cannot
+ship — recorded as a limitation, not a `src/arty/` change. Reviewed PASS
+(`count-gap-1938/review-c3.md`). Live text: `count-gap-1938/mott-tail-shape.md`,
+`count-gap-1938/count-chain.md` §3 "C3" and its recommendation.
+**(7) C4 is now discharged too (2026-08-15), closing the ranking — no
+sub-candidate remains.** The criterion-correct spectrum denominator is
+Tolch's 10.94 lb *empty unfuzed shell* (case metal alone), paired with a
+fuze-excluded numerator (screen 1 is, per Tolch's own text, "mostly pieces of
+fuze") — not his 13.29 lb pit-recovery figure, and it agrees with the
+model's own fuze-excluded $M_\text{case}$ to 0.4%. On that basis the
+threshold-free residual is **1.8–2.1×** (anchored on the well-conditioned
+screen-2 cut), not the 1.19× floor the standing open finding had predicted —
+that floor never existed on current shipped code; it was diagnosed against a
+since-superseded pre-`50b734e` placeholder. C4 is a criterion choice worth
+≈0.2× within the correct family, not a driver, and **no `src/arty/` change
+follows**. Reviewed PASS-with-limitations (`count-gap-1938/review-c4.md`).
+**With C1 through C5 all discharged, the count arm's standing verdict is
+final: genuine FAIL at 2.25×/2.51× (plug-shear) and 1.8–2.1× (threshold-free)
+— every admissible pairing sits above the ≤1.5× acceptance band, and no
+further candidate is under investigation.** Live text:
+`count-gap-1938/spectrum-mass-basis.md`, `count-gap-1938/count-chain.md` §3
+"C4" and `count-gap-1938/rebaseline-verdict.md`'s fourth re-closure banner.
 
 ## `mott-scale-gap/`
 

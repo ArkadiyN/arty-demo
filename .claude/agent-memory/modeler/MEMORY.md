@@ -24,3 +24,5 @@
 - [Mott V is the fracture-instant velocity](gotcha_mott_V_is_fracture_instant_velocity.md) — not terminal Gurney; the 1943 worked example uses terminal, Gold 2017 defines fracture-instant, Kennedy's grazing 7x makes it live
 - [Mott count doesn't move as f²](gotcha_mott_count_not_f_squared.md) — a velocity correction in x0 is partly cancelled by the rising mu in the survival exponential; compute N, never scale it
 - [Rebaseline onto validation source](gotcha_rebaseline_onto_validation_source.md) — rebaselining onto the source you validate against makes the cross-check tautological; prefer an independent basis that agrees
+- [Power-law tail is sign-wrong for shells](gotcha_powerlaw_tail_sign_wrong_for_shells.md) — the sub-gram power-law literature ADDS fragments; wrong direction for an over-counting model
+- [Count-mass locus not identifying](gotcha_count_mass_locus_not_identifying.md) — a spectrum fitted to a cumulative count-vs-mass locus is scale-degenerate; anchor in absolute mass
