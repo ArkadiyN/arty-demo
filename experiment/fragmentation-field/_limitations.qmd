@@ -662,3 +662,48 @@ it:* per-fragment $(A, m)$ pairs rather than Group means, from the same
 photographic surface. Assumption A11 of
 [`updates/mass-dependent-fragment-shape/derivation.md`](updates/mass-dependent-fragment-shape/derivation.md)
 §3.5.
+
+**18 · The closure now takes its breadth *moments* from Mott 1947 and its
+mass *law* from Mott & Linfoot 1943, and those two objects are not the same
+distribution.**
+The breadth-variance factor $k=\langle x^2\rangle/\langle x\rangle^2$ is
+settled at **1.14**, computed by reproducing Mott's 1947 ruled-line Monte
+Carlo — the same calculation that supplies the shipped
+$\kappa_x=\langle x\rangle/x_0=1.5$. That resolves what looked like a
+three-way inconsistency in the model's own breadth statistics: the rival value
+$k=2$ is not an independent measurement but the exponential-breadth
+*assumption* Mott & Linfoot 1943 §3 imported from the comminution literature
+("distributed according to the usual law", citing Lienau 1936) in order to
+reach a closed-form area distribution. Mott's own 1947 release-wave
+calculation contradicts it — the ruled-line histogram has **negligible**
+density below $0.4x_0$, because a crack is unlikely to nucleate inside a
+neighbour's release zone, whereas an exponential puts its mode at zero.
+
+Because the identity $\langle Ax^2\rangle/(\langle A\rangle\langle
+x\rangle^2)=c\,k$ holds only when **both** moments run over one population,
+the aspect moment $c$ had to be re-solved on the ruled line at the same time;
+it falls from 1.2506 to 1.1254 at 155 mm. The two changes very nearly cancel
+there — $A_\text{eff}$ moves $2.001\to2.048$, i.e. $+2.4\%$ — so the practical
+content of the change is at the small calibers, where $A_\text{eff}$ rises
+$+18\%$ (75 mm) to $+24\%$ (60 mm).
+
+**What remains open is one level up.** The shipped fragment *count* law
+$N(\ge m)=N_0e^{-\sqrt{m/\mu}}$ descends from that same 1943 exponential. So
+the model now draws $\langle x\rangle$ and $\langle x^2\rangle$ from the 1947
+distribution while retaining a mass law derived from the 1943 one. This is
+Mott's own inconsistency, not an artefact of this implementation, and the
+1943 law is kept because it is the form with the empirical fragmentation-data
+pedigree. **The exposure of that retention is not bounded by any check
+performed here.** The one out-of-sample surface available — 155 mm $B(r)$
+against the Ordnance-1944 casualty card — varies the breadth *moments* at a
+**fixed** mass law, so it has no power over the mass law itself. What it does
+establish is narrower and true: at fixed mass law the self-consistent 1947 pair
+sits at geo-mean ratio $1.046$ against the shipped $1.063$ (no measurable
+change), while the self-consistent 1943 pair degrades it to $0.803$ — so the
+surface that can see the *breadth moment* prefers the 1947 value, in the
+direction the derivation chose. *What would close it:* re-deriving the mass
+spectrum from the ruled-line breadth distribution instead of the exponential,
+and checking the result still fits measured fragment-count data. Assumptions
+K1/K3/K5 of
+[`updates/breadth-variance-factor-k/derivation.md`](updates/breadth-variance-factor-k/derivation.md)
+§5.5.

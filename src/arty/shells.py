@@ -9,12 +9,12 @@ from arty.fragmentation import FILLERS, STEELS, ShellParams, mott_aspect_ratio
 # to fixed mass fractions plus a CRH-based tangent-ogive spray angle.
 #
 # Every entry sets `aspect_ratio = mott_aspect_ratio(<its own key>)`, i.e. the
-# x^2-weighted A_eff = c(shell) * 1.6 rather than the bare count-weighted 1.6:
-# 2.00 / 1.76 / 1.58 / 1.47 for 155 / 105 / 75 / 60 mm. c is a moment of the
-# shell's own Mott spectrum, not a material constant — see
-# arty.fragmentation.MOTT_ASPECT_MOMENT_C and
-# experiment/fragmentation-field/updates/mass-dependent-fragment-shape/
-# derivation.md secs. 3.3b/3.4b/7.
+# x^2-weighted A_eff = c(shell) * k * 1.6 rather than the bare count-weighted
+# 1.6: 2.05 / 1.93 / 1.87 / 1.83 for 155 / 105 / 75 / 60 mm. c and k are both
+# moments of Mott 1947's ruled-line breadth population, not material constants
+# — see arty.fragmentation.MOTT_ASPECT_MOMENT_C / MOTT_BREADTH_VARIANCE_K and
+# experiment/fragmentation-field/updates/breadth-variance-factor-k/
+# derivation.md secs. 3.0/5.1.
 # ---------------------------------------------------------------------------
 
 SHELLS: dict[str, ShellParams] = {
@@ -34,7 +34,7 @@ SHELLS: dict[str, ShellParams] = {
         mass_deductions=0.75,
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
-        aspect_ratio=mott_aspect_ratio("105mm M1 HE"),   # c = 1.1024 -> A_eff = 1.764
+        aspect_ratio=mott_aspect_ratio("105mm M1 HE"),   # c = 1.0608, k = 1.1375 -> A_eff = 1.931
         # Tier-1 zone arc geometry (US Army drawing)
         ogive_outer_R=0.6477,        # 25.5"
         ogive_inner_R=0.4572,        # 18"
@@ -65,7 +65,7 @@ SHELLS: dict[str, ShellParams] = {
         mass_deductions=1.5,    # fuze + rotating band + base plug (estimate)
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
-        aspect_ratio=mott_aspect_ratio("155mm M107 HE"),  # c = 1.2506 -> A_eff = 2.001
+        aspect_ratio=mott_aspect_ratio("155mm M107 HE"),  # c = 1.1254, k = 1.1375 -> A_eff = 2.048
         # Tier-1 zone arc geometry (US Army drawing — secant ogive)
         ogive_outer_R=1.66294,       # 65.47"
         ogive_inner_R=1.09220,       # 43"
@@ -104,7 +104,7 @@ SHELLS: dict[str, ShellParams] = {
         mass_deductions=0.97522,
         filler=FILLERS["TNT"],
         steel=STEELS["WW2 US HE Shell"],
-        aspect_ratio=mott_aspect_ratio("75mm M48 HE"),   # c = 0.9854 -> A_eff = 1.577
+        aspect_ratio=mott_aspect_ratio("75mm M48 HE"),   # c = 1.0247, k = 1.1375 -> A_eff = 1.865
         # Tier-2: inner-arc radius unknown; outer geometry from Handbook of
         # Ballistic and Engineering Data for Ammunition Vol.1 (1930).
         # Secant ogive: arc R=7.43 cal but only 1.18 cal used — shell looks
@@ -125,7 +125,7 @@ SHELLS: dict[str, ShellParams] = {
         mass_deductions=0.131542, # 0.29 lb fuze only (no rotating band)
         filler=FILLERS["TNT"],
         steel=STEELS["US WW2 WDSS1"],
-        aspect_ratio=mott_aspect_ratio("60mm M49A2 HE"),  # c = 0.9200 -> A_eff = 1.472
+        aspect_ratio=mott_aspect_ratio("60mm M49A2 HE"),  # c = 1.0026, k = 1.1375 -> A_eff = 1.825
         # (60mm entry is the least-complete of the four — see the geometry gap
         # note below; its c comes off the same code path with no special case.)
         # Tail fin assembly (0.43 lb) excluded from mass_total — separate

@@ -9,19 +9,21 @@ A correction of the form `c = ⟨f⟩/(⟨g⟩⟨h⟩)` derived from a source ta
 functional of the **joint** distribution, so it silently inherits the source
 sample's *marginal* — it is not a material constant and does not transfer.
 
-**Why:** the derivation's assumption list will justify the weighting as
-"the same weighting the shipped mean uses" (internal consistency), which is
-true and is not the question. The closure's `⟨·⟩` runs over the model's own
-population.
+**Why:** the derivation justifies the weighting as "the same one the shipped
+mean uses" (internal consistency) — true, and not the question. The closure's
+`⟨·⟩` runs over the model's own population.
 
-**How to apply:** before accepting a global multiplier, compute the model's
-own mean of the weighting variable per shell and compare with the source
-sample's. If they diverge, re-weight the identical source table by each
-shell's model spectrum and see whether `c` even keeps its sign. If `c`
-depends on `μ` and `μ = c·μ₀`, that fixed point is contractive — iterate it,
-don't treat self-reference as a reason to reject the formulation
-([[unequal_comparison_asymmetric_evaluation]]).
+**How to apply:** re-weight the identical source table by each shell's own
+model spectrum. If `c` depends on `μ` and `μ = c·μ₀`, that fixed point is
+contractive — iterate it ([[unequal_comparison_asymmetric_evaluation]]).
 
-Worked instance, with the per-caliber numbers and the reversed count-chain
-arm: `experiment/fragmentation-field/updates/mass-dependent-fragment-shape/review.md`
-(finding A1) and its `checks/spectrum-weighted-c-per-shell.py`.
+**Second form:** `⟨fg⟩/⟨f⟩⟨g⟩ = c·k` is exact only over ONE population.
+Re-deriving one factor from a better source while leaving the other on its
+old weighting is a mixed pair that need not lie between the two
+self-consistent answers. Ask which population each `⟨·⟩` runs over — and,
+when rival populations are scored side by side, whether each row closed its
+own `μ` fixed point or was left at `μ₀`; only one side usually did.
+
+Worked instances: `.../updates/mass-dependent-fragment-shape/review.md`
+(A1, `checks/spectrum-weighted-c-per-shell.py`) and
+`.../updates/breadth-variance-factor-k/review.md`.

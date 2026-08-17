@@ -123,7 +123,7 @@ $$
 \qquad \gamma = \alpha^{-2/3}\gamma' \quad (4b)
 $$
 
-where $A_{\text{eff}} = c\,A$ is the $x^2$-weighted effective aspect ratio of
+where $A_{\text{eff}} = c\,k\,A$ is the $x^2$-weighted effective aspect ratio of
 eq. (4d) below, **not** the bare literature mean $A$.
 
 $t_{\text{bu}}$ is fixed exactly by the same incompressible-wall bookkeeping as
@@ -140,15 +140,23 @@ $$
 \left(\frac{r_{\text{bu}}}{v_{\text{bu}}}\right)^{2} \quad (4c)
 $$
 
-The mean-mass step behind (4c) is $2\mu = \rho\,t_0\langle A x^{2}\rangle$, so
-the aspect ratio it requires is the $x^{2}$-weighted mean, whereas the
-literature value $A$ is **count**-weighted. The ratio of the two is a
-dimensionless moment correction $c$, applied to $A$ and to nothing else:
+The mean-mass step behind (4c) is $2\mu = \rho\,t_0\langle A x^{2}\rangle$, but
+(4b)–(4c) evaluate it as $\rho\,t_0\langle A\rangle\langle x\rangle^{2}$ — a
+**count**-weighted aspect ratio times the square of the *mean* breadth. The
+exact ratio of the two factorises into two dimensionless moment corrections,
+applied to $A$ and to nothing else:
 
 $$
-A_{\text{eff}} = c\,A, \qquad
-c = \frac{\langle A x^{2}\rangle}{\langle A\rangle\,\langle x^{2}\rangle} \quad (4d)
+A_{\text{eff}} = c\,k\,A, \qquad
+c = \frac{\langle A x^{2}\rangle}{\langle A\rangle\,\langle x^{2}\rangle}, \qquad
+k = \frac{\langle x^{2}\rangle}{\langle x\rangle^{2}} \quad (4d)
 $$
+
+$c$ is the aspect–breadth *covariance* factor (bigger fragments are more
+elongated) and $k$ the breadth-*variance* factor (fragment breadths are not all
+equal to their mean). The factorisation is exact and the two are orthogonal —
+neither double-counts the other — but both are moments of **one** population,
+so they ship as a pair and may only be moved as a pair.
 
 so the closure changes the model's *scaling*, not just its magnitude: $\rho$
 cancels exactly, $\mu$ is **linear** in $\gamma'^{-1}$, $r_{\text{bu}}$ and the
@@ -163,8 +171,8 @@ does **not**: the rising $\mu$ raises the survival factor in eq. (3) and eats
 back part of the change, so thresholded counts must be recomputed, never
 rescaled. Setting $A_{\text{eff}} =
 \kappa_x = 1$ and $t_{\text{bu}} \to x_0$ gives $\alpha = 1$, $\gamma = \gamma'$
-and recovers the cube idealisation used before v0.8.0; setting $c = 1$ recovers
-the single shared $A = 1.6$ used before v0.13.0.
+and recovers the cube idealisation used before v0.8.0; setting $c = k = 1$
+recovers the single shared $A = 1.6$ used before v0.13.0.
 
 | Symbol            | Description                                    | Unit  | Value (105 mm M1) |
 | ----------------- | ---------------------------------------------- | ----- | ----------------- |
@@ -173,8 +181,9 @@ the single shared $A = 1.6$ used before v0.13.0.
 | $\gamma'$        | Mott statistical fragmentation parameter (material, per grade) | — | 54.5 |
 | $\gamma$          | Shape-absorbed constant $\alpha^{-2/3}\gamma'$ fed to eq. (4) | — | computed |
 | $A$               | Fragment length-to-breadth ratio $\bar l/\bar x$, count-weighted literature mean | — | 1.6 |
-| $c$               | Aspect-ratio moment correction, eq. (4d) — **per shell** | — | 1.1024 |
-| $A_{\text{eff}}$ | Effective ($x^2$-weighted) aspect ratio $c\,A$, eq. (4d) | — | 1.764 |
+| $c$               | Aspect-ratio moment correction, eq. (4d) — **per shell** | — | 1.0608 |
+| $k$               | Breadth-variance factor $\langle x^2\rangle/\langle x\rangle^2$, eq. (4d) — caliber-independent | — | 1.1375 |
+| $A_{\text{eff}}$ | Effective ($x^2$-weighted) aspect ratio $c\,k\,A$, eq. (4d) | — | 1.931 |
 | $\kappa_x$       | Mean breadth in fracture spacings $\bar x/x_0$ | —     | 1.5               |
 | $\alpha$          | Fragment shape factor, eq. (4b)                | —     | computed          |
 | $x_0$            | Mott fracture spacing at break-up              | m     | computed          |
@@ -191,23 +200,47 @@ of Felix et al. (2022, §2.5), corroborated by Wilson ($1{:}1.65$) and Grady
 ($1{:}1.5$) — the same aspect-ratio result cited under $C_{\text{shape}}$ in §4.
 Full argument and checks: `updates/mott-fragment-shape-closure/derivation.md`.
 
-**Sourcing of $c$ (v 0.13.0).** $c$ is a moment of the *joint* $(A, m)$
-fragment distribution, not a material constant, so it cannot be shared across
-shells: the conditional aspect mix $A\,|\,$Group that transfers between
-calibers is Felix et al. (2022) Table 3 (Grady's 155 mm HE M101 photographs),
-but the weights are each shell's own Mott spectrum $N(\ge m) = N_0 e^{-\sqrt{m/\mu}}$
-— and since $\mu = c\,\mu_0$, $c$ is solved per shell as the fixed point
-$c = c(c\,\mu_0)$. It therefore falls with caliber and passes through 1 near
-75 mm, where most of the population sits in one aspect Group and the AM–HM
-floor $1/(\langle A\rangle\langle 1/A\rangle)$ takes over from the
-between-Group covariance. The shipped values are
-`arty.fragmentation.MOTT_ASPECT_MOMENT_C`, printed per shell in §Parameters;
-each registry entry carries the product as its `aspect_ratio` field, so
-$A \to A_{\text{eff}}$ is the only code change ($\mu \propto A$ exactly,
-$N_0 \propto 1/(cA)$). Method band $\pm 0.6$–$3.6\%$ against a $\pm 15\%$
-fidelity target; the two open assumptions behind it are limitations 16 and 17.
-Derivation and checks: `updates/mass-dependent-fragment-shape/derivation.md`
-§3.3b/§7.
+**Sourcing of $c$ and $k$ (v 0.14.0).** Both are moments of one and the same
+population — Mott's 1947 **ruled line**, a line of length $l$ standing for the
+cylinder circumference, cut at points whose interval lengths are the breadth
+distribution. That is the same object $\kappa_x = 1.5$ comes from, and taking
+every $\langle\cdot\rangle$ in eq. (4d) from it is what makes the $c\,k$
+factorisation an identity rather than a mixture of two distributions.
+
+$k = 1.1375$ is caliber-**in**dependent, and this is a *derived* result, not a
+simplification: in scaled units the ruled-line model has no caliber parameter
+at all, and $k$ is a moment *ratio*, so the single scale $x_0$ divides out.
+It is obtained by reproducing Mott's Monte Carlo, which independently returns
+$\langle x\rangle = 1.560\,x_0$ against his own reported "about $1.5x_0$".
+The rival value $k = 2$ is **retired**: it is not a measurement but the
+exponential-breadth *assumption* of Mott & Linfoot (1943), made before the
+release-wave mechanism that Mott (1947) then computed and that contradicts it.
+
+$c$ *is* per shell, because it is a moment of the *joint* $(A, x)$
+distribution: the conditional aspect mix $A\,|\,$Group is Felix et al. (2022)
+Table 3 (Grady's 155 mm HE M101 photographs) — the one input shown to transfer
+between calibers — while a Table-3 cell is read as a breadth interval through
+the kinematic identity $m = S A x^2$, whose mass scale $S$ is fixed by the
+closure's own $\langle m\rangle = 2\mu$ with $\mu$ the fixed point
+$\mu = c\,k\,\mu_0$. The earlier table's falling-with-caliber trend crossing 1
+near 75 mm is **gone and was an artefact** of the coarse 5-group mass axis
+collapsing onto the AM–HM floor $1/(\langle A\rangle\langle 1/A\rangle)$; on
+the ruled-line population, cells inside one group are resolved by their
+differing breadth brackets and $c \ge 1$ throughout, as a positive
+$A$–$x^2$ correlation requires.
+
+The shipped values are `arty.fragmentation.MOTT_BREADTH_VARIANCE_K` and
+`MOTT_ASPECT_MOMENT_C`, combined by `mott_aspect_ratio(shell)` and printed per
+shell in §Parameters; each registry entry carries the product as its
+`aspect_ratio` field, so $A \to A_{\text{eff}}$ remains the only code path
+($\mu \propto A$ exactly, $N_0 \propto 1/(c k A)$). The dominant uncertainty is
+no longer a method band on $c$ but the non-uniqueness of the reconstructed
+joint distribution, which brackets $c_{155} \in [1.037, 1.125]$ — a band that
+straddles the pre-0.14.0 $A_{\text{eff}}$ at 155 mm, which is why that caliber
+shows a null. Open assumptions: limitations 16, 17 and 18. Derivation and
+checks: `updates/breadth-variance-factor-k/derivation.md` §2–§3, with the
+conditional aspect mix from
+`updates/mass-dependent-fragment-shape/derivation.md` §3.3b.
 
 **Note on $\gamma'$ and $\sigma_F$:** These are the dominant uncertainties.
 Mott (1947 §3) *prints* γ = 53 for 0.25%C steel and γ = 67 for 0.45%C steel
