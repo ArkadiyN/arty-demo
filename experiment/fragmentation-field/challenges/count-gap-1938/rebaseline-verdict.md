@@ -2,11 +2,13 @@
 
 **Status: complete, but the *model* side of every claim below was evaluated
 against shipped code as of 2026-08-08 *before* commit 6c1faff.** Read **all
-four** re-closure banners first, in order — the 2026-08-08 one, the
+five** re-closure banners first, in order — the 2026-08-08 one, the
 2026-08-10 C1+C2 one, the 2026-08-10 C5-discharge one that supersedes parts of
-both, and the 2026-08-15 C3+C4 one that closes the ranking; the re-baseline
-itself (the Tolch-series side) is unaffected. Standing verdict after all four:
-genuine **FAIL at 2.25× (/779) / 2.51× (/700)** (plug-shear reading) **and at
+both, the 2026-08-15 C3+C4 one that closes the ranking, and the 2026-08-16 one
+that re-closes every model figure onto the per-shell aspect-ratio moment $c$;
+the re-baseline itself (the Tolch-series side) is unaffected. Standing verdict
+after all five:
+genuine **FAIL at 2.28× (/779) / 2.54× (/700)** (plug-shear reading) **and at
 1.8–2.1×** (threshold-free reading), not INDETERMINATE, with no open
 sub-candidate remaining.
 
@@ -162,12 +164,51 @@ sub-candidate remaining.
 > ≈0.2× inside the correct family, not a driver.
 >
 > **With C1 through C5 all discharged, the count arm's standing verdict is
-> final: genuine FAIL at 2.25× (/779) / 2.51× (/700)** (plug-shear threshold,
+> final: genuine FAIL at 2.25× (/779) / 2.51× (/700)** (plug-shear threshold;
+> **restated 2.28× / 2.54× by the fifth banner below**,
 > the headline reading) **and FAIL at 1.8–2.1×** (threshold-free,
 > criterion-matched) **— every admissible pairing this thread has produced
 > sits above the ≤1.5× acceptance band, and no open sub-candidate remains
 > that could move it inside.** `challenges/README.md` was restated to match
 > on 2026-08-15.
+
+> **Fifth re-closure banner — per-shell aspect-ratio moment `c`, 2026-08-16.**
+> Commit `5d742b4` (`updates/mass-dependent-fragment-shape/` §7) shipped a
+> per-shell aspect-ratio moment correction into `arty.shells.SHELLS`:
+> `aspect_ratio = 1.6 * MOTT_ASPECT_MOMENT_C[<shell>]`, i.e. $c_{75}$ = 0.9854
+> and $A_\text{eff}$ 1.600 → 1.577 for the 75 mm M48. Since
+> $\mu \propto \alpha \propto A_\text{eff}$ and $N_0 = M_\text{case}/2\mu$,
+> this moves **$\mu$ 0.929 → 0.915 g and $N_0$ 2681 → 2720** — so the
+> "current shipped code now gives" line in the second banner above, and every
+> model figure in the second, third and fourth banners, is stale by ~+1.3 % on
+> counts. `count-chain.md` has been re-closed a **fifth** time against this
+> state and remains the live document. The verdict **direction is unchanged**
+> — still FAIL, still outside the 2× band on both denominators, still no
+> sub-candidate remaining — and every figure restates as follows
+> ([`checks/count-chain-aspect-moment-reclosure.py`](checks/count-chain-aspect-moment-reclosure.py)
+> prints the legacy and shipped columns side by side; the thread's other
+> `checks/` scripts read `SHELLS` directly and were re-run to produce the
+> rest):
+>
+> | figure (banner)                               | legacy $A$ = 1.600 |                      shipped $A$ = 1.577 |
+> | :-------------------------------------------- | -----------------: | ---------------------------------------: |
+> | plug-shear verdict row, $N$                   |               1756 |                                 **1776** |
+> | verdict row $N/779$ ÷ $N/700$                 |      2.25× / 2.51× |                        **2.28× / 2.54×** |
+> | same at $f$ = 1 (C1 alone)                    |      2.47× / 2.75× |                        **2.50× / 2.78×** |
+> | $f$-sweep on /779 (0.953 … 0.899)             |       2.29 … 2.09× |                         **2.32 … 2.11×** |
+> | $\tau$ ±1σ band on /779                       |         2.12–2.41× |                           **2.14–2.44×** |
+> | threshold-free (E), Tolch-13.29 lb basis      |         1.59–1.99× |                           **1.61–2.02×** |
+> | C4 coarsest-screen move (thru-4 row)          |      1.59× → 1.81× |                        **1.61× → 1.83×** |
+> | C4 criterion-matched threshold-free band      |           1.8–2.1× | **1.8–2.1×** (unmoved at this precision) |
+> | C5 max credit, $N/700$ / realised leverage    |     2.05× / 1.221× |                       **2.08× / 1.222×** |
+> | C3 realised credit / restated residual (/779) |     1.324× / 1.70× |                       **1.328× / 1.72×** |
+> | C3 max conceivable credit                     |              1.49× |                                **1.50×** |
+>
+> **The §1/§3/§4–5 verdict tables below are *not* re-closed and must not be.**
+> They score the 2026-08-04 re-baseline against the model as it stood then
+> ($M_\text{case}$ = 5755 g, $N_0$ = 3627), which is what makes them a record
+> of that audit; the banners are the mechanism this file uses to carry the
+> model side forward, and this is the fifth of them.
 
 Block (E)'s arithmetic — the threshold-free test that carries the one void
 verdict — was independently re-derived by the main agent before this file was
