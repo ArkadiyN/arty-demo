@@ -2,10 +2,38 @@
 
 **Thread:** `count-gap-1938` (Workflow A assessment). **Candidate:** C3, ranked
 first by [`count-chain.md`](count-chain.md) §3 after C5 was discharged.
-**Status:** closed 2026-08-15. **Verdict: C3 is real at 1.324× (~35 % of the
-2.25× residual) but is not sourced — no `src/arty/` change follows.** §5.
+**Status:** closed 2026-08-15; **re-closed against shipped code 2026-08-16.**
+**Verdict: C3 is real at 1.328× (~34 % of the 2.28× residual) but is not
+sourced — no `src/arty/` change follows.** §5.
 
 Check script: [`checks/count-chain-mott-tail-shape.py`](checks/count-chain-mott-tail-shape.py).
+
+> **Re-closure banner — 2026-08-16 (per-shell aspect-ratio moment $c$).**
+> `mass-dependent-fragment-shape` shipped a per-shell aspect-ratio moment
+> correction into `arty.shells.SHELLS` (`5d742b4`;
+> `src/arty/fragmentation.py` `MOTT_ASPECT_MOMENT_C` / `mott_aspect_ratio`,
+> derivation §7). For the 75 mm M48 it gives $c_{75}$ = 0.9854,
+> $A_\text{eff}$ 1.600 → 1.577, hence $\mu$ 0.929 → 0.915 g and
+> $N_0$ 2681 → 2720 — about +1.3 % on every count on this page. This document
+> was written against the pre-$c$ code, so **every model-side figure below has
+> been re-run** against shipped `SHELLS` and restated. Legacy → shipped, for
+> the figures the verdict rests on:
+>
+> | quantity                     | legacy (pre-$c$) | shipped (2026-08-16) |
+> | ---------------------------- | ---------------- | -------------------- |
+> | $N(\ge 0.63$ g$)$            | 1176             | 1187                 |
+> | $N(\ge 0.166$ g$)$           | 1756             | 1777                 |
+> | $R_\text{shipped}$ (eq. 2)   | 1.493            | **1.497**            |
+> | C3 credit, (B2) anchored fit | 1.324×           | **1.328×**           |
+> | restated residual /779       | 1.70×            | **1.72×**            |
+> | restated residual /700       | 1.89×            | **1.91×**            |
+>
+> **Nothing about the verdict moves.** The (B2) fit itself
+> ($\lambda$ = 0.759, $\mu$ = 5.688 g, $N_\text{tot}$ = 840) is fitted to
+> Tolch's census alone and is *independent* of shipped code — it does not move
+> at all; only the shipped-Mott comparison column does. C3 remains real,
+> partial, and **not sourced**. These figures match what
+> [`count-chain.md`](count-chain.md) §3 (C3 entry) already states.
 
 ______________________________________________________________________
 
@@ -22,10 +50,10 @@ $\bar m = 2\mu$).
 
 C1's sourced plug-shear threshold lands at $m_{thr} = 0.166$ g — a factor 3.8
 **below** Tolch's finest screen cut (~0.63 g). So the verdict row
-$N(\ge 0.166) = 1756$ is 33 % (580 fragments) an *extrapolation* of (1) into a
+$N(\ge 0.166) = 1777$ is 33 % (590 fragments) an *extrapolation* of (1) into a
 mass range no Tolch measurement constrains. C3 asks whether that extrapolation
-is sound, and is worth at most **1.49×** of the standing 2.25× (/779) residual
-— enough on its own to reach the 2× band, but not to explain the 1.51× floor
+is sound, and is worth at most **1.50×** of the standing 2.28× (/779) residual
+— enough on its own to reach the 2× band, but not to explain the 1.52× floor
 above 0.63 g.
 
 **The quantity that carries the whole question** is the dimensionless
@@ -33,7 +61,7 @@ above 0.63 g.
 
 $$R \;=\; \frac{N(\ge 0.166\ \text{g})}{N(\ge 0.63\ \text{g})} \quad (2)$$
 
-For the shipped model $R = 1756/1176 = 1.493$. C3 earns credit
+For the shipped model $R = 1777/1187 = 1.497$. C3 earns credit
 $R_\text{shipped}/R_\text{alt}$ if a literature-supported alternative spectrum
 shape, anchored on the range Tolch **does** resolve, gives a smaller $R$.
 $R$ is the right isolation because it is independent of $N_0$ and of
@@ -78,11 +106,11 @@ $u=(m/\mu)^\lambda$, depends on $\lambda$ **alone** — so $\lambda$ can be fitt
 without any mesh mass. It fits beautifully ($\lambda$ = 0.309, all four
 residuals 0.92–1.03×, held-out row 0.99×) and is **worthless**: the mass scale
 $\mu$ is then set only by the mass closure, and the implied screen boundaries
-come out at **87 kg / 4.6 kg / 1.46 kg / 0.93 g** against bucket means
+come out at **87 kg / 4.64 kg / 1.46 kg / 0.93 kg** against bucket means
 154 g … 0.61 g — wrong by two to three orders of magnitude at the coarse end.
 Block (C) shows the failure mode directly: as $\lambda$ rises the fit simply
 inflates $\mu$ (0.38 → 10.9 kg) and $R\to1.000$, so *every* exponent "earns"
-close to the full 1.49× ceiling. **A count-versus-mass locus does not identify
+close to the full 1.50× ceiling. **A count-versus-mass locus does not identify
 a fragment spectrum.** Any credit from (B)/(C) is an artefact and is not quoted.
 
 *This does not impeach block (E) of
@@ -111,9 +139,13 @@ this fit admissible where (B) is not:
 | boundary [g] | Tolch $n(\ge m)$ | (B2) fit | shipped Mott |
 | ------------ | ---------------- | -------- | ------------ |
 | 46.65        | 6                | 6        | **2**        |
-| 6.55         | 278              | 276      | **188**      |
-| 1.88         | 533              | 545      | **646**      |
-| 0.840        | 675              | 665      | **1036**     |
+| 6.55         | 278              | 276      | **187**      |
+| 1.88         | 533              | 545      | **648**      |
+| 0.840        | 675              | 665      | **1044**     |
+
+*(The "shipped Mott" column is the only one in this table that moved on
+2026-08-16; legacy values were 2 / 188 / 646 / 1036. The direction of the shape
+error is unchanged and slightly sharper.)*
 
 The shipped Mott is **too steep at the coarse end and too shallow at the fine
 end** — a single-exponent shape error, exactly what $\lambda$ too small means.
@@ -123,25 +155,30 @@ toward small mass than $\sqrt{m/\mu}$.
 ## 4. Results — and the sign trap resolved
 
 All rows are the extrapolation multiplier $R$ of eq. (2) and the C3 credit
-$R_\text{shipped}/R$, at $R_\text{shipped}=1.493$. Only the anchored rows are
-admissible.
+$R_\text{shipped}/R$, at $R_\text{shipped}=1.497$ (re-run 2026-08-16; the
+legacy pre-$c$ column had $R_\text{shipped}=1.493$ and credit 1.324× on the
+(B2) row). Only the anchored rows are admissible.
 
 | spectrum in 0.166–0.63 g                         | source of the shape               | $R$       | C3 credit      |
 | ------------------------------------------------ | --------------------------------- | --------- | -------------- |
-| shipped Mott, $\lambda=1/2$                      | `mott_params`                     | 1.493     | 1.000×         |
-| **(B2) Tolch-anchored, $\lambda=0.759$**         | **fitted to the pit census**      | **1.127** | **1.324×**     |
-| $\lambda=1/2$ at the same anchors                | Mott 2D                           | 1.370     | 1.090×         |
-| $\lambda=1/3$ at the same anchors                | Mott's own 3D thick-wall exponent | 1.756     | **0.850×**     |
-| power-law splice at 0.63 g, $\tau=1.9$           | Carmona 2007                      | 2.062     | **0.724×**     |
-| power-law splice at 0.63 g, $\tau=2.2$           | Carmona 2007 (with cutoff)        | 2.357     | **0.633×**     |
-| power-law splice at 3.0 g, $\tau=1.9\text{–}2.2$ | Carmona 2007                      | 3.32–4.76 | **0.45–0.31×** |
+| shipped Mott, $\lambda=1/2$                      | `mott_params`                     | 1.497     | 1.000×         |
+| **(B2) Tolch-anchored, $\lambda=0.759$**         | **fitted to the pit census**      | **1.127** | **1.328×**     |
+| $\lambda=1/2$ at the same anchors                | Mott 2D                           | 1.370     | 1.093×         |
+| $\lambda=1/3$ at the same anchors                | Mott's own 3D thick-wall exponent | 1.756     | **0.853×**     |
+| power-law splice at 0.63 g, $\tau=1.9$           | Carmona 2007                      | 2.070     | **0.723×**     |
+| power-law splice at 0.63 g, $\tau=2.2$           | Carmona 2007 (with cutoff)        | 2.367     | **0.633×**     |
+| power-law splice at 3.0 g, $\tau=1.9\text{–}2.2$ | Carmona 2007                      | 3.33–4.77 | **0.45–0.31×** |
+
+*The $R$ of the three anchored-fit rows is set by the (B2)/fixed-$\lambda$ fits
+to Tolch alone and does not move with shipped code; only the credit column
+(which divides by $R_\text{shipped}$) and the two spliced rows do.*
 
 **The sign trap, resolved.** §2 set out two opposed literature directions. The
 Tolch data agree with **neither**:
 
 - The **power-law reading is refuted for this shell.** Splicing $\tau$ = 1.9–2.2
-    at 0.63 g would put 2426–2773 fragments above 0.166 g where the census finds
-    779, and would drive the residual *up* from 2.25× to 3.1–3.6×. The three
+    at 0.63 g would put 2456–2809 fragments above 0.166 g where the census finds
+    779, and would drive the residual *up* from 2.28× to 3.2–3.6×. The three
     collected sources are brittle-sphere impact, glass rods and mercury droplets;
     none is an HE-driven thick-walled steel cylinder, and Elek & Jaramaz's own
     survey says the power law "cannot successfully describe the HE projectile
@@ -163,28 +200,28 @@ Tolch data agree with **neither**:
 **Criterion (stated before the result, in this thread's §4 style).** C3 is
 credited only if an alternative sub-gram spectrum shape (i) is admissible —
 identified in absolute mass, not merely in a count/mass locus — and (ii)
-reduces the extrapolation multiplier $R$ below the shipped 1.493. C3 is a
+reduces the extrapolation multiplier $R$ below the shipped 1.497. C3 is a
 *sufficient* explanation of the residual only if the credited correction alone
 brings $N/779$ inside the thread's 2× band, and a *sourced* explanation only if
 the shape that delivers it comes from outside the Tolch dataset.
 
-**Verdict: C3 is REAL and PARTIAL — 1.32× of the 2.25× residual — but it is
+**Verdict: C3 is REAL and PARTIAL — 1.33× of the 2.28× residual — but it is
 NOT SOURCED, and no Workflow-B change follows from it.**
 
 - **(i) Magnitude.** On the admissible (B2) anchored fit, C3's credit is
-    **1.324×**. Applied to the 1.51× above-0.63 g floor (which is C4's, not C3's)
-    this restates the residual as **2.25× → 1.70× (/779)** and **2.51× → 1.89×
-    (/700)**. In log terms C3 accounts for **~35 %** of the standing residual
-    ($\ln 1.324/\ln 2.25$). The thread's §3 estimate of "up to 1.49×" was an
+    **1.328×**. Applied to the 1.52× above-0.63 g floor (which is C4's, not C3's)
+    this restates the residual as **2.28× → 1.72× (/779)** and **2.54× → 1.91×
+    (/700)**. In log terms C3 accounts for **~34 %** of the standing residual
+    ($\ln 1.328/\ln 2.28$). The thread's §3 estimate of "up to 1.50×" was an
     upper bound and is confirmed as such: the realised figure is 89 % of it —
     the first sub-candidate in this thread whose predicted leverage was close to
     right.
-- **(ii) Sufficiency.** 1.70× is inside the 2× band. **But the count arm may
+- **(ii) Sufficiency.** 1.72× is inside the 2× band. **But the count arm may
     not be re-declared PASS on this**, for two independent reasons: the second
     observable (the A→D falloff ratio) is still unrun and still compound (§4), and
     the credit is not sourced — see (iii). The honest statement is that **the
     residual outside the band is no longer attributable to the sub-gram
-    extrapolation**; what remains at 1.70× is the above-0.63 g floor, which is
+    extrapolation**; what remains at 1.72× is the above-0.63 g floor, which is
     measured against fragments Tolch resolves and belongs to C4.
 - **(iii) Sourcing — this is where C3 fails.** Every *sourced* alternative shape
     moves the residual the wrong way ($\lambda=1/3$: 0.85×; power law: 0.31–0.72×).
@@ -199,15 +236,15 @@ NOT SOURCED, and no Workflow-B change follows from it.**
     The correct disposition is a **limitation entry**: the shipped Mott form is a
     two-decade-old 2D result used 3.8× below the finest mass any validating
     census resolves, and against the one HE-shell census available its exponent
-    is low by ~0.26 (0.5 vs 0.76), over-populating 0.166–0.63 g by ~1.32×.
+    is low by ~0.26 (0.5 vs 0.76), over-populating 0.166–0.63 g by ~1.33×.
 1. A *sourced* $\lambda$ would make this actionable and is the only thing that
     would. That needs a **derivation** of the exponent from the fracture
     statistics (Gold 2017 / Mott 1947 route, 3D thick-wall), or an independent
     HE-shell census with sub-gram resolution. @librarian's sweep found no such
     census in the open literature — that gap is real and is recorded in
     `doc-reference/mott-distribution-small-fragments/index.md`.
-1. **C4 is now the whole remaining story.** With C3 quantified at 1.32×, the
-    1.51× above-0.63 g floor is 100 % of what is left, and it is a
+1. **C4 is now the whole remaining story.** With C3 quantified at 1.33×, the
+    1.52× above-0.63 g floor is 100 % of what is left, and it is a
     normalisation/denominator question — exactly the two open findings already
     standing against `checks/count-chain-rebaseline.py` and
     `rebaseline-verdict.md`. Those should be resolved before any further
