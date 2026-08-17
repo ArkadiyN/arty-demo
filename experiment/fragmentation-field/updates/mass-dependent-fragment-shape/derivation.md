@@ -393,9 +393,9 @@ matters qualitatively is 75 mm's, because it straddles `c = 1`.
     (which required the mass marginal to transfer too), but it is still
     unevidenced: no second casing type or caliber in the held literature
     resolves aspect ratio by mass. Wall-thickness-to-caliber ratio differs
-    across `SHELLS`, and `A | Group` plausibly does too.
-
-FINDING[deferrable]: the mass-resolved A|Group aspect mix behind the per-shell c comes from one test article (155mm HE M101, Grady Fig. 10) and is assumed caliber-independent when applied to the 105/75/60mm shells; no second casing type or caliber in the held literature resolves aspect ratio by fragment mass (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md; since: 2026-08-16)
+    across `SHELLS`, and `A | Group` plausibly does too. Published to readers of
+    the model as limitation 16 in `experiment/fragmentation-field/_limitations.qmd`
+    (2026-08-16); the finding marker is closed on that basis.
 - **A10 — RESOLVED 2026-08-16 by the per-shell fix.** The prior version noted
     that §5's B(r) cross-check (155mm) and §6's count chain (75mm M48) were not
     caliber-matched, so the /700 shortfall might be a caliber-transfer artifact
@@ -412,9 +412,10 @@ FINDING[deferrable]: the mass-resolved A|Group aspect mix behind the per-shell c
     lower-bound reading holds where the spectrum sits inside one Group and
     reverses where it straddles several. Unlike `k`'s bound this was never a
     mathematical certainty, and it is now known not to be uniform. The
-    residual uncertainty is carried as the §3.4b method band.
-
-FINDING[deferrable]: c is built from the same Group-discretized Table 3 data as k; the within-Group mass-aspect covariance is invisible to the between-Group calculation and the continuous-A(m) sensitivity (derivation 3.4b method C) shows the resulting bias is caliber-dependent in sign, not a uniform lower bound as originally stated (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md; since: 2026-08-16)
+    residual uncertainty is carried as the §3.4b method band. Published to
+    readers of the model as limitation 17 in
+    `experiment/fragmentation-field/_limitations.qmd` (2026-08-16); the finding
+    marker is closed on that basis.
 
 ---
 

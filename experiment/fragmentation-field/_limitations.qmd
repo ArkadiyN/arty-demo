@@ -620,3 +620,45 @@ fragment-arrival-velocity set for these shells exists in `doc-reference/` to
 replace it. Criterion-match ruling:
 [`challenges/source-data-audit/review-criterion-match.md`](challenges/source-data-audit/review-criterion-match.md)
 §2d.
+
+**16 · The per-shell aspect moment correction $c$ transfers one test article
+to every caliber (v 0.13.0).**
+`MOTT_ASPECT_MOMENT_C` weights each shell's *own* Mott mass spectrum, but the
+physical input it weights — the mass-resolved aspect mix $A\,|\,$Group — comes
+from a single test article: Felix et al. (2022) Table 3, built from Grady's
+photographs of a **155 mm HE M101**. Applying it to the 105 mm, 75 mm and
+60 mm entries assumes that mix is caliber-independent, i.e. that fragments of
+a given *Group* are the same shape whatever shell they came from. Nothing in
+`doc-reference/` tests this: no second casing type or caliber in the held
+literature resolves aspect ratio **by fragment mass**, so the assumption is
+untested rather than supported. It is also the assumption the correction is
+most exposed to, because $c$ is precisely a covariance between shape and mass
+— the quantity a different casing geometry would be expected to change. The
+155 mm value is the one case where the input and the application are the same
+article, and it is also the one independently corroborated (the
+`drag-gap-1944` $B(r)$ fit, change log 0.13.0); the smaller calibers carry the
+transfer risk alone. *What would close it:* a second mass-resolved aspect-ratio
+dataset on a different casing. Assumption A9 of
+[`updates/mass-dependent-fragment-shape/derivation.md`](updates/mass-dependent-fragment-shape/derivation.md)
+§3.5.
+
+**17 · $c$ is computed between Group bins, so the within-Group shape–mass
+covariance is invisible to it — and the resulting bias is not a one-sided
+bound (v 0.13.0).**
+Both $c$ and the shape closure's companion factor $k$ are built from the same
+**Group-discretized** Table 3: each Group contributes one mean aspect ratio and
+one mean mass, so all shape–mass structure *inside* a Group is averaged away
+before the moment is taken. Only the between-Group part of $\langle A x^2\rangle$
+survives. The continuous-$A(m)$ sensitivity (method C, derivation §3.4b) shows
+what this costs — and, importantly, that the sign is **caliber-dependent**: the
+discretization does not uniformly under-state the correction. An earlier
+statement that the shipped $c$ is a *lower bound* on the true moment is
+therefore **withdrawn**; it holds at the calibers where the Group means happen
+to bracket the continuous curve the right way and not at the others. The
+practical consequence is bounded — the A/B/C method band is ±0.6–3.6 %, well
+inside the ±15 % fidelity target on $A$ — but it is a bias of unknown sign per
+shell, not a margin that can be leaned on in one direction. *What would close
+it:* per-fragment $(A, m)$ pairs rather than Group means, from the same
+photographic surface. Assumption A11 of
+[`updates/mass-dependent-fragment-shape/derivation.md`](updates/mass-dependent-fragment-shape/derivation.md)
+§3.5.
