@@ -12,7 +12,7 @@ import numpy as np
 
 from arty.fragmentation import (
     ShellParams, DragParams, TargetParams, STEELS,
-    MOTT_ASPECT_MOMENT_C, _MOTT_ASPECT_RATIO,
+    MOTT_ASPECT_MOMENT_C, MOTT_BREADTH_VARIANCE_K, _MOTT_ASPECT_RATIO,
     gurney_velocity, mott_params, mott_N, retardation_coeff,
     ke_at_range, min_lethal_mass, pk_given_hit, expected_kills, p_kill,
     _shell_geometry, _PK_E, _PK_VAL,
@@ -78,24 +78,37 @@ print(f"  Aspect ratio A_eff: {aspect_ratio:.3f}   (l_bar/x_bar, fragment length
 print(f"  Breadth factor κx : {breadth_factor:.2f}   (x_bar/x0, breadth in fracture spacings)")
 ```
 
-### Effective aspect ratio $A_{\text{eff}} = c\,A$ (v 0.13.0)
+### Effective aspect ratio $A_{\text{eff}} = c\,k\,A$ (v 0.14.0)
 
-The closure needs an $x^2$-weighted mean aspect ratio, not the count-weighted
-literature mean $A$. `arty.fragmentation.MOTT_ASPECT_MOMENT_C` carries the
-moment correction $c = \langle A x^2\rangle/(\langle A\rangle\langle x^2\rangle)$
-that converts one into the other, and `mott_aspect_ratio(shell)` returns the
-product each registry entry ships in its `aspect_ratio` field. $c$ is a moment
-of the shell's own fragment spectrum rather than a material constant, so it is
-**per shell** and falls with caliber — derivation, weighting scheme and method
-band: `updates/mass-dependent-fragment-shape/derivation.md` §3.3b/§7.
+The closure needs an $x^2$-weighted mean aspect ratio and the mean *square*
+breadth, where eq. (4b) supplies the count-weighted literature mean $A$ and the
+square of the mean breadth. Two constants close that gap, and
+`mott_aspect_ratio(shell)` returns their product — the value each registry
+entry ships in its `aspect_ratio` field:
+
+- `arty.fragmentation.MOTT_ASPECT_MOMENT_C` — the aspect–breadth covariance
+    factor $c = \langle A x^2\rangle/(\langle A\rangle\langle x^2\rangle)$.
+    It is a moment of the joint $(A, x)$ distribution, not a material constant,
+    so it is **per shell**.
+- `arty.fragmentation.MOTT_BREADTH_VARIANCE_K` — the breadth-variance factor
+    $k = \langle x^2\rangle/\langle x\rangle^2$. Caliber-**in**dependent, as a
+    derived result: Mott's ruled-line model carries no caliber parameter and
+    $k$ is a moment ratio, so the only scale $x_0$ divides out.
+
+Both are moments of the **same** population (Mott 1947's ruled line, the same
+one $\kappa_x$ comes from), which is what makes $c\,k$ an identity rather than
+a mixture; they may only be moved as a pair. Derivation, weighting population
+and the $c_{155} \in [1.037, 1.125]$ reconstruction band:
+`updates/breadth-variance-factor-k/derivation.md` §2–§3.
 
 ```{python}
-print("=== Aspect-ratio moment correction (arty.fragmentation) ===")
+print("=== Aspect-ratio moment corrections (arty.fragmentation) ===")
 print(f"  base A (count-weighted literature mean) = {_MOTT_ASPECT_RATIO}")
-print(f"  {'shell':<18}{'c':>9}{'A_eff = c·A':>14}")
+print(f"  k (breadth variance, caliber-independent) = {MOTT_BREADTH_VARIANCE_K}")
+print(f"  {'shell':<18}{'c':>9}{'A_eff = c·k·A':>16}")
 for key, c in MOTT_ASPECT_MOMENT_C.items():
     marker = "  ← this section" if key == "105mm M1 HE" else ""
-    print(f"  {key:<18}{c:>9.4f}{SHELLS[key].aspect_ratio:>14.3f}{marker}")
+    print(f"  {key:<18}{c:>9.4f}{SHELLS[key].aspect_ratio:>16.3f}{marker}")
 ```
 
 ### Steel-grade catalog

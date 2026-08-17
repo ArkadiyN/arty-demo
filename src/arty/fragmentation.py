@@ -159,44 +159,79 @@ _MOTT_ASPECT_RATIO = 1.6
 # challenges/source-data-audit/checks/mott-1947-gamma-and-length-closure.py.
 _MOTT_BREADTH_FACTOR = 1.5
 
-# c(shell) = <A x^2>/(<A><x^2>), the aspect-ratio MOMENT correction [-].
-# updates/mass-dependent-fragment-shape/derivation.md secs. 3.3b/3.4b/7.
+# k = <x^2>/<x>^2, the breadth-VARIANCE factor [-], caliber-independent.
+# updates/breadth-variance-factor-k/derivation.md secs. 2.4/5.1 (assumption
+# A9.1, now CLOSED — it was the assumption k = 1).
 # The closure's mean-mass step 2mu = rho t0 <A x^2> is evaluated in code as
-# rho t0 <A><x>^2; the exact error factorises as c * k with
-# k = <x^2>/<x>^2 (assumption A9.1, still uncorrected). c is what this table
-# ships: A -> c*A is the only change, since mu ~ A exactly and N0 ~ 1/(cA).
+# rho t0 <A><x>^2; the exact error factorises as <A x^2>/(<A><x>^2) = c * k.
+# This constant is the k half; MOTT_ASPECT_MOMENT_C below is the c half. They
+# ship as a PAIR and must be moved as a pair — both are moments of one and the
+# same population (derivation.md sec. 3.0, review finding B2), so replacing
+# either alone re-creates the mixed-population error the pair was made to fix.
 #
-# c is NOT a material constant. It is a moment of the JOINT (A, m) fragment
-# distribution, so its weights are the shell's own Mott spectrum
-# N(>=m) = N0 exp(-sqrt(m/mu)) — and mu = c*mu0 in turn, making c the fixed
-# point c = c(c*mu0), solved per shell. The physical input that transfers
-# across calibers is only the conditional aspect mix A|Group from Felix,
-# Colwill & Harris (2022) Table 3 (Grady's 155mm HE M101 photographs,
-# Abar = 1.33 in Group 0 rising to 3.00 in Group 4); the mass weights are
-# each shell's own. Hence c falls with caliber and passes through 1 near
-# 75mm, where ~90% of the population sits inside Group 0 and the AM-HM floor
-# 1/(<A><1/A>) = 0.835 takes over from the between-Group covariance.
+# The population is Mott's 1947 ruled line: a line of length l representing the
+# cylinder circumference, cut at points whose spacing gives the breadth
+# distribution. k is a moment RATIO, so the only scale x0 divides out and the
+# model carries no caliber parameter at all — the caliber-independence is a
+# derived result, not a simplification (derivation.md sec. 5.1). Reproduced by
+# Monte Carlo in updates/breadth-variance-factor-k/checks/mott-ruled-line-mc.py.
+# The value is taken at Mott's own l/x0 = 20 demonstration configuration, for
+# consistency with the shipped kappa_x = _MOTT_BREADTH_FACTOR = 1.5 which comes
+# from that same configuration; the converged l/x0 = 50-200 regime real shells
+# occupy gives (kappa_x, k) = (1.67, 1.20). That kappa_x discrepancy is an open
+# BLOCKING finding on assumption A9.3 (derivation.md sec. 5.3) — it is ~10x the
+# size of what this pair ships and is NOT closed by it.
+MOTT_BREADTH_VARIANCE_K = 1.1375
+
+# c(shell) = <A x^2>/(<A><x^2>), the aspect-ratio MOMENT correction [-].
+# updates/breadth-variance-factor-k/derivation.md secs. 3.0/5.1, which
+# re-solved the table first built in updates/mass-dependent-fragment-shape/
+# derivation.md secs. 3.3b/3.4b/7.
 #
-# Values are method B ("cond-m", E[m|Group] under the shell's own spectrum) —
-# the central method of derivation.md sec. 3.3b, the only one whose mass axis
-# and weights come from the same distribution. Method band (A/B/C spread,
-# sec. 3.4b) is +-0.6% to +-3.6%, inside the +-15% fidelity target on A.
-# Produced by, and reproduced exactly by, updates/mass-dependent-fragment-
-# shape/checks/per-shell-c-and-75mm-count-chain.py (column "B: cond-m").
+# c is NOT a material constant. It is a moment of the JOINT (A, x) fragment
+# distribution, so it depends on the population every <.> in it runs over.
+# WEIGHTING POPULATION: Mott 1947's ruled-line breadth marginal — the same
+# population MOTT_BREADTH_VARIANCE_K is a moment of. (It is NOT the shell's own
+# 1943-descended Mott mass spectrum: that was the previous table's weighting,
+# and pairing it with a 1947 k is not the c*k identity — derivation.md sec.
+# 3.0.) The physical input that still comes from Felix, Colwill & Harris (2022)
+# Table 3 (Grady's 155mm HE M101 photographs) is ONLY the conditional aspect
+# mix A|Group, Abar = 1.33 in Group 0 rising to 3.00 in Group 4 — the one input
+# shown to transfer across calibers. A Table-3 cell (group g, aspect bin A) is
+# read as a breadth interval via m = S*A*x^2, so cell moments are ruled-line
+# moments truncated to that interval; the mass scale S is fixed by the closure's
+# own mean-mass identity <m> = 2mu, and mu by the fixed point mu = c*k*mu0 —
+# note the k, which the previous fixed point mu = c*mu0 omitted.
+#
+# The old table's caliber trend (c falling 1.25 -> 0.92 and crossing 1 near
+# 75mm) is GONE and was an artefact: it was the AM-HM floor 1/(<A><1/A>) =
+# 0.835 taking over once ~90% of the spectrum weight sat inside Group 0, i.e.
+# the coarse 5-group mass axis collapsing. On the ruled-line population, cells
+# within one group are resolved by their differing breadth brackets, so c stays
+# >= 1 as a positive A-x^2 correlation requires (derivation.md sec. 3.0).
+#
+# Values are the "percell" closure (group weight P(A|g)*P_ruled(m in g | A)),
+# adopted because m = S*A*x^2 is a kinematic identity. Table 3's conditional
+# A|m and Mott's breadth marginal OVER-determine the joint, so the alternative
+# "marginal" closure (1.0372 / 0.9568 / 0.9449 / 0.9890) is the low end of the
+# method band; that band is wider than the +-0.6-3.6% the previous table
+# carried and it straddles the previous A_eff at 155mm (assumption K5).
+# Produced by, and reproduced by, updates/breadth-variance-factor-k/checks/
+# c-on-ruled-line-population.py.
 # NOTE: these are tied to each shell's mass/geometry entry through mu0. A
 # change to M_case, filler or wall thickness moves mu0 and hence c — re-run
 # that check script and update this table.
 MOTT_ASPECT_MOMENT_C: dict[str, float] = {
-    "155mm M107 HE": 1.2506,
-    "105mm M1 HE": 1.1024,
-    "75mm M48 HE": 0.9854,
-    "60mm M49A2 HE": 0.9200,
+    "155mm M107 HE": 1.1254,
+    "105mm M1 HE": 1.0608,
+    "75mm M48 HE": 1.0247,
+    "60mm M49A2 HE": 1.0026,
 }
 
 
 def mott_aspect_ratio(shell_name: str) -> float:
-    """Return the x^2-weighted effective fragment aspect ratio A_eff = c*A [-]."""
-    return _MOTT_ASPECT_RATIO * MOTT_ASPECT_MOMENT_C[shell_name]
+    """Return the x^2-weighted effective fragment aspect ratio A_eff = c*k*A [-]."""
+    return _MOTT_ASPECT_RATIO * MOTT_ASPECT_MOMENT_C[shell_name] * MOTT_BREADTH_VARIANCE_K
 
 
 @dataclass(frozen=True)
@@ -236,9 +271,10 @@ class ShellParams:
     # updates/mott-fragment-shape-closure/derivation.md for the derivation.
     # NOTE: the DEFAULT is the bare count-weighted A = 1.6. Every registry
     # entry in arty.shells overrides it with the x^2-weighted A_eff =
-    # c(shell)*1.6 (MOTT_ASPECT_MOMENT_C above); the bare default survives only
-    # for ad-hoc ShellParams() instances and for sensitivity sweeps.
-    aspect_ratio: float = _MOTT_ASPECT_RATIO      # A_eff = <A x^2>/<x^2>, fragment length:breadth [-]
+    # c(shell)*k*1.6 (MOTT_ASPECT_MOMENT_C * MOTT_BREADTH_VARIANCE_K above);
+    # the bare default survives only for ad-hoc ShellParams() instances and for
+    # sensitivity sweeps.
+    aspect_ratio: float = _MOTT_ASPECT_RATIO      # A_eff = <A x^2>/<x>^2, fragment length:breadth [-]
     breadth_factor: float = _MOTT_BREADTH_FACTOR  # kappa_x = x_bar/x0, breadth in fracture spacings [-]
 
 

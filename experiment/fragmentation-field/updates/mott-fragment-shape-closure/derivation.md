@@ -329,19 +329,50 @@ assumptions corrupt drag is thereby logged, not acted on.
 
 1. **A9.1 Product-of-means closure.** (G4) sets mean mass = `ρ·l̄·x̄·t₀`,
     i.e. `⟨l x t⟩ ≈ ⟨l⟩⟨x⟩⟨t⟩`. With `l ∝ x` at fixed aspect ratio the exact
-    mean is `ρAt₀⟨x²⟩`, and `⟨x²⟩ > ⟨x⟩²`. Under the exponential-breadth
-    distribution implied by Mott's own `N(m) ∝ e^{-√(m/μ)}` with `m ∝ x²`,
-    `⟨x²⟩/⟨x⟩² = 2` — but that exponential contradicts Mott's histogram (which
-    peaks near `x₀…2x₀`, not at 0), so the true factor is between 1 and 2. This
-    is a known internal inconsistency of the Mott framework, not of this
-    closure; it biases `μ` **low** by ≤2×, the same direction as the residual
-    in §7.3/§7.5. Not corrected — doing so would double-count with the deferred
-    break-up-velocity item.
+    mean is `ρAt₀⟨x²⟩`, and `⟨x²⟩ > ⟨x⟩²`. The exact error factorises as
+    `c·k` with `c = ⟨Ax²⟩/⟨A⟩⟨x²⟩` and `k = ⟨x²⟩/⟨x⟩²`
+    ([`../mass-dependent-fragment-shape/derivation.md`](../mass-dependent-fragment-shape/derivation.md)
+    eq. (2)).
+
+    **Both factors are now resolved; this assumption is closed.** `k` is
+    settled in
+    [`../breadth-variance-factor-k/derivation.md`](../breadth-variance-factor-k/derivation.md)
+    at **`k = 1.1375`**, caliber-independent, by reproducing Mott 1947's
+    ruled-line Monte Carlo and taking its second moment from the same
+    configuration that supplies `κ_x = 1.5`. **`c` was re-solved in the same
+    pass** (that derivation §3.0): eq. (2) is a *one-population* identity, and
+    the `c` shipped 2026-08-16 is a moment weighted by the 1943-descended mass
+    spectrum, so pairing it with a 1947 `k` is not the identity. On the
+    ruled-line population `c` becomes 1.1254 / 1.0608 / 1.0247 / 1.0026
+    (155 / 105 / 75 / 60 mm), and the fixed point closes as `μ = c·k·μ₀`.
+    Net `A_eff = 1.6·c·k`: **+2.4 % at 155 mm, +24 % at 60 mm** — the small
+    calibers are where this closure is worth anything, and the 155 mm B(r)
+    surface cannot see it at all. The competing `⟨x²⟩/⟨x⟩² = 2` is
+    **retired**: it is the exponential-breadth *assumption* Mott & Linfoot 1943
+    §3 imported from the comminution literature in order to derive
+    `N(m) ∝ e^{-√(m/μ)}`, not an independent result, and Mott's own 1947
+    release-wave calculation contradicts it (negligible density below `0.4x₀`,
+    because a crack is unlikely to nucleate inside a neighbour's release zone —
+    the release-zone half-width is `√(τ−τ_j)`, which vanishes at nucleation, so
+    the support is not strictly truncated).
+
+    **The rationale previously given here — "doing so would double-count with
+    the deferred break-up-velocity item" — was wrong and is struck.** `A`
+    enters only via `alpha = A·κx²·t_bu/x0` whereas the break-up-velocity item
+    C2 acts on `x0 ∝ 1/v_bu`; they are algebraically disjoint factors of the
+    same product, verified against the shipped formula in
+    [`../mass-dependent-fragment-shape/review.md`](../mass-dependent-fragment-shape/review.md).
 1. **A9.2 Aspect ratio is caliber- and material-independent.** `A = 1.6` is a
     cross-dataset average (steel, W-alloy; cylindrical and ogival casings).
     Sensitivity: `μ ∝ A`, so the 1.5–1.65 literature spread is ±5 % on `μ`.
 1. **A9.3 `κ_x = 1.5` is read off Mott's ruled-line Monte Carlo**, which is a
     1-D model of circumferential fracture, not a measurement of real fragments.
+    **Open blocking finding.** 1.5 is Mott's `l/x₀ = 20` *demonstration*
+    configuration; reproducing his procedure at the `l/x₀ = 50–200` regime real
+    shells occupy gives `⟨x⟩ ≈ 1.65x₀`, so `μ ∝ κ_x²` is low by ~21 % — roughly
+    ten times the size of the A9.1 correction above. Marker and figures:
+    [`../breadth-variance-factor-k/derivation.md`](../breadth-variance-factor-k/derivation.md)
+    §5.3.
 1. **A9.4 Uniform break-up state.** A single `t_bu`, `r_bu`, `V₀` is applied to
     the whole case; ogive and base regions expand less than the cylinder. Zone
     mass splitting is handled elsewhere (`zones.py`) and is unchanged.
