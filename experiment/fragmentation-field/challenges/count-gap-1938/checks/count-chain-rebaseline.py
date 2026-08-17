@@ -210,7 +210,12 @@ print("\n=== (G) C5 detection-floor bound, criterion-matched denominator ===")
 M_DET_G = 0.36  # Tolch smallest recorded perforating hole [g]
 V_DET = 838.2  # m/s, Tolch Summary item 10 sidespray velocity
 N_det = mott_N(np.array([M_DET_G * 1e-3]), N0, mu)[0]
-N_verdict = 1756.0  # sec.2 verdict row, plug-shear m_thr = 0.166 g
+# sec.2 verdict row, plug-shear m_thr = 0.166 g. Computed from the shipped
+# model, NOT hardcoded: it was frozen at 1756 (pre per-shell aspect moment c,
+# 5d742b4) and silently went stale, printing a C5 leverage 1 % below the
+# re-closed figure count-chain.md sec.3 C5 cites.
+M_VERDICT_G = 0.166
+N_verdict = mott_N(np.array([M_VERDICT_G * 1e-3]), N0, mu)[0]
 print(f"  verdict row N = {N_verdict:.0f} -> N/700 = {N_verdict/700:.2f}x")
 print(f"  floor {M_DET_G} g   N = {N_det:.0f} -> N/700 = {N_det/700:.2f}x   (MAX C5 credit)")
 print(f"  realised C5 leverage = {N_verdict/N_det:.3f}x  (sec.4 INDETERMINATE gate: < 1.5x)")

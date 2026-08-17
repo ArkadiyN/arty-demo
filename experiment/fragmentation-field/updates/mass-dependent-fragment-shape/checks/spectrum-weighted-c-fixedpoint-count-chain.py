@@ -6,7 +6,8 @@ import numpy as np
 import csv
 import pathlib
 from arty.shells import SHELLS
-from arty.fragmentation import gurney_velocity, mott_params
+from arty.fragmentation import _MOTT_ASPECT_RATIO, gurney_velocity, mott_params
+import dataclasses
 
 GR = 0.06479891e-3
 p = pathlib.Path("doc-reference/fragmentation/explosion-fragment-model/tables/table-3-grady-aspect-ratio-counts.csv")
@@ -39,6 +40,8 @@ def c_of(mu):
 
 
 for name,sh in SHELLS.items():
+    # pin back to the uncorrected A: the registry now ships aspect_ratio = c*1.6
+    sh = dataclasses.replace(sh, aspect_ratio=_MOTT_ASPECT_RATIO)
     mu0 = mott_params(sh,gurney_velocity(sh))[0]/GR
     c = 1.0
     hist = []

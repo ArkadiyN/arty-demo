@@ -393,9 +393,9 @@ matters qualitatively is 75 mm's, because it straddles `c = 1`.
     (which required the mass marginal to transfer too), but it is still
     unevidenced: no second casing type or caliber in the held literature
     resolves aspect ratio by mass. Wall-thickness-to-caliber ratio differs
-    across `SHELLS`, and `A | Group` plausibly does too.
-
-FINDING[deferrable]: the mass-resolved A|Group aspect mix behind the per-shell c comes from one test article (155mm HE M101, Grady Fig. 10) and is assumed caliber-independent when applied to the 105/75/60mm shells; no second casing type or caliber in the held literature resolves aspect ratio by fragment mass (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md, experiment/fragmentation-field/updates/mott-fragment-shape-closure/derivation.md; since: 2026-08-16)
+    across `SHELLS`, and `A | Group` plausibly does too. Published to readers of
+    the model as limitation 16 in `experiment/fragmentation-field/_limitations.qmd`
+    (2026-08-16); the finding marker is closed on that basis.
 - **A10 — RESOLVED 2026-08-16 by the per-shell fix.** The prior version noted
     that §5's B(r) cross-check (155mm) and §6's count chain (75mm M48) were not
     caliber-matched, so the /700 shortfall might be a caliber-transfer artifact
@@ -412,9 +412,10 @@ FINDING[deferrable]: the mass-resolved A|Group aspect mix behind the per-shell c
     lower-bound reading holds where the spectrum sits inside one Group and
     reverses where it straddles several. Unlike `k`'s bound this was never a
     mathematical certainty, and it is now known not to be uniform. The
-    residual uncertainty is carried as the §3.4b method band.
-
-FINDING[deferrable]: c is built from the same Group-discretized Table 3 data as k; the within-Group mass-aspect covariance is invisible to the between-Group calculation and the continuous-A(m) sensitivity (derivation 3.4b method C) shows the resulting bias is caliber-dependent in sign, not a uniform lower bound as originally stated (affects: experiment/fragmentation-field/updates/mass-dependent-fragment-shape/derivation.md; since: 2026-08-16)
+    residual uncertainty is carried as the §3.4b method band. Published to
+    readers of the model as limitation 17 in
+    `experiment/fragmentation-field/_limitations.qmd` (2026-08-16); the finding
+    marker is closed on that basis.
 
 ---
 
@@ -634,10 +635,22 @@ finding rather than an open doubt. Whether that reopens the thread is the
 human's call per `scoping.md` §6 Action C — this pass does not edit
 `count-chain.md`.
 
+**Shipped, 2026-08-16:** `src/arty/shells.py`'s `SHELLS` registry now carries
+`aspect_ratio = mott_aspect_ratio(shell)` (method B, `MOTT_ASPECT_MOMENT_C` in
+`src/arty/fragmentation.py`) for all four shells — the `A_eff` column above is
+live, not a recommendation. Confirmed against the registry by
+[`checks/shipped-aspect-moment-correction.py`](checks/shipped-aspect-moment-correction.py):
+shipped `c` and `A_eff` match this table to 5e-3/5e-5, `mu`/`N0` move exactly as
+`c` and `1/c` predict, and the `c = 1` (bare `A = 1.6`) limit reproduces the
+pre-update model exactly. The 75 mm count-chain and 155 mm `B(r)` numbers in
+items 3–4 above are unaffected — they were already computed against the
+shipped-registry values, not the pre-implementation table.
+
 **Follow-up passes (not this one):**
 
-- **`src/arty/` implementation** of the per-shell `A_eff` (2.00 / 1.76 / 1.58 /
-    1.47 for 155/105/75/60 mm), plus a `_limitations.qmd` entry covering A6
+- ~~**`src/arty/` implementation** of the per-shell `A_eff` (2.00 / 1.76 / 1.58 /
+    1.47 for 155/105/75/60 mm)~~ — done, see above. Still owed: a
+    `_limitations.qmd` entry covering A6
     (modal bins are analyst defaults, not measurements), A9 (the `A | Group`
     mix is from one 155 mm test article and is assumed caliber-independent),
     and A11 (the group-discretization bias is caliber-dependent in sign, not a

@@ -176,11 +176,17 @@ def test_default_shape_factors_preserve_zone_mott_output(m1_zones):
     # reproduce the explicitly-defaulted call bit-for-bit for every zone --
     # this is a self-consistency check on the defaults, not a regression
     # pin against a hardcoded number.
+    # aspect_ratio is shell-specific since MOTT_ASPECT_MOMENT_C (src/arty/
+    # fragmentation.py) landed -- pin the "explicit" call to the shell's own
+    # current default rather than a hardcoded 1.6, or this test degrades into
+    # a regression pin on the wrong thing (its own point, per the comment
+    # above, is the self-consistency, not the literal value).
     shell = SHELLS["105mm M1 HE"]
-    assert shell.aspect_ratio == 1.6
     assert shell.breadth_factor == 1.5
     explicit_zones = compute_shell_zones(
-        dataclasses.replace(shell, aspect_ratio=1.6, breadth_factor=1.5)
+        dataclasses.replace(
+            shell, aspect_ratio=shell.aspect_ratio, breadth_factor=1.5
+        )
     )
     assert m1_zones.ogive.mu == explicit_zones.ogive.mu
     assert m1_zones.cylinder.mu == explicit_zones.cylinder.mu
@@ -191,9 +197,13 @@ def test_higher_aspect_ratio_gives_larger_cylinder_mu(m1_zones):
     # mu ~ alpha^(+1) per-zone, same direction as the single-zone closure
     # (test_fragmentation.py::test_higher_aspect_ratio_gives_larger_mu). Raise
     # aspect_ratio alone, all other shell fields fixed, and check the
-    # cylinder zone's mu increases.
+    # cylinder zone's mu increases. Raise it relative to the shell's own
+    # current default (not a hardcoded literal) so the comparison stays
+    # "higher" regardless of what MOTT_ASPECT_MOMENT_C ships for this shell.
     shell = SHELLS["105mm M1 HE"]
-    hi_zones = compute_shell_zones(dataclasses.replace(shell, aspect_ratio=1.71))
+    hi_zones = compute_shell_zones(
+        dataclasses.replace(shell, aspect_ratio=shell.aspect_ratio * 1.1)
+    )
     assert hi_zones.cylinder.mu > m1_zones.cylinder.mu
 
 

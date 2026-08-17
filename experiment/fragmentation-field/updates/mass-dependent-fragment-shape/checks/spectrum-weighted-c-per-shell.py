@@ -9,7 +9,8 @@ import numpy as np
 import csv
 import pathlib
 from arty.shells import SHELLS
-from arty.fragmentation import gurney_velocity, mott_params
+from arty.fragmentation import _MOTT_ASPECT_RATIO, gurney_velocity, mott_params
+import dataclasses
 
 GR = 0.06479891e-3
 p = pathlib.Path("doc-reference/fragmentation/explosion-fragment-model/"
@@ -49,6 +50,8 @@ print(f"table-count weighting: <m>={np.average(M,weights=N):.2f} gr "
 
 print("\nMott-spectrum weighting (same within-Group aspect mix, Group weights from N(>=m)):")
 for name, sh in SHELLS.items():
+    # pin back to the uncorrected A: the registry now ships aspect_ratio = c*1.6
+    sh = dataclasses.replace(sh, aspect_ratio=_MOTT_ASPECT_RATIO)
     mu = mott_params(sh, gurney_velocity(sh))[0]/GR
     gw = {}
     for g,(lo,hi) in edges.items():

@@ -159,6 +159,45 @@ _MOTT_ASPECT_RATIO = 1.6
 # challenges/source-data-audit/checks/mott-1947-gamma-and-length-closure.py.
 _MOTT_BREADTH_FACTOR = 1.5
 
+# c(shell) = <A x^2>/(<A><x^2>), the aspect-ratio MOMENT correction [-].
+# updates/mass-dependent-fragment-shape/derivation.md secs. 3.3b/3.4b/7.
+# The closure's mean-mass step 2mu = rho t0 <A x^2> is evaluated in code as
+# rho t0 <A><x>^2; the exact error factorises as c * k with
+# k = <x^2>/<x>^2 (assumption A9.1, still uncorrected). c is what this table
+# ships: A -> c*A is the only change, since mu ~ A exactly and N0 ~ 1/(cA).
+#
+# c is NOT a material constant. It is a moment of the JOINT (A, m) fragment
+# distribution, so its weights are the shell's own Mott spectrum
+# N(>=m) = N0 exp(-sqrt(m/mu)) — and mu = c*mu0 in turn, making c the fixed
+# point c = c(c*mu0), solved per shell. The physical input that transfers
+# across calibers is only the conditional aspect mix A|Group from Felix,
+# Colwill & Harris (2022) Table 3 (Grady's 155mm HE M101 photographs,
+# Abar = 1.33 in Group 0 rising to 3.00 in Group 4); the mass weights are
+# each shell's own. Hence c falls with caliber and passes through 1 near
+# 75mm, where ~90% of the population sits inside Group 0 and the AM-HM floor
+# 1/(<A><1/A>) = 0.835 takes over from the between-Group covariance.
+#
+# Values are method B ("cond-m", E[m|Group] under the shell's own spectrum) —
+# the central method of derivation.md sec. 3.3b, the only one whose mass axis
+# and weights come from the same distribution. Method band (A/B/C spread,
+# sec. 3.4b) is +-0.6% to +-3.6%, inside the +-15% fidelity target on A.
+# Produced by, and reproduced exactly by, updates/mass-dependent-fragment-
+# shape/checks/per-shell-c-and-75mm-count-chain.py (column "B: cond-m").
+# NOTE: these are tied to each shell's mass/geometry entry through mu0. A
+# change to M_case, filler or wall thickness moves mu0 and hence c — re-run
+# that check script and update this table.
+MOTT_ASPECT_MOMENT_C: dict[str, float] = {
+    "155mm M107 HE": 1.2506,
+    "105mm M1 HE": 1.1024,
+    "75mm M48 HE": 0.9854,
+    "60mm M49A2 HE": 0.9200,
+}
+
+
+def mott_aspect_ratio(shell_name: str) -> float:
+    """Return the x^2-weighted effective fragment aspect ratio A_eff = c*A [-]."""
+    return _MOTT_ASPECT_RATIO * MOTT_ASPECT_MOMENT_C[shell_name]
+
 
 @dataclass(frozen=True)
 class ShellParams:
@@ -195,7 +234,11 @@ class ShellParams:
     # Defaults are the reviewed literature point estimates; see the constants
     # _MOTT_ASPECT_RATIO / _MOTT_BREADTH_FACTOR below for sourcing and
     # updates/mott-fragment-shape-closure/derivation.md for the derivation.
-    aspect_ratio: float = _MOTT_ASPECT_RATIO      # A = l_bar/x_bar, fragment length:breadth [-]
+    # NOTE: the DEFAULT is the bare count-weighted A = 1.6. Every registry
+    # entry in arty.shells overrides it with the x^2-weighted A_eff =
+    # c(shell)*1.6 (MOTT_ASPECT_MOMENT_C above); the bare default survives only
+    # for ad-hoc ShellParams() instances and for sensitivity sweeps.
+    aspect_ratio: float = _MOTT_ASPECT_RATIO      # A_eff = <A x^2>/<x^2>, fragment length:breadth [-]
     breadth_factor: float = _MOTT_BREADTH_FACTOR  # kappa_x = x_bar/x0, breadth in fracture spacings [-]
 
 

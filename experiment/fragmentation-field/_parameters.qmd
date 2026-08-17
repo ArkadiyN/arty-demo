@@ -12,6 +12,7 @@ import numpy as np
 
 from arty.fragmentation import (
     ShellParams, DragParams, TargetParams, STEELS,
+    MOTT_ASPECT_MOMENT_C, _MOTT_ASPECT_RATIO,
     gurney_velocity, mott_params, mott_N, retardation_coeff,
     ke_at_range, min_lethal_mass, pk_given_hit, expected_kills, p_kill,
     _shell_geometry, _PK_E, _PK_VAL,
@@ -23,7 +24,10 @@ from arty.shells import SHELLS
 # struct can never silently drift from it (arty.shells.SHELLS). wall_t is the
 # one deliberate override: this single-cylinder model uses the historical
 # TM 9-1901 cylindrical wall (11 mm), not the drawing-derived registry
-# geometry the four-zone section further down uses.
+# geometry the four-zone section further down uses. aspect_ratio is likewise
+# taken from the registry, so this shell carries the same per-shell effective
+# aspect A_eff = c·A as the four-zone 105 mm entry (v0.13.0) rather than the
+# bare dataclass default.
 _registry_105 = SHELLS["105mm M1 HE"]
 shell = ShellParams(
     caliber=_registry_105.caliber, wall_t=0.011,
@@ -31,6 +35,7 @@ shell = ShellParams(
     mass_filler=_registry_105.mass_filler,
     mass_deductions=_registry_105.mass_deductions,
     filler=_registry_105.filler, steel=_registry_105.steel,
+    aspect_ratio=_registry_105.aspect_ratio,
 )
 drag   = DragParams()      # C_D=1.28, C_shape=(rho_steel/k)^(2/3), rho_air=1.225
 target = TargetParams()    # presented width w = 0.5 m
@@ -69,8 +74,28 @@ print(f"  Filler (TNT)     : {mass_filler:.2f} kg")
 print(f"  Shell body (M)   : {mass_shell:.2f} kg")
 print(f"  M/C ratio        : {mass_shell/mass_filler:.2f}")
 print(f"\n=== Mott fragment-shape closure ===")
-print(f"  Aspect ratio  A  : {aspect_ratio:.2f}   (l_bar/x_bar, fragment length:breadth)")
-print(f"  Breadth factor κx: {breadth_factor:.2f}   (x_bar/x0, breadth in fracture spacings)")
+print(f"  Aspect ratio A_eff: {aspect_ratio:.3f}   (l_bar/x_bar, fragment length:breadth)")
+print(f"  Breadth factor κx : {breadth_factor:.2f}   (x_bar/x0, breadth in fracture spacings)")
+```
+
+### Effective aspect ratio $A_{\text{eff}} = c\,A$ (v 0.13.0)
+
+The closure needs an $x^2$-weighted mean aspect ratio, not the count-weighted
+literature mean $A$. `arty.fragmentation.MOTT_ASPECT_MOMENT_C` carries the
+moment correction $c = \langle A x^2\rangle/(\langle A\rangle\langle x^2\rangle)$
+that converts one into the other, and `mott_aspect_ratio(shell)` returns the
+product each registry entry ships in its `aspect_ratio` field. $c$ is a moment
+of the shell's own fragment spectrum rather than a material constant, so it is
+**per shell** and falls with caliber — derivation, weighting scheme and method
+band: `updates/mass-dependent-fragment-shape/derivation.md` §3.3b/§7.
+
+```{python}
+print("=== Aspect-ratio moment correction (arty.fragmentation) ===")
+print(f"  base A (count-weighted literature mean) = {_MOTT_ASPECT_RATIO}")
+print(f"  {'shell':<18}{'c':>9}{'A_eff = c·A':>14}")
+for key, c in MOTT_ASPECT_MOMENT_C.items():
+    marker = "  ← this section" if key == "105mm M1 HE" else ""
+    print(f"  {key:<18}{c:>9.4f}{SHELLS[key].aspect_ratio:>14.3f}{marker}")
 ```
 
 ### Steel-grade catalog

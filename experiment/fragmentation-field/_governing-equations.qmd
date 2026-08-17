@@ -115,13 +115,16 @@ $$
 
 The fragment is idealised as a parallelepiped $\bar l \times \bar x \times
 t_{\text{bu}}$ (Gold 2017, eq. 4) — a **plate**, not a cube — with mean
-circumferential breadth $\bar x = \kappa_x x_0$, mean axial length $\bar l = A
-\bar x$, and thickness equal to the wall *at break-up*:
+circumferential breadth $\bar x = \kappa_x x_0$, mean axial length $\bar l =
+A_{\text{eff}}\bar x$, and thickness equal to the wall *at break-up*:
 
 $$
-\alpha = \frac{\bar l\,t_{\text{bu}}}{x_0^{2}} = A\,\kappa_x^{2}\,\frac{t_{\text{bu}}}{x_0},
+\alpha = \frac{\bar l\,t_{\text{bu}}}{x_0^{2}} = A_{\text{eff}}\,\kappa_x^{2}\,\frac{t_{\text{bu}}}{x_0},
 \qquad \gamma = \alpha^{-2/3}\gamma' \quad (4b)
 $$
+
+where $A_{\text{eff}} = c\,A$ is the $x^2$-weighted effective aspect ratio of
+eq. (4d) below, **not** the bare literature mean $A$.
 
 $t_{\text{bu}}$ is fixed exactly by the same incompressible-wall bookkeeping as
 eq. (2b), which yields the identity $t_{\text{bu}}\,r_{\text{bu}} = t\,
@@ -133,8 +136,18 @@ breadth would invent ~63 % extra case mass.
 Substituting (4a)–(4b) into (4) collapses to a compact equivalent form:
 
 $$
-\mu = A\,\kappa_x^{2}\,\frac{\sigma_F\,t_{\text{bu}}}{\gamma'}
+\mu = A_{\text{eff}}\,\kappa_x^{2}\,\frac{\sigma_F\,t_{\text{bu}}}{\gamma'}
 \left(\frac{r_{\text{bu}}}{v_{\text{bu}}}\right)^{2} \quad (4c)
+$$
+
+The mean-mass step behind (4c) is $2\mu = \rho\,t_0\langle A x^{2}\rangle$, so
+the aspect ratio it requires is the $x^{2}$-weighted mean, whereas the
+literature value $A$ is **count**-weighted. The ratio of the two is a
+dimensionless moment correction $c$, applied to $A$ and to nothing else:
+
+$$
+A_{\text{eff}} = c\,A, \qquad
+c = \frac{\langle A x^{2}\rangle}{\langle A\rangle\,\langle x^{2}\rangle} \quad (4d)
 $$
 
 so the closure changes the model's *scaling*, not just its magnitude: $\rho$
@@ -148,9 +161,10 @@ from fragment-size data alone (limitation L1). Note also that while $N_0 =
 M_{\text{shell}}/2\mu \propto f^{2}$ exactly, the *thresholded* count $N(>m)$
 does **not**: the rising $\mu$ raises the survival factor in eq. (3) and eats
 back part of the change, so thresholded counts must be recomputed, never
-rescaled. Setting $A =
+rescaled. Setting $A_{\text{eff}} =
 \kappa_x = 1$ and $t_{\text{bu}} \to x_0$ gives $\alpha = 1$, $\gamma = \gamma'$
-and recovers the cube idealisation used before v0.8.0.
+and recovers the cube idealisation used before v0.8.0; setting $c = 1$ recovers
+the single shared $A = 1.6$ used before v0.13.0.
 
 | Symbol            | Description                                    | Unit  | Value (105 mm M1) |
 | ----------------- | ---------------------------------------------- | ----- | ----------------- |
@@ -158,7 +172,9 @@ and recovers the cube idealisation used before v0.8.0.
 | $\sigma_F$       | Dynamic flow stress at fracture                | Pa    | 800 × 10⁶         |
 | $\gamma'$        | Mott statistical fragmentation parameter (material, per grade) | — | 54.5 |
 | $\gamma$          | Shape-absorbed constant $\alpha^{-2/3}\gamma'$ fed to eq. (4) | — | computed |
-| $A$               | Fragment length-to-breadth ratio $\bar l/\bar x$ | —   | 1.6               |
+| $A$               | Fragment length-to-breadth ratio $\bar l/\bar x$, count-weighted literature mean | — | 1.6 |
+| $c$               | Aspect-ratio moment correction, eq. (4d) — **per shell** | — | 1.1024 |
+| $A_{\text{eff}}$ | Effective ($x^2$-weighted) aspect ratio $c\,A$, eq. (4d) | — | 1.764 |
 | $\kappa_x$       | Mean breadth in fracture spacings $\bar x/x_0$ | —     | 1.5               |
 | $\alpha$          | Fragment shape factor, eq. (4b)                | —     | computed          |
 | $x_0$            | Mott fracture spacing at break-up              | m     | computed          |
@@ -174,6 +190,24 @@ measures the mean. $A = 1.6$ is the cross-dataset mean width:length $1{:}1.6$
 of Felix et al. (2022, §2.5), corroborated by Wilson ($1{:}1.65$) and Grady
 ($1{:}1.5$) — the same aspect-ratio result cited under $C_{\text{shape}}$ in §4.
 Full argument and checks: `updates/mott-fragment-shape-closure/derivation.md`.
+
+**Sourcing of $c$ (v 0.13.0).** $c$ is a moment of the *joint* $(A, m)$
+fragment distribution, not a material constant, so it cannot be shared across
+shells: the conditional aspect mix $A\,|\,$Group that transfers between
+calibers is Felix et al. (2022) Table 3 (Grady's 155 mm HE M101 photographs),
+but the weights are each shell's own Mott spectrum $N(\ge m) = N_0 e^{-\sqrt{m/\mu}}$
+— and since $\mu = c\,\mu_0$, $c$ is solved per shell as the fixed point
+$c = c(c\,\mu_0)$. It therefore falls with caliber and passes through 1 near
+75 mm, where most of the population sits in one aspect Group and the AM–HM
+floor $1/(\langle A\rangle\langle 1/A\rangle)$ takes over from the
+between-Group covariance. The shipped values are
+`arty.fragmentation.MOTT_ASPECT_MOMENT_C`, printed per shell in §Parameters;
+each registry entry carries the product as its `aspect_ratio` field, so
+$A \to A_{\text{eff}}$ is the only code change ($\mu \propto A$ exactly,
+$N_0 \propto 1/(cA)$). Method band $\pm 0.6$–$3.6\%$ against a $\pm 15\%$
+fidelity target; the two open assumptions behind it are limitations 16 and 17.
+Derivation and checks: `updates/mass-dependent-fragment-shape/derivation.md`
+§3.3b/§7.
 
 **Note on $\gamma'$ and $\sigma_F$:** These are the dominant uncertainties.
 Mott (1947 §3) *prints* γ = 53 for 0.25%C steel and γ = 67 for 0.45%C steel

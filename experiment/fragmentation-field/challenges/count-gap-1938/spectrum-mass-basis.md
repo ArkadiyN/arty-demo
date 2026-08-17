@@ -6,6 +6,32 @@ sub-candidate C4. Script:
 the block-(E) fix lands in
 [`checks/count-chain-rebaseline.py`](checks/count-chain-rebaseline.py).*
 
+> **Re-closure banner — 2026-08-16 (per-shell aspect-ratio moment $c$).**
+> `mass-dependent-fragment-shape` shipped a per-shell aspect-ratio moment
+> correction into `arty.shells.SHELLS` (`5d742b4`;
+> `src/arty/fragmentation.py` `MOTT_ASPECT_MOMENT_C` / `mott_aspect_ratio`,
+> derivation §7). For the 75 mm M48, $c_{75}$ = 0.9854 takes
+> $A_\text{eff}$ 1.600 → 1.577, hence $\mu$ 0.929 → 0.915 g and
+> $N_0$ 2681 → 2720 — about +1.3 % on every model count. Both check scripts
+> behind this document have been re-run against shipped `SHELLS` and every
+> model-side figure below restated. Legacy → shipped:
+>
+> | quantity                                      | legacy (pre-$c$) | shipped (2026-08-16) |
+> | --------------------------------------------- | ---------------- | -------------------- |
+> | $\mu$ / $N_0$                                 | 0.929 g / 2681   | **0.915 g / 2720**   |
+> | fuze-excluded band at $f=1$ (screens 2…thru4) | 1.81–1.93×       | **1.83–1.96×**       |
+> | fuze-excluded band on Tolch's own 10.94 lb    | 1.87–1.97×       | **1.89–2.00×**       |
+> | fuze-inclusive consistent band (13.29 lb)     | 1.58–1.99×       | **1.61–2.02×**       |
+> | screen-2 anchor across $f\in[0.85,1.0]$       | 1.89–2.10×       | **1.91–2.13×**       |
+>
+> **Nothing about the verdict moves.** The quoted fuze-consistent family band
+> stays **1.8–2.1×** (it now spans 1.83–2.13×, so the rounded band is
+> unchanged and remains what [`count-chain.md`](count-chain.md) §3 states),
+> the mass-closure bound $f\ge0.846$ is census arithmetic and does not move at
+> all, and the basis choice is still worth **≈0.2×** inside the correct
+> family. The re-closed fuze-inclusive band 1.61–2.02× is exactly the
+> threshold-free figure `count-chain.md` already cites.
+
 ## 0. Verdict in one line
 
 **The criterion-correct denominator is Tolch's 10.94 lb = 4962 g *empty
@@ -82,7 +108,7 @@ Two internally consistent pairings exist, and only one is criterion-matched:
 The fuze-inclusive row is not merely inelegant: the Mott distribution is a
 statement about a *casing* breaking up under internal loading. A machined fuze
 body is not a Mott-fragmenting cylinder wall, and its 6 recovered pieces at
-154 g mean are ~166× the model's $\mu$ = 0.929 g — visibly a different
+154 g mean are ~169× the model's $\mu$ = 0.915 g — visibly a different
 population, not a tail of the same one.
 
 ## 3. The corrected numbers
@@ -92,19 +118,22 @@ Fuze-excluded, denominator $M_\text{case}$ = 4980 g
 
 | through screen | cum n | cum w [g] | $\varphi$ | $N_\text{model}$ | ratio     |
 | -------------- | ----- | --------- | --------- | ---------------- | --------- |
-| 2              | 272   | 3832.4    | 0.7696    | 513              | **1.89×** |
-| 3              | 527   | 4609.4    | 0.9256    | 1019             | **1.93×** |
-| 4              | 669   | 4774.5    | 0.9587    | 1259             | **1.88×** |
-| thru 4         | 773   | 4837.6    | 0.9714    | 1396             | **1.81×** |
+| 2              | 272   | 3832.4    | 0.7696    | 521              | **1.91×** |
+| 3              | 527   | 4609.4    | 0.9256    | 1034             | **1.96×** |
+| 4              | 669   | 4774.5    | 0.9587    | 1278             | **1.91×** |
+| thru 4         | 773   | 4837.6    | 0.9714    | 1417             | **1.83×** |
 
-**Band: 1.81–1.93×** at $f=1$ (screen 1 taken as entirely fuze). Using Tolch's
-own 10.94 lb = 4962 g instead of the model's 4980 g gives 1.87–1.97× — a
+*(Census columns are Tolch's and do not move; $N_\text{model}$ was
+513 / 1019 / 1259 / 1396 pre-$c$, i.e. ratios 1.89 / 1.93 / 1.88 / 1.81×.)*
+
+**Band: 1.83–1.96×** at $f=1$ (screen 1 taken as entirely fuze). Using Tolch's
+own 10.94 lb = 4962 g instead of the model's 4980 g gives 1.89–2.00× — a
 0.4 % denominator change moving the answer by ≈0.06×, so *which* of the two
 case-metal figures is used is immaterial. What is not immaterial is $f$; see
 the sensitivity below.
 
 For contrast, the fuze-*inclusive* consistent pairing (13.29 lb) gives
-1.58–1.99× over the same four rows — overlapping, and lower at the finest cut
+1.61–2.02× over the same four rows — overlapping, and lower at the finest cut
 only because the 926.7 g of fuze inflates $\varphi$ toward 1 faster than it
 inflates the count. Either way the answer is **~1.6–2.0×, never below 1.5×**.
 
@@ -122,22 +151,29 @@ therefore agree: screen 1 is 85–100 % fuze.
 
 | $f$   | fuze [g] | case added back [g] | $\varphi$(thru4) | scr 2 | scr 3 | scr 4 | thru4                            |
 | ----- | -------- | ------------------- | ---------------- | ----- | ----- | ----- | -------------------------------- |
-| 0.70  | 648.7    | 278.0               | 1.0272           | 2.34× | 2.92× | 4.00× | 3.46× *(excluded — $\varphi>1$)* |
-| 0.846 | 784.3    | 142.4               | 1.0000           | 2.10× | 2.31× | 2.49× | — *(degenerate)*                 |
-| 0.90  | 834.0    | 92.7                | 0.9900           | 2.02× | 2.16× | 2.21× | 2.24×                            |
-| 0.95  | 880.4    | 46.3                | 0.9807           | 1.95× | 2.04× | 2.03× | 1.98×                            |
-| 1.00  | 926.7    | 0.0                 | 0.9714           | 1.89× | 1.93× | 1.88× | 1.81×                            |
+| 0.70  | 648.7    | 278.0               | 1.0272           | 2.37× | 2.96× | 4.06× | 3.51× *(excluded — $\varphi>1$)* |
+| 0.846 | 784.3    | 142.4               | 1.0000           | 2.13× | 2.34× | 2.52× | — *(degenerate)*                 |
+| 0.90  | 834.0    | 92.7                | 0.9900           | 2.05× | 2.19× | 2.24× | 2.27×                            |
+| 0.95  | 880.4    | 46.3                | 0.9807           | 1.98× | 2.07× | 2.06× | 2.01×                            |
+| 1.00  | 926.7    | 0.0                 | 0.9714           | 1.91× | 1.96× | 1.91× | 1.83×                            |
+
+*(Re-run 2026-08-16. The $f$, fuze-mass, case-added-back and $\varphi$ columns
+are pure census arithmetic and are unchanged; only the four ratio columns moved,
+by the uniform ~+1.3 % the shipped $c$ puts on $N_0$. Pre-$c$ ratio rows were
+2.34/2.92/4.00/3.46, 2.10/2.31/2.49/—, 2.02/2.16/2.21/2.24,
+1.95/2.04/2.03/1.98 and 1.89/1.93/1.88/1.81.)*
 
 **Conditioning caveat (new, and it matters for how these rows are quoted).**
 The finest cut sits at $\varphi\to1$, where $\mathrm{d}x/\mathrm{d}\varphi$
-diverges — a 3 % change in recovered mass swings its ratio from 1.81× to 3.46×.
+diverges — a 3 % change in recovered mass swings its ratio from 1.83× to 3.51×.
 That row is ill-conditioned and must not be quoted as a point estimate. The
 **screen-2 cut ($\varphi\approx0.77$) is the well-conditioned anchor**: across
 the whole closure-admissible range $f\in[0.85,1.0]$ it moves only
-**1.89×–2.10×**.
+**1.91×–2.13×**.
 
-So the honest fuze-consistent statement is **1.8–2.1×**, anchored on the
-screen-2 cut, with the finest-cut rows quoted as a range and not a value.
+So the honest fuze-consistent statement is **1.8–2.1×** — screen-2 anchor
+1.91–2.13×, whole family (all four cuts, $f=1$) 1.83–1.96× — with the
+finest-cut rows quoted as a range and not a value.
 
 ## 4. Disposition of the two open findings
 
@@ -184,9 +220,9 @@ C4 was the last open sub-candidate. Composing with §4's standing residuals:
 | reading                                     | residual      | in band (≤1.5×)? |
 | ------------------------------------------- | ------------- | ---------------- |
 | threshold-free, fuze-consistent (this pass) | 1.8–2.1×      | **no**           |
-| threshold-free, fuze-inclusive consistent   | 1.58–1.99×    | **no**           |
-| plug-shear cut 0.166 g vs 779 / 700         | 2.25× / 2.51× | **no**           |
-| 0.63 g (finest census cut) vs 779 / 700     | 1.51× / 1.68× | **no**           |
+| threshold-free, fuze-inclusive consistent   | 1.61–2.02×    | **no**           |
+| plug-shear cut 0.166 g vs 779 / 700         | 2.28× / 2.54× | **no**           |
+| 0.63 g (finest census cut) vs 779 / 700     | 1.52× / 1.70× | **no**           |
 
 Every admissible pairing sits above the band. **C4 discharged: it is a
 criterion choice worth ≈0.2× inside the correct family, not a 4–6× driver and

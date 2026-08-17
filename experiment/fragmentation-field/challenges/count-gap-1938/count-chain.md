@@ -1,11 +1,16 @@
 # The count chain vs. Tolch's absolute perforating count — scoping
 
 **Status: C1 and C2 both discharged and shipped; re-closed against shipped code
-2026-08-10 (post `breakup_velocity_fraction`). Verdict: count arm FAILS at
-2.25× (band 2.09–2.41×) — outside the within-2× PASS band, but by far less than
+2026-08-16 (post `breakup_velocity_fraction`, and post the per-shell
+aspect-ratio moment $c$ that `mass-dependent-fragment-shape` shipped into
+`arty.shells.SHELLS` — $c_{75}$ = 0.9854, $A_\text{eff}$ 1.600 → 1.577, which
+moves $\mu$ 0.929 → 0.915 g and $N_0$ 2681 → 2720; every count on this page has
+been re-run against it and the direction of the verdict is unchanged).
+Verdict: count arm FAILS at
+2.28× (band 2.11–2.44×) — outside the within-2× PASS band, but by far less than
 the 4–6× L1 originally reported. C5, C3, and C4 have since been investigated
 (2026-08-10, 2026-08-15, 2026-08-15) and are all now discharged — C5 without
-credit, C3 real but diagnostic-only at 1.324× (see banner below §3's C3 entry
+credit, C3 real but diagnostic-only at 1.328× (see banner below §3's C3 entry
 and [`mott-tail-shape.md`](mott-tail-shape.md)), C4 a criterion-match choice
 worth ≈0.2× (see [`spectrum-mass-basis.md`](spectrum-mass-basis.md)); none
 reopens `src/arty/`, and **no sub-candidate remains.**** Both sub-candidates
@@ -19,14 +24,14 @@ investigation is complete.
     `arty.perforation.perforation_threshold_energy`
     ([`../../updates/sourced-wood-perforation-threshold/`](../../updates/sourced-wood-perforation-threshold/derivation.md)).
     Nothing in it is fitted to Tolch. It moved the count arm the *wrong* way —
-    1.73× → 2.47× on /779 — because a mass-independent scalar threshold
+    1.73× → 2.50× on /779 — because a mass-independent scalar threshold
     over-charges the light end of the spectrum.
 - **C2** — Mott's $V$ is the case velocity *at the instant of fracture*, not the
     terminal Gurney velocity; `mott_params` now evaluates the $x_0$/$\mu$ chain at
     $v_{bu} = fV_0$, $f$ = 0.943 (band 0.899–0.953), from
     `arty.fragmentation.breakup_velocity_fraction`
     ([`../../updates/breakup-velocity-fraction/`](../../updates/breakup-velocity-fraction/derivation.md)).
-    It moves the arm the right way — 2.47× → **2.25×** — but does not clear the
+    It moves the arm the right way — 2.50× → **2.28×** — but does not clear the
     band at any admissible $f$, and per its §6 it may **not** be cited as a
     validation win ($f$ is degenerate with $\gamma'$ inside Mott's tabulated
     42–67 span).
@@ -35,26 +40,27 @@ investigation is complete.
 geometric input can carry the multiplier. §2's original inference that the
 residual is confined to the threshold ("not the population") did **not** survive
 and is now decisively refuted: with the threshold sourced and the velocity basis
-corrected, the surviving 2.25× is *predominantly a spectrum/census term* — the
-threshold-free test lands at 1.59–1.99× on the Tolch-metal basis, i.e. it
-accounts for most of the 2.25× on its own. See the restated Fact 2 below and
+corrected, the surviving 2.28× is *predominantly a spectrum/census term* — the
+threshold-free test lands at 1.61–2.02× on the Tolch-metal basis, i.e. it
+accounts for most of the 2.28× on its own. See the restated Fact 2 below and
 [`rebaseline-verdict.md`](rebaseline-verdict.md) for the full re-baseline (all
 pit-count-denominated numbers here move from a published 803 to the corrected
-779). **The overall residual has fallen 4–6× → 2.09–2.41×** through four
+779). **The overall residual has fallen 4–6× → 2.11–2.44×** through five
 shipped changes: 6c1faff's $\gamma'$ 65→54.5 re-anchor and ogive/cylinder $V_0$
-fix, `50b734e`'s sourced case mass, C1's threshold and C2's break-up velocity.
+fix, `50b734e`'s sourced case mass, C1's threshold, C2's break-up velocity, and `5d742b4`'s per-shell
+aspect-ratio moment.
 **C5 has since been investigated and discharged (§3): it was the only
 candidate that could have absorbed the residual as a comparison-basis
-artefact rather than a model defect, and it does not — bounded at ≤1.221× on
+artefact rather than a model defect, and it does not — bounded at ≤1.222× on
 its most generous reading, and at ~0 on the correct reading of Tolch's census
 (perforation/penetration/dent grading, not a detection floor).** That also
 discharges §4's INDETERMINATE clause, which fired only if C5's cutoff could
 not be bounded below ~1.5×: it is bounded well inside that, so the verdict is
-a plain, genuine **FAIL at 2.25× (/779) and 2.51× (/700)** — not "FAIL
+a plain, genuine **FAIL at 2.28× (/779) and 2.54× (/700)** — not "FAIL
 trending INDETERMINATE" as earlier drafts of this banner had it.
 **C3 has since been investigated and discharged (2026-08-15, §3):
-diagnostic-only credit of 1.324× — real, applied to the residual it restates
-2.25× → 1.70× (/779), but every *sourced* alternative spectrum shape moves the
+diagnostic-only credit of 1.328× — real, applied to the residual it restates
+2.28× → 1.72× (/779), but every *sourced* alternative spectrum shape moves the
 residual the wrong way, so nothing ships and the count arm may not be
 re-declared PASS on it.** See
 [`mott-tail-shape.md`](mott-tail-shape.md) for the full study.
@@ -65,7 +71,13 @@ worth ≈0.2×, not a driver.** See
 [`spectrum-mass-basis.md`](spectrum-mass-basis.md) for the full study. **No
 sub-candidate remains** — C3, C5 and C4 have all dropped off the ranking,
 discharged without credit that can ship. Nothing further in `src/arty/` is
-scoped by this thread.
+scoped by this thread. **One out-of-band avenue outside this ranking was tried
+and then shipped (2026-08-16) as a correctness fix rather than as a
+residual-reducer: the per-shell aspect-ratio moment $c$ restates the 75 mm chain
+2.51×/2.25× → 2.54×/2.28×, i.e. marginally *away* from PASS. It is now the
+baseline every number on this page is closed against.**
+See §3's closing entry below and
+[`../../updates/mass-dependent-fragment-shape/`](../../updates/mass-dependent-fragment-shape/derivation.md).
 
 FINDING\[deferrable\]: headline 1.221x/2.05x C5 figures rest on the inadmissible 0.36g/838m/s datum (iv) though the sound census-grading argument (i) alone suffices; three status surfaces lead with the numeric figures instead of (i) (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/README.md; since: 2026-08-10)
 
@@ -144,22 +156,27 @@ ______________________________________________________________________
 75 mm M48 HE, DoD anchor $C_D C_\text{shape} = 2.674$, 15 ft panel station.
 Script: [`checks/count-chain-decomposition.py`](checks/count-chain-decomposition.py).
 
-Current shipped model, **re-closed 2026-08-10 against `src/arty/fragmentation.py`
-with C2's $f$ = 0.943 active** (and after 6c1faff, which re-anchored
+Current shipped model, **re-closed 2026-08-16 against `src/arty/fragmentation.py`
+with C2's $f$ = 0.943 and the per-shell $c_{75}$ = 0.9854 both active** (and after 6c1faff, which re-anchored
 $\gamma' = 54.5$ and fixed the ogive/cylinder $V_0$ contradiction, and
 `50b734e`, which sourced the 75 mm M48 `mass_deductions`): $V_0 = 864.4$ m/s
 (terminal, unchanged), $v_{bu} = 815.1$ m/s, $M_\text{case} = 4980$ g,
-$\mu = 0.929$ g, $2\mu = 1.86$ g, $N_0 = 2681$. *The pre-C2 values were
+$\mu = 0.915$ g, $2\mu = 1.83$ g, $N_0 = 2720$. *The pre-C2 values were
 $\mu = 0.826$ g, $2\mu = 1.65$ g, $N_0 = 3016$; every count in this section has
-been re-run and moved down accordingly.*
+been re-run and moved down accordingly. The 2026-08-16 per-shell $c$ then moved
+$\mu$ 0.929 → 0.915 g and $N_0$ 2681 → 2720 — a +1.5 % shift in $N_0$ that
+propagates to every count below at roughly +1.3 %, since the smaller $\mu$ eats
+part of it through the survival factor
+([`checks/count-chain-aspect-moment-reclosure.py`](checks/count-chain-aspect-moment-reclosure.py)
+prints the legacy and shipped columns side by side).*
 
 | $E_{thr}$ [J] | source of the value                                                                                                                                                                 | $m_{thr}$(15 ft) [g] | $N(\ge m_{thr})$ | as % of $N_0$ | vs Tolch 700 |
 | ------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------: | ---------------: | ------------: | -----------: |
-|           1.9 | fitted to the 0.557 A→D falloff ratio                                                                                                                                               |                0.020 |             2312 |          86 % |     **3.3×** |
-|           3.6 | fitted (upper $V_0$ case)                                                                                                                                                           |                0.032 |             2227 |          83 % |     **3.2×** |
-|          78.6 | 1944 Ordnance Dept. **personnel-casualty (incapacitation)** criterion, 58 ft-lb — *not a wood-perforation criterion; plausibility probe only, not a sourced threshold for this arm* |                0.359 |             1440 |          54 % |       (2.1×) |
-|           126 | Tolch's own smallest-hole bound, $m\ge0.36$ g at 838 m/s — a criterion-matched but *mass-independent* row, superseded by the plug-shear model below                                 |                0.538 |             1253 |          47 % |     **1.8×** |
-|         294.5 | pre-anchor fitted $E_{thr}$                                                                                                                                                         |                1.134 |              888 |          33 % |     **1.3×** |
+|           1.9 | fitted to the 0.557 A→D falloff ratio                                                                                                                                               |                0.020 |             2343 |          86 % |     **3.3×** |
+|           3.6 | fitted (upper $V_0$ case)                                                                                                                                                           |                0.032 |             2257 |          83 % |     **3.2×** |
+|          78.6 | 1944 Ordnance Dept. **personnel-casualty (incapacitation)** criterion, 58 ft-lb — *not a wood-perforation criterion; plausibility probe only, not a sourced threshold for this arm* |                0.359 |             1455 |          53 % |       (2.1×) |
+|           126 | Tolch's own smallest-hole bound, $m\ge0.36$ g at 838 m/s — a criterion-matched but *mass-independent* row, superseded by the plug-shear model below                                 |                0.538 |             1264 |          46 % |     **1.8×** |
+|         294.5 | pre-anchor fitted $E_{thr}$                                                                                                                                                         |                1.134 |              894 |          33 % |     **1.3×** |
 
 *Note $m_{thr}$ is unaffected by C2 — it depends on terminal $V_0$, which C2
 leaves untouched. All movement in this table is through $N_0$ and $\mu$.*
@@ -180,14 +197,14 @@ perforate/no-perforate step is a criterion mismatch under
 sourced threshold** for the count arm
 ([`../../updates/sourced-wood-perforation-threshold/review-criterion-check.md`](../../updates/sourced-wood-perforation-threshold/review-criterion-check.md)).
 It is retained in the table only to show where the count sits at that energy.
-At this threshold $N/700 = 2.06\times$ and $N/779 = 1.85\times$ (**779, not
+At this threshold $N/700 = 2.08\times$ and $N/779 = 1.87\times$ (**779, not
 803** — the re-baselined pit-recovered count, `rebaseline-verdict.md`; every
 $N/803$ figure below is corrected the same way, ×1.031).
 
 **The 126 J row is superseded, and its near-pass was misleading.** It is
 Tolch's own smallest-perforating-hole bound, computed from the same experiment
 the model is scored against, so it is at least a wood-perforation quantity; at
-shipped parameters it now reads $N/700 = 1.79\times$, $N/779 = 1.61\times$.
+shipped parameters it now reads $N/700 = 1.81\times$, $N/779 = 1.62\times$.
 But it is a *mass-independent scalar* applied to a mechanism that is not, and
 the criterion-correct plug-shear model below shows what that costs: the scalar
 row's apparent pass is bought by over-charging the light end of the spectrum,
@@ -210,20 +227,21 @@ fitted to Tolch**. It is shipped as
 through it (derivation.md §7.4 Check 4, pre-registered before the run;
 script [`checks/count-chain-plug-shear.py`](checks/count-chain-plug-shear.py)):
 
-C2 then landed on top of it, moving $N_0$ 3016 → 2681 and $\mu$ 0.826 → 0.929 g.
-The table below is the **combined C1+C2 result at shipped defaults** (re-run
-2026-08-10); the parenthesised figures are the same rows at $f$ = 1, i.e. C1
+C2 then landed on top of it, moving $N_0$ 3016 → 2681 and $\mu$ 0.826 → 0.929 g;
+the per-shell $c$ then moved them again, to $N_0$ = 2720, $\mu$ = 0.915 g.
+The table below is the **combined C1+C2+$c$ result at shipped defaults** (re-run
+2026-08-16); the parenthesised figures are the same rows at $f$ = 1, i.e. C1
 alone, as this section reported them before C2 shipped:
 
 | variant                                          | $m_{thr}$(15 ft) [g] |         $N$ |          $N/700$ |          $N/779$ |
 | ------------------------------------------------ | -------------------: | ----------: | ---------------: | ---------------: |
-| **SPF-S, $\eta$ = ½ — central, the verdict row** |            **0.166** |    **1756** | **2.51×** (2.75) | **2.25×** (2.47) |
-| SPF-S ∓1σ on $\tau$, $\eta$ = ½                  |        0.118 / 0.218 | 1878 / 1652 |     2.68 / 2.36× |     2.41 / 2.12× |
-| SYP, $\eta$ = ½                                  |                0.210 |        1666 |            2.38× |            2.14× |
-| $\eta$ = 1 rigid bound (SPF-S / SYP)             |        0.370 / 0.474 | 1427 / 1312 |     2.04 / 1.87× |     1.83 / 1.68× |
+| **SPF-S, $\eta$ = ½ — central, the verdict row** |            **0.166** |    **1776** | **2.54×** (2.78) | **2.28×** (2.50) |
+| SPF-S ∓1σ on $\tau$, $\eta$ = ½                  |        0.118 / 0.218 | 1901 / 1670 |     2.72 / 2.39× |     2.44 / 2.14× |
+| SYP, $\eta$ = ½                                  |                0.210 |        1685 |            2.41× |            2.16× |
+| $\eta$ = 1 rigid bound (SPF-S / SYP)             |        0.370 / 0.474 | 1441 / 1325 |     2.06 / 1.89× |     1.85 / 1.70× |
 
 Separately, sweeping C2's own uncertainty band on the central row gives
-$N/779$ = 2.29× at $f$ = 0.953 and 2.09× at $f$ = 0.899
+$N/779$ = 2.32× at $f$ = 0.953 and 2.11× at $f$ = 0.899
 ([`../../updates/breakup-velocity-fraction/derivation.md`](../../updates/breakup-velocity-fraction/derivation.md)
 §8). Note $N$ does **not** scale as $f^{-2}$: $N_0\propto f^2$ falls while
 $\mu\propto f^{-2}$ rises and the larger $\mu$ raises the survival factor, so
@@ -231,9 +249,9 @@ realised leverage is 1.096× against the naive 1.125× — about 22 % of the
 intended correction is eaten back.
 
 **The count arm FAILS on the criterion-correct threshold even with C2 applied:
-2.25× on /779, 2.51× on /700, outside §4's within-2× PASS band on both
-denominators.** The whole $\eta$ = ½ band is outside on /779 (2.12–2.41) and on
-/700 (2.36–2.68); so is the whole admissible $f$ band (2.09–2.29 on /779).
+2.28× on /779, 2.54× on /700, outside §4's within-2× PASS band on both
+denominators.** The whole $\eta$ = ½ band is outside on /779 (2.14–2.44) and on
+/700 (2.39–2.72); so is the whole admissible $f$ band (2.11–2.32 on /779).
 Only the $\eta$ = 1 rigid bound falls inside, and per assumption A8 $\eta$ is
 geometry and may **not** be moved to buy the pass, so the central row is what is
 reported. **C2 is a correct, direction-right fix worth ~9 % of the residual; it
@@ -259,9 +277,9 @@ checks 1–3 and its ±27 % $\tau$ sensitivity all pass — derivation.md §7.4)
 What it does is **relocate the residual off the threshold and onto the
 spectrum/census side**, and C2 has since removed the velocity-basis candidate
 from that list as well (worth only ~9 %). The re-closed threshold-*free* test
-now lands at **1.59–1.99×** on the Tolch-metal basis (block (E), re-run
-2026-08-10; was 1.78–2.24× pre-C2) — i.e. a comparison that never imposes a
-mass cut at all already reproduces most of the 2.25×. The threshold is no
+now lands at **1.61–2.02×** on the Tolch-metal basis (block (E), re-run
+2026-08-16; was 1.78–2.24× pre-C2) — i.e. a comparison that never imposes a
+mass cut at all already reproduces most of the 2.28×. The threshold is no
 longer where the residual lives. This row also inherits the standing block-(D)
 caveat — an energy-thresholded whole-shell count over a size-thresholded
 recovery census — so the criterion-clean (E) figure remains the
@@ -270,7 +288,7 @@ just above it rather than far above it.
 
 Two facts follow, and they reframe L1:
 
-1. **$N_0$ is not 4–6× too high.** $N_0 = 2681$ sits *between* Tolch's two own
+1. **$N_0$ is not 4–6× too high.** $N_0 = 2720$ sits *between* Tolch's two own
     totals: ~5000 fragments issuing from the shell (panel extrapolation, item 6)
     and **779** recovered in the pit at 95.6 % of the metal (items 1, 8) —
     re-baselined from a published 803 (`rebaseline-verdict.md`; the re-baselined
@@ -287,12 +305,12 @@ Two facts follow, and they reframe L1:
     own scoping (§3d) already flagged as physically impossible (a ~4–14 mg
     fragment perforating a 1-inch board). But a threshold-*free* test (matching
     cumulative mass fraction instead of imposing a mass cut) still finds the
-    model over-counting **1.59–1.99×** on the Tolch-metal basis (13.29 lb =
-    6028 g; re-run 2026-08-10, was 1.78–2.24× pre-C2) — a residual that
+    model over-counting **1.61–2.02×** on the Tolch-metal basis (13.29 lb =
+    6028 g; re-run 2026-08-16, was 1.78–2.24× pre-C2) — a residual that
     survives deleting the threshold entirely is by definition not "not the
     population" (the claim published here through 2026-08-03; void, see
     `rebaseline-verdict.md` §2). With C1 sourcing the threshold and C2 fixing
-    the velocity basis, the surviving 2.25× and the threshold-free 1.59–1.99×
+    the velocity basis, the surviving 2.28× and the threshold-free 1.61–2.02×
     have converged: **the threshold now contributes at most ~1.1–1.4× on top of
     a spectrum/census term that carries the rest.** That is what re-ranks
     C3/C4/C5 in §3.
@@ -311,13 +329,13 @@ Two facts follow, and they reframe L1:
     thread does not settle.
 
 So the honest decomposition of the fitted-threshold ~2.9–3.0× (re-run: the
-1.9 J row is now $N/779 = 2.97$, not 3.31) is: **a factor ~1.5–2.0× of it is an
-artefact of fitting $E_{thr}$ to the falloff ratio at the anchor drag** (2.97
-against the 0.63 g threshold-free cut's 1.51), and a residual **~1.5–2.0× is
-genuine count-chain excess** (independently corroborated at 1.59–1.99× by the
-threshold-free test above) — visible as $N(\ge0.63\text{ g}) = 1176$ against
+1.9 J row is now $N/779 = 3.01$, not 3.31) is: **a factor ~1.5–2.0× of it is an
+artefact of fitting $E_{thr}$ to the falloff ratio at the anchor drag** (3.01
+against the 0.63 g threshold-free cut's 1.52), and a residual **~1.5–2.0× is
+genuine count-chain excess** (independently corroborated at 1.61–2.02× by the
+threshold-free test above) — visible as $N(\ge0.63\text{ g}) = 1187$ against
 Tolch's **779** pit-recovered fragments (mean **7.40 g**, re-baselined from a
-published 6.85 g, vs the model's $2\mu$ = 1.86 g). Note that this 1.51× floor
+published 6.85 g, vs the model's $2\mu$ = 1.83 g). Note that this 1.52× floor
 sits **above** Tolch's finest screen cut, so it is not an artefact of the
 sub-gram extrapolation and not an artefact of census incompleteness at the
 light end — it is the part of the residual that C3 (§3) cannot explain.
@@ -386,11 +404,11 @@ the CJ isentrope. The lesson for future sub-candidates in this thread is that
 "needs new physics" is not the same as "needs a big model".
 
 **C3 — the single-exponential Mott form in the sub-gram tail. RUN AND CLOSED
-2026-08-15: real at 1.324×, but not sourced — see
-[`mott-tail-shape.md`](mott-tail-shape.md).** The realised credit is 1.324× of
-the "up to 1.49×" estimated below (the first sub-candidate in this thread whose
-predicted leverage was close to right), restating the residual as **1.70×
-(/779) / 1.89× (/700)**. It is **not actionable**: the only shape that pays is
+2026-08-15: real at 1.328×, but not sourced — see
+[`mott-tail-shape.md`](mott-tail-shape.md).** The realised credit is 1.328× of
+the "up to 1.50×" estimated below (the first sub-candidate in this thread whose
+predicted leverage was close to right), restating the residual as **1.72×
+(/779) / 1.91× (/700)**. It is **not actionable**: the only shape that pays is
 a $\lambda$ fitted to Tolch itself; Mott's own 3D exponent $\lambda=1/3$ and the
 literature's power-law tail both move the residual *up* (0.85× and 0.31–0.72×).
 **No `src/arty/` change follows.** The original entry stands below as the
@@ -402,12 +420,12 @@ This thread previously dismissed C3 on the premise that "at a physical
 threshold ($m_{thr}\gtrsim0.6$ g) the extrapolation is not exercised at all" —
 **that premise is now falsified.** The sourced plug-shear threshold lands at
 $m_{thr}$ = **0.166 g**, a factor 3.8 *below* the finest screen cut, so the
-verdict row sits squarely inside the unvalidated tail. Quantified: of the 1756
-fragments in the verdict row, $N(\ge0.63\,\text{g}) = 1176$ are in the
-Tolch-resolved range and **580 (33 %) come from the 0.166–0.63 g window that no
-Tolch measurement constrains**. Equivalently, C3 has up to 1.49× of leverage —
-enough on its own to take 2.25× to 1.51×, inside the band. **But it cannot
-explain the 1.51× floor above 0.63 g**, which is measured against fragments the
+verdict row sits squarely inside the unvalidated tail. Quantified: of the 1776
+fragments in the verdict row, $N(\ge0.63\,\text{g}) = 1187$ are in the
+Tolch-resolved range and **590 (33 %) come from the 0.166–0.63 g window that no
+Tolch measurement constrains**. Equivalently, C3 has up to 1.50× of leverage —
+enough on its own to take 2.28× to 1.52×, inside the band. **But it cannot
+explain the 1.52× floor above 0.63 g**, which is measured against fragments the
 census does resolve; that part belongs to C4/C5.
 
 **C4 — mass bookkeeping into $N_0$** (fuze/band/base plug, fines below
@@ -419,7 +437,7 @@ things changed underneath it before this pass. (i) `50b734e` replaced the
 3.3 %, and is no longer a free knob. (ii) With $M_\text{case}$ = 4980 g the
 coarsest recovery-screen bin (6 pieces / 926.7 g = **15.4 %** of recovered
 metal at 154 g mean) no longer dominates: dropping it moves the
-threshold-free population residual *up* (1.59× → 1.81× at the
+threshold-free population residual *up* (1.61× → 1.83× at the
 through-screen-4 row), not down to the 1.19× previously reported. **This pass
 resolved the criterion-match question the open finding raised**: the
 correct denominator is Tolch's **10.94 lb** *empty unfuzed shell* (case metal
@@ -466,9 +484,9 @@ into it**, and there is no independent detection credit to take.
 not a conservative one, and it fails.** The smallest hole Tolch *recorded* is
 $\ge$ the true detection floor, so 0.36 g removes the most fragments any valid
 floor could remove. At that maximum credit,
-$N(\ge0.36\,\text{g}) = 1438$: **$N/700 = 2.05\times$** — the criterion-matched
+$N(\ge0.36\,\text{g}) = 1453$: **$N/700 = 2.08\times$** — the criterion-matched
 pairing, a panel-side floor against the panel perforating count — i.e. still
-outside the 2× band. Realised leverage 1.221×.
+outside the 2× band. Realised leverage 1.222×.
 
 **(iii) The 1.85× headline published here through 2026-08-10 was a mixed
 basis and is void.** It divides a model count carrying a *panel hole-visibility*
@@ -476,7 +494,7 @@ floor by the **pit sand-recovery census** (779), whose own floor is a screen
 aperture, not hole visibility. That is the identical defect the open finding
 raises against block (D), transferred to block (F) by how C5 quoted it. The
 census-matched cut for the 779 denominator is Tolch's finest screen cut,
-0.63 g → $N/779 = 1.51\times$; but that is a *census-completeness* correction
+0.63 g → $N/779 = 1.52\times$; but that is a *census-completeness* correction
 belonging to C4, not a detection correction, and it may not be quoted as C5's.
 
 **(iv) Admissibility of the 0.36 g datum itself — weak, and the closure does
@@ -504,14 +522,14 @@ perforation of 0.36 g — permissive by 5.6× in mass. That is a statement about
 FINDING\[note\]: C1 plug-shear threshold rescales to 0.065 g at 838 m/s vs. Tolch's smallest observed perforation 0.36 g (5.6x permissive in mass); rests on an unanchored datum (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-10)
 
 **Consequence for §4's INDETERMINATE clause: discharged.** The clause fires only
-if C5's cutoff "cannot be bounded below ~1.5×". It is bounded at **≤1.221×**,
+if C5's cutoff "cannot be bounded below ~1.5×". It is bounded at **≤1.222×**,
 and at 0 on reading (i). The verdict is therefore a genuine **FAIL**, not
 INDETERMINATE — and not a PASS.
 
 **C3 and C5 bite on the same fragments and are not additive** — the reason this
 mattered, and why C5 was ordered first. Both act on the 0.166–0.63 g window: C3
 says the model may not have that many fragments there, C5 said Tolch would not
-have counted them if it did. With C5 discharged at ≤1.221× (and at ~0 on the
+have counted them if it did. With C5 discharged at ≤1.222× (and at ~0 on the
 graded-census reading), **that window is now C3's alone** and the
 double-counting hazard is gone. C5 was a comparison-basis question throughout;
 no `src/arty/` change followed from it, as scoped.
@@ -529,12 +547,12 @@ is exhausted.
     outcome was negative on both readings: the premise fails (Tolch's census
     grades hits as perforation/penetration/dent, so the 700 column is
     perforation-limited, not detection-limited), and even at maximum credit the
-    bound leaves the arm at 2.05× on the criterion-matched denominator. The
+    bound leaves the arm at 2.08× on the criterion-matched denominator. The
     ~1.22× figure quoted here in the morning was real arithmetic on the wrong
-    denominator (1.85× on /779 mixes a panel-side floor with the pit census).
+    denominator (1.87× on /779 mixes a panel-side floor with the pit census).
 1. ~~**C3 (sub-gram Mott tail) first now.**~~ **Run and discharged 2026-08-15
     — see [`mott-tail-shape.md`](mott-tail-shape.md), reviewed PASS.** Real at
-    1.324× (residual 2.25×→1.70× on /779), but not actionable: the only
+    1.328× (residual 2.28×→1.72× on /779), but not actionable: the only
     spectrum shape that pays is a $\lambda$ fitted to the very Tolch census
     the model is validated against ($\lambda$=0.759 vs shipped 0.5), while
     every *sourced* alternative — Mott's own 3D exponent $\lambda=1/3$, and a
@@ -554,6 +572,29 @@ is exhausted.
     fuze-excluded pairing. **C4 is a criterion choice worth ≈0.2× within the
     correct family, not a driver. No `src/arty/` change follows.**
 
+**Also tried, out of this ranking: mass-dependent fragment shape (`A(m)`),
+2026-08-16 — shipped as a correctness fix; it moves this arm the wrong way and
+is now the baseline.** A separate update
+([`../../updates/mass-dependent-fragment-shape/`](../../updates/mass-dependent-fragment-shape/derivation.md))
+tested whether making the aspect-ratio moment correction $c$ mass-dependent —
+solved per shell against each shell's own Mott spectrum, rather than frozen at
+Table 3's global 155 mm-weighted value — would move the 75 mm chain. It does
+not: the per-shell fixed point gives $c$ = 0.99 at 75 mm ($A_\text{eff}$ =
+1.58, vs 2.00/1.76/1.47 for 155/105/60 mm), restating the 75 mm count chain at
+**2.54× (/700) / 2.28× (/779)** — marginally *worse* than the 2.51×/2.25×
+it replaced, not better. It shipped anyway (`5d742b4`), because `c` is a
+moment identity of the shipped Mott shape closure and belongs in the registry
+whether or not it flatters this thread; **the whole of this page is now closed
+against it**, so 2.54×/2.28× is the standing verdict, not an alternative to
+it. This was never a ranked sub-candidate of this thread:
+its own `scoping.md` §6 (Action C) explicitly scopes it to not edit
+`count-chain.md`. It is recorded here because it is a real, reviewed (PASS,
+[`../../updates/mass-dependent-fragment-shape/review.md`](../../updates/mass-dependent-fragment-shape/review.md))
+attempt on the same residual, and belongs in this thread's record of what has
+been tried against it. The `src/arty/` change it carries (`SHELLS`
+`aspect_ratio` per shell) is that update's, not this thread's; no *further*
+`src/arty/` change follows from here.
+
 **What earlier passes got wrong, recorded so it is not repeated.** Both
 sub-candidate leverage estimates in this section were wrong in the same
 direction — C1 was predicted at 1.65–2.05× and delivered 1.20× *against the
@@ -562,7 +603,7 @@ delivered 1.096×. The common cause is estimating leverage from a ratio of
 published $N$ values rather than re-solving the chain: $m_{thr}$, $N_0$ and
 $\mu$ do not move independently, and the exponential survival factor
 systematically eats part of any $N_0$ change. **Leverage figures in the ranking
-above (1.221× for C5, 1.49× for C3) are re-solved counts, not scaled ones** —
+above (1.222× for C5, 1.50× for C3) are re-solved counts, not scaled ones** —
 but they are still upper bounds, because each assumes the others are absent.
 **C5 is the third instance of the same over-estimate**, in a new form: its
 1.22× was arithmetically correct but was quoted against the wrong denominator,
@@ -602,29 +643,30 @@ Against that:
     measurable.
 - **INDETERMINATE** — if C5's detection cutoff cannot be bounded below ~1.5×,
     say so and stop; the dataset cannot resolve a 2× claim. *(Did not fire —
-    bounded at ≤1.221× on 2026-08-10; see below and §3 C5.)*
+    bounded at ≤1.222× on 2026-08-10, restated 2026-08-16; see below and §3 C5.)*
 
-**Outcome (2026-08-10): FAIL, and the FAIL branch has been executed to
-exhaustion.** The sourced threshold gave 2.47× (≥ 2×, FAIL); C2 was run as the
+**Outcome (2026-08-10, re-closed 2026-08-16): FAIL, and the FAIL branch has
+been executed to
+exhaustion.** The sourced threshold gave 2.50× (≥ 2×, FAIL); C2 was run as the
 prescribed Workflow-B follow-up against that fixed threshold and returned
-**2.25×** — still ≥ 2×. Both denominators agree on the sign
-($N/700 = 2.51\times$). So the count arm fails on the criterion the thread set
+**2.28×** — still ≥ 2×. Both denominators agree on the sign
+($N/700 = 2.54\times$). So the count arm fails on the criterion the thread set
 itself.
 
 **The INDETERMINATE clause is now discharged, and it did not fire (2026-08-10,
 later pass).** That clause was the last thing standing between "FAIL" and "FAIL
 trending INDETERMINATE": it fires only if C5's detection cutoff *cannot* be
 bounded below ~1.5×. C5 has been run and closed (§3): the cutoff is bounded at
-**≤1.221×** on the datum's most generous reading, and at ~0 on the correct
+**≤1.222×** on the datum's most generous reading, and at ~0 on the correct
 reading of Tolch's census, which grades hits as perforation / penetration /
 dent and is therefore perforation-limited rather than detection-limited in the
 700 column. Applying the maximum credit against the criterion-matched
-denominator gives **$N/700 = 2.05\times$ — still outside the band.** *The
+denominator gives **$N/700 = 2.08\times$ — still outside the band.** *The
 1.85× reading published in this section earlier on 2026-08-10 is void: it
 divided a panel-side detection floor by the pit sand-recovery census, the same
 basis mix the open finding raises against block (D).*
 
-**So the standing verdict is a plain FAIL at 2.25× (/779) and 2.51× (/700), not
+**So the standing verdict is a plain FAIL at 2.28× (/779) and 2.54× (/700), not
 INDETERMINATE.** The dataset *can* resolve a 2× claim at this residual — that
 is what bounding C5 established — and the residual is real. The bar on
 crediting further fixes is correspondingly lifted: C3 may now be worked without
@@ -642,7 +684,7 @@ framings recorded in this section are now void and must not be quoted:
 - The **"provisional PASS at 1.73×"** reading (published 2026-08-08, keyed to
     the 126 J scalar row) is void. It rested on a mass-independent threshold
     that over-charges the light end; the criterion-correct replacement moved the
-    arm to 2.47×, i.e. the near-pass was an artefact of the proxy, not a
+    arm to 2.50×, i.e. the near-pass was an artefact of the proxy, not a
     property of the model.
 - The **"proceed to C2, it will close the gap"** reading is also void. C2 was
     run and delivered 1.096×, not the 1.2–2× projected here; the $f$ = 0.7–0.8
@@ -652,22 +694,22 @@ framings recorded in this section are now void and must not be quoted:
 
 What stands after both:
 
-- **The verdict is FAIL at 2.25× (band 2.09–2.41×), on a two-observable test of
+- **The verdict is FAIL at 2.28× (band 2.11–2.44×), on a two-observable test of
     which only one observable has been run.** The A→D falloff-ratio arm is still
     tied to the fitted $E_{thr}$ and therefore still compound — that is now the
     single largest gap in the *test*, as distinct from the model.
 - **L1's headline "4–6× over-prediction" is stale**, as is the 3.2–3.7×
     fitted-threshold figure that replaced it (re-run: 2.9–3.0×). The current
-    honest headline is 2.25× at a sourced, mass-dependent threshold and a
+    honest headline is 2.28× at a sourced, mass-dependent threshold and a
     source-defined break-up velocity.
 - **$N_0$ is still not the defect** (Fact 1, §2) — it sits between Tolch's own
     two totals, and moved *closer* to the pit census under C2.
 - **The residual has migrated from the threshold to the spectrum/census side**,
     and every candidate that could have moved it has now been run (§3). C5 was
     ranked first and was **discharged without credit**; C3 ran next and closed
-    at a real but non-actionable 1.324× (2026-08-15,
+    at a real but non-actionable 1.328× (2026-08-15,
     [`mott-tail-shape.md`](mott-tail-shape.md)) — restating the residual
-    2.25×→1.70× (/779) but not clearing it to a PASS, since the credit is
+    2.28×→1.72× (/779) but not clearing it to a PASS, since the credit is
     unsourced and the falloff-ratio observable is still unrun. **C4 ran last
     and closed 2026-08-15 as a criterion-match choice worth ≈0.2×, not a
     driver** ([`spectrum-mass-basis.md`](spectrum-mass-basis.md)) — **no
@@ -675,10 +717,10 @@ What stands after both:
 - **The comparison basis is no longer an open excuse.** C5 was the only
     candidate that could have absorbed the residual without any model being
     wrong; it cannot. C3 quantified the model's sub-gram spectrum term at
-    1.324× and found no sourced fix. C4 settled which metal weight denominates
+    1.328× and found no sourced fix. C4 settled which metal weight denominates
     the spectrum comparison (10.94 lb, fuze-excluded) and found the choice
     worth ≈0.2×, not the factor the verdict turns on. **The count arm's
-    standing verdict is now final: genuine FAIL at 2.25×/2.51× (plug-shear)
+    standing verdict is now final: genuine FAIL at 2.28×/2.54× (plug-shear)
     and 1.8–2.1× (threshold-free) — every admissible pairing this thread has
     produced sits above the band, and no further work is scoped here.**
 

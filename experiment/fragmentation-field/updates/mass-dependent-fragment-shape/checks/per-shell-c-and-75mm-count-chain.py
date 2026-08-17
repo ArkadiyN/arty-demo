@@ -18,12 +18,13 @@ All three keep the identical within-group aspect-ratio mix from Table 3 and
 solve the fixed point c = c(c*mu0), since mu = c*mu0 sets the weights.
 """
 import csv
+import dataclasses
 import pathlib
 
 import numpy as np
 
 from arty.shells import SHELLS
-from arty.fragmentation import gurney_velocity, mott_params
+from arty.fragmentation import _MOTT_ASPECT_RATIO, gurney_velocity, mott_params
 
 GR = 0.06479891e-3  # kg per grain
 CSV = pathlib.Path("doc-reference/fragmentation/explosion-fragment-model/"
@@ -126,6 +127,11 @@ print(f"{'shell':>15} {'mu0[gr]':>8} {'P(G0)':>7} {'A: geo-rep':>11} "
       f"{'B: cond-m':>10} {'C: cont A(m)':>13} {'A_eff=cA (C)':>13}")
 res = {}
 for name, sh in SHELLS.items():
+    # mu0 is the UNCORRECTED Mott mass parameter: the registry now ships
+    # aspect_ratio = c*1.6, and the fixed point below applies c itself, so the
+    # baseline must be pinned back to the bare count-weighted A or c is
+    # double-counted.
+    sh = dataclasses.replace(sh, aspect_ratio=_MOTT_ASPECT_RATIO)
     mu0 = mott_params(sh, gurney_velocity(sh))[0] / GR
     cA = fixed_point(lambda mu: c_collapsed(mu, m_geo), mu0)
     cB = fixed_point(lambda mu: c_collapsed(mu, group_cond_mass(mu)), mu0)
