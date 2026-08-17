@@ -634,10 +634,22 @@ finding rather than an open doubt. Whether that reopens the thread is the
 human's call per `scoping.md` §6 Action C — this pass does not edit
 `count-chain.md`.
 
+**Shipped, 2026-08-16:** `src/arty/shells.py`'s `SHELLS` registry now carries
+`aspect_ratio = mott_aspect_ratio(shell)` (method B, `MOTT_ASPECT_MOMENT_C` in
+`src/arty/fragmentation.py`) for all four shells — the `A_eff` column above is
+live, not a recommendation. Confirmed against the registry by
+[`checks/shipped-aspect-moment-correction.py`](checks/shipped-aspect-moment-correction.py):
+shipped `c` and `A_eff` match this table to 5e-3/5e-5, `mu`/`N0` move exactly as
+`c` and `1/c` predict, and the `c = 1` (bare `A = 1.6`) limit reproduces the
+pre-update model exactly. The 75 mm count-chain and 155 mm `B(r)` numbers in
+items 3–4 above are unaffected — they were already computed against the
+shipped-registry values, not the pre-implementation table.
+
 **Follow-up passes (not this one):**
 
-- **`src/arty/` implementation** of the per-shell `A_eff` (2.00 / 1.76 / 1.58 /
-    1.47 for 155/105/75/60 mm), plus a `_limitations.qmd` entry covering A6
+- ~~**`src/arty/` implementation** of the per-shell `A_eff` (2.00 / 1.76 / 1.58 /
+    1.47 for 155/105/75/60 mm)~~ — done, see above. Still owed: a
+    `_limitations.qmd` entry covering A6
     (modal bins are analyst defaults, not measurements), A9 (the `A | Group`
     mix is from one 155 mm test article and is assumed caliber-independent),
     and A11 (the group-discretization bias is caliber-dependent in sign, not a

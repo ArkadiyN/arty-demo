@@ -14,6 +14,8 @@ reviewed and merged, so this document is no longer a scoping document for
 them; it is the standing record of what the count arm now measures, and its
 investigation is complete.
 
+FINDING\[blocking\]: banner and verdict-row numbers on this page (2.25x/779, 2.51x/700) were re-closed 2026-08-10 against a bare aspect_ratio=1.6 default; `mass-dependent-fragment-shape` shipped 2026-08-16 changing that default per-shell in `arty.shells.SHELLS`, restating the 75mm chain at 2.28x/2.54x per `updates/mass-dependent-fragment-shape/checks/per-shell-c-and-75mm-count-chain.py` (verdict direction unchanged: still FAIL, still outside the 2x band) (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/README.md; since: 2026-08-16)
+
 - **C1** — a sourced, mass-*dependent* wood-perforation threshold (plug shear-out,
     $E_{thr}(m) = \eta\,\tau\,\pi D(m)\,t^2$) now exists as
     `arty.perforation.perforation_threshold_energy`

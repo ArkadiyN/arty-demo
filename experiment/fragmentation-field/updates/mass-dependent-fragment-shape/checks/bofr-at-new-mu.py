@@ -27,6 +27,7 @@ import pathlib
 
 import numpy as np
 
+from arty.fragmentation import _MOTT_ASPECT_RATIO
 from arty.shells import SHELLS
 from arty.zones import DragParams, compute_shell_zones
 
@@ -51,7 +52,10 @@ def _load(path):
 
 def main():
     m = _load(B155)
-    base = SHELLS[m.SHELL_NAME]
+    # C_VALUES below are multipliers ON THE UNCORRECTED A = 1.6; the registry
+    # now ships aspect_ratio = c*1.6, so pin the baseline back to 1.6.
+    base = dataclasses.replace(SHELLS[m.SHELL_NAME],
+                               aspect_ratio=_MOTT_ASPECT_RATIO)
     drag = DragParams()
     rho_steel = base.steel.rho
 
