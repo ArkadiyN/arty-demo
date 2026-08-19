@@ -28,3 +28,5 @@
 - [Binned-moment caliber trend](gotcha_binned_moment_caliber_trend.md) — a per-shell variance/moment off Table 3's 5 mass groups is a binning artefact; refine the axis, the trend reverses
 - [Mott exponential breadth is circular](gotcha_mott_exponential_breadth_is_circular.md) — k=2 and the shipped mass law are one 1943 assumption twice; reproduce the 1947 ruled-line MC instead
 - [Count-mass locus not identifying](gotcha_count_mass_locus_not_identifying.md) — a spectrum fitted to a cumulative count-vs-mass locus is scale-degenerate; anchor in absolute mass
+- [Ruled-line regime is caliber-free](gotcha_ruled_line_regime_caliber_free.md) — l/x0 has no caliber dependence (x0 ∝ r cancels); the regime is set by break-up velocity alone
+- [Check script imports shipped constant](gotcha_check_script_imports_shipped_constant.md) — a closure that imports src/arty's own value is tautological; keep the source's stated number as a literal

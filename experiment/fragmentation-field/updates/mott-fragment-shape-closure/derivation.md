@@ -64,11 +64,19 @@ Carlo and reports **1.5x₀** (Mott 1947 p.305 finding (1), anchor `The fragment
 labels it "the average circumferential length of the resulting fragments"
 (conwep:58) — i.e. Gold has silently set `κ_x = 1`, dropping Mott's factor.
 
-**Resolution: `κ_x = 1.5`.** Mott is the primary source and the only one who
-actually measures the mean; Gold is restating him and his label conflicts with
-Mott's own finding (1). Note the histogram Mott averages is of *intervals
-between adjacent cuts on the ruled circumference* — exactly the circumferential
-breadth `x̄` that enters (G4), so the two are the same quantity.
+**Resolution: `κ_x` is Mott's, not Gold's `1`.** Mott is the primary source and
+the only one who actually measures the mean; Gold is restating him and his label
+conflicts with Mott's own finding (1). Note the histogram Mott averages is of
+*intervals between adjacent cuts on the ruled circumference* — exactly the
+circumferential breadth `x̄` that enters (G4), so the two are the same quantity.
+
+**Value superseded, 2026-08-19: `κ_x = 1.62`, not `1.5`.** Mott's `1.5x₀` is his
+statistic at the `l/x₀ = 20` *demonstration* configuration; the shipped fleet
+sits at `l/x₀ = 84–100`, where re-running his own construction gives `⟨x⟩ =
+1.62x₀`. `src/arty/` ships 1.62 (with the re-solved `k`, `c` of that same
+population). Source:
+[`../kappa-x-shell-regime/derivation.md`](../kappa-x-shell-regime/derivation.md)
+§§2–3, assumption **X1**, which replaces A9.3 below.
 
 Worth `κ_x² = 2.25×` on `μ` under the plate closure (`μ ∝ x̄²`).
 
@@ -365,14 +373,21 @@ assumptions corrupt drag is thereby logged, not acted on.
 1. **A9.2 Aspect ratio is caliber- and material-independent.** `A = 1.6` is a
     cross-dataset average (steel, W-alloy; cylindrical and ogival casings).
     Sensitivity: `μ ∝ A`, so the 1.5–1.65 literature spread is ±5 % on `μ`.
-1. **A9.3 `κ_x = 1.5` is read off Mott's ruled-line Monte Carlo**, which is a
-    1-D model of circumferential fracture, not a measurement of real fragments.
-    **Open blocking finding.** 1.5 is Mott's `l/x₀ = 20` *demonstration*
-    configuration; reproducing his procedure at the `l/x₀ = 50–200` regime real
-    shells occupy gives `⟨x⟩ ≈ 1.65x₀`, so `μ ∝ κ_x²` is low by ~21 % — roughly
-    ten times the size of the A9.1 correction above. Marker and figures:
-    [`../breadth-variance-factor-k/derivation.md`](../breadth-variance-factor-k/derivation.md)
-    §5.3.
+1. **A9.3 — SUPERSEDED by X1 (2026-08-19); its blocking finding is CLOSED.**
+    `κ_x` is still read off Mott's ruled-line Monte Carlo, i.e. a moment of a
+    **1-D fracture model, not a measurement of real fragments** — that standing
+    objection carries over unchanged into X1. What is fixed is the *regime*: the
+    shipped value is no longer 1.5, Mott's `l/x₀ = 20` demonstration
+    configuration, but **`κ_x = 1.62`**, his model's own answer at `l/x₀ = 95`
+    where the shipped fleet actually sits (`l/x₀ = 84–100`, and `r_bu` cancels,
+    so one caliber-independent value serves — fleet spread 0.27 %). Realised
+    effect: `μ` ×1.21–1.23, `N₀` ×0.81–0.83, matching the ~21 % this entry
+    predicted. Residual, now carried as X3: `κ_x = 1.62` is the **low edge** of
+    `[1.62, 1.67]` — exact Poisson sampling of the rate law Mott states gives
+    1.67 (+6.5 % on `μ`); Mott's deterministic quadrature is retained on
+    attributability, not physics. Source:
+    [`../kappa-x-shell-regime/derivation.md`](../kappa-x-shell-regime/derivation.md)
+    §§2–3, §6.1–6.2.
 1. **A9.4 Uniform break-up state.** A single `t_bu`, `r_bu`, `V₀` is applied to
     the whole case; ogive and base regions expand less than the cylinder. Zone
     mass splitting is handled elsewhere (`zones.py`) and is unchanged.

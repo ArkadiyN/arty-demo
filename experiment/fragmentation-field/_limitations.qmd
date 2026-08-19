@@ -663,47 +663,61 @@ photographic surface. Assumption A11 of
 [`updates/mass-dependent-fragment-shape/derivation.md`](updates/mass-dependent-fragment-shape/derivation.md)
 §3.5.
 
-**18 · The closure now takes its breadth *moments* from Mott 1947 and its
-mass *law* from Mott & Linfoot 1943, and those two objects are not the same
-distribution.**
-The breadth-variance factor $k=\langle x^2\rangle/\langle x\rangle^2$ is
-settled at **1.14**, computed by reproducing Mott's 1947 ruled-line Monte
-Carlo — the same calculation that supplies the shipped
-$\kappa_x=\langle x\rangle/x_0=1.5$. That resolves what looked like a
-three-way inconsistency in the model's own breadth statistics: the rival value
-$k=2$ is not an independent measurement but the exponential-breadth
+**18 · All three breadth statistics are moments of a 1-D fracture *model*,
+not measurements — and they only mean anything as a set (v 0.15.0).**
+The three constants the mass scale $\mu$ rides on — $\kappa_x = \langle
+x\rangle/x_0$, the breadth-variance factor $k = \langle x^2\rangle/\langle
+x\rangle^2$, and the per-shell aspect moment $c$ — are all computed by
+reproducing Mott's 1947 ruled-line release-wave Monte Carlo, evaluated at the
+scaled circumference $\Lambda = l/x_0 \approx 95$ that the shipped fleet
+actually occupies. None of them is a fragment measurement, and the shipped
+values are printed live in §Parameters rather than quoted here.
+
+Two consequences follow from their being *one* population. First, the identity
+$\langle Ax^2\rangle/(\langle A\rangle\langle x\rangle^2) = c\,k$ holds only
+when every $\langle\cdot\rangle$ runs over the same distribution, so the triple
+may never be moved one member at a time — mixing a 1947 $k$ with a
+1943-spectrum $c$ is what v 0.14.0 had to undo. Second, the rival $k = 2$ is
+**retired**: it is not an independent measurement but the exponential-breadth
 *assumption* Mott & Linfoot 1943 §3 imported from the comminution literature
-("distributed according to the usual law", citing Lienau 1936) in order to
-reach a closed-form area distribution. Mott's own 1947 release-wave
-calculation contradicts it — the ruled-line histogram has **negligible**
-density below $0.4x_0$, because a crack is unlikely to nucleate inside a
-neighbour's release zone, whereas an exponential puts its mode at zero.
+("distributed according to the usual law", citing Lienau 1936) to reach a
+closed-form area distribution. Mott's own 1947 release-wave calculation
+contradicts it — the ruled-line histogram has **negligible** density below
+$0.4x_0$, because a crack is unlikely to nucleate inside a neighbour's release
+zone, whereas an exponential puts its mode at zero.
 
-Because the identity $\langle Ax^2\rangle/(\langle A\rangle\langle
-x\rangle^2)=c\,k$ holds only when **both** moments run over one population,
-the aspect moment $c$ had to be re-solved on the ruled line at the same time;
-it falls from 1.2506 to 1.1254 at 155 mm. The two changes very nearly cancel
-there — $A_\text{eff}$ moves $2.001\to2.048$, i.e. $+2.4\%$ — so the practical
-content of the change is at the small calibers, where $A_\text{eff}$ rises
-$+18\%$ (75 mm) to $+24\%$ (60 mm).
+**The one out-of-sample surface cannot tell the three apart.** 155 mm $B(r)$
+against the Ordnance-1944 casualty card responds only to the *product*
+$1.6\,c\,k\,\kappa_x^{2}$: across the shipped, marginal-closure and Poisson
+drivers the normalised range shape is identical to three decimals, so the fit
+moves as a pure level shift and has no power to say which factor is wrong. It
+also does not endorse the change — the geo-mean ratio crosses from $+4.6\%$ to
+$-9.1\%$, staying 11/11 inside the $0.5$–$2\times$ acceptance band but fitting
+slightly worse. The case for the triple rests on Mott's own model being
+evaluated in the right regime, not on that anchor. Two further one-sided
+exposures are carried with it: the deterministic $\Delta\sigma$ quadrature
+makes $\kappa_x$ the **low edge** of a band whose Poisson-sampled counterpart
+is $+6.5\%$ on $\mu$ (assumption X3), and the `percell` vs `marginal` closure
+choice is $\pm5\%$ on $c$ (K5). *What would close it:* measured breadth
+distributions on a real casing, or an out-of-sample anchor sensitive to the
+factors separately. Assumptions X1–X4/K5 of
+[`updates/kappa-x-shell-regime/derivation.md`](updates/kappa-x-shell-regime/derivation.md)
+§6.2. The vintage mismatch these moments create with the mass law is
+limitation 19 below.
 
-**What remains open is one level up.** The shipped fragment *count* law
-$N(\ge m)=N_0e^{-\sqrt{m/\mu}}$ descends from that same 1943 exponential. So
-the model now draws $\langle x\rangle$ and $\langle x^2\rangle$ from the 1947
-distribution while retaining a mass law derived from the 1943 one. This is
-Mott's own inconsistency, not an artefact of this implementation, and the
-1943 law is kept because it is the form with the empirical fragmentation-data
-pedigree. **The exposure of that retention is not bounded by any check
-performed here.** The one out-of-sample surface available — 155 mm $B(r)$
-against the Ordnance-1944 casualty card — varies the breadth *moments* at a
-**fixed** mass law, so it has no power over the mass law itself. What it does
-establish is narrower and true: at fixed mass law the self-consistent 1947 pair
-sits at geo-mean ratio $1.046$ against the shipped $1.063$ (no measurable
-change), while the self-consistent 1943 pair degrades it to $0.803$ — so the
-surface that can see the *breadth moment* prefers the 1947 value, in the
-direction the derivation chose. *What would close it:* re-deriving the mass
-spectrum from the ruled-line breadth distribution instead of the exponential,
-and checking the result still fits measured fragment-count data. Assumptions
-K1/K3/K5 of
-[`updates/breadth-variance-factor-k/derivation.md`](updates/breadth-variance-factor-k/derivation.md)
-§5.5.
+**19 · Breadth moments and the mass law come from different vintages of
+Mott (v 0.15.0).**
+The fragment mass scale $\mu$ now carries breadth moments ($\kappa_x$, $k$,
+$c$) measured on Mott's *1947* ruled-line fracture model at each shell's own
+regime $l/x_0 \approx 95$, while the mass *distribution* it feeds,
+$N(\ge m) = N_0e^{-\sqrt{m/\mu}}$, still descends from the *1943*
+exponential (assumption K1). The two are consistent in spirit — 1947 is Mott's
+own refinement of 1943 — but the spectrum's shape parameter has not been
+re-derived on the 1947 population. Effect is unbounded in principle; the
+shipped evidence is that the 1947 moments move $\mu$ by $\sim+22\%$ and
+leave the 155 mm $B(r)$ fit inside its acceptance band ($-9\%$) and the 75 mm
+count over-prediction at 1.7–1.9$\times$
+([`challenges/count-gap-1938`](challenges/count-gap-1938/)). Assumptions
+X1/X3/K5 of
+[`updates/kappa-x-shell-regime/derivation.md`](updates/kappa-x-shell-regime/derivation.md)
+§6.2–6.3.

@@ -225,21 +225,29 @@ def test_default_shape_factors_preserve_mott_output():
     # (x 1/f^2 = 1.125) and N0 -> 2917 (x f^2 = 0.8889) EXACTLY, which is itself
     # the check that the x0 -> alpha -> gamma -> mu exponent chain nets mu ~ V^-2.
     # The 1.835 g / 3281 pair is now the f_breakup = 1.0 legacy call.
+    # Re-based 2026-08-19 for kappa_x 1.5 -> 1.62, the mean breadth of Mott's
+    # ruled line at the regime the shipped fleet actually occupies, l/x0 = 95
+    # (updates/kappa-x-shell-regime/derivation.md secs. 2-3, assumption X1).
+    # mu enters as kappa_x^2 exactly, so mu -> 2.408 g (x (1.62/1.5)^2 = 1.1664)
+    # and N0 -> 2501 (x 0.8573); the legacy f_breakup = 1.0 pair moves by the
+    # same factor, 1.835 -> 2.140 g / 3281 -> 2813. The per-shell c and k also
+    # moved in that change, but they ride on ShellParams.aspect_ratio, which
+    # this default-geometry shell leaves at the bare A = 1.6.
     shell = ShellParams()
     assert shell.aspect_ratio == 1.6
-    assert shell.breadth_factor == 1.5
+    assert shell.breadth_factor == 1.62
     V0 = gurney_velocity(shell)
     mu, N0 = mott_params(shell, V0)
     mu_explicit, N0_explicit = mott_params(
-        ShellParams(aspect_ratio=1.6, breadth_factor=1.5), V0
+        ShellParams(aspect_ratio=1.6, breadth_factor=1.62), V0
     )
     assert mu == mu_explicit
     assert N0 == N0_explicit
-    assert mu == pytest.approx(2.064e-3, rel=1e-2)
-    assert N0 == pytest.approx(2917.0, rel=1e-2)
+    assert mu == pytest.approx(2.408e-3, rel=1e-2)
+    assert N0 == pytest.approx(2501.0, rel=1e-2)
     mu_legacy, N0_legacy = mott_params(shell, V0, f_breakup=1.0)
-    assert mu_legacy == pytest.approx(1.835e-3, rel=1e-2)
-    assert N0_legacy == pytest.approx(3281.0, rel=1e-2)
+    assert mu_legacy == pytest.approx(2.140e-3, rel=1e-2)
+    assert N0_legacy == pytest.approx(2813.0, rel=1e-2)
 
 
 # ---------------------------------------------------------------------------
@@ -301,7 +309,7 @@ def test_higher_aspect_ratio_gives_larger_mu():
     assert mu_hi / mu_def == pytest.approx(1.71 / 1.6, rel=1e-12)
     # kappa_x enters squared in alpha, so mu goes as kappa_x^2.
     mu_kx, _ = mott_params(ShellParams(breadth_factor=2.0), V0)
-    assert mu_kx / mu_def == pytest.approx((2.0 / 1.5) ** 2, rel=1e-12)
+    assert mu_kx / mu_def == pytest.approx((2.0 / 1.62) ** 2, rel=1e-12)
 
 
 def test_higher_gamma_gives_smaller_mu():

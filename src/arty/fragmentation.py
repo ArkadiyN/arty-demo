@@ -148,16 +148,40 @@ STEELS: dict[str, SteelParams] = {
 _MOTT_ASPECT_RATIO = 1.6
 
 # kappa_x = x_bar/x0, mean circumferential breadth in units of the fracture
-# spacing [-]. Mott's own ruled-line statistic, finding (1): fragment lengths
-# "lie between x0 and 2x0, and the average length is about 1.5x0" (Mott 1947
-# p.305, anchor "The fragments have lengths most of which lie"). Gold restates
-# x0 itself as the mean breadth, i.e. silently sets kappa_x = 1; Mott is the
-# primary source and the only one who measures the mean.
-# The 1.5 is confirmed against Mott's own worked example rather than read off
-# a neighbouring sentence: p.306 gives x0 = 1.6/sqrt(gamma) in. and concludes
-# 0.24 in. at gamma ~ 100, and 1.5 * 1.6/sqrt(100) = 0.24 exactly. Verified by
-# challenges/source-data-audit/checks/mott-1947-gamma-and-length-closure.py.
-_MOTT_BREADTH_FACTOR = 1.5
+# spacing [-]. A moment of Mott's own 1947 ruled line, evaluated at the regime
+# the SHIPPED FLEET occupies — l/x0 = 84-100, adopted 95 — and NOT at his
+# l/x0 = 20 demonstration configuration. Monte Carlo re-run of his construction
+# gives <x>/x0 = 1.62 there (two seeds, n ~ 40000). l/x0 = 2*pi*v_bu /
+# sqrt(2*sigma_f/(rho*gamma')) is caliber-free (r_bu cancels), which is why one
+# scalar serves every shell: fleet spread costs 0.27% on kappa_x.
+# updates/kappa-x-shell-regime/derivation.md secs. 1-3, assumption X1 (which
+# REPLACES A9.3); checks/kx-at-fleet-regime.py.
+# Mott's own finding (1) — lengths "lie between x0 and 2x0, and the average
+# length is about 1.5x0" (Mott 1947 p.305, anchor "The fragments have lengths
+# most of which lie") — is that statistic AT l/x0 = 20, quoted to one
+# significant figure; the MC reproduces it (1.556) as a regression check on the
+# quadrature, not as an empirical anchor. Gold restates x0 itself as the mean
+# breadth, i.e. silently sets kappa_x = 1; Mott is the primary source and the
+# only one who measures the mean.
+# NOT confirmed by Mott's p.306 worked example, contrary to what this comment
+# previously claimed: p.306 gives x0 = 1.6/sqrt(gamma) in. and "about 0.24 in."
+# at gamma ~ 100, i.e. 1.5 * 0.16 in. But that example's own geometry (3 in.
+# bomb, r ~ 2 in. at break-up) sits at l/x0 ~ 79, where his model's mean is
+# 1.62*0.16 = 0.259 in. The 0.24 in. is Mott applying his l/x0 = 20 statistic
+# outside its regime, so the old "0.24 exactly" closure is arithmetic on a
+# self-consistent pair, not independent evidence for 1.5. Anchors re-verified
+# against the primary in updates/kappa-x-shell-regime/review.md Pass 3; see
+# derivation.md sec. 6.4 Action E and challenges/source-data-audit/checks/
+# mott-1947-gamma-and-length-closure.py.
+# kappa_x, MOTT_BREADTH_VARIANCE_K and MOTT_ASPECT_MOMENT_C are the 1st moment,
+# the normalised 2nd moment and a 2nd-moment covariance of ONE AND THE SAME
+# population and ship as ONE SET — moving any of them alone re-creates the
+# mixed-population error of review finding B2.
+# LOW EDGE of a [1.62, 1.67] band with a known one-sided direction: exact
+# Poisson thinning of the rate law Mott states gives 1.67 (k = 1.189, mu +6.5%).
+# Mott's deterministic increment is retained on ATTRIBUTABILITY — the whole
+# shipped constant family was solved on it — not on physics (assumption X3).
+_MOTT_BREADTH_FACTOR = 1.62
 
 # k = <x^2>/<x>^2, the breadth-VARIANCE factor [-], caliber-independent.
 # updates/breadth-variance-factor-k/derivation.md secs. 2.4/5.1 (assumption
@@ -175,13 +199,18 @@ _MOTT_BREADTH_FACTOR = 1.5
 # model carries no caliber parameter at all — the caliber-independence is a
 # derived result, not a simplification (derivation.md sec. 5.1). Reproduced by
 # Monte Carlo in updates/breadth-variance-factor-k/checks/mott-ruled-line-mc.py.
-# The value is taken at Mott's own l/x0 = 20 demonstration configuration, for
-# consistency with the shipped kappa_x = _MOTT_BREADTH_FACTOR = 1.5 which comes
-# from that same configuration; the converged l/x0 = 50-200 regime real shells
-# occupy gives (kappa_x, k) = (1.67, 1.20). That kappa_x discrepancy is an open
-# BLOCKING finding on assumption A9.3 (derivation.md sec. 5.3) — it is ~10x the
-# size of what this pair ships and is NOT closed by it.
-MOTT_BREADTH_VARIANCE_K = 1.1375
+# The value is taken at l/x0 = 95, the regime the shipped fleet actually
+# occupies (updates/kappa-x-shell-regime/derivation.md secs. 2-3), on the same
+# Mott-step population as _MOTT_BREADTH_FACTOR = 1.62 above. This SUPERSEDES
+# the previous 1.1375, which was taken at Mott's l/x0 = 20 demonstration
+# configuration for consistency with the then-shipped kappa_x = 1.5; that
+# regime mismatch was a BLOCKING finding on assumption A9.3 and is now closed
+# by assumption X1. Exact Poisson thinning at the same regime gives k = 1.189
+# (with kappa_x = 1.67) — the upper edge of the quadrature band, assumption X3.
+# k moves only +3% from l/x0 = 20 to 95: it is a moment RATIO, and the breadth
+# distribution's SHAPE barely changes with l/x0 — only its mean does, which is
+# where 86% of the regime correction lands (derivation.md sec. 4.2).
+MOTT_BREADTH_VARIANCE_K = 1.1711
 
 # c(shell) = <A x^2>/(<A><x^2>), the aspect-ratio MOMENT correction [-].
 # updates/breadth-variance-factor-k/derivation.md secs. 3.0/5.1, which
@@ -213,19 +242,28 @@ MOTT_BREADTH_VARIANCE_K = 1.1375
 # Values are the "percell" closure (group weight P(A|g)*P_ruled(m in g | A)),
 # adopted because m = S*A*x^2 is a kinematic identity. Table 3's conditional
 # A|m and Mott's breadth marginal OVER-determine the joint, so the alternative
-# "marginal" closure (1.0372 / 0.9568 / 0.9449 / 0.9890) is the low end of the
-# method band; that band is wider than the +-0.6-3.6% the previous table
-# carried and it straddles the previous A_eff at 155mm (assumption K5).
-# Produced by, and reproduced by, updates/breadth-variance-factor-k/checks/
-# c-on-ruled-line-population.py.
+# "marginal" closure (1.0489 / 0.9786 / 0.9384 / 0.9581) is the low end of the
+# method band, +-5% on c and the widest METHOD band this family carries
+# (assumption K5).
+# REGIME: the breadth marginal is sampled at l/x0 = 95, and mu0 inside the
+# closure is evaluated self-consistently at the new kappa_x = 1.62 — sampling
+# the marginal at the new regime while leaving mu0 at 1.5 would be the same
+# mixed-population error B2 was raised against, one level down (assumption X4;
+# the coupling is <=0.8% on c, so no fixed-point iteration is needed).
+# c moves only +0.4 to +1.6% from the l/x0 = 20 values it replaces — the regime
+# change acts almost entirely through kappa_x^2.
+# updates/kappa-x-shell-regime/derivation.md sec. 4; produced by, and
+# reproduced by, that change's checks/c-at-fleet-regime.py, which re-runs
+# updates/breadth-variance-factor-k/checks/c-on-ruled-line-population.py
+# textually un-forked.
 # NOTE: these are tied to each shell's mass/geometry entry through mu0. A
 # change to M_case, filler or wall thickness moves mu0 and hence c — re-run
 # that check script and update this table.
 MOTT_ASPECT_MOMENT_C: dict[str, float] = {
-    "155mm M107 HE": 1.1254,
-    "105mm M1 HE": 1.0608,
-    "75mm M48 HE": 1.0247,
-    "60mm M49A2 HE": 1.0026,
+    "155mm M107 HE": 1.1524,
+    "105mm M1 HE": 1.0789,
+    "75mm M48 HE": 1.0408,
+    "60mm M49A2 HE": 1.0093,
 }
 
 
