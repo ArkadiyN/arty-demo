@@ -29,4 +29,6 @@
 - [Gold 2017 eq(17) N0 typo](gold_2017_eq17_N0_typo.md) — eq(17) N0=m/mu contradicts the paper's own line 54/eq(1) N0=M/2mu; follow the factor-of-2 form
 - [tolch-1938.md not a citable surface](tolch_md_not_citable_surface.md) — its own card.md bans citing it without a tables/*.csv; check for CSV backing before trusting an inline closure alone
 - [Header-only CSV fix double-swap](header_only_csv_fix_double_swap.md) — a column-swap fix that only renames headers leaves any reader with a manual compensating reversal double-swapped; grep all consumers
+- [Mott 1947's "1.5x0" is not an anchor](mott_1947_1p5x0_is_not_an_anchor.md) — figure-4 output of his own quadrature, 0.4x0 bins, 1 sig fig; can't validate or discriminate MC schemes
+- [Sibling verdict staleness](sibling_verdict_staleness_call_live_arty.md) — a challenge's published "shipped code" figures can predate a sibling ship; reproduce by calling live arty
 - [Moment correction is spectrum-weighted](moment_correction_is_spectrum_weighted.md) — a ratio-of-moments c inherits its sample's marginal; and in c·k identities, re-deriving one factor on a new population while keeping the other is a mixed pair

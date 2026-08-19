@@ -182,10 +182,12 @@ def test_default_shape_factors_preserve_zone_mott_output(m1_zones):
     # a regression pin on the wrong thing (its own point, per the comment
     # above, is the self-consistency, not the literal value).
     shell = SHELLS["105mm M1 HE"]
-    assert shell.breadth_factor == 1.5
+    assert shell.breadth_factor == 1.62  # updates/kappa-x-shell-regime (l/x0 = 95)
     explicit_zones = compute_shell_zones(
         dataclasses.replace(
-            shell, aspect_ratio=shell.aspect_ratio, breadth_factor=1.5
+            shell,
+            aspect_ratio=shell.aspect_ratio,
+            breadth_factor=shell.breadth_factor,
         )
     )
     assert m1_zones.ogive.mu == explicit_zones.ogive.mu

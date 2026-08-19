@@ -7,16 +7,27 @@ Three closures, of which one passes and two do not. All three are arithmetic
 internal to the paper, built from the paper's own stated definitions -- the
 form .claude/rules/source-data-fidelity.md asks for.
 
-  C1  WORKED EXAMPLE (passes).  p.306 sets up a 3 in. bomb, states
-      x0 = 1.6/sqrt(gamma) in., and concludes "if gamma ~ 100, the average
-      fragment length is about 0.24 in."  p.305 finding (1) states the average
-      fragment length is 1.5 x0.  Those three numbers close on each other:
-      1.5 * 1.6/sqrt(100) = 0.24 exactly.
-
-      This is the closure that matters most, because it validates the shipped
-      constant.  src/arty/fragmentation.py takes kappa_x = 1.5 from finding
-      (1); C1 shows that 1.5 is the same 1.5 Mott used to get his own printed
+  C1  WORKED EXAMPLE (passes, as a PAPER-INTERNAL closure only).  p.306 sets
+      up a 3 in. bomb, states x0 = 1.6/sqrt(gamma) in., and concludes "if
+      gamma ~ 100, the average fragment length is about 0.24 in."  p.305
+      finding (1) states the average fragment length is 1.5 x0.  Those three
+      numbers close on each other: 1.5 * 1.6/sqrt(100) = 0.24 exactly.  So the
+      1.5 of finding (1) is the same 1.5 Mott used to get his own printed
       answer, rather than a number read off an adjacent sentence.
+
+      WHAT C1 NO LONGER SHOWS, 2026-08-19.  This script previously ran C1 with
+      the SHIPPED kappa_x and called the result a validation of that constant.
+      It is not one, and cannot be: finding (1)'s 1.5 is Mott's statistic at
+      his l/x0 = 20 demonstration configuration, whereas the p.306 bomb's own
+      geometry (r ~ 2 in. at break-up, x0 = 0.16 in.) sits at l/x0 ~ 79.  At
+      that regime Mott's own ruled line has mean breadth 1.62 x0 = 0.259 in.,
+      so the page's 0.24 in. is Mott applying his l/x0 = 20 statistic outside
+      its regime.  C1 therefore closes the paper against itself and says
+      nothing about which kappa_x src/arty should ship.  src/arty now ships
+      kappa_x = 1.62 (l/x0 = 95, the shipped fleet's own regime) --
+      experiment/fragmentation-field/updates/kappa-x-shell-regime/
+      derivation.md secs. 2-3 and 6.4 Action E.  C1b below prints that
+      divergence as a pinned diagnostic; it is expected, not a failure.
 
   C2  THE GAMMA COLUMN (fails under the two readings tested here -- but see
       the note below, which supersedes the conclusion, not the numbers).
@@ -40,6 +51,8 @@ form .claude/rules/source-data-fidelity.md asks for.
       fragments of average length 0.6 in."  Same bomb as C1, so
       1.5 * 1.6/sqrt(gamma) = 0.6 implies gamma = 16 -- below the iron row (20)
       and far below any steel row.  Nothing in this repo consumes the 0.6 in.
+      Like C1, C3 runs on Mott's own stated 1.5, not on the shipped kappa_x:
+      it is a statement about the paper's internal consistency.
 
 C2 and C3 are pinned as expected residuals rather than left to fail: the point
 of retaining them is that a future re-extraction which moves a digit moves the
@@ -64,6 +77,15 @@ X0_COEFF_IN = 1.6  # x0 = 1.6/sqrt(gamma), inches
 WORKED_GAMMA = 100.0  # "Thus if gamma ~ 100"
 WORKED_LENGTH_IN = 0.24  # "the average fragment length is about 0.24 in."
 
+# p.305 finding (1), anchor "The fragments have lengths most of which lie".
+# Mott's OWN stated statistic, at his l/x0 = 20 demonstration configuration.
+# C1/C3 are paper-internal closures and use this, NOT the shipped kappa_x.
+MOTT_STATED_KAPPA_X = 1.5
+
+# p.306's bomb geometry, read off the same paragraph: 3 in. bomb, r ~ 2 in. at
+# break-up, so l/x0 = 2*pi*2/0.16 ~ 79 -- NOT the l/x0 = 20 of finding (1).
+WORKED_ELL_OVER_X0 = 2 * math.pi * 2.0 / (X0_COEFF_IN / math.sqrt(WORKED_GAMMA))
+
 # p.308, anchor "For mild steel, then, according to the formulae".
 MILD_STEEL_LENGTH_IN = 0.6
 
@@ -86,13 +108,36 @@ def main():
     from arty.fragmentation import _MOTT_BREADTH_FACTOR as kappa_x
 
     x0 = X0_COEFF_IN / math.sqrt(WORKED_GAMMA)
-    length = kappa_x * x0
+    length = MOTT_STATED_KAPPA_X * x0
     print(f"C1  x0 = {X0_COEFF_IN}/sqrt({WORKED_GAMMA:.0f}) = {x0:.4f} in.")
-    print(f"C1  kappa_x (src/arty) = {kappa_x}")
-    print(f"C1  {kappa_x} * {x0:.4f} = {length:.4f} in.  (page: {WORKED_LENGTH_IN})")
+    print(f"C1  Mott's stated kappa_x (p.305 finding (1), l/x0 = 20) = "
+          f"{MOTT_STATED_KAPPA_X}")
+    print(
+        f"C1  {MOTT_STATED_KAPPA_X} * {x0:.4f} = {length:.4f} in.  "
+        f"(page: {WORKED_LENGTH_IN})"
+    )
     if abs(length - WORKED_LENGTH_IN) > 5e-3:
         failures.append(
-            f"C1: 1.5*1.6/sqrt(100) = {length:.4f}, page states {WORKED_LENGTH_IN}"
+            f"C1: {MOTT_STATED_KAPPA_X}*{X0_COEFF_IN}/sqrt({WORKED_GAMMA:.0f}) = "
+            f"{length:.4f}, page states {WORKED_LENGTH_IN}"
+        )
+
+    # -- C1b the shipped constant is NOT this one (pinned diagnostic) ------
+    shipped_length = kappa_x * x0
+    print(
+        f"C1b the p.306 bomb's own geometry sits at l/x0 ~ "
+        f"{WORKED_ELL_OVER_X0:.0f}, not the l/x0 = 20 of finding (1)."
+    )
+    print(
+        f"C1b src/arty ships kappa_x = {kappa_x} (l/x0 = 95): "
+        f"{kappa_x} * {x0:.4f} = {shipped_length:.4f} in. vs the page's "
+        f"{WORKED_LENGTH_IN}. Expected divergence -- Mott applied his l/x0 = 20 "
+        "statistic outside its regime. See updates/kappa-x-shell-regime/."
+    )
+    if kappa_x < 1.55:
+        failures.append(
+            f"C1b: shipped kappa_x is back at {kappa_x}, i.e. the l/x0 = 20 "
+            "value; the fleet regime (l/x0 = 84-100) gives ~1.62"
         )
 
     # -- C2 the gamma column ----------------------------------------------
@@ -130,7 +175,7 @@ def main():
 
     # -- C3 mild-steel length ---------------------------------------------
     print()
-    implied = (kappa_x * X0_COEFF_IN / MILD_STEEL_LENGTH_IN) ** 2
+    implied = (MOTT_STATED_KAPPA_X * X0_COEFF_IN / MILD_STEEL_LENGTH_IN) ** 2
     lo = min(printed)
     print(
         f"C3  average length {MILD_STEEL_LENGTH_IN} in. implies gamma = "

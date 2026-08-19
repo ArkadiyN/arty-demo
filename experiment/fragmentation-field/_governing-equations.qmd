@@ -181,37 +181,68 @@ recovers the single shared $A = 1.6$ used before v0.13.0.
 | $\gamma'$        | Mott statistical fragmentation parameter (material, per grade) | — | 54.5 |
 | $\gamma$          | Shape-absorbed constant $\alpha^{-2/3}\gamma'$ fed to eq. (4) | — | computed |
 | $A$               | Fragment length-to-breadth ratio $\bar l/\bar x$, count-weighted literature mean | — | 1.6 |
-| $c$               | Aspect-ratio moment correction, eq. (4d) — **per shell** | — | 1.0608 |
-| $k$               | Breadth-variance factor $\langle x^2\rangle/\langle x\rangle^2$, eq. (4d) — caliber-independent | — | 1.1375 |
-| $A_{\text{eff}}$ | Effective ($x^2$-weighted) aspect ratio $c\,k\,A$, eq. (4d) | — | 1.931 |
-| $\kappa_x$       | Mean breadth in fracture spacings $\bar x/x_0$ | —     | 1.5               |
+| $c$               | Aspect-ratio moment correction, eq. (4d) — **per shell** | — | printed below |
+| $k$               | Breadth-variance factor $\langle x^2\rangle/\langle x\rangle^2$, eq. (4d) — caliber-independent | — | printed below |
+| $A_{\text{eff}}$ | Effective ($x^2$-weighted) aspect ratio $c\,k\,A$, eq. (4d) | — | printed below |
+| $\kappa_x$       | Mean breadth in fracture spacings $\bar x/x_0$ | —     | printed below     |
 | $\alpha$          | Fragment shape factor, eq. (4b)                | —     | computed          |
 | $x_0$            | Mott fracture spacing at break-up              | m     | computed          |
 | $t_{\text{bu}}$  | Case wall thickness at break-up                | m     | computed          |
 | $r_{\text{bu}}$  | Mean shell radius at break-up                  | m     | computed          |
 | $\mu$             | Half the average fragment mass                 | kg    | computed          |
 
-**Sourcing of $A$ and $\kappa_x$.** $\kappa_x = 1.5$ is Mott's own finding (1)
-(1947): fragment circumferential lengths lie mostly in $x_0\ldots 2x_0$ with
-average $1.5x_0$. Gold restates $x_0$ *itself* as the mean breadth, i.e.
-silently sets $\kappa_x = 1$; Mott is the primary source and the only one who
-measures the mean. $A = 1.6$ is the cross-dataset mean width:length $1{:}1.6$
+The four shape constants are shipped in `arty.fragmentation` and printed here
+live, so this section can never quote a stale value:
+
+```{python}
+from arty.fragmentation import (
+    _MOTT_ASPECT_RATIO,
+    _MOTT_BREADTH_FACTOR,
+    MOTT_ASPECT_MOMENT_C,
+    MOTT_BREADTH_VARIANCE_K,
+    mott_aspect_ratio,
+)
+
+print("=== Mott breadth/shape constants (arty.fragmentation) ===")
+print(f"  A       (count-weighted literature mean)   = {_MOTT_ASPECT_RATIO}")
+print(f"  kappa_x (mean breadth / fracture spacing)  = {_MOTT_BREADTH_FACTOR}")
+print(f"  k       (breadth variance, caliber-indep.) = {MOTT_BREADTH_VARIANCE_K}")
+print(f"  {'shell':<18}{'c':>9}{'A_eff = c·k·A':>16}")
+for _key in MOTT_ASPECT_MOMENT_C:
+    print(f"  {_key:<18}{MOTT_ASPECT_MOMENT_C[_key]:>9.4f}{mott_aspect_ratio(_key):>16.3f}")
+```
+
+**Sourcing of $A$ and $\kappa_x$ (v 0.15.0).** $\kappa_x$ is the mean breadth
+of Mott's (1947) ruled line, taken at the scaled circumference
+$\Lambda = l/x_0 \approx 95$ that the shipped fleet occupies. Mott's own
+finding (1) — "the average length is about $1.5x_0$" — is the same statistic
+read off his $\Lambda = 20$ *demonstration* configuration, and $\langle
+x\rangle/x_0$ grows slowly with $\Lambda$ (log slope $\approx 0.032$ per
+e-fold), so the shipped value is larger than his printed one by construction
+rather than in contradiction of it. Gold restates $x_0$ *itself* as the mean
+breadth, i.e. silently sets $\kappa_x = 1$; Mott is the primary source and the
+only one who models the mean. $A = 1.6$ is the cross-dataset mean width:length $1{:}1.6$
 of Felix et al. (2022, §2.5), corroborated by Wilson ($1{:}1.65$) and Grady
 ($1{:}1.5$) — the same aspect-ratio result cited under $C_{\text{shape}}$ in §4.
 Full argument and checks: `updates/mott-fragment-shape-closure/derivation.md`.
 
-**Sourcing of $c$ and $k$ (v 0.14.0).** Both are moments of one and the same
+**Sourcing of $c$ and $k$ (v 0.15.0).** Both are moments of one and the same
 population — Mott's 1947 **ruled line**, a line of length $l$ standing for the
 cylinder circumference, cut at points whose interval lengths are the breadth
-distribution. That is the same object $\kappa_x = 1.5$ comes from, and taking
+distribution. That is the same object $\kappa_x$ comes from, and taking
 every $\langle\cdot\rangle$ in eq. (4d) from it is what makes the $c\,k$
-factorisation an identity rather than a mixture of two distributions.
+factorisation an identity rather than a mixture of two distributions. The
+three therefore ship as **one set**, evaluated at the same $\Lambda = l/x_0
+\approx 95$; replacing any one alone re-creates the mixed-population error.
 
-$k = 1.1375$ is caliber-**in**dependent, and this is a *derived* result, not a
+$k$ is caliber-**in**dependent, and this is a *derived* result, not a
 simplification: in scaled units the ruled-line model has no caliber parameter
-at all, and $k$ is a moment *ratio*, so the single scale $x_0$ divides out.
-It is obtained by reproducing Mott's Monte Carlo, which independently returns
-$\langle x\rangle = 1.560\,x_0$ against his own reported "about $1.5x_0$".
+at all, and $k$ is a moment *ratio*, so the single scale $x_0$ divides out
+(the residual spread across the fleet's own $\Lambda$ values is 0.27 % on
+$\kappa_x$). It is obtained by reproducing Mott's Monte Carlo, which at his
+own $\Lambda = 20$ configuration returns $\langle x\rangle = 1.560\,x_0$
+against his reported "about $1.5x_0$" — the reproduction check, not the
+shipped operating point.
 The rival value $k = 2$ is **retired**: it is not a measurement but the
 exponential-breadth *assumption* of Mott & Linfoot (1943), made before the
 release-wave mechanism that Mott (1947) then computed and that contradicts it.
@@ -233,13 +264,15 @@ The shipped values are `arty.fragmentation.MOTT_BREADTH_VARIANCE_K` and
 `MOTT_ASPECT_MOMENT_C`, combined by `mott_aspect_ratio(shell)` and printed per
 shell in §Parameters; each registry entry carries the product as its
 `aspect_ratio` field, so $A \to A_{\text{eff}}$ remains the only code path
-($\mu \propto A$ exactly, $N_0 \propto 1/(c k A)$). The dominant uncertainty is
-no longer a method band on $c$ but the non-uniqueness of the reconstructed
-joint distribution, which brackets $c_{155} \in [1.037, 1.125]$ — a band that
-straddles the pre-0.14.0 $A_{\text{eff}}$ at 155 mm, which is why that caliber
-shows a null. Open assumptions: limitations 16, 17 and 18. Derivation and
-checks: `updates/breadth-variance-factor-k/derivation.md` §2–§3, with the
-conditional aspect mix from
+($\mu \propto A\,\kappa_x^{2}$ exactly, $N_0 \propto 1/(c k A \kappa_x^{2})$).
+Two method bands dominate, both one-sided: the deterministic
+$\Delta\sigma$ quadrature makes $\kappa_x$ the **low edge** of a band whose
+Poisson-sampled counterpart sits $+6.5\%$ higher on $\mu$, and the `percell`
+vs `marginal` reading of a Table-3 cell is $\pm5\%$ on $c$. Open assumptions:
+limitations 16, 17, 18 and 19. Derivation and checks:
+`updates/kappa-x-shell-regime/derivation.md` §3–§4 (the regime and the
+re-solved triple), `updates/breadth-variance-factor-k/derivation.md` §2–§3
+(the $c\,k$ identity), with the conditional aspect mix from
 `updates/mass-dependent-fragment-shape/derivation.md` §3.3b.
 
 **Note on $\gamma'$ and $\sigma_F$:** These are the dominant uncertainties.

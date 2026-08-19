@@ -46,7 +46,13 @@ import sys
 
 import numpy as np
 
-from arty.fragmentation import _MOTT_ASPECT_RATIO, gurney_velocity, mott_params
+from arty.fragmentation import (
+    _MOTT_ASPECT_RATIO,
+    MOTT_ASPECT_MOMENT_C,
+    gurney_velocity,
+    mott_aspect_ratio,
+    mott_params,
+)
 from arty.shells import SHELLS
 
 GR = 0.06479891e-3  # 1 grain [kg]
@@ -181,8 +187,12 @@ def solve_shell(shell):
 if __name__ == "__main__":
     print(f"ruled-line MC (l/x0=20, Mott step): n={XI.size}  <xi>={XI.mean():.4f}  "
           f"k_MC={K_MC:.4f}\n")
-    shipped_c = {"155mm M107 HE": 1.2506, "105mm M1 HE": 1.1024,
-                 "75mm M48 HE": 0.9854, "60mm M49A2 HE": 0.9200}
+    # Read the shipped comparison column LIVE, never hand-typed: a literal dict
+    # here silently went stale by a whole c-revision and had to be caught in
+    # review (updates/kappa-x-shell-regime/review.md Pass 3, D5), which is the
+    # "hand-copies a series into a literal array" anti-pattern of
+    # .claude/rules/source-data-fidelity.md.
+    shipped_c = dict(MOTT_ASPECT_MOMENT_C)
     for mode in ("percell", "marginal"):
         MODE = mode
         print(f"--- weighting closure: {mode} ---")
@@ -193,7 +203,7 @@ if __name__ == "__main__":
             a_eff = _MOTT_ASPECT_RATIO * c * K_MC
             print(f"{name:>14} {mu0:9.2f} {mu:9.2f} {S:8.4f} {c:8.4f} "
                   f"{shipped_c[name]:7.4f} {k_pop:7.4f} {a_eff:7.4f} "
-                  f"{_MOTT_ASPECT_RATIO * shipped_c[name]:7.4f}")
+                  f"{mott_aspect_ratio(name):7.4f}")
             ww = w / w.sum()
             pg = [ww[G == g].sum() for g in range(5)]
             print("      group weights G0..G4: " + " ".join(f"{v:.4f}" for v in pg)
