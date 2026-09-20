@@ -130,6 +130,11 @@ is a published verdict; **the main model is not modified**.
 
 Done when: notebook renders, verdict is unambiguous, reviewer approves.
 
+**Steps 3-5 run as a Workflow-tool script**, `.claude/workflows/model-workflow-a.js`
+— see "Executing B (and A) as a Workflow script", below. Steps 1-2 (librarian,
+question doc + approval) and step 6 (linking the challenge, a documentation-
+index edit) stay manual, outside the script.
+
 ## Workflow B — Update ("add/change Y in the model")
 
 A change to the integrated model. Produces a derivation, then ports the
@@ -186,6 +191,62 @@ Done when: physics is in `src/arty/`, the notebook reflects it, change-log
 entry exists, notebook renders, and `experiment/_scratch/` is empty — every
 script that produced a cited number now sits in a `checks/` folder next to the
 artifact citing it (`.claude/rules/verification-scripts.md`).
+
+**Steps 3-7 run as a Workflow-tool script**, `.claude/workflows/model-workflow-b.js`
+— see "Executing B (and A) as a Workflow script", below. Steps 1-2 (librarian,
+scoping + approval) stay manual, outside the script.
+
+## Executing B (and A) as a Workflow script
+
+The deterministic control flow above — dispatch, verify the write landed,
+loop fix/re-review against the shared two-cycle cap, escalate instead of
+looping a third time — is encoded once as a runnable script per workflow, so
+the main agent doesn't hand-drive it turn by turn:
+
+- `.claude/workflows/model-workflow-b.js` — Workflow B from an **approved**
+    `scoping.md` through derivation, both review passes, implement, and
+    present.
+- `.claude/workflows/model-workflow-a.js` — Workflow A from an **approved**
+    question doc through the optional src/ pass, the notebook, and both
+    review passes.
+
+**What stays manual, and why.** Both scripts start *after* the step that is a
+judgment call with a human/main-agent approval checkpoint — scoping in B, the
+question doc in A — not a deterministic control-flow step the Workflow tool
+models well. Librarian dispatch (optional, "is literature needed?") and, for
+A, linking the finished challenge into the parent notebook (a documentation-
+index edit, not physics) likewise stay outside the script. Gate 1 (worktree
+precondition) still binds the *caller*: `EnterWorktree` before invoking either
+script, and pass the resulting absolute path as `args.worktreePath` — the
+script throws immediately if it's missing, and every dispatch inside it
+anchors to that path per the subagent-harness cwd-inheritance gotcha.
+
+**Invoke with the `Workflow` tool**, e.g. for B:
+
+```
+Workflow({
+  scriptPath: ".claude/workflows/model-workflow-b.js",
+  args: {
+    worktreePath: "/absolute/path/to/.claude/worktrees/<name>",
+    model: "fragmentation-field",
+    changeSlug: "some-change-slug",
+    derivationGoal: "...",
+    derivationConstraints: "...",
+    derivationAcceptance: "...",
+    inputFiles: ["experiment/fragmentation-field/updates/some-change-slug/scoping.md", "..."],
+    findingsScopePaths: ["experiment/fragmentation-field/updates/some-change-slug"],
+  }
+})
+```
+
+Both scripts already inject the `collect-findings.py --for <scope>` output
+into the derivation/notebook brief (`.claude/rules/deferred-findings.md`), and
+already verify each review pass's write landed on disk before trusting its
+verdict (the "on return of each pass" check in Workflow B step 4, above,
+applies identically inside the script). If a script's own result comes back
+`status: 'escalate'`, that is exactly the "still FAIL after two cycles" stop
+condition — triage from `result.escalate` and `result.pass1`/`result.pass2`,
+don't re-invoke the script a third time on the same slug.
 
 ## When to delegate to @librarian
 
