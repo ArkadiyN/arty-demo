@@ -117,4 +117,4 @@ def test_perf_four_zone_lethal_density_field():
 def test_perf_default_run_excludes_this_module():
     """Sanity marker so the file self-documents its opt-in nature: this test
     only runs under `-m perf`, confirming the default suite skips the budgets."""
-    assert np.True_  # trivially true; presence under `-m perf` is the point
+    assert np.True_  # ty: ignore[redundant-condition] — trivially true; presence under `-m perf` is the point
