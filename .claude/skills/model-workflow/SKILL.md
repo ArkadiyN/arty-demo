@@ -337,26 +337,16 @@ code-tracing, not judgment. (`agents-routing.md` "Model tier per pass".)
 
 ## Task sequencing
 
-Never send a compound task. "Compound" means **both** more than one artifact
-*and* more than one model aspect — one prompt covers one pass on one aspect.
-All passes go to @modeler (it owns the aspect end-to-end). Edit, never rewrite,
-in every pass:
-
-1. Scoping → @modeler reads cards, writes `scoping.md` → return.
-1. Derivation → @modeler reads scoping, writes `derivation.md` → return.
-1. src/ implementation → @modeler edits `src/arty/` from the approved
-    derivation → return.
-1. Notebook presentation → @modeler edits the `.qmd`/partial to import from
-    `arty`, render, add the change-log entry, and re-render → return.
-
-Parent agent reviews each return before sending the next task. Each numbered
-step above is a **fresh `Agent` dispatch** — "→ return" means that instance is
-finished. **Never continue a modelling agent with `SendMessage` to move it to
-the next step or hand it review findings** (agents-routing.md Gate 4): that
-defeats the per-invocation context reset and grows one unbounded window. The
-next pass reads the artifacts (`scoping.md` / `derivation.md` / `review.md`),
-not the prior instance's live thread.
-Include file paths in each prompt, not conversation summaries.
+Never send a compound task: one prompt is one pass on one aspect (see
+"Decompose first", above; all passes go to @modeler, which owns the aspect
+end-to-end). The per-step mechanics — what each pass writes, when to
+re-review, when to stop and escalate — are the Workflow A/B sections above,
+and are carried out by the `.claude/workflows/model-workflow-*.js` scripts for
+the steps they cover. Every pass is still a **fresh dispatch**
+(agents-routing.md Gate 4) — never continue a modelling agent with
+`SendMessage` to advance it to the next step or hand it review findings; the
+next pass reads the artifacts, not the prior instance's live thread. Include
+file paths in each brief, not conversation summaries.
 
 ## Inject open findings into every brief
 

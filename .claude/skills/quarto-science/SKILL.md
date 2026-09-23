@@ -45,7 +45,7 @@ calls functions, and renders results and prose. It must **not** contain:
 
 - physics or geometry functions (put them in `src/arty/`),
 - parameter values or material constants (define them in `src/arty/`, e.g. the
-    shell/explosive registries, and import them),
+    material registries, and import them),
 - computation or plotting helpers reused across figures (factor them into
     `src/arty/`, e.g. an `arty.plots` module).
 
@@ -76,7 +76,7 @@ risks clobbering unrelated content.
 
 ## Scientific Python
 
-- All function arguments and return values must carry units in the one-line docstring: `"""Return fragment velocity [m/s] given C/M ratio [-] and Gurney energy [J/kg]."""`
+- All function arguments and return values must carry units in the one-line docstring: `"""Return terminal speed [m/s] given drag coefficient [-] and mass [kg]."""`
 - Use SI units internally; convert to display units (mm, g, kJ) only in plots and tables
 
 ## Rendering

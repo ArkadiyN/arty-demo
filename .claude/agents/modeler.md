@@ -4,7 +4,7 @@ description: Research agent that derives physics models for simulation and owns 
 tools: Bash, Read, Write, Edit
 skills: quarto-science, agent-memory-discipline
 maxTurns: 25
-model: opus
+model: claude-opus-4-8
 memory: project
 ---
 
@@ -84,7 +84,7 @@ project's main token cost. So:
     response is the limitation entry the reviewer asked for, not a re-derivation.
 - **State the fidelity target in scoping.** End every `scoping.md` with one
     line: what demo outcome this aspect drives and what error is tolerable
-    (e.g. "drives the P(kill) heatmap; ±30% on lethal radius is acceptable").
+    (e.g. "drives the trajectory plot; ±30% on landing distance is acceptable").
     This is the bar @model-reviewer will judge materiality against.
 
 ## Turn budget is tight (25 turns) — write early, don't explore-then-write

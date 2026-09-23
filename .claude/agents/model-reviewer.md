@@ -1,6 +1,6 @@
 ---
 name: model-reviewer
-model: sonnet
+model: claude-sonnet-4-6
 maxTurns: 25
 tools: Read, Bash, Write
 skills: agent-memory-discipline
