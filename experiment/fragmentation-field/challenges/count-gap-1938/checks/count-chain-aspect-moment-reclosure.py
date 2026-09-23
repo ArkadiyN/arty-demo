@@ -66,7 +66,10 @@ V0 = gurney_velocity(shipped)  # aspect ratio does not enter Gurney
 drag = DragParams()
 _ro, _ri, _rbu, M_case = _shell_geometry(shipped)
 
-CASES = (("legacy A=1.600", legacy), ("shipped A=1.577", shipped))
+CASES = (
+    (f"legacy A={_MOTT_ASPECT_RATIO:.3f}", legacy),
+    (f"shipped A={shipped.aspect_ratio:.3f}", shipped),
+)
 c75 = MOTT_ASPECT_MOMENT_C["75mm M48 HE"]
 
 print("=== (A) the shipped change, 75mm M48 HE ===")

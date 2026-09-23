@@ -8,6 +8,16 @@ ratio of published N values, per count-chain.md's own warning.
 Baseline (count-chain.md section 5, verdict row): mu = 0.929 g, N0 = 2681,
 m_thr(15 ft) = 0.166 g, N(>=m_thr) = 1756, vs Tolch 700 / 779.
 Closure (mott-fragment-shape-closure/derivation.md eq. 2): mu proportional to A.
+
+NOTE (2026-09-22): the mu=0.929 g / N0=2681 baseline above is the pre-c scoping
+state this update was written against and is deliberately FIXED here to show the
+leverage of a correction c -- do not re-point it to live SHELLS or the leverage
+sweep loses its reference. It is NOT the live verdict. Since this script was
+written, commits 630dac8 (k per-shell) and 18cd069 (kappa_x/k/c re-solved,
+l/x0~95) shipped aspect_ratio=1.950 -> mu=1.321 g, N0=1886, verdict row N=1322
+= 1.70x (/779) / 1.89x (/700). Live figures live in
+challenges/count-gap-1938/checks/count-chain-aspect-moment-reclosure.py; this
+scoping script does not publish the 2.28x/2.54x verdict pair and is unchanged.
 """
 
 import csv
