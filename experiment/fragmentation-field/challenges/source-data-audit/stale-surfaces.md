@@ -29,7 +29,7 @@ by roughly 7–34×, growing with range"*, attributed to the 1944 casualty table
 **Void.** All three scripts compared the model against the
 mild-steel-perforation column while applying the 58 ft-lb casualty criterion.
 Against the genuine casualties columns Family B **passes** the factor-of-2
-criterion at 8/10 (75mm), 9/11 (105mm) and 11/11 (155mm) ranges, and the
+criterion at [8/10, 10/11, 11/11 (75mm/105mm/155mm) — see b-vs-range.qmd](../drag-gap-1944/b-vs-range.qmd) ranges, and the
 residual *inverts* sign with range — over at short range, under at long. The
 "systematic calibration gap" reading dies with its premise: the pattern it
 generalised from was one column-misidentification repeated three times, which

@@ -131,8 +131,9 @@ later count-gap-1938 passes re-closed; see
 current framing, which this bullet now follows:
 
 - **L1 — Tolch's absolute perforating count: closed 2026-08-15. Genuine FAIL
-    at 2.25×/2.51× (plug-shear) and 1.8–2.1× (threshold-free); five
-    sub-candidates investigated, none clear the ≤1.5× band, none remain.**
+    (see [`count-chain.md`](challenges/count-gap-1938/count-chain.md) §3;
+    plug-shear and threshold-free residuals both outside the ≤1.5× band); five
+    sub-candidates investigated, none clear that band, none remain.**
     Tolch (1938) is
     a *compound* test (drag × Mott spectrum × a fitted energy threshold × a
     perforate/not model). A scoping pass
@@ -147,7 +148,8 @@ current framing, which this bullet now follows:
     criterion *into* the 2× band: at the one admissible sourced (non-fitted)
     energy threshold — 126 J, Tolch's own smallest-perforating-hole bound, the
     only probe measuring the same quantity the model computes — the model
-    predicts $N/779$ = 1.73 and $N/700$ = 1.92 — **met or marginal, not
+    predicts $N/779$ and $N/700$ within the 2× band (see
+    [`count-chain.md`](challenges/count-gap-1938/count-chain.md)) — **met or marginal, not
     failed**. (A second probe, 78.6 J = 58 ft-lb, was previously reported
     alongside it; it is *not* a wood-perforation threshold but the Ordnance
     Dept. 1944 personnel-casualty **incapacitation** criterion, so it is
@@ -179,9 +181,9 @@ current framing, which this bullet now follows:
     ([`updates/sourced-wood-perforation-threshold/derivation.md`](updates/sourced-wood-perforation-threshold/derivation.md)
     §7.3). Nothing in it is fitted to Tolch. Re-running the same count chain
     through it (§7.4 Check 4, direction pre-registered before the run) gives
-    $N/779$ = **2.47** and $N/700$ = **2.75** at central parameters — **outside**
-    the 2× PASS band on both denominators, where the 126 J scalar row sat inside
-    it at 1.73 / 1.92. The whole $\tau$-uncertainty band at $\eta$ = ½ is outside
+    $N/779$ and $N/700$ **outside** the 2× PASS band at central parameters,
+    where the 126 J scalar row was inside (see
+    [`count-chain.md`](challenges/count-gap-1938/count-chain.md)). The whole $\tau$-uncertainty band at $\eta$ = ½ is outside
     (2.32–2.65 on /779); only the $\eta$ = 1 rigid geometric bound (1.82–1.98)
     falls inside, and $\eta$ is geometry, not a free parameter, so it is not
     moved to buy the pass. The 126 J row's near-pass was partly a scalar
@@ -203,9 +205,10 @@ current framing, which this bullet now follows:
     ([`updates/breakup-velocity-fraction/derivation.md`](updates/breakup-velocity-fraction/derivation.md)
     §5, §8, checks in
     [`checks/f-breakup-limits.py`](updates/breakup-velocity-fraction/checks/f-breakup-limits.py)).
-    Re-running the plug-shear count chain through it takes $N/779$ from **2.47×
-    to 2.25×** (2.09–2.29× across the whole $f$ band) — direction-right and
-    real, but still **outside** the 2× PASS band at every admissible $f$. Note
+    Re-running the plug-shear count chain through it moves $N/779$ in the right
+    direction (see [`count-chain.md`](challenges/count-gap-1938/count-chain.md)
+    §3) — direction-right and real, but still **outside** the 2× PASS band at
+    every admissible $f$. Note
     $N$ does **not** scale as $f^{-2}$: $N_0\propto f^2$ falls while
     $\mu\propto f^{-2}$ rises, and the larger $\mu$ raises the survival factor,
     so realised leverage is 1.096× against the naive 1.125× (§8). The
@@ -244,8 +247,9 @@ current framing, which this bullet now follows:
     (which metal weight denominates the spectrum comparison) resolves to
     Tolch's fuze-excluded 10.94 lb case metal, restating the threshold-free
     residual as 1.8–2.1×. **No candidate remains; the standing verdict is a
-    genuine FAIL at 2.25×/2.51× (plug-shear) and 1.8–2.1× (threshold-free) —
-    every admissible reading sits outside the ≤1.5× band.** Full write-ups:
+    genuine FAIL — every admissible reading outside the ≤1.5× band; current
+    figures in [`count-chain.md`](challenges/count-gap-1938/count-chain.md)
+    §3.** Full write-ups:
     [`count-chain.md`](challenges/count-gap-1938/count-chain.md) §3,
     [`mott-tail-shape.md`](challenges/count-gap-1938/mott-tail-shape.md),
     [`spectrum-mass-basis.md`](challenges/count-gap-1938/spectrum-mass-basis.md).
@@ -516,9 +520,10 @@ half does not: ES-310 reads 0% against the source's 50%, an 11.6× stricter
 scale (ES-310 half-kill at 1 kJ vs. the source's 78.6 J), and is reported, not
 asserted, rather than tuned away. The pre-v0.9.0 model appeared to pass this
 check, but by compensating error: the superseded drag constant (combined
-0.585) gave a retardation length 4.5× too long, holding the fragment at 834 J
-— 10.6× the historical criterion — which happened to land near ES-310's 1 kJ
-half-kill point (`updates/mach-dependent-fragment-drag/checks/check5b-drag-spotcheck.py`).
+0.585) gave a retardation length too long, holding the fragment well above the
+historical criterion — which happened to land near ES-310's 1 kJ half-kill
+point (see [`derivation.md`](updates/mach-dependent-fragment-drag/derivation.md)
+for computed figures).
 Closing this needs either a documented ES-310-to-source criterion mapping or
 an independent source for the 50%-lethality energy threshold itself; neither
 exists in `doc-reference/` today. No shipped parameter depends on this check
@@ -571,7 +576,8 @@ evidential.* A Mach-dependent $C_D(M)$ integrated along each trajectory is
 both laws the same single scale freedom, it reduces RMS log-velocity error by
 ~20–25% on both the casualties and perforation columns. In the lethal-relevant
 band ($M > 0.7$, casualties column) the Mach law scores 5.3% against the
-constant's 7.1%. Both land inside the aspect's stated ±10% arrival-velocity
+constant's 7.1% (see [`derivation.md`](updates/mach-dependent-fragment-drag/derivation.md)).
+Both land inside the aspect's stated ±10% arrival-velocity
 fidelity bar, so the ~1.8-percentage-point difference is immaterial at the
 target — while adopting it would replace a closed-form $\lambda$ with a
 per-fragment ODE march at every call site, including the field kernel's single

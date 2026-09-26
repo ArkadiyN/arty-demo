@@ -332,7 +332,7 @@ and may not be a clean ballistic observable.
 limitation is written against is **void**: it was the model's 58 ft-lb casualty
 criterion compared against the mild-steel-perforation column
 (`challenges/drag-gap-1944/b-vs-range-rebaseline.md`). Against the genuine
-casualties columns Family B passes 8/10, 9/11 and 11/11, and the residual
+casualties columns Family B passes [8/10, 10/11, 11/11 — see b-vs-range.qmd](../../challenges/drag-gap-1944/b-vs-range.qmd), and the residual
 *inverts* sign with range — so there is no growing-with-range gap left for this
 limitation to decline to close. The ~10% headroom figure survives but its
 justification does not: `C_shape` has no geometric ceiling (a sliver has

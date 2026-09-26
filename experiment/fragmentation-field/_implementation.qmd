@@ -68,7 +68,7 @@ count and the per-fragment reach move in opposite directions and very nearly
 cancel in $P_\text{kill}(r)$, so a $-38\,\%$ swing in $N_0$ shifts $R_{50}$ by
 only $\approx +2.5\,\%$ — and $R_{50}$ is in fact *non-monotone* in $\gamma$,
 with a broad maximum sitting essentially at the adopted $\gamma = 47$
-(`updates/wdss1-steel-grade/derivation.md` C8). A grade selector wired to a
+([`updates/wdss1-steel-grade/derivation.md`](updates/wdss1-steel-grade/derivation.md) C8). A grade selector wired to a
 headline $R_{50}$ readout would look broken while behaving correctly.
 
 ______________________________________________________________________

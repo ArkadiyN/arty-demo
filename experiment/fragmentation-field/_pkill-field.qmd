@@ -102,7 +102,7 @@ plt.show()
 
 The inner ring is now fully lethal: every annulus cell that the old ground-plane
 transform scored $P_k=0$ is struck at chest/head height by the horizontal belt.
-Directly under the burst ($r\lesssim (h_b-h)/\tan\delta\approx1.1$ m) even the top
+Directly under the burst ($r\lesssim (h_b-h)/\tan\delta\approx$ `{python} f"{(burst_steep.h_b - STANDING.h)/np.tan(np.deg2rad(burst_steep.spray_half_angle)):.1f}"` m) even the top
 of the head sits below the belt's lowest ray, so $P_k\to0$ there — correct, a horizontal
 belt genuinely passes over someone standing right beneath it (derivation §6.3
 honesty check). The fill is the *reachable* ring, not a spurious blanket.
@@ -148,7 +148,7 @@ The model now correctly predicts a **standing** soldier is *more* exposed than a
 prone one near a high–angle-of-fall low burst — the opposite of the frozen-area
 behaviour, and the physical point of the fix (derivation §4). A prone body sits
 *beneath* the horizontal belt close in, so the belt reaches its 0.3 m column
-only past an illumination-onset radius (here $r\approx6.4$ m): the inner ring
+only past an illumination-onset radius (here $r\approx$ `{python} f"{onset_p:.1f}"` m): the inner ring
 exposes it over only its outer edge (≈one-fifth of the ring) versus the whole
 ring for a standing target. Much less exposed near the burst — but **not** a
 safe zone, and not the spurious exact "$0\%$" a coarse plot grid can alias to at
