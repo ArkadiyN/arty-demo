@@ -470,8 +470,42 @@ def test_3d_ground_burst_limit():
     r_hi = compute_frag_field_3d(
         burst=BurstParams(h_b=10.0, angle_of_fall=30.0), posture=STANDING, n_grid=30,
     )
-    assert r_lo.r50_cross > 0
-    assert r_hi.r50_cross > 0
+    # The h_b=10 m standing slice peaks at ~0.5 (0.50 at n_grid=30, 0.43 at 80), so
+    # its R50 is grid-marginal: assert only that R50 is defined iff the slice reaches
+    # 0.5 (experiment/fragmentation-field/updates/r50-not-reached/derivation.md).
+    assert np.isfinite(r_lo.r50_cross) and r_lo.r50_cross > 0
+    for r in (r_lo, r_hi):
+        assert np.isnan(r.r50_cross) == (r.pk_cross.max() < 0.5)
+        assert np.isnan(r.r50_cross) or r.r50_cross > 0
+
+
+def test_r50_not_reached_is_nan():
+    # h_b=20 m, AoF=0, 105 mm M1: max P_k 0.15 standing / 0.31 prone -> no R50.
+    from arty.shells import SHELLS
+    reg = SHELLS["105mm M1 HE"]
+    shell = ShellParams(caliber=reg.caliber, wall_t=0.011, mass_total=reg.mass_total,
+                        mass_filler=reg.mass_filler, mass_deductions=reg.mass_deductions,
+                        filler=reg.filler, steel=reg.steel, aspect_ratio=reg.aspect_ratio)
+    for post in (STANDING, PRONE):
+        r = compute_frag_field_3d(
+            shell=shell, burst=BurstParams(h_b=20.0, angle_of_fall=0.0, spray_half_angle=15.0),
+            posture=post, max_radius=60.0, n_grid=61,
+        )
+        assert r.pk_cross.max() < 0.5
+        assert np.isnan(r.r50_cross)
+
+
+def test_r50_outer_helper():
+    from arty.fragmentation import r50_outer, r50_cross_slice
+    r = np.array([0.0, 10.0, 20.0, 30.0])
+    assert np.isnan(r50_outer(r, np.array([0.1, 0.2, 0.3, 0.1])))
+    assert np.isinf(r50_outer(r, np.array([0.9, 0.8, 0.7, 0.6])))
+    # ring profile: inner flank crosses at 5 m, outer edge at 25 m -> outer wins
+    assert r50_outer(r, np.array([0.0, 1.0, 1.0, 0.0])) == pytest.approx(25.0)
+    y = np.array([-30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0])
+    pk = np.array([0.0, 0.6, 0.9, 1.0, 0.9, 0.4, 0.0])
+    # +y edge at 18 m, -y edge at 20 + 0.1/0.6*10 m -> larger half wins
+    assert r50_cross_slice(y, pk) == pytest.approx(20.0 + 0.1 / 0.6 * 10.0)
 
 
 def test_airburst_prone_advantage():

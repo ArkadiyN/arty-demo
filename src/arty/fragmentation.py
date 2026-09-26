@@ -410,7 +410,7 @@ class FragField3dResult:
     field_pk: np.ndarray              # P(kill) on 2D grid
     r_cross: np.ndarray               # cross-range distances at x=0 [m]
     pk_cross: np.ndarray              # P(kill) along cross-range slice
-    r50_cross: float                  # R50 along cross-range [m]
+    r50_cross: float                  # R50 along cross-range [m]; NaN = not reached, inf = beyond max_radius
     r_ke: np.ndarray                  # radial slant range for ke_by_mass [m]
     ke_by_mass: dict[float, np.ndarray]
     N0: float
@@ -418,13 +418,21 @@ class FragField3dResult:
     V0: float
     burst: BurstParams
     posture: PostureParams
+    n_eff_cross: np.ndarray | None = None  # expected lethal hits N_eff [-] along cross-range slice (pk_cross = 1 - exp(-n_eff_cross))
+
+    @property
+    def lethal_area(self) -> float:
+        """Return field lethal area sum(P_kill) dA [m^2] over the returned 2D grid (uniform spacing)."""
+        dx = float(self.field_x[0, 1] - self.field_x[0, 0])
+        dy = float(self.field_y[1, 0] - self.field_y[0, 0])
+        return float(self.field_pk.sum() * dx * dy)
 
 
 @dataclass
 class FragFieldResult:
     r: np.ndarray  # radial distance from burst [m]
     p_kill: np.ndarray  # p_kill at each r
-    r50: float  # range at which p_kill = 0.5 [m]
+    r50: float  # outermost range where p_kill falls through 0.5 [m]; NaN = not reached, inf = beyond domain
     ke_by_mass: dict[float, np.ndarray]  # {mass_g: KE array [J]}
     field_x: np.ndarray  # 2D meshgrid X [m]
     field_y: np.ndarray  # 2D meshgrid Y [m]
@@ -702,6 +710,45 @@ def expected_kills(
 
 
 # ---------------------------------------------------------------------------
+# R50 extraction
+# ---------------------------------------------------------------------------
+
+
+def r50_outer(r: np.ndarray, pk: np.ndarray) -> float:
+    """Return outermost range [m] where P_kill [-] falls through 0.5, linearly interpolated.
+
+    ``r`` must be ascending. Returns NaN when P_kill < 0.5 everywhere (R50 not
+    reached) and +inf when P_kill >= 0.5 at the last sample (R50 beyond the
+    domain). See experiment/fragmentation-field/updates/r50-not-reached/derivation.md.
+    """
+    r = np.asarray(r, dtype=float)
+    pk = np.asarray(pk, dtype=float)
+    above = np.flatnonzero(pk >= 0.5)
+    if above.size == 0:
+        return float("nan")
+    i = int(above[-1])
+    if i == r.size - 1:
+        return float("inf")
+    p0, p1 = pk[i], pk[i + 1]
+    return float(r[i] + (p0 - 0.5) / (p0 - p1) * (r[i + 1] - r[i]))
+
+
+def r50_cross_slice(y: np.ndarray, pk: np.ndarray) -> float:
+    """Return R50 [m] of a cross-range slice at signed positions y [m] (ascending), P_kill [-].
+
+    Applies :func:`r50_outer` to each half (y >= 0 and y <= 0) and returns the
+    larger; NaN only if neither half reaches 0.5.
+    """
+    y = np.asarray(y, dtype=float)
+    pk = np.asarray(pk, dtype=float)
+    pos = y >= 0.0
+    neg = y <= 0.0
+    vals = [r50_outer(y[pos], pk[pos]), r50_outer(-y[neg][::-1], pk[neg][::-1])]
+    vals = [v for v in vals if not np.isnan(v)]
+    return max(vals) if vals else float("nan")
+
+
+# ---------------------------------------------------------------------------
 # Top-level entry point
 # ---------------------------------------------------------------------------
 
@@ -720,8 +767,7 @@ def compute_frag_field(
     N_eff = expected_kills(r, N0, mu, V0, drag, shell.steel.rho, target.w)
     pk = 1.0 - np.exp(-N_eff)
 
-    idx50 = np.argmin(np.abs(pk - 0.5))
-    r50 = float(r[idx50])
+    r50 = r50_outer(r, pk)
 
     rep_masses_g = [0.5, 5.0, 50.0]
     rep_masses_kg = np.array([m * 1e-3 for m in rep_masses_g])
@@ -1777,8 +1823,7 @@ def compute_frag_field_3d(
     )
     pk_cross = 1.0 - np.exp(-N_eff_cross)
     r_cross = np.abs(xy)
-    idx50 = np.argmin(np.abs(pk_cross - 0.5))
-    r50_cross = float(np.abs(xy[idx50]))
+    r50_cross = r50_cross_slice(xy, pk_cross)
 
     rep_masses_g = [0.5, 5.0, 50.0]
     rep_masses_kg = np.array([m * 1e-3 for m in rep_masses_g])
@@ -1802,4 +1847,5 @@ def compute_frag_field_3d(
         V0=V0,
         burst=burst,
         posture=posture,
+        n_eff_cross=N_eff_cross,
     )

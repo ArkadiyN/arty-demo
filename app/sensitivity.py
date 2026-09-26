@@ -15,6 +15,7 @@ from arty.fragmentation import (
     compute_frag_field_3d,
     pkill_field_3d,
     pkill_volume_3d,
+    r50_cross_slice,
     retardation_coeff,
 )
 from arty.zones import (
@@ -255,8 +256,7 @@ def _compute_zones(
     xy = np.linspace(-max_radius, max_radius, n_grid)
     x_idx = n_grid // 2
     pk_cross = pk_total[:, x_idx]
-    idx50 = np.argmin(np.abs(pk_cross - 0.5))
-    r50_cross = float(np.abs(xy[idx50]))
+    r50_cross = r50_cross_slice(xy, pk_cross)
 
     # KE chart using cylinder zone V0
     cyl = zones.cylinder
@@ -277,6 +277,7 @@ def _compute_zones(
         "pk_by_zone": pk_by_zone,
         "zones": zones,
         "r50_cross": r50_cross,
+        "pk_cross_max": float(pk_cross.max()),
         "r_ke": r_ke,
         "ke_by_mass": ke_by_mass,
         "V0_cyl": cyl.V0_ms,
@@ -360,14 +361,32 @@ if model_mode == "Four-zone (new)":
 # Headline metrics
 # ---------------------------------------------------------------------------
 
+def _fmt_r50(r50: float) -> str:
+    """Display string for an R50 [m]: NaN = not reached, inf = beyond the computed radius."""
+    if np.isnan(r50):
+        return "not reached"
+    if np.isinf(r50):
+        return f"> {max_radius:.0f} m"
+    return f"{r50:.0f} m"
+
+
+def _r50_delta(r50: float, pk_max: float):
+    """Metric caption showing the slice's max P(kill) when R50 is not reached."""
+    return f"max P(kill) {pk_max:.2f}" if np.isnan(r50) else None
+
+
 col1, col2, col3, col4 = st.columns(4)
 if model_mode == "Four-zone (new)" and result_zones is not None:
-    col1.metric("R₅₀ (cross-range)", f"{result_zones['r50_cross']:.0f} m")
+    col1.metric("R₅₀ (cross-range)", _fmt_r50(result_zones["r50_cross"]),
+                delta=_r50_delta(result_zones["r50_cross"], result_zones["pk_cross_max"]),
+                delta_color="off")
     col2.metric("V₀", f"{result_zones['V0_cyl']:.0f} m/s", delta="(cyl zone)", delta_color="off")
     col3.metric("N₀ (total frags)", f"{result_zones['N0_cyl']:.0f}", delta="(cyl zone)", delta_color="off")
     col4.metric("μ (half-mass)", f"{result_zones['mu_cyl'] * 1e3:.2f} g", delta="(cyl zone)", delta_color="off")
 else:
-    col1.metric("R₅₀ (cross-range)", f"{result.r50_cross:.0f} m")
+    col1.metric("R₅₀ (cross-range)", _fmt_r50(result.r50_cross),
+                delta=_r50_delta(result.r50_cross, float(result.pk_cross.max())),
+                delta_color="off")
     col2.metric("V₀", f"{result.V0:.0f} m/s")
     col3.metric("N₀ (total frags)", f"{result.N0:.0f}")
     col4.metric("μ (half-mass)", f"{result.mu * 1e3:.2f} g")
@@ -790,7 +809,7 @@ if model_mode == "Single-zone (legacy)":
     fig3.add_trace(go.Scatter(x=[0], y=[0], mode="markers",
         marker=dict(symbol="cross", size=12, color="black"), showlegend=False))
     fig3.update_layout(
-        title=f"2D Fragmentation Field  ·  R₅₀ = {result.r50_cross:.0f} m",
+        title=f"2D Fragmentation Field  ·  R₅₀ = {_fmt_r50(result.r50_cross)}",
         xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
         yaxis_title="Cross-range  y  [m]",
         height=700,
@@ -800,7 +819,8 @@ if model_mode == "Single-zone (legacy)":
     _elev_col, _ = st.columns(2)
     with _elev_col:
         st.plotly_chart(
-            _plotly_elevation(None, float(angle_of_fall), h_b, float(result.r50_cross),
+            _plotly_elevation(None, float(angle_of_fall), h_b,
+                              float(result.r50_cross) if np.isfinite(result.r50_cross) else 0.0,
                               spray_half_angle_deg=float(spray_half_angle)),
             use_container_width=True,
         )
@@ -822,7 +842,7 @@ else:  # Four-zone (new)
         fig_leg.add_trace(go.Scatter(x=[0], y=[0], mode="markers",
             marker=dict(symbol="cross", size=12, color="black"), showlegend=False))
         fig_leg.update_layout(
-            title=f"Single-zone (legacy)  ·  R₅₀ = {result.r50_cross:.0f} m",
+            title=f"Single-zone (legacy)  ·  R₅₀ = {_fmt_r50(result.r50_cross)}",
             xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
             yaxis_title="Cross-range  y  [m]",
             height=600,
@@ -841,7 +861,7 @@ else:  # Four-zone (new)
         fig_4z.add_trace(go.Scatter(x=[0], y=[0], mode="markers",
             marker=dict(symbol="cross", size=12, color="black"), showlegend=False))
         fig_4z.update_layout(
-            title=f"Four-zone (new)  ·  R₅₀ = {result_zones['r50_cross']:.0f} m",
+            title=f"Four-zone (new)  ·  R₅₀ = {_fmt_r50(result_zones['r50_cross'])}",
             xaxis=dict(title="Downrange  x  [m]", scaleanchor="y"),
             yaxis_title="Cross-range  y  [m]",
             height=600,

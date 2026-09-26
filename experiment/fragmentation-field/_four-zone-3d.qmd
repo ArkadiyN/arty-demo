@@ -277,6 +277,169 @@ assert abs(ap_prone_v - 0.90) < 0.01
 print("  ✓ all four limits match derivation §3.8")
 ```
 
+#### 6.6.1 · Posture crossover — the γ-sweep and ground-burst vs airburst
+
+The endpoints above are the two ends of the curve the aspect exists to
+produce (target-area-profile derivation §7, item 7). Sweeping the arrival
+elevation $\gamma$ across its full range shows the crossover directly.
+
+```{python}
+#| label: fig-ap-gamma-sweep
+#| fig-cap: "Presented area $A_p(\\gamma)$ (eq. 22') for standing and prone targets across the full arrival-elevation range. Dashed line: the sampled crossover angle $\\gamma^*$."
+from arty.fragmentation import compute_frag_field_3d, BurstParams
+
+gam = np.linspace(0.0, np.pi / 2, 181)          # 0.5° display grid
+ap_stand = np.array([presented_area(g, STANDING) for g in gam])
+ap_prone = np.array([presented_area(g, PRONE) for g in gam])
+i_x = int(np.argmax(ap_prone >= ap_stand))      # first sampled γ where prone ≥ standing
+gam_x_deg = float(np.degrees(gam[i_x]))
+ap_x = float(ap_stand[i_x])
+
+fig, ax = plt.subplots(figsize=(6, 3.6))
+ax.plot(np.degrees(gam), ap_stand, label="standing")
+ax.plot(np.degrees(gam), ap_prone, label="prone")
+ax.axvline(gam_x_deg, color="grey", ls="--", lw=0.8)
+ax.set_xlabel(r"arrival elevation $\gamma$ [deg]  (0 = horizontal, 90 = from above)")
+ax.set_ylabel(r"$A_p$ [m$^2$]")
+ax.legend()
+plt.show()
+```
+
+A standing target presents more area to fragments arriving below
+$\gamma^* \approx$ `{python} f"{gam_x_deg:.1f}"`° (sampled on a 0.5° grid, where
+$A_p \approx$ `{python} f"{ap_x:.2f}"` m² for both postures); above it the
+prone target presents more. Which posture is safer at a given point therefore
+depends on how steeply fragments arrive there. A low burst sends them in nearly
+horizontally (small $\gamma$). An airburst sends them in more steeply, but only
+as steeply as the belt allows. Fragments leave at $90° \pm \delta$ from the
+shell axis, so on the ground the arrival elevation is bounded by roughly
+$\gamma_\text{max} \approx 90° - \text{AoF} + \delta$, so $\gamma$ reaches
+90° (the belt directly beneath the burst) only for AoF ≤ δ. The cross-range
+slice $x = 0$ lies in the belt only at AoF = 0°.
+
+**Limiting geometry, AoF = 0°.** This geometry exposes the full $\gamma$ range,
+so it is the extreme case for the posture effect. It is not representative of
+howitzer fire. The plot shows the graded (Family-A) field
+`compute_frag_field_3d` (M1 105 mm, δ = 15°) along the cross-range slice
+$x = 0$, which lies inside the belt only at this AoF:
+
+```{python}
+#| label: fig-posture-ground-vs-air
+#| fig-cap: "Cross-range $P_\\text{kill}$ for standing and prone targets under a near-ground burst ($h_b$ = 0.5 m) and an airburst ($h_b$ = 20 m). Graded Family-A field, M1 105 mm, AoF = 0°, δ = 15°."
+hb_ground, hb_air = 0.5, 20.0
+cases = {}
+for hb in (hb_ground, hb_air):
+    for name, post in (("standing", STANDING), ("prone", PRONE)):
+        cases[(hb, name)] = compute_frag_field_3d(
+            shell=shell, drag=drag,
+            burst=BurstParams(h_b=hb, angle_of_fall=0.0, spray_half_angle=15.0),
+            posture=post, max_radius=60.0, n_grid=121,
+        )
+
+def slice_at(res, arr, r):
+    """Read a returned cross-range array [-] at range r [m] (positive half of the slice)."""
+    half = res.r_cross.size // 2
+    return float(np.interp(r, res.r_cross[half:], arr[half:]))
+
+fig, axes = plt.subplots(1, 2, figsize=(9, 3.4), sharey=True)
+for ax, hb, ttl in ((axes[0], hb_ground, "near-ground burst"), (axes[1], hb_air, "airburst")):
+    for name in ("standing", "prone"):
+        res = cases[(hb, name)]
+        half = res.r_cross.size // 2
+        ax.plot(res.r_cross[half:], res.pk_cross[half:], label=name)
+    ax.set_title(f"{ttl}, $h_b$ = {hb:g} m")
+    ax.set_xlabel("cross-range distance [m]")
+axes[0].set_ylabel(r"$P_\mathrm{kill}$")
+axes[0].legend()
+plt.show()
+
+r_tab = (0.0, 10.0, 20.0)
+pk_tab = {k: [slice_at(v, v.pk_cross, r) for r in r_tab] for k, v in cases.items()}
+ne_tab = {k: [slice_at(v, v.n_eff_cross, r) for r in r_tab] for k, v in cases.items()}
+print(f"P_kill{'':>16}" + "".join(f"  r={r:>4.0f} m" for r in r_tab))
+for (hb, name), vals in pk_tab.items():
+    print(f"  h_b={hb:>4g} m {name:>9}" + "".join(f"  {v:>8.3f}" for v in vals))
+print("\nprone / standing expected lethal hits N_eff:")
+for hb in (hb_ground, hb_air):
+    ratios = [p / s for p, s in zip(ne_tab[(hb, 'prone')], ne_tab[(hb, 'standing')])]
+    print(f"  h_b={hb:>4g} m        " + "".join(f"  {q:>8.2f}" for q in ratios))
+
+rat_g10 = ne_tab[(hb_ground, "prone")][1] / ne_tab[(hb_ground, "standing")][1]
+rat_a0 = ne_tab[(hb_air, "prone")][0] / ne_tab[(hb_air, "standing")][0]
+rat_a10 = ne_tab[(hb_air, "prone")][1] / ne_tab[(hb_air, "standing")][1]
+pkmax_air = max(cases[(hb_air, n)].pk_cross.max() for n in ("standing", "prone"))
+```
+
+In this limiting geometry, the prone/standing ratio of expected lethal hits
+$N_\text{eff}$ at 10 m cross-range is `{python} f"{rat_g10:.2f}"` under the
+near-ground burst, so lying down protects. Under the airburst it is
+`{python} f"{rat_a10:.2f}"`, rising to `{python} f"{rat_a0:.1f}"` directly
+beneath. Here the ordering does flip, and the width-based factor could not
+produce that. The $r = 0$ column is the $\gamma = 90°$ point directly beneath
+the burst. At that point the ratio is the $A_p(90°)$ ceiling for any burst
+height, and the ground-burst $P_\text{kill}$ there is saturated at 1. Ratios
+use $N_\text{eff}$ rather than $P_\text{kill}$
+($P_\text{kill} = 1 - e^{-N_\text{eff}}$) because saturation compresses the
+$P_\text{kill}$ contrast near the burst. The two orderings agree. Under the
+20 m airburst $P_\text{kill}$ peaks at `{python} f"{pkmax_air:.2f}"` on this
+slice, so $R_{50}$ is not reached and is not tabulated.
+
+**Realistic angles of fall — the whole field.** Once AoF > 0 the belt
+tilts, $\gamma_\text{max}$ falls, and no single slice represents the field.
+The measure that decides the posture question is the field lethal area
+$\sum P_\text{kill}\,\mathrm{d}A$ (`FragField3dResult.lethal_area`):
+
+```{python}
+#| label: tbl-posture-lethal-area-aof
+aof_tab = (0.0, 15.0, 30.0, 45.0, 60.0, 75.0)
+aof_default = BurstParams().angle_of_fall
+la_R, la_n = 200.0, 401                           # ±200 m box, 1 m spacing (converged)
+la_ratio = {}
+for aof in aof_tab:
+    for hb in (hb_ground, hb_air):
+        la = {name: compute_frag_field_3d(
+                  shell=shell, drag=drag,
+                  burst=BurstParams(h_b=hb, angle_of_fall=aof, spray_half_angle=15.0),
+                  posture=post, max_radius=la_R, n_grid=la_n).lethal_area
+              for name, post in (("standing", STANDING), ("prone", PRONE))}
+        la_ratio[(aof, hb)] = la["prone"] / la["standing"]
+print(f"lethal area prone / standing   h_b={hb_ground:g} m   h_b={hb_air:g} m")
+for aof in aof_tab:
+    tag = "  (model default)" if aof == aof_default else ""
+    print(f"  AoF = {aof:>4.0f}°{'':>17}{la_ratio[(aof, hb_ground)]:>6.2f}"
+          f"{la_ratio[(aof, hb_air)]:>12.2f}{tag}")
+flip_aofs = [a for a in aof_tab if la_ratio[(a, hb_air)] > 1.0]
+la_air_max_aof = max(aof_tab, key=lambda a: la_ratio[(a, hb_air)])
+if flip_aofs:
+    flip_text = (f"On this grid the 20 m airburst ratio exceeds 1 at AoF ≤ "
+                 f"{max(flip_aofs):.0f}°, the near-horizontal geometries above.")
+else:
+    flip_text = (f"The 20 m airburst ratio stays below 1 at every AoF tabulated. It comes "
+                 f"closest to parity, {la_ratio[(la_air_max_aof, hb_air)]:.2f}, at "
+                 f"AoF = {la_air_max_aof:.0f}°, so the per-point flip on the AoF = 0° slice "
+                 f"does not carry over to the whole field.")
+```
+
+The sum runs over a `{python} f"{2 * la_R:.0f}"` m ×
+`{python} f"{2 * la_R:.0f}"` m box at `{python} f"{2 * la_R / (la_n - 1):.0f}"` m
+spacing, much wider than the ±60 m slice panel, because the airburst far field
+is still lethal at 60 m. A ±60 m box under-counts the standing airburst area
+and biases the ratio upward. On this box the ratios agree with a ±300 m
+reference to within 1%
+(`updates/target-area-profile/checks/posture-lethal-area-convergence.py`).
+
+At the model's default AoF = `{python} f"{aof_default:.0f}"`°, prone
+exposes `{python} f"{la_ratio[(aof_default, hb_ground)]:.2f}"`× the standing
+lethal area under the near-ground burst and
+`{python} f"{la_ratio[(aof_default, hb_air)]:.2f}"`× under the 20 m airburst.
+The airburst **narrows** the prone advantage but does not reverse it.
+`{python} flip_text` The airburst ratio falls further as the shell steepens,
+to `{python} f"{la_ratio[(aof_tab[-1], hb_air)]:.2f}"` at
+AoF = `{python} f"{aof_tab[-1]:.0f}"`°. Under the ground burst, prone reduces exposure but does not remove it. The
+per-point hit ratio away from the burst tends to the horizontal-arrival floor
+$A_p(0)_\text{prone}/A_p(0)_\text{standing} =$
+`{python} f"{ap_prone[0] / ap_stand[0]:.2f}"`, not to zero.
+
 ### 6.7 · Four-zone field and ground-impact diagnostic
 
 ```{python}
