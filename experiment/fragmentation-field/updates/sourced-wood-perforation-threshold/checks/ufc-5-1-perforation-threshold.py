@@ -3,7 +3,10 @@
 Runs the validation checks that scoping.md's "Validation checks the derivation
 pass must run" section specifies: (1) closure on small-arms / Sanborn-sphere
 forward cases, (2) monotonicity and limits of E_thr(m), (3) bracketing of the
-two non-fitted Tolch probes (78.6 J, 126 J).
+two non-fitted probes (78.6 J, 1944 Ordnance casualty criterion; 126 J, an
+unsourced constant-energy probe -- once attributed to Tolch 1938, but its
+0.36 g / 838 m/s datum is not in Tolch; see the Tolch card.md, "Smallest
+recorded fragment mass making a perforation").
 
 Run from the repo root:  uv run python \
   experiment/fragmentation-field/updates/sourced-wood-perforation-threshold/checks/ufc-5-1-perforation-threshold.py

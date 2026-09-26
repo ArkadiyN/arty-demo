@@ -85,7 +85,7 @@ print("\n=== (G1) scalar-threshold reference rows (block D, unchanged) ===")
 print("  these are plausibility probes / fits, NOT sourced perforation thresholds")
 for E_scalar, label in [
     (78.6, "1944 Ordnance casualty criterion, 58 ft-lb - NOT a perforation thr"),
-    (126.0, "Tolch hole-size bound"),
+    (126.0, "unsourced probe (0.36 g/838 m/s NOT in Tolch)"),
 ]:
     m_thr = min_lethal_mass(S_PANEL, V0, E_scalar, drag, rho)
     N = mott_N(np.array([m_thr]), N0, mu)[0]

@@ -55,8 +55,8 @@ Martineau's data, where the measured acceleration time doubles from
 $M/C=0.498$ to $1.02$ while the velocity approaches the same fraction of its
 own Gurney value. It also means the $M/C = 5$–7.5 registry extrapolation
 flagged in scoping §3 is **not an extrapolation of $f$** — only of eq. (1),
-which is already validated at $M/C\approx7$ against Tolch (864.4 vs 838.2 m/s,
-1.03×).
+which is already validated at $M/C\approx7$ against Tolch (864.4 vs 835.2 m/s,
+1.03×; Tolch's figure is inferred from the side-spray angle, not measured).
 
 ## 2. Released energy under a constant-$\gamma_g$ isentrope
 

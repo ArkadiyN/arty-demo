@@ -119,9 +119,9 @@ candidate that could have absorbed the residual as a comparison-basis
 artefact rather than a model defect, and it does not. Tolch's census grades
 every hit as perforation, penetration or dent, so the 700 column is
 perforation-limited by construction and C5 collapses into C1 — no separate
-detection credit exists (§3 C5 reading (i)).** A secondary upper-bound
-reading, which rests on the inadmissible 0.36 g / 838 m/s datum (§3 C5 reading
-(iv)), also stays outside the band (§3 C5 reading (ii)). That discharges §4's
+detection credit exists (§3 C5 reading (i)).** The discharge rests on that
+census-grading argument alone (a secondary bound that leaned on an unsourced
+"0.36 g" figure was struck 2026-09-26 — §3 C5). That discharges §4's
 INDETERMINATE clause, which fired only if C5's cutoff could not be bounded
 below ~1.5×: on reading (i) there is no cutoff credit at all, so at the
 2026-08-16 state the verdict was a plain, genuine **FAIL at 2.28× (/779) and
@@ -202,15 +202,15 @@ Units: m·m²·Pa/(m²s⁻²) = kg ✓. Note $\rho_\text{steel}$ **cancels** —
 only via $x_0$ and is removed again by the shape closure; consistent with the
 known result that only the ratio $\sigma_f/\gamma'$ is identifiable.
 
-| Link | Parameter        | $N_0 \propto$             | Factor needed for 4–6×                | Admissible?                                                                 |
-| :--- | :--------------- | :------------------------ | :------------------------------------ | :-------------------------------------------------------------------------- |
-| (1)  | $V_0$            | $V_0^{2}$                 | $V_0$ high by 2.0–2.4×                | **No** — model 864.4 vs Tolch's measured 838.2 m/s (item 10): high by 1.03× |
-| (3)  | $M_\text{case}$  | $M_\text{case}$           | case mass high by 4–6×                | **No** — 4980 g, *below* Tolch's 13.29 lb (6028 g) pit-recovery basis       |
-| (5)  | $\sigma_f$       | $\sigma_f^{-1}$           | $\sigma_f \approx 133$–200 MPa        | **No** — shipped 800 MPa; Mott's own worked example is 772 MPa              |
-| (5)  | $\gamma'$        | $\gamma'$                 | $\gamma' \approx 218$–327             | **No** — shipped 54.5; Mott's table spans 42–67                             |
-| (5)  | $A,\kappa_x$     | $A\kappa_x^{2}$           | prism 4–6× more slender               | **No** — fixed by `updates/mott-fragment-shape-closure/derivation.md` §2–4  |
-| (5)  | $t_{bu}, r_{bu}$ | $(t_{bu}r_{bu}^2)^{-1}$   | break-up radius/thinning wrong 2–2.5× | Bounded — see C2                                                            |
-| (4)  | $E_{thr}$        | — (enters $N$, not $N_0$) | **unbounded**                         | fitted, not sourced                                                         |
+| Link | Parameter        | $N_0 \propto$             | Factor needed for 4–6×                | Admissible?                                                                                                                                                         |
+| :--- | :--------------- | :------------------------ | :------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| (1)  | $V_0$            | $V_0^{2}$                 | $V_0$ high by 2.0–2.4×                | **No** — model 864.4 vs Tolch's 835.2 m/s (2740 f/s, item 10; inferred from the side-spray angle, not measured; was read as 838.2 before 2026-09-26): high by 1.03× |
+| (3)  | $M_\text{case}$  | $M_\text{case}$           | case mass high by 4–6×                | **No** — 4980 g, *below* Tolch's 13.29 lb (6028 g) pit-recovery basis                                                                                               |
+| (5)  | $\sigma_f$       | $\sigma_f^{-1}$           | $\sigma_f \approx 133$–200 MPa        | **No** — shipped 800 MPa; Mott's own worked example is 772 MPa                                                                                                      |
+| (5)  | $\gamma'$        | $\gamma'$                 | $\gamma' \approx 218$–327             | **No** — shipped 54.5; Mott's table spans 42–67                                                                                                                     |
+| (5)  | $A,\kappa_x$     | $A\kappa_x^{2}$           | prism 4–6× more slender               | **No** — fixed by `updates/mott-fragment-shape-closure/derivation.md` §2–4                                                                                          |
+| (5)  | $t_{bu}, r_{bu}$ | $(t_{bu}r_{bu}^2)^{-1}$   | break-up radius/thinning wrong 2–2.5× | Bounded — see C2                                                                                                                                                    |
+| (4)  | $E_{thr}$        | — (enters $N$, not $N_0$) | **unbounded**                         | fitted, not sourced                                                                                                                                                 |
 
 **The Mott parameter stage cannot carry a 4–6× multiplier.** This is the same
 closure argument the `../mott-scale-gap/` thread ran pre-fix, re-run against the
@@ -244,7 +244,7 @@ prints the legacy and shipped columns side by side).*
 |           1.9 | fitted to the 0.557 A→D falloff ratio                                                                                                                                               |                0.020 |             2343 |          86 % |     **3.3×** |
 |           3.6 | fitted (upper $V_0$ case)                                                                                                                                                           |                0.032 |             2257 |          83 % |     **3.2×** |
 |          78.6 | 1944 Ordnance Dept. **personnel-casualty (incapacitation)** criterion, 58 ft-lb — *not a wood-perforation criterion; plausibility probe only, not a sourced threshold for this arm* |                0.359 |             1455 |          53 % |       (2.1×) |
-|           126 | Tolch's own smallest-hole bound, $m\ge0.36$ g at 838 m/s — a criterion-matched but *mass-independent* row, superseded by the plug-shear model below                                 |                0.538 |             1264 |          46 % |     **1.8×** |
+|           126 | **unsourced** constant-energy probe (no Tolch attribution — see note below); *mass-independent*, superseded by the plug-shear model below                                           |                0.538 |             1264 |          46 % |     **1.8×** |
 |         294.5 | pre-anchor fitted $E_{thr}$                                                                                                                                                         |                1.134 |              894 |          33 % |     **1.3×** |
 
 *Note $m_{thr}$ is unaffected by C2 — it depends on terminal $V_0$, which C2
@@ -270,17 +270,20 @@ At this threshold $N/700 = 2.08\times$ and $N/779 = 1.87\times$ (**779, not
 803** — the re-baselined pit-recovered count, `rebaseline-verdict.md`; every
 $N/803$ figure below is corrected the same way, ×1.031).
 
-**The 126 J row is superseded, and its near-pass was misleading.** It is
-Tolch's own smallest-perforating-hole bound, computed from the same experiment
-the model is scored against, so it is at least a wood-perforation quantity; at
-shipped parameters it now reads $N/700 = 1.81\times$, $N/779 = 1.62\times$.
+**The 126 J row is superseded, unsourced, and its near-pass was misleading.**
+It was previously attributed to a Tolch "smallest perforating hole" of 0.36 g
+at 838 m/s; that datum is **not in Tolch (1938)** — the PDF pages read carry
+no such figure, and his only fragment-weight table for perforations is for
+armor plate, 84–602 gr (`card.md`, "Smallest recorded fragment mass making a
+perforation"; struck 2026-09-26). The row is kept only as an unsourced
+constant-energy probe; at shipped parameters it reads $N/700 = 1.81\times$,
+$N/779 = 1.62\times$.
 But it is a *mass-independent scalar* applied to a mechanism that is not, and
 the criterion-correct plug-shear model below shows what that costs: the scalar
 row's apparent pass is bought by over-charging the light end of the spectrum,
 where most of the count lives. **The 126 J row is retained for continuity and
-is not the verdict row.** Its remaining use is as a *detection* datum rather
-than a perforation one — see C5 in §3, where it becomes the best available
-bound on Tolch's hole-counting floor.
+is not the verdict row**, and carries no detection-floor role either (C5 in
+§3 no longer uses it).
 
 ### The verdict row: mass-dependent plug shear, at the break-up velocity (2026-08-10)
 
@@ -341,7 +344,7 @@ becomes *more permissive* than the 78.6 J constant, so $m_{thr}$ drops
 
 **What this changes, and it is the central result of the thread.** The 126 J
 row's near-pass (now 1.61×) was partly the threshold being too strict for the
-wrong reason — it is a whole-fragment hole-size bound applied
+wrong reason — it is an (unsourced) constant energy applied
 mass-independently, so it over-charges the light end where most of the count
 is. With a mechanism-correct, mass-dependent criterion the perforating-fraction
 residual is **larger**, not smaller. That does not indict the threshold (its own
@@ -532,13 +535,14 @@ the model (`rebaseline-verdict.md`'s fourth re-closure banner).
 DISCHARGED 2026-08-10: bounded, and it does not clear the band on any
 admissible reading.** The premise recorded here through 2026-08-08 was that
 "Tolch's 700 counts holes he could *see*, the model counts every fragment above
-threshold", with the bound to come from Tolch's own
-**smallest-perforating-hole** datum, $m\ge0.36$ g at 838 m/s (the same figure
-that supplied the 126 J row). The closure below keeps the arithmetic and
-rejects the premise. Block (G) of
-[`checks/count-chain-rebaseline.py`](checks/count-chain-rebaseline.py) is the
-script; block (F) now prints both denominators so the basis cannot be mixed
-silently.
+threshold", with the bound to come from a "smallest-perforating-hole" datum
+($m\ge0.36$ g at 838 m/s) then attributed to Tolch. **Superseded 2026-09-26:
+that datum is not in Tolch (1938)** (`card.md`, "Smallest recorded fragment
+mass making a perforation"), so the secondary bound and model-side note that
+used it — former readings (ii), (iv) and half of (v) — are struck. **The
+discharge rests on reading (i) alone.** Block (F) of
+[`checks/count-chain-rebaseline.py`](checks/count-chain-rebaseline.py) prints
+both denominators so the basis cannot be mixed silently.
 
 **(i) The premise is wrong: the 700 column is perforation-limited by
 construction, not detection-limited.** Tolch does not record "holes"; he
@@ -553,14 +557,7 @@ mechanism itself. That mechanism is precisely what C1 already models. **C5 is
 not a separate term from C1 — on the correct reading of the census it collapses
 into it**, and there is no independent detection credit to take.
 
-**(ii) Secondary, and resting on the inadmissible datum of (iv): even granting
-the premise, the bound is an upper bound on the *credit*, not a conservative
-one, and it fails.** (i) alone suffices; the figures below are supporting only. The smallest hole Tolch *recorded* is
-$\ge$ the true detection floor, so 0.36 g removes the most fragments any valid
-floor could remove. At that maximum credit,
-$N(\ge0.36\,\text{g}) = 1453$: **$N/700 = 2.08\times$** — the criterion-matched
-pairing, a panel-side floor against the panel perforating count — i.e. still
-outside the 2× band. Realised leverage 1.222×.
+**(ii) Struck 2026-09-26** (rested on the unsourced 0.36 g figure).
 
 **(iii) The 1.85× headline published here through 2026-08-10 was a mixed
 basis and is void.** It divides a model count carrying a *panel hole-visibility*
@@ -571,39 +568,27 @@ census-matched cut for the 779 denominator is Tolch's finest screen cut,
 0.63 g → $N/779 = 1.52\times$; but that is a *census-completeness* correction
 belonging to C4, not a detection correction, and it may not be quoted as C5's.
 
-**(iv) Admissibility of the 0.36 g datum itself — weak, and the closure does
-not rest on it.** `card.md` states that `tolch-1938.md` "is not a citable
-surface for any number" and that "a number that has no CSV has no admissible
-surface in this repo". **0.36 g has no CSV**, and the word *smallest* does not
-occur anywhere in the extraction; 126 J is reconstructible as
-$\tfrac12(0.36\,\text{g})(838.2\,\text{m/s})^2$ with 838.2 m/s taken from
-Summary item 10's sidespray velocity, so the mass is the primary and its
-provenance is unanchored. Per `.claude/rules/source-data-fidelity.md` a null
-over a known-unreliable extraction bounds the surface, not the source — so this
-is **flagged, not a fabrication verdict**, and `source.pdf` is not retained
-locally to settle it. It does not need settling: readings (i) and (ii) bracket
-the answer, and both leave the arm outside the band.
+**(iv) Struck 2026-09-26.** The page settled it: the 0.36 g datum is not in
+Tolch (1938) (`card.md`, "Smallest recorded fragment mass making a
+perforation").
 
-**(v) A model-side note falls out of (i), and it is C1's, not C5's.** Read as a
-*perforation* observation, 0.36 g at 838 m/s rescales to the 15 ft panel through
-the shipped plug-shear law ($E_{thr}\propto m^{1/3}$ against
-$\text{KE}\propto mv^2 \Rightarrow m_{thr}\propto v^{-3}$): the shipped
-threshold would admit **0.065 g** at 838 m/s against a smallest observed
-perforation of 0.36 g — permissive by 5.6× in mass. That is a statement about
-`arty.perforation`, not about the comparison basis, and it is only as good as
-(iv)'s unanchored datum. Recorded as a note, not actioned here.
+**(v) A model-side note falls out of (i), and it is C1's, not C5's.** Because
+the 700 column is perforation-limited, any residual between it and the model
+is a statement about `arty.perforation`'s threshold, not about the comparison
+basis. (The former quantitative half of this note — a 5.6× mass permissiveness
+inferred from the 0.36 g figure — is struck with that figure; no sourced
+smallest-perforating-mass for wood exists to replace it.)
 
 **Consequence for §4's INDETERMINATE clause: discharged.** The clause fires only
-if C5's cutoff "cannot be bounded below ~1.5×". On reading (i) the credit is 0;
-the secondary bound of ≤1.222× (reading (ii), resting on (iv)'s inadmissible
-datum) agrees. The verdict is therefore a genuine **FAIL**, not
-INDETERMINATE — and not a PASS.
+if C5's cutoff "cannot be bounded below ~1.5×". On reading (i) the credit is 0.
+The verdict is therefore a genuine **FAIL**, not INDETERMINATE — and not a
+PASS.
 
 **C3 and C5 bite on the same fragments and are not additive** — the reason this
 mattered, and why C5 was ordered first. Both act on the 0.166–0.63 g window: C3
 says the model may not have that many fragments there, C5 said Tolch would not
 have counted them if it did. With C5 discharged (credit ~0 on the
-graded-census reading; ≤1.222× on the secondary reading resting on (iv)), **that window is now C3's alone** and the
+graded-census reading), **that window is now C3's alone** and the
 double-counting hazard is gone. C5 was a comparison-basis question throughout;
 no `src/arty/` change followed from it, as scoped.
 
@@ -676,7 +661,7 @@ delivered 1.096×. The common cause is estimating leverage from a ratio of
 published $N$ values rather than re-solving the chain: $m_{thr}$, $N_0$ and
 $\mu$ do not move independently, and the exponential survival factor
 systematically eats part of any $N_0$ change. **Leverage figures in the ranking
-above (1.222× for C5, 1.50× for C3) are re-solved counts, not scaled ones** —
+above (1.222× for C5 — since struck, it used an unsourced 0.36 g floor; 1.50× for C3) are re-solved counts, not scaled ones** —
 but they are still upper bounds, because each assumes the others are absent.
 **C5 is the third instance of the same over-estimate**, in a new form: its
 1.22× was arithmetically correct but was quoted against the wrong denominator,
@@ -717,7 +702,8 @@ Against that:
     measurable.
 - **INDETERMINATE** — if C5's detection cutoff cannot be bounded below ~1.5×,
     say so and stop; the dataset cannot resolve a 2× claim. *(Did not fire —
-    bounded at ≤1.222× on 2026-08-10, restated 2026-08-16; see below and §3 C5.)*
+    discharged 2026-08-10, restated 2026-08-16; since 2026-09-26 it rests on
+    the census-grading reading (i) alone — see below and §3 C5.)*
 
 **Outcome (2026-08-10, re-closed 2026-08-16): FAIL, and the FAIL branch has
 been executed to
@@ -745,12 +731,13 @@ itself — *at the 2026-08-16 state.*
 **The INDETERMINATE clause is now discharged, and it did not fire (2026-08-10,
 later pass).** That clause was the last thing standing between "FAIL" and "FAIL
 trending INDETERMINATE": it fires only if C5's detection cutoff *cannot* be
-bounded below ~1.5×. C5 has been run and closed (§3): the cutoff is bounded at
-**≤1.222×** on the datum's most generous reading, and at ~0 on the correct
-reading of Tolch's census, which grades hits as perforation / penetration /
-dent and is therefore perforation-limited rather than detection-limited in the
-700 column. Applying the maximum credit against the criterion-matched
-denominator gives **$N/700 = 2.08\times$ — still outside the band.** *The
+bounded below ~1.5×. C5 has been run and closed (§3): the cutoff credit is ~0
+on the correct reading of Tolch's census, which grades hits as perforation /
+penetration / dent and is therefore perforation-limited rather than
+detection-limited in the 700 column. *(A secondary ≤1.222× / $N/700 =
+2.08\times$ bound once quoted here used a "0.36 g" floor attributed to Tolch;
+that figure is not in Tolch and the bound is struck, 2026-09-26. The
+discharge rests on the census reading alone.)* *The
 1.85× reading published in this section earlier on 2026-08-10 is void: it
 divided a panel-side detection floor by the pit sand-recovery census, the same
 basis mix the open finding raises against block (D).*

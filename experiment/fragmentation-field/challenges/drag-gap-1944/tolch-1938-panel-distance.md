@@ -131,7 +131,10 @@ against one parameter makes the test over-determined. Fitted to reproduce the
 observed A→D ratio 0.557, then the intermediate panels and the *absolute*
 count are checked. Swept over combined $C_D C_{shape} \in \{0.585$ (current)$,
 0.878, 1.2, 1.7, 2.93\}$ and $V_0 \in \{838.2$ (Tolch's own value for the
-perforating-fragment velocity, 2750 f/s, Summary item 10 — a geometric
+perforating-fragment velocity, Summary item 10 — **2740 f/s = 835.2 m/s** on
+the PDF (*superseded note 2026-09-26: published here as 2750 f/s; the sweep
+column stays at 838.2 m/s as run, a 0.4 % offset in a comparison band with no
+direction change* — Tolch `card.md`, "Fragment Velocities") — a geometric
 inference from the change in sidespray angle with remaining velocity per
 tolch-1938.md:146,1658,1698, not a measurement, and carrying no drag or
 independent-Gurney content)$, 807.5$ (model

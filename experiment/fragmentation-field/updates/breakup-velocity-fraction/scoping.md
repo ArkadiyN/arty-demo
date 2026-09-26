@@ -30,7 +30,7 @@ the change sharply:
     $v_{bu}$ at $r_{bu}$), **not** a fragment launch velocity.
 - `gurney_velocity`'s terminal $V_0$ must stay as the **fragment launch
     velocity** in eq. (4) / `min_lethal_mass` — it is independently validated
-    there (model 864.4 m/s vs Tolch's measured 838.2 m/s, 1.03×, count-chain §1
+    there (model 864.4 m/s vs Tolch's side-spray-angle-inferred 835.2 m/s, 1.03×, count-chain §1
     row (1)). Fragments continue to be driven by the gas after break-up, so
     terminal $V_0$ at launch and $v_{bu} < V_0$ at break-up are **two different
     instants legitimately appearing in one model**, not a contradiction to be

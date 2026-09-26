@@ -34,7 +34,7 @@ Two distinct consumers pass different values into the same slot:
 | --- | --- | --- |
 | Shipped demo (`E_LETH_DEFAULT`, :581) | 1000 J | ES-310 personnel-incapacitation anchor — **sourced**, not in scope here |
 | `count-gap-1938` panel-perforation arm | 1.9–3.6 J | **fitted to the very falloff curve the test checks** |
-| ditto, non-fitted probes | 78.6 J, 126 J | 1944 Ordnance card; Tolch hole-size bound |
+| ditto, non-fitted probes | 78.6 J, 126 J | 1944 Ordnance card; 126 J *unsourced* (once attributed to a Tolch hole-size bound — not in Tolch, struck 2026-09-26) |
 
 The defect is confined to the second row. Tolch (1938) counted perforations of
 **1″ (25.4 mm) softwood panels**; the model decides perforation by a mass-

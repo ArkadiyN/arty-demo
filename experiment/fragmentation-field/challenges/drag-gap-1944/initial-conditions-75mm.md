@@ -85,7 +85,10 @@ and one of them matters:
     wording did. What survives, and is what the argument actually needs, is
     the bound: the entire spread between the two sources is
     (951.0/838.2)² = **1.29×** on N0. No admissible V0 explains a 7–33×
-    over-prediction, in either direction.
+    over-prediction, in either direction. *Note 2026-09-26: Tolch's figure is
+    2740 f/s = 835.2 m/s, restored from the PDF (see the Tolch `card.md`), not
+    838.2, and it is inferred from the side-spray angle, not measured. The
+    0.4% shift leaves the 1.03× and the ~1.3× bound unchanged in substance.*
 
 **(b) Energy threshold — already matched, ruled out.** The b-vs-range
 challenge already substitutes the card's 58 ft-lb (78.6 J) threshold for

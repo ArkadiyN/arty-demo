@@ -153,8 +153,12 @@ which is the whole point of this pass.
    higher `V₀` (`μ ∝ V₀⁻³`), not a new defect. E is 6 % *less* extreme than C
    (0.692 vs 0.653 g) on this axis.
 1. **`V₀` against Tolch's own inferred fragment velocities.** 864.3 m/s sits
-   inside Tolch's band — perforating ~2750 f/s ≈ 838 m/s (third digit
-   unreadable per the card; not exact) to penetrating 3030 f/s = 923.5 m/s.
+   inside Tolch's band — perforating 2740 f/s = 835.2 m/s to penetrating
+   3030 f/s = 923.5 m/s. *(Superseded 2026-09-26: the lower edge was
+   published here as "~2750 f/s ≈ 838 m/s, third digit unreadable"; the PDF
+   reads 2740 f/s, confirmed by closure — Tolch `card.md`, "Fragment
+   Velocities". The re-run check script still reports "inside"; no verdict
+   moved.)*
    The shipped 807.5 m/s sits below both. Corroborating only, **not decisive**:
    Gurney `V₀` is an initial radial speed, Tolch's are inferred from side-spray
    angle change — different quantities that need not coincide.

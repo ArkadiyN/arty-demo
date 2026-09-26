@@ -109,7 +109,7 @@ print(f"Check 3  Mott mass closure int N(m) dm = {mass_int*1e3:9.2f} g vs "
 print(f"         (analytic 2*N0*mu = {2*n0_E*mu_E*1e3:.2f} g)")
 
 # Check 4: V0 against Tolch's own inferred fragment velocities.
-TOLCH_V_PEN, TOLCH_V_PERF = 923.5, 838.0   # 3030 f/s, ~2750 f/s (third digit unreadable)
+TOLCH_V_PEN, TOLCH_V_PERF = 923.5, 835.2   # 3030 f/s, 2740 f/s (read off the PDF 2026-09-26; was ~2750/838.0)
 print(f"Check 4  V0 = {v0_E:.1f} m/s; Tolch inferred band "
       f"{TOLCH_V_PERF:.0f}-{TOLCH_V_PEN:.1f} m/s -> "
       f"{'inside' if TOLCH_V_PERF <= v0_E <= TOLCH_V_PEN else 'OUTSIDE'}")

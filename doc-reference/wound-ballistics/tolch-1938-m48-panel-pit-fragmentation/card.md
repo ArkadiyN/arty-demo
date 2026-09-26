@@ -57,10 +57,17 @@ ______________________________________________________________________
 **Not directly measured** — both figures are a geometric inference, not a drag or independent-Gurney measurement. The source states three times that they were computed from the change in the side-spray angle with remaining velocity (grep `"duo to the explosive charge averaged"` line 146; grep `"computed from the change in the sldespray angle Is"` line 1658; grep `"computed velocity of the perforating fragments due to the ex"` line 1698):
 
 - **Perforating fragments:** 2,740 f/s. The OCR surface `tolch-1938.md` printed "27^0 f/s" at all three locations; the digit was restored from the page images (source.pdf p.5 / printed p.3; p.86 / printed p.35; p.89 / printed p.38). **Closure:** the per-round table on printed p.35 (grep `"Ave. 3030"`, line 1654, whose perforation block sits just above it) prints "Ave. 2740" under the five perforation rows 2930 / 2880 / 2530 / 2720 / 2660 f/s, whose mean is 2744 f/s. The earlier reading "~2,750" is superseded.
-- FINDING\[note\]: Tolch perforating velocity resolved to 2740 f/s (was hedged ~2750 / 838 m/s); live consumers still carry ~2750 — a ~0.4% shift in a comparison band, no direction change expected (affects: experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md, experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/derivation.md, experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/checks/tolch-75mm-mass-basis-variants.py; since: 2026-09-26)
 - **Penetrating fragments:** 3,030 f/s (clean at all three anchors, and independently at the "Ave. 3030" line in the underlying per-round table, grep `"Ave. 3030"`, line 1654).
 
 Higher penetrating-fragment velocity is attributed by the source to smaller size and lower ballistic coefficient (same anchors).
+
+______________________________________________________________________
+
+## Smallest recorded fragment mass making a perforation
+
+**No softwood-panel figure found on the pages read.** The search (2026-09-26) ran the PDF text layer for `smallest`, `minimum`, `least`, `lightest`, `.36`, `grain`, `gr.`, `ft-lb`, `93`, `126`, then read PDF pages 3, 5, 7–10, 39, 43, 50 and 81–89 visually. None of them states a smallest fragment mass for a perforation of the 1-inch softwood panels. The project's "0.36 g at 838 m/s → 126 J" datum (cited as Tolch's) is therefore **unanchored**: it is not on those pages, and the other ~70 pages were not read for it.
+
+The one fragment-weight-per-perforation table found is for a **different target**. It is on PDF p.85 / printed p.34 (grep `"Dimensions of perforations on plate"`): perforations of the **armor plate** on Panel A, side spray, as the caption of Plot 47 on the facing page makes clear (PDF p.84 / printed p.33A, "Frequency of hits on armor plate as a function of the cross sectional area"). Its nine fragment weights run 84–602 grains, printed "Ave. 255". **Closure:** the nine rows (350, 84, 112, 203, 301, 602, 231, 140, 273) sum to 2296, and 2296 / 9 = 255.1. These are armor-plate perforations. Whether they bound a wood-panel perforation floor is a criterion-match question for the citing derivation, not something this card settles.
 
 ______________________________________________________________________
 

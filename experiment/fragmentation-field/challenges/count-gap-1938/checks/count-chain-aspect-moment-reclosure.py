@@ -164,7 +164,10 @@ for cut in (0.630, 0.360, 0.166, 0.130, 0.050):
     print(f"{cut:8.3f} | {Nl:9.0f} {Nl/N_PANEL:6.2f} {Nl/N_REC:6.2f}"
           f" | {Ns:10.0f} {Ns/N_PANEL:6.2f} {Ns/N_REC:6.2f}")
 
-print("\n=== (F) C5 detection-floor bound, criterion-matched /700 denominator ===")
+# 2026-09-26: the 0.36 g floor is UNSOURCED (not in Tolch 1938 -- Tolch card.md,
+# "Smallest recorded fragment mass making a perforation"); this block's output
+# is no longer cited by count-chain.md sec.3 C5.
+print("\n=== (F) UNSOURCED 0.36 g fixed-mass probe, /700 denominator (not cited) ===")
 for case, sh in CASES:
     N_v = verdict[case][1]
     N_det = N_at_mass(sh, 0.36)

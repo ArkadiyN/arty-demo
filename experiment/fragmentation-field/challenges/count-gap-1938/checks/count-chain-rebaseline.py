@@ -87,9 +87,11 @@ print(f"M_case = {M_case*1e3:.1f} g   V0 = {V0:.1f} m/s   C_D*C_shape = {drag.C_
 print(f"mu = {mu*1e3:.3f} g   2mu = {2*mu*1e3:.3f} g   N0 = {N0:.0f}")
 
 # ------------------------------- (D) threshold rows, old vs re-baselined denom
-# NOTE on admissibility: only the 126 J row is a criterion-matched sourced
-# perforation threshold (Tolch's own smallest perforating hole, same experiment
-# the model is scored against). The 78.6 J = 58 ft-lb figure is the Ordnance
+# NOTE on admissibility (updated 2026-09-26): NEITHER row is a sourced wood-
+# perforation threshold. The 126 J row was once attributed to a Tolch "smallest
+# perforating hole" (0.36 g at 838 m/s); that datum is NOT in Tolch (1938) --
+# see the Tolch card.md, "Smallest recorded fragment mass making a perforation".
+# 126 J is an unsourced constant-energy probe. The 78.6 J = 58 ft-lb figure is the Ordnance
 # Dept. 1944 *personnel-casualty (incapacitation)* criterion — a different
 # failure mechanism, never stated for wood — so its row is printed as a
 # plausibility probe only and must NOT be cited as a sourced perforation
@@ -100,7 +102,7 @@ E_rows = [
     (1.9, "fitted lo"),
     (3.6, "fitted hi"),
     (78.6, "1944 Ordnance casualty criterion, 58 ft-lb - NOT a perforation thr"),
-    (126.0, "Tolch hole-size bound (criterion-matched sourced threshold)"),
+    (126.0, "unsourced probe (0.36 g/838 m/s NOT in Tolch)"),
     (294.5, "pre-anchor fitted"),
 ]
 for E_thr, label in E_rows:
@@ -197,8 +199,11 @@ for cut_g in (0.63, 0.36, 0.166, 0.13, 0.05):
 # ------------------------------ (G) C5 detection-limit bound -----------------
 # C5 asks whether Tolch's observed side is DETECTION-limited. The floor the
 # thread proposed is the "smallest perforating hole", m >= 0.36 g at 838 m/s
-# (the 126 J row). Two things this block establishes, both cited in
-# count-chain.md sec.3 C5:
+# (the 126 J row). SUPERSEDED 2026-09-26: that 0.36 g figure is UNSOURCED --
+# it is not in Tolch (1938) (Tolch card.md, "Smallest recorded fragment mass
+# making a perforation"). This block is retained as an unsourced fixed-mass
+# probe; its outputs are NO LONGER cited (count-chain.md sec.3 C5 now rests on
+# the census-grading reading (i) alone). Original intent, kept for the record:
 #   (i) 0.36 g is an UPPER bound on any detection floor (the smallest recorded
 #       hole is >= the true floor), so the count it leaves is a LOWER bound on
 #       the residual -- the most favourable number C5 can ever produce.
@@ -206,9 +211,9 @@ for cut_g in (0.63, 0.36, 0.166, 0.13, 0.05):
 #       panel-arrival condition through the shipped plug-shear law
 #       (E_thr ~ m^(1/3), KE = m v^2/2  =>  m_thr ~ v^-3), which is where it
 #       collides with C1 rather than adding to it.
-print("\n=== (G) C5 detection-floor bound, criterion-matched denominator ===")
-M_DET_G = 0.36  # Tolch smallest recorded perforating hole [g]
-V_DET = 838.2  # m/s, Tolch Summary item 10 sidespray velocity
+print("\n=== (G) UNSOURCED 0.36 g fixed-mass probe (not cited; see comment) ===")
+M_DET_G = 0.36  # unsourced probe mass [g]; NOT a Tolch datum
+V_DET = 838.2  # m/s, legacy probe speed (Tolch's sidespray value is 2740 f/s = 835.2 m/s)
 N_det = mott_N(np.array([M_DET_G * 1e-3]), N0, mu)[0]
 # sec.2 verdict row, plug-shear m_thr = 0.166 g. Computed from the shipped
 # model, NOT hardcoded: it was frozen at 1756 (pre per-shell aspect moment c,
@@ -226,6 +231,6 @@ v_panel = 612.0  # m/s, arrival velocity of that fragment (sec.2)
 m_model_at_vdet = m_thr_verdict * (v_panel / V_DET) ** 3
 print(
     f"  plug-shear m_thr rescaled to {V_DET:.0f} m/s = {m_model_at_vdet:.3f} g "
-    f"vs Tolch's smallest observed perforation {M_DET_G} g "
+    f"vs unsourced probe mass {M_DET_G} g "
     f"-> model permissive by {M_DET_G/m_model_at_vdet:.1f}x in mass"
 )

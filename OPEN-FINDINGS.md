@@ -5,7 +5,7 @@
 
 A citation-provenance and internal-consistency audit for a historical reconstruction of WW2 field artillery physics. Entries record where a published source is mis-cited, where a retained document is incomplete, or where shipped code and published text disagree. Sources are open literature.
 
-**10 open** — 0 blocking, 9 older than 30 days.
+**9 open** — 0 blocking, 9 older than 30 days.
 
 A *blocking* finding means a committed artifact is known to carry a wrong
 number, or shipped code or a published surface rests on one. It may not be
@@ -21,7 +21,7 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - raised: 2026-08-03 (54d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2493`
 - **tolch-1938-panel-distance.md cites a sweep script that no longer exists on disk, so its published tables cannot be reproduced or re-swept at the corrected 1.0/1.71 SAND92-0243 bounds** ⚠ **stale**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`
-    - raised: 2026-08-08 (49d) in `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md:148`
+    - raised: 2026-08-08 (49d) in `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md:151`
 - **source.pdf should be retained per .claude/rules/source-data-fidelity.md § "Retain the source blob"** ⚠ **stale**
     - affects: `doc-reference/fragmentation/ada300526-picatinny-cylinder-test/`
     - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/ada300526-picatinny-cylinder-test/card.md:100`
@@ -38,11 +38,8 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
     - affects: `doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion`
     - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion/card.md:11`
 
-## Note (2)
+## Note (1)
 
 - **kennedy1970-gurney-energy/card.md "Standard Gurney Equations by Geometry" transcribes the cylinder as sqrt(2E)(1+M/2C)^-1/2 and flat sandwich as (1+M/C)^-1/2; standard Kennedy forms are (M/C+1/2)^-1/2 and (M/C+1/3)^-1/2, and the (M/C+1/2) form is what shipped gurney_velocity uses and what Martineau Table 5.3 closes on** ⚠ **stale**
     - affects: `doc-reference/fragmentation/kennedy1970-gurney-energy/card.md`
     - raised: 2026-08-10 (47d) in `experiment/fragmentation-field/updates/breakup-velocity-fraction/scoping.md:331`
-- **Tolch perforating velocity resolved to 2740 f/s (was hedged ~2750 / 838 m/s); live consumers still carry ~2750 — a ~0.4% shift in a comparison band, no direction change expected**
-    - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`, `experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/derivation.md`, `experiment/fragmentation-field/updates/75mm-fuze-case-mass-fix/checks/tolch-75mm-mass-basis-variants.py`
-    - raised: 2026-09-26 (0d) in `doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md:60`

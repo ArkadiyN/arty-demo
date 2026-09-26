@@ -49,9 +49,11 @@ Marker deleted.
 order. (1) Re-baselined against the extracted-once Tolch series: pit-recovered
 count and mean fragment mass were corrected. That re-baseline on its own flipped
 no PASS/FAIL row. (2) **Re-closed against shipped code after `50b734e`, and
-that does flip rows.** The sourced-threshold row (126 J — Tolch's own
-smallest-perforating-hole bound, the only criterion-matched sourced probe) moved
-inside the 2× PASS band. (A second probe, 78.6 J = 58 ft-lb, was previously
+that does flip rows.** The 126 J row — then labelled Tolch's own
+smallest-perforating-hole bound — moved inside the 2× PASS band. *(Struck
+2026-09-26: the 0.36 g / 838 m/s datum behind 126 J is not in Tolch (1938) —
+Tolch `card.md`, "Smallest recorded fragment mass making a perforation". 126 J
+is an unsourced constant-energy probe; it was never the verdict row after (3).)* (A second probe, 78.6 J = 58 ft-lb, was previously
 reported alongside 126 J as a sourced-threshold row. It is the Ordnance
 Dept. 1944 personnel-casualty **incapacitation** criterion — not a
 wood-perforation threshold — so it is criterion-mismatched for this arm and is
