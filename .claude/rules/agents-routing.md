@@ -113,7 +113,11 @@ expensive failure mode in this project. By pass type:
     correctness-classification passes that stop at a short finding. Dispatch
     as a one-agent Workflow (`agentType: 'modeler'`,
     `model: 'claude-sonnet-4-6'`); if that is not worth the ceremony, run it at
-    the pinned Opus default — never via the `sonnet` alias.
+    the pinned Opus default — never via the `sonnet` alias. Also Sonnet tier:
+    **re-wiring passes** that change how existing outputs are shown and compute
+    nothing new. Examples: replacing typed figures in a `.qmd` with inline
+    `{python}`, trimming indexes to label + link, and doc-sync. This is
+    technical work, not physics judgement (user, 2026-09-25).
 - **Pinned default (Opus 5.5)** — scoping, derivation, src/ implementation,
     notebook presentation, and any pass that writes or judges physics.
 

@@ -21,6 +21,35 @@ Specs reference derivations and call `arty`; they never restate the physics. A
 behavior/contract change updates the spec; a physics change updates the model
 artifacts, and the spec points to the new `derivation.md`.
 
+### A computed result has one home
+
+A number that a check script or `arty` **computes** gets written in exactly
+one place: the document that cites the script that produced it. Such numbers
+include a margin, a ratio, a count, or a verdict and the figure it rests on.
+The home is usually `derivation.md` or the challenge write-up. Every other
+surface **links** to that section instead of restating the digits.
+
+- **Indexes and banners** (`challenges/README.md`, a thread `README.md`, status
+    lines, summaries in other documents) carry the verdict **label** (PASS /
+    PASS-with-limitations / FAIL), its date, and a link. They never carry the
+    figure. The label is the one permitted copy.
+- **In a `.qmd`**, a model output in prose or in a table is an inline
+    `{python}` expression, or a table built from an `arty` call or a check
+    script's results file, the same way the charts are. It is never typed in.
+- **Not covered**: source inputs (those come from `tables/*.csv`, per
+    `source-data-fidelity.md`), intermediate steps of a derivation, and
+    decision thresholds. None of these change when the model does.
+- **Dated records are exempt**: `_change-log.qmd` entries, `review.md`
+    sections, audit ledgers and superseding notes. "On date X the value was Y"
+    stays true after the model changes, so it is a snapshot, not a stale copy.
+
+When a result changes, only its home is edited, with a dated superseding note.
+Nothing else needs touching, which is the point. A restated copy, or a typed
+output in a `.qmd`, is a `doc-sync` finding. The remedy is to **replace it with
+a link or an inline expression**, not to re-type the new digits. Re-typing is
+what made the same copy go stale pass after pass
+(`.claude/incidents.md#materiality`).
+
 ## Artifact layout
 
 Everything related to a model lives under that model's folder:
@@ -28,11 +57,12 @@ Everything related to a model lives under that model's folder:
 ```
 experiment/
   _scratch/                   ← staging ONLY, for in-flight check scripts;
-                                emptied before every pass ends
+                                resolved before a pass ends (cited → checks/,
+                                uncited → may delete; never delete a cited one)
   <model>/
     <model>.qmd               ← integrated, reader-facing model notebook
     challenges/
-      README.md               ← index of threads + their verdicts
+      README.md               ← index of threads + verdict labels + links (no figures)
       <thread>/               ← one investigation thread, NOT one loose file
         README.md             ← thread index + current verdict (multi-doc only)
         <question>.md/.qmd    ← the write-ups, in the order they were run
@@ -188,8 +218,8 @@ result into the main `.qmd`. **Each change covers exactly one model aspect**
     small — the modeler is calling its own `src/arty/` code, so no handoff.
 
 Done when: physics is in `src/arty/`, the notebook reflects it, change-log
-entry exists, notebook renders, and `experiment/_scratch/` is empty — every
-script that produced a cited number now sits in a `checks/` folder next to the
+entry exists, notebook renders, and `experiment/_scratch/` holds none of this change's
+scripts — every script that produced a cited number now sits in a `checks/` folder next to the
 artifact citing it (`.claude/rules/verification-scripts.md`).
 
 **Steps 3-7 run as a Workflow-tool script**, `.claude/workflows/model-workflow-b.js`
@@ -382,9 +412,9 @@ implement this table, and the batched items come back as `result.docSync`
 (or `result.docSyncPending` on escalation, which the main agent must still
 land). Evidence and audit: `.claude/incidents.md#materiality`.
 
-**Structural fix (open):** render published numbers from code or CSV, and
-keep each verdict in one place. A copy that cannot go stale needs no sync
-route.
+The doc-sync pass converges: it replaces each stale copy with a link or an
+inline expression (see "A computed result has one home"), so the same copy
+cannot be flagged twice.
 
 ## Task sequencing
 

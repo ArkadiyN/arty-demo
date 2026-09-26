@@ -62,6 +62,10 @@ into "forgotten" looks like, and catching it is your job, not the register's.
 - Layering: does the `.qmd` contain **no** physics, computation, parameter
     values, or constants? Everything must be imported from `src/arty/` — flag any
     physics that leaked into a notebook cell.
+- One home per result: a computed number restated outside the document that
+    cites its script, or typed into a `.qmd` instead of rendered, is a
+    `doc-sync` finding. The remedy is a link or an inline expression, never
+    re-typed digits (model-workflow skill, "A computed result has one home").
 - Constaints/Limitation check: does the document capture model limitations accurately?
 - Data-driven analysis: is there supporting data for the outcomes?
 
@@ -70,8 +74,10 @@ into "forgotten" looks like, and catching it is your job, not the register's.
 The project targets engineering-level fidelity: interpretable models that
 capture the dynamics driving outcomes in the demo (see `project_scope.md`),
 not publishable physics. Judge every finding against that bar — the aspect's
-`scoping.md` fidelity target if one is stated, otherwise "does this visibly
-change what the demo shows?".
+`## Verdict outputs` in `scoping.md` (Workflow A: the question doc's verdict
+criterion) if declared, otherwise "does this visibly change what the demo
+shows?". The kind / bound / applies_elsewhere tags and how they route are in
+the model-workflow skill, "Materiality gate".
 
 **Every finding must state what observable output changes and roughly by how
 much.** A finding without an impact estimate cannot block — downgrade it to a

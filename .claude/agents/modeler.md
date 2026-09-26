@@ -90,6 +90,11 @@ project's main token cost. So:
     *output* the verdict rests on, not an intermediate constant — a budget on
     an intermediate is not a materiality bar. This is what @model-reviewer
     bounds findings against (model-workflow skill, "Materiality gate").
+- **Write each computed result once.** It goes in the document that cites
+    the script that produced it. Anywhere else gets a link, or a verdict label
+    plus a link. In a `.qmd`, a model output is an inline `{python}`
+    expression, never typed (model-workflow skill, "A computed result has one
+    home").
 
 ## Turn budget is tight (25 turns) — write early, don't explore-then-write
 
