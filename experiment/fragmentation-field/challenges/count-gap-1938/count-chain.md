@@ -116,11 +116,14 @@ fix, `50b734e`'s sourced case mass, C1's threshold, C2's break-up velocity, and 
 aspect-ratio moment.
 **C5 has since been investigated and discharged (§3): it was the only
 candidate that could have absorbed the residual as a comparison-basis
-artefact rather than a model defect, and it does not — bounded at ≤1.222× on
-its most generous reading, and at ~0 on the correct reading of Tolch's census
-(perforation/penetration/dent grading, not a detection floor).** That also
-discharges §4's INDETERMINATE clause, which fired only if C5's cutoff could
-not be bounded below ~1.5×: it is bounded well inside that, so at the
+artefact rather than a model defect, and it does not. Tolch's census grades
+every hit as perforation, penetration or dent, so the 700 column is
+perforation-limited by construction and C5 collapses into C1 — no separate
+detection credit exists (§3 C5 reading (i)).** A secondary upper-bound
+reading, which rests on the inadmissible 0.36 g / 838 m/s datum (§3 C5 reading
+(iv)), also stays outside the band (§3 C5 reading (ii)). That discharges §4's
+INDETERMINATE clause, which fired only if C5's cutoff could not be bounded
+below ~1.5×: on reading (i) there is no cutoff credit at all, so at the
 2026-08-16 state the verdict was a plain, genuine **FAIL at 2.28× (/779) and
 2.54× (/700)** — not "FAIL trending INDETERMINATE" as earlier drafts of this
 banner had it. *(That FAIL is the dated 2026-08-16 figure; on live shipped code
@@ -146,8 +149,6 @@ residual-reducer: the per-shell aspect-ratio moment $c$ restates the 75 mm chain
 baseline every number on this page is closed against.**
 See §3's closing entry below and
 [`../../updates/mass-dependent-fragment-shape/`](../../updates/mass-dependent-fragment-shape/derivation.md).
-
-FINDING\[deferrable\]: headline 1.221x/2.05x C5 figures rest on the inadmissible 0.36g/838m/s datum (iv) though the sound census-grading argument (i) alone suffices; three status surfaces lead with the numeric figures instead of (i) (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/README.md; since: 2026-08-10)
 
 **Question.** `_limitations.qmd` L1 records that Tolch (1938)'s absolute
 perforating-fragment count is still over-predicted by ~4–6× after both the Mott
@@ -552,8 +553,9 @@ mechanism itself. That mechanism is precisely what C1 already models. **C5 is
 not a separate term from C1 — on the correct reading of the census it collapses
 into it**, and there is no independent detection credit to take.
 
-**(ii) Even granting the premise, the bound is an upper bound on the *credit*,
-not a conservative one, and it fails.** The smallest hole Tolch *recorded* is
+**(ii) Secondary, and resting on the inadmissible datum of (iv): even granting
+the premise, the bound is an upper bound on the *credit*, not a conservative
+one, and it fails.** (i) alone suffices; the figures below are supporting only. The smallest hole Tolch *recorded* is
 $\ge$ the true detection floor, so 0.36 g removes the most fragments any valid
 floor could remove. At that maximum credit,
 $N(\ge0.36\,\text{g}) = 1453$: **$N/700 = 2.08\times$** — the criterion-matched
@@ -591,18 +593,17 @@ perforation of 0.36 g — permissive by 5.6× in mass. That is a statement about
 `arty.perforation`, not about the comparison basis, and it is only as good as
 (iv)'s unanchored datum. Recorded as a note, not actioned here.
 
-FINDING\[note\]: C1 plug-shear threshold rescales to 0.065 g at 838 m/s vs. Tolch's smallest observed perforation 0.36 g (5.6x permissive in mass); rests on an unanchored datum (affects: experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md; since: 2026-08-10)
-
 **Consequence for §4's INDETERMINATE clause: discharged.** The clause fires only
-if C5's cutoff "cannot be bounded below ~1.5×". It is bounded at **≤1.222×**,
-and at 0 on reading (i). The verdict is therefore a genuine **FAIL**, not
+if C5's cutoff "cannot be bounded below ~1.5×". On reading (i) the credit is 0;
+the secondary bound of ≤1.222× (reading (ii), resting on (iv)'s inadmissible
+datum) agrees. The verdict is therefore a genuine **FAIL**, not
 INDETERMINATE — and not a PASS.
 
 **C3 and C5 bite on the same fragments and are not additive** — the reason this
 mattered, and why C5 was ordered first. Both act on the 0.166–0.63 g window: C3
 says the model may not have that many fragments there, C5 said Tolch would not
-have counted them if it did. With C5 discharged at ≤1.222× (and at ~0 on the
-graded-census reading), **that window is now C3's alone** and the
+have counted them if it did. With C5 discharged (credit ~0 on the
+graded-census reading; ≤1.222× on the secondary reading resting on (iv)), **that window is now C3's alone** and the
 double-counting hazard is gone. C5 was a comparison-basis question throughout;
 no `src/arty/` change followed from it, as scoped.
 

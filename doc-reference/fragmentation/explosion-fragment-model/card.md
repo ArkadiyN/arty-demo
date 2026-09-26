@@ -85,6 +85,8 @@ see `.claude/rules/source-data-fidelity.md`.
 
 ## Provenance of this card
 
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/1-s2.0-S221491472030502X-main.pdf` (blob store); `sha256: def4ec61aee8ec3e07a85cae420ec0732aebdd5bd2c17c13978fc973cc50c1b8`.
+
 Written 2026-08-02 during the Phase-2.5 source admissibility gate; this
 document previously had **no card at all** despite being cited by shipped code.
 Detail: `experiment/fragmentation-field/challenges/source-data-audit/ledger.md`

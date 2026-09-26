@@ -107,3 +107,7 @@ ______________________________________________________________________
 1. Locate and transcribe the steel grade designation from the "FOR ALL OTHER INFORMATION SEE SPEC" reference
 1. Compare stated composition (if shown) to Ammunition Series 6 Table 6-1
 1. Record any discrepancies between drawing and standardized spec plainly
+
+## Provenance of this card
+
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/M49A2_Drawing.pdf` (blob store); `sha256: d6c61a8bf372e6d44ccd6db28a9ef2a21872426195043e489f4ad0e0b490db14`.

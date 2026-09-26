@@ -2042,10 +2042,6 @@ separately tracked as its own deferrable marker at
 disk), so it is not being silently dropped, just downgraded from a silent
 wrong number to a disclosed, tracked one. Marker deleted.)*
 
-FINDING\[deferrable\]: SAND92-0243 is cited for a velocity-DEPENDENT C_D but states no functional form; its own analyses take "Drag coefficient = variable (Ref. 1)" and Ref. 1 is SAND91-0277, which is not held, so the dependence is cited but unsourced (affects: experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, doc-reference/ww2-shells/sandia-sand92-0243/card.md; since: 2026-08-02)
-
-FINDING\[note\]: SAND92-0243's C_D is defined for tumbling plate/disk fragments and enters its range formula only as a product with the shape factor Re and thickness factor Sf, never alone; whether a bare C_D in src/arty measures the same quantity is an open criterion-match question for @model-reviewer (affects: src/arty/fragmentation.py, doc-reference/ww2-shells/sandia-sand92-0243/card.md; since: 2026-08-02)
-
 ______________________________________________________________________
 
 ## 23 · Phase 2.5c — the `doc-reference/` admissibility sweep
@@ -2280,8 +2276,6 @@ silhouette (`cunniff-2014.md`, "No explicit posture-dependent silhouette areas
 given"), and Vol. 3's zero-hit page search is recorded on its own card. Marker
 deleted.)*
 
-FINDING\[note\]: pk_given_hit interpolates ES-310's three anchors in log10(E), a scheme the source never states; at the one point the page works it gives 0.817 against a stated 0.8, where linear-in-E gives 0.767 — agreement on a single point, not a derivation (affects: src/arty/fragmentation.py, doc-reference/wound-ballistics/fas-es310-damage-criteria/card.md; since: 2026-08-03)
-
 ______________________________________________________________________
 
 ## 24 · The two blockers close — Gold 2017 and AEP-55 Vol. 3
@@ -2484,7 +2478,12 @@ with one carried caveat: their citations into Gold 2017 are still bare line
 numbers (registered on `mott-fragment-shape-closure/derivation.md:21`), and the
 anchors that replace them are now tabulated on the card.
 
-FINDING\[note\]: Gold 2017 eq. (17) (N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a factor of 2; src/arty follows eq. (1), which is the self-consistent reading since mu is defined as HALF the average fragment mass, and a future pass that "corrects" the code toward eq. (17) would double every fragment count with a citation to back it (affects: src/arty/fragmentation.py, src/arty/zones.py, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
+**Standing warning — Gold 2017 factor-2 trap.** Gold 2017 eq. (17)
+(N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a
+factor of 2. `src/arty` (`fragmentation.py`, `zones.py`) follows eq. (1),
+which is the self-consistent reading because mu is defined as *half* the
+average fragment mass. A future pass that "corrects" the code toward eq. (17)
+would double every fragment count while citing a source to back it — do not.
 
 **Closed 2026-08-10.** `.claude/rules/source-data-fidelity.md` now lists a
 fifth closure-invariant form, "A stated equation is the substitution its

@@ -81,7 +81,10 @@ both laws refitting, and it cannot make the zero-fit perforation result
 immaterial at the stated fidelity target, not as unsupported by the data") is
 the correct closure and is unaffected.
 
-FINDING\[note\]: C11's Shock-B table headlines the per-band-refit row (0.199/0.052) whose Fig-3 scale varies 0.85-1.05 between bands; the zero-free-parameter perforation result (Fig-3 0.069 vs adopted constant 0.098) is a stronger and simpler void and should lead (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/rebaseline-verdict.md; since: 2026-08-03)
+*Superseding note, 2026-09-26:* the recommendation above was actioned —
+`updates/mach-dependent-fragment-drag/rebaseline-verdict.md` §"Shock B" now
+leads with the zero-free-parameter perforation result and carries the
+per-band-refit row as secondary. This section is left as the dated record.
 
 ______________________________________________________________________
 
@@ -285,9 +288,7 @@ re-attributed to NWC TP 7124), and the ogive/cylinder V0 contradiction this
 citation was papering over is independently resolved in `derivation.md` §6
 against the shipped `compute_shell_zones` output.
 
-The hedge was landed in `bab141a` — the card now says the third digit is unreadable on this surface and that 2,750 is not to be treated as an exact source value. What remains is the read that would actually resolve the digit:
-
-FINDING\[note\]: the four-digit perforating-fragment velocity still renders as "27^0 f/s" at tolch-1938.md:146,1658,1698 with the third digit lost - resolving it needs a re-fetch of source.pdf (sha256 13e110d70b1cb686771d6f2e36523d9c9201551d41c7b3b9eb27685d71f90c92 per card.md:75, currently missing from the doc-reference directory) from DTIC AD0702233, then a vision read of those three pages (affects: doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md, doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/tolch-1938.md; since: 2026-08-03)
+The hedge was landed in `bab141a` — the card now says the third digit is unreadable on this surface and that 2,750 is not to be treated as an exact source value. The digit was subsequently read from source.pdf: **4**, resolved 2026-09-26 as 2740 f/s at all three occurrences (source.pdf p.5/printed p.3, p.86/printed p.35, p.89/printed p.38).
 
 ______________________________________________________________________
 

@@ -160,7 +160,11 @@ harder mild-steel-perforation threshold while the model ran the 58 ft-lb
 casualty criterion. This is the criterion-match failure named in
 `.claude/rules/source-data-fidelity.md`, not merely a transcription slip.
 
-FINDING[note]: the mixed-column 25-point Ordnance velocity set is discharged in the documents — derivation.md §4 V2 now publishes the per-column re-run and §5 is withdrawn — but checks/required-retardation-vs-mach.py still carries the mixed array as a hard-coded literal; it is retained as the record of what was run, so read it as a record and never as a live series (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/checks/required-retardation-vs-mach.py; since: 2026-08-03)
+**Read as a record.** The mixed-column 25-point Ordnance velocity set is
+discharged in the documents — `derivation.md` §4 V2 publishes the per-column
+re-run and §5 is withdrawn. `checks/required-retardation-vs-mach.py` still
+carries the mixed array as a hard-coded literal; it is retained as the record
+of what was run, so read it as a record and never as a live series.
 
 **C7 — shifted; the PASS survives, on either column separately, but narrowly.**
 Re-run cleanly per column (`checks/mach-law-rebaseline.py`):
@@ -208,7 +212,6 @@ shell, which a fit absorbs by tilting λ. Consequences, in order of severity:
     $\delta/r$, i.e. most at *short* range; L2's anomaly is a *depressed*
     required constant at *long* range. Wrong shape.
 
-FINDING[deferrable]: V0_FTS (75mm 3120, 105mm 3500, 155mm 3500 ft/s) is used by every check script in this thread but has no provenance in the processed 1944 Ordnance source; it is degenerate with the drag constant and the V2 PASS margin (0.096 vs a 0.10 bar) is inside its plausible error (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/derivation.md, experiment/fragmentation-field/updates/mach-dependent-fragment-drag/checks/, experiment/fragmentation-field/challenges/drag-gap-1944/checks/; since: 2026-08-03)
 
 ---
 
@@ -223,18 +226,29 @@ at the *derived* $k$ = 2600 — **zero free parameters** — against a constant
 *fitted to the same data* — **one free parameter** — and reported that the
 constant won (0.250 vs 0.259 all; 0.047 vs 0.072 on M > 0.7). Note that even in
 the published table, Fig-3 at fixed $k$ beat every *non-fitted* constant,
-including the adopted one (0.072 vs 0.092). Giving both laws the same single
-scale freedom on $C_{shape}$ reverses the result on **both** columns:
+including the adopted one (0.072 vs 0.092).
 
-| Law (one free scale each) | casualties, all | casualties, M>0.7 | perforation |
+**The strongest ground leads: zero free parameters on both sides.** On the
+perforation column, Fig-3 at the derived $k$ = 2600 with *nothing fitted*
+(first row below) already beats the adopted constant, also unfitted — see
+[`review-void-rulings.md` "But the framing is not what carries the ruling"](../../challenges/source-data-audit/review-void-rulings.md)
+for the adopted-constant figure. "Does not beat a constant" is false on that
+line alone, with no protocol argument needed. On the casualties column in the
+lethal band the zero-fit Mach law already ties the best *fitted* constant.
+
+**Secondary: per-band refit.** Giving both laws the same single scale freedom
+on $C_{shape}$ also reverses the result on **both** columns. This row is
+weaker evidence than the zero-fit row: Fig-3's preferred scale differs
+between bands, so the "derived" virtue is not claimed for it.
+
+| Law | casualties, all | casualties, M>0.7 | perforation |
 | --- | --- | --- | --- |
-| best-fit **constant** | 0.247 | 0.069 (7.1%) | 0.045 (4.6%) |
-| **Fig-3 $C_D(M)$, corrected CSV** | **0.199** | **0.052** (5.3%) | **0.036** (3.7%) |
-| Fig-3 at derived *k* = 2600, no fit | 0.308 | 0.068 | 0.069 |
+| Fig-3 at derived *k* = 2600, **no fit** (leads) | 0.308 | 0.068 | **0.069** |
+| best-fit **constant** (one free scale) | 0.247 | 0.069 (7.1%) | 0.045 (4.6%) |
+| Fig-3 $C_D(M)$, corrected CSV (one free scale, per-band refit — secondary) | 0.199 | 0.052 (5.3%) | 0.036 (3.7%) |
 
-A consistent **~20–25% RMS reduction** for the Mach law, on both columns, in
-both bands. And on the casualties column in the lethal band the Mach law with
-*no* fitted parameter (0.068) already ties the best *fitted* constant (0.069).
+The per-band refit shows a consistent **~20–25% RMS reduction** for the Mach
+law, on both columns, in both bands.
 
 **Shock B alone moves it in the predicted direction.** Old eyeballed curve →
 corrected CSV improves the Mach law from 0.075 → 0.068 (casualties, M > 0.7)

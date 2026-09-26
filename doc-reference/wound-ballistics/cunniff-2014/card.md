@@ -142,3 +142,7 @@ Transformations: detonation → environmental drag → armor engagement → tiss
 **Claim verified against primary:** The existing extraction's statement "no tabulated posture silhouette" is **confirmed accurate**. Figure 7 (source.pdf pp. 16–17, printed page ~31 in proceedings) depicts a prone rifleman in a computational framework with human phantom and viewpoint enumeration, but provides no table of projected areas by posture or fragment arrival angle.
 
 **Extraction quality note:** The source PDF was created in FrameMaker 10.0 and contains FrameMaker-embedded fonts with PUA character encoding issues; heuristic extraction flags 266 PUA glyphs across symbol runs. Content remains readable; equations and posture-silhouette claims verified against the raw page text.
+
+## Provenance of this card
+
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/Cunniff--AMethodtoDescribetheStatisticalAspectsofArmorPenetration--July112014.pdf` (blob store); `sha256: 3ce25f1cddfb79e323b4d1c06115fe31002b0a01e808af6a1f47a35f328bae02`.

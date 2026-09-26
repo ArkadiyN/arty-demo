@@ -743,3 +743,138 @@ within 1%). The per-slice ratios in §6.6.1 describe only the AoF = 0° geometry
 lethal area is the measure for realistic fire. See §6.6.1 and
 [`updates/target-area-profile/derivation.md`](updates/target-area-profile/derivation.md)
 §7 item 7.
+
+**21 · The initial fragment velocity is not independently measured
+(v 0.17.0).**
+The model's initial velocity $V_0$ comes from Gurney. It sits a few percent
+(up to ~10%, largest for 75 mm) below the per-shell $V_0$ captions in the 1944
+Ordnance fragment tables. Those captions are the only independent figure, and
+the source states no measurement method or error. If the captions are the true
+$V_0$, shipped $R_{50}$ is **low by up to ~7%** and lethal area **low by up to
+~9%**. That under-states effect on target *and* under-states hazard at a given
+distance. Read it as a bias in one direction, not as "conservative": which way
+it errs depends on the question asked. No posture or caliber ordering changes
+over the plausible $V_0$ range. The bound itself rests on that single 1944
+source. Its tables supply both the caption-vs-Gurney gap and the data-implied
+scatter, and no second source bounds Gurney's error for thick-walled shells.
+The 1944 drag corroboration (V2) tests the product $V_0\times$drag, not the
+drag constant alone. With the caption $V_0$ its pass is marginal. Numbers,
+scripts and the ±20% materiality bar are in
+[`challenges/drag-gap-1944/v0-sensitivity.md`](challenges/drag-gap-1944/v0-sensitivity.md)
+§3–5 and the two "V0 sensitivity" sections of
+[`challenges/drag-gap-1944/review.md`](challenges/drag-gap-1944/review.md)
+(findings A1, A2).
+
+**22 · The non-fragmenting mass removed from each case is partly assumed
+(v 0.17.0).**
+Each shell's fragmenting case mass is its loaded weight minus the fuze,
+booster and other parts that do not become fragments (`mass_deductions`). Three
+parts of that bookkeeping are not fully sourced:
+
+- **105 mm M1:** TM 9-1901 does not give the M20/M20A1 booster weight. The
+    value used lies between "fuze only" and a booster weight borrowed from the
+    M21A2, but neither bound confirms it.
+- **155 mm M107:** the deduction uses the M51A3/M21A2 fuze-and-booster weight.
+    It stands in for the M51/M21 and M51A1/M21A1 pairs actually authorized,
+    whose weights are not sourced.
+- **Rotating band:** the 155 mm entry deducts the copper-alloy band and the
+    plug. The 105 mm and 75 mm entries do not. Those two shells therefore
+    count ~1.8% of non-fragmenting band metal as fragmenting steel, which
+    slightly over-states their fragment mass.
+
+Across the full bracketed range of the fuze and booster choices, the fragment
+count $N_0$ moves by less than 0.2%. The case-mass and Gurney-velocity paths
+push in opposite directions and nearly cancel
+([`challenges/fuze-mass-deductions-range/materiality.md`](challenges/fuze-mass-deductions-range/materiality.md),
+verdict MOOT). The band is carried inside the 75 mm cross-check on purpose,
+because both reference weights include it
+([`updates/75mm-fuze-case-mass-fix/derivation.md`](updates/75mm-fuze-case-mass-fix/derivation.md)).
+Deducting it on one side only would break that check. No output changes
+visibly. This extends limitation 5.
+
+**23 · How $P(\text{kill}\mid\text{hit})$ varies between its three anchor
+energies is the model's own choice (v 0.17.0).**
+ES-310 gives three kill-probability anchors against impact energy. It does not
+say how to interpolate between them. The model interpolates linearly in
+$\log_{10}E$. At the one intermediate point the source works out, this gives
+0.817 against the stated 0.8, while linear-in-$E$ gives 0.767. That is
+agreement at one point, not a derivation. Between the anchors, the lethality
+grading, and so the graded fringe of $P_\text{kill}$, depends on this choice.
+The anchors themselves, and hence $E_\text{leth}$, do not. See
+[`challenges/source-data-audit/ledger.md`](challenges/source-data-audit/ledger.md)
+§23.
+
+**24 · The SAND92-0243 drag citations do not source a speed law
+(v 0.17.0).**
+The shipped constant $C_D$ and its known speed dependence come from DoD-1975
+(limitation 15). Some working documents also cite SAND92-0243 for a
+velocity-*dependent* $C_D$. That report states no functional form: it defers
+to SAND91-0277, which is not held. So the dependence is cited through it but
+not sourced by it. Its $C_D$ also belongs to tumbling plate and disk fragments,
+and it enters that report's range formula only multiplied by shape and
+thickness factors, never alone. Whether it measures the same quantity as the
+model's bare $C_D$ is an unresolved criterion-match question. SAND92-0243 is
+therefore not a drag cross-check for this model. No shipped value depends on
+it. See
+[`challenges/source-data-audit/ledger.md`](challenges/source-data-audit/ledger.md)
+§22.
+
+**25 · One fragment length:breadth ratio for every shell rests on a
+secondhand attribution (v 0.17.0).**
+The fragment-shape closure uses one constant length:breadth ratio,
+$A = l/x = 1.6$, for all three shells. The value is sourced (Felix 2022
+Table 4). The premise that it is *one constant across shells* is not. Gold
+2017 attributes it to Mott (1943). The primary, Mott & Linfoot, says twice
+that its theory does not account for splinter length, and where it does treat
+length it makes it independent of breadth. The premise is therefore a model
+assumption, not a result from Mott. If the ratio varied with caliber or wall
+thickness, the per-shell fragment mass scale would shift with it. No source
+held bounds that variation. See
+[`updates/mott-fragment-shape-closure/derivation.md`](updates/mott-fragment-shape-closure/derivation.md)
+and
+[`mott-linfoot-1943-theory-of-fragmentation`](../../doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/card.md).
+
+**26 · The perforation threshold may admit fragments that are too small
+(v 0.17.0).**
+The panel-perforation threshold uses a plug-shear energy law,
+$E_\text{thr}\propto m^{1/3}$. Tolch (1938) reports 0.36 g as the smallest
+observed perforating fragment at 838 m/s. Rescaled to that speed, the model's
+threshold would let fragments as small as 0.065 g through. That is about 5.6×
+more permissive in mass, which would over-count the smallest perforating
+fragments. The 0.36 g datum is itself unanchored in the held extraction (no
+table, and "smallest" does not appear in it), so this is an indication, not a
+measured bias. See
+[`challenges/count-gap-1938/count-chain.md`](challenges/count-gap-1938/count-chain.md)
+item (v).
+
+**27 · The sensitivity app's γ slider does not move γ alone (v 0.17.0).**
+In `app/sensitivity.py`, the Mott γ slider is degenerate with the break-up
+factor $f$ (`f_breakup`), which has no control of its own. The two enter
+together as $\gamma'_\text{eq}=\gamma f^2$ (see limitation 7 on the
+$\gamma'$–$f$ degeneracy). So the app cannot separate a change in steel
+toughness from a change in break-up velocity. This affects only the
+interactive app, not any shipped figure.
+
+**28 · The baseline steel's name misdates it (v 0.17.0).**
+The model labels its baseline grade `US WW2 WDSS1`. AMCP 706-249 dates the
+WDSS table to 17 Feb 1953, and it separates "Steel Used Early in World War II"
+(X-1340) from "Steels Used After World War II". WDSS is post-war, so the label
+misdates the grade. This is a label problem only: no number changes. The
+separate question of whether the inferred *composition* is right is
+limitation 13. See
+[`ammunition-series-6-wdss-specs`](../../doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md).
+
+**29 · A fragment mass is compared with Tolch's hole sizes through a stale
+conversion (v 0.17.0).**
+The drag scoping argues that, at the combined drag factor of 2.67, the implied
+perforation threshold would let very light fragments through 1″ spruce, lighter
+than Tolch's smallest recorded perforations allow. That argument turns a
+fragment mass into a presented cross-section so it can be set against Tolch's
+smallest hole area. When the mass figure was restated on 2026-08-16, that
+mass-to-cross-section conversion was not redone. The cross-section quoted
+beside it still belongs to the earlier mass figure. The direction of the
+argument is unaffected, because the restated mass is of the same order, but the
+cross-section it quotes is not current. This affects a supporting argument in
+the drag-law scoping only, not any shipped figure. See
+[`updates/mach-dependent-fragment-drag/scoping.md`](updates/mach-dependent-fragment-drag/scoping.md)
+("But Tolch does not endorse 2.67 either").

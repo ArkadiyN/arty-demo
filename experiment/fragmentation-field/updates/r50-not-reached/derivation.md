@@ -78,7 +78,7 @@ peak-location range as R₅₀ whenever the cross-range slice stayed below 0.5
 start above 0.5 and fall monotonically, so their printed R₅₀ is correct to
 within one grid step. They are still inline physics.
 
-FINDING[deferrable]: _field-plots.qmd and _change-log.qmd compute R50 inline with the old argmin rule instead of calling arty.fragmentation.r50_outer; values are correct to one grid step on their monotone ground-burst profiles but the pattern is inline physics and would mis-report a not-reached profile (affects: experiment/fragmentation-field/_field-plots.qmd, experiment/fragmentation-field/_change-log.qmd; since: 2026-09-26)
+*Resolved 2026-09-26:* both partials now call `arty.fragmentation.r50_outer`.
 
 ## Before / after
 

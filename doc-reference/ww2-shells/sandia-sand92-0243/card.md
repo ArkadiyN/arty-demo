@@ -146,6 +146,8 @@ Greppable strings in the PDF text layer, no bare line or page numbers:
 
 ## Provenance of this card
 
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/Fragment Hazard Zone Analyses.pdf` (blob store); `sha256: b46e73586e8cd908dd025c8d2fcf4b00e1a82fec0d42162a01aa39a64b74f578`.
+
 Read directly from `source.pdf`'s text layer on 2026-08-02 with
 `experiment/fragmentation-field/challenges/source-data-audit/checks/sandia-cd-provenance.py`,
 which prints the two $C_d$ statements, the delegation, and the raw block order

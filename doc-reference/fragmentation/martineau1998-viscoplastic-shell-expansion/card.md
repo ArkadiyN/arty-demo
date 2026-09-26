@@ -8,7 +8,7 @@
 **Issued:** April 1998 (page 1)\
 **Report Number:** LA-13424-T, UIC-741
 
-FINDING\[deferrable\]: source.pdf not retained in doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion/ — only partial extraction (sections 5.7-5.8, pages 103-105) kept; card claims verification from pages 54, 73-75 which are not in retained files (affects: doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion; since: 2026-08-16)
+FINDING\[deferrable\]: only a partial extraction (sections 5.7-5.8, pages 103-105) is processed, though the full PDF is now in the blob store; card claims verification from pages 54, 73-75 which are not in retained files (affects: doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion; since: 2026-08-16)
 
 ## Verified from Source Pages
 
@@ -108,8 +108,14 @@ Gurney equation: $V_{\max} = \sqrt{2E\left(\frac{M}{C} + \frac{1}{2}\right)^{-1/
 
 ## Provenance of this card
 
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/663184.pdf` (blob store); `sha256: bfbdcaf4c1956bb08dccc597b094ad49b0c43423ab136c0045d933c1c2365a72`.
+
 - **Document:** Rick L. Martineau, *A Viscoplastic Model of Expanding Cylindrical Shells Subjected to Internal Explosive Detonations*, Los Alamos National Laboratory Technical Report LA-13424-T, April 1998, DOI https://doi.org/10.2172/663184 (verified anchor "A Viscoplastic Model of Expanding Cylindrical Shells" — `card.md:5`, title page = report p.1).
-- **Retained source:** Partial extraction only — `martineau1998-viscoplastic-shell-expansion-section57-58.md` (vision-extracted sections 5.7–5.8, pages 103–105 printed pages 88–90). **`source.pdf` not retained** — only sections 5.7–5.8 can be re-verified. **Card claims in "Verified from Source Pages" (lines 11–48) cite pages 54, 73–75, 87–89; these pages are not in retained extraction files and cannot be re-verified.**
+
+- **Retained source:** Partial extraction only — `martineau1998-viscoplastic-shell-expansion-section57-58.md` (vision-extracted sections 5.7–5.8, pages 103–105 printed pages 88–90). The full PDF is in the blob store (line above), but only sections 5.7–5.8 have a processed extraction. **Card claims in "Verified from Source Pages" (lines 11–48) cite pages 54, 73–75, 87–89; these pages are not in retained extraction files and cannot be re-verified.**
+
 - **Extraction method:** Scanned document (178 pp., OCR-untrusted); sections 5.7–5.8 extracted via vision API. Material property claims (Alloy 101 copper, grain size, hardness) span pages 73–75, constitutive model claims span page 54 — **these sections not retained and not re-verifiable against current artifact**.
+
 - **Verified anchor (retained sections only):** "Table 5.3 indicate the calculated values of the Gurney velocity" — `martineau1998-viscoplastic-shell-expansion-section57-58.md:13` (section 5.7, page 103 printed page 88).
+
 - **Secondhand note:** The "Gurney Maximum Velocity Predictions" and equation 6.1 in the retained extraction directly quote/reproduce Kennedy 1970 Gurney forms — not secondhand (Martineau applies them), but the originality claim rests with Kennedy, not this source.

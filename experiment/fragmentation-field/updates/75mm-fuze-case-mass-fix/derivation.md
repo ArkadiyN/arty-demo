@@ -201,7 +201,6 @@ p.414 into `fuze-fitting-extraction.md` — not a change to any number here.
   band+plug; the 105 mm and 75 mm entries do not — a registry inconsistency
   worth one line, not a defect of this aspect.)
 
-  FINDING[note]: rotating-band treatment is inconsistent across the registry — 155mm M107 deducts band+plug in mass_deductions, 105mm M1 and 75mm M48 do not, so those two carry ~1.8% non-fragmenting gilding metal inside M_case (affects: src/arty/shells.py; since: 2026-08-08)
 - **The steel base cover** (spot-welded, TM-9-1904) is steel and left inside
   `M_case`; it fragments.
 - **`N₀` is nearly invariant** across every variant (3596–3801, ≤5 % spread)

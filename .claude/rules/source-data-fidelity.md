@@ -118,7 +118,7 @@ into a checked-in data file next to its processed source:
 ```
 doc-reference/<topic>/<docname>/
   card.md
-  source.pdf                  ← the blob that was processed, kept (gitignored)
+  (source blob)               ← kept in /mnt/f/Projects/TMP/Docs/, path + sha256 in card.md
   <stem>.md
   tables/
     <table-slug>.csv          ← the series, extracted once
@@ -130,7 +130,11 @@ literal array is reintroducing the failure mode — three independent
 transcriptions of one table produced three copies of one error precisely
 because each was typed fresh.
 
-**Keep `source.pdf`.** Cite scanned tables by **PDF page and printed page**
+**Keep the source PDF in the blob store `/mnt/f/Projects/TMP/Docs/`**, never
+only inside `doc-reference/`: PDFs there are gitignored, so a copy made in a
+worktree is deleted with it — all 34 cards had lost theirs before the store
+existed. "`source.pdf`" in a citation means the blob the card's `## Source`
+section points to. Cite scanned tables by **PDF page and printed page**
 alongside the greppable anchor: a processed `.md` can be re-extracted and
 shift, the PDF's pagination cannot.
 

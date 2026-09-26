@@ -149,8 +149,6 @@ Two things the page says that a consumer of that entry should read:
     below tracked. Closed; see J1 for the full reasoning and the follow-up
     documentation edits it flags for `_limitations.qmd`/`derivation.md`.
 
-FINDING\[note\]: `src/arty/fragmentation.py` names the grade `US WW2 WDSS1`, but AMCP 706-249 dates table 6-1 to 17 Feb 1953 and titles §6-11/§6-13 "Steel Used Early in World War II" (X-1340) / "Steels Used After World War II" - WDSS is post-war, so the identifier misdates the grade (affects: src/arty/fragmentation.py, experiment/fragmentation-field/\_parameters.qmd, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md; since: 2026-08-02)
-
 ## What this card deliberately does not do
 
 An earlier version of this card carried three interpretive sections — "Carbon

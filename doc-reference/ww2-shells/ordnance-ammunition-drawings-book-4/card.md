@@ -498,3 +498,7 @@ gitignored per `.gitignore:58` — re-acquire from the original location)
 **SHA256:** `0e5a061d0319e7dd19e0ab644ae83392b44de20226dad62fa5f9feaf35da1c5c`
 **Images:** `images/fig1.jpeg`–`fig9-page73-75mm-m48-specs.jpeg` (9 total;
 see Extraction provenance above)
+
+## Provenance of this card
+
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/Ordnance Ammunition Drawings, Book 4.pdf` (blob store); `sha256: 0e5a061d0319e7dd19e0ab644ae83392b44de20226dad62fa5f9feaf35da1c5c`.

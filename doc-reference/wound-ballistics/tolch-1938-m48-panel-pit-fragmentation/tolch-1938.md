@@ -143,7 +143,7 @@ m ,.. . ttmmmmäüum jinir 1/
 ■
 ' By fragmentation firings in semi-circular wood panels, the fragment density was determined as a function of the angle with the axis of the shall, the distance, and the remnlnir«\*' v«lnclfcv. Or>n\<>.irt«ri»ifl; tb\<« frag- ment densities with regard,to the angle with the shell axis, the fragments are concentrated in three main classes, commonly designated as nose, side, and base sprays. With regard to the variable of distance, the densities decrease with the distance, the decrease in total number of hits in the side spray averaging about 55% between the 15 and 120 ft. panels. The general effect of remaining velocity is to reduce the number of fragments in the base spray, to shift the side spray forward, and to increase the number of fragments in the nose spray.
 The total number of fragments of a shell recorded in the panel tests is about 5000, while the number of fragments obtained in pit fragmentation tests averaged about 780. It appears that practically all of the fragments recovered in pit tests would be perforating fragments in panel tests.
-As determined by the change in the angle of the side spray with change in remaining velocity, the velocity of the perforating fragments duo to the explosive charge averaged 27^0 f/s.while that of the penetrat- ing fragments was 3030 f/s. It appears that the greater initial velocity of the penetrating fragments is due to the4r smaller size, or more parti- cularly to their smaller ballistic coefficients.
+As determined by the change in the angle of the side spray with change in remaining velocity, the velocity of the perforating fragments duo to the explosive charge averaged 2740 f/s [digit restored from source.pdf p.5 / printed p.3, 2026-09-26].while that of the penetrat- ing fragments was 3030 f/s. It appears that the greater initial velocity of the penetrating fragments is due to the4r smaller size, or more parti- cularly to their smaller ballistic coefficients.
 The general method of evaluating the fragmentation effect of shell in the present program of test consisted of determining the fragment density as a function of three variables, namely, the direction from the
 \_-»J.X ■ * - "I
 
@@ -1655,7 +1655,7 @@ Ave. 3030
 
 ### I '
 
-The average velocity of the perforations due to the explosive charge computed from the change in the sldespray angle Is 27^0 f/s while that of the penetrations Is 3030 f/s. It appears plausible to assume tliat the greater Initial velocity of the penetrations may be due to the difference In size, the penetrating fragments attaining a higher velocity because of smaller ballistic coefficients. While a measure- ment of the velocity of the dents was not obtained, they are presumably somewhat faster than the penetrations.
+The average velocity of the perforations due to the explosive charge computed from the change in the sldespray angle Is 2740 f/s [digit restored from source.pdf p.86 / printed p.35, 2026-09-26] while that of the penetrations Is 3030 f/s. It appears plausible to assume tliat the greater Initial velocity of the penetrations may be due to the difference In size, the penetrating fragments attaining a higher velocity because of smaller ballistic coefficients. While a measure- ment of the velocity of the dents was not obtained, they are presumably somewhat faster than the penetrations.
 Thf resultant velocity of the sldespray is simply the vector sum of the velocity due to the charge and the remaining velocity of the shell. The remaining velocity does not contribute much to the resultant velocity up to shell velocities of 1085 f/s but at 1U50 f/s and higher, the resultants are appreciably greater. It should be noted, however, that the resultant velocities were computed from the average angle of the sldespray with the shell axis. The highest resultant velocities would occur In the front part of the side spray band.
 
 ### -35-
@@ -1695,7 +1695,7 @@ n - — ffi\*\*. !■' ■-!'■• ^•■Jf^y".'■'•'I «.'■!. .'.•-- '
 n-y,'» "-.-■-i i'iipBniwyuni ni.u , mm .11 Hui;m'»will', uu. .1 JIHIPLI I.-P»-UIIM \<—«^.^r «..»■'» «PI^L
 3 ' :
 V-^ v,^%
-10\. The average velocity of the fragments In the side Bpray was computed from the change In the angle of the sidespray with remaining velocity. The computed velocity of the perforating fragments due to the ex- plosive charge averaged 27^0 f/s while that of the penetrations was 3030 f/s. The greater initial velocity of the penetrations is assumed to be due to their smaller ballistic coefficients.
+10\. The average velocity of the fragments In the side Bpray was computed from the change In the angle of the sidespray with remaining velocity. The computed velocity of the perforating fragments due to the ex- plosive charge averaged 2740 f/s [digit restored from source.pdf p.89 / printed p.38, 2026-09-26] while that of the penetrations was 3030 f/s. The greater initial velocity of the penetrations is assumed to be due to their smaller ballistic coefficients.
 N. A, Tolch
 \*
 

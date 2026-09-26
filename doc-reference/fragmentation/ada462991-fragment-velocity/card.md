@@ -65,11 +65,11 @@ where $\theta$ is fragment angle; $v_0$ radial expansion velocity at break-up.
 ## Provenance of this card
 
 - **Document:** Gold, Vladimir M., *Engineering Model for Design of Explosive Fragmentation Munitions*, Technical Report ARAET-TR-07001, February 2007 (DTIC Accession ADA462991).
-- **`source.pdf`:** NOT RETAINED in directory — was never downloaded after extraction.
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/ADA462991.pdf` (blob store); `sha256: cf4fe2cdf1b9f7162b131c88f04c6ff304db5e1827bc11d9fc759f64a73e0b20`.
 - **Extraction method:** OCR scanning of DTIC source PDF; `ADA462991.md` is the full-document transcription. All quoted anchors verified by `grep` against `ADA462991.md`.
 - **Key verified anchors:**
   - "MOTT CODE FRAGMENTATION MODELS" — `ADA462991.md:128`, section heading
   - "Jones-Wilkins-Lee (JWL) equation of state" — `ADA462991.md:126`
   - Material model specification and CALE integration — `ADA462991.md:126`
 - **No closure invariants:** This source presents all primary data in figures (velocity distributions, fragment size distributions), not tabulated numeric series. No arithmetic relation can be checked because no numbers are stated with definitions that would close. Figures cited in card reference the source but cannot be transcribed to CSV without explicit numeric axis values (not provided in extraction).
-- `FINDING[deferrable]: source.pdf should be retained per .claude/rules/source-data-fidelity.md § "Retain the source blob"; also, Figure data cited in this card (Fig. 3, 5, 9, 10) require visual inspection of the PDF to transcribe numeric axis values if exact values are ever needed downstream (affects: doc-reference/fragmentation/ada462991-fragment-velocity/; since: 2026-08-16)`
+- `FINDING[deferrable]: Figure data cited in this card (Fig. 3, 5, 9, 10) require visual inspection of the PDF to transcribe numeric axis values if exact values are ever needed downstream (affects: doc-reference/fragmentation/ada462991-fragment-velocity/; since: 2026-08-16)`

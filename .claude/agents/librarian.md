@@ -122,18 +122,24 @@ in 1–2 queries. Do not wait to be told to skip the API — default to it.
         Where the transfer question genuinely matters, **state it and refer it**
         — "whether this criterion matches the model's is a criterion-match
         question for @model-reviewer" — rather than answering it.
-1. **Retain the source blob.** Copy the PDF you processed to
-    `doc-reference/<topic>/<docname>/source.pdf` and leave it there. It is
-    gitignored (`doc-reference/**/*.pdf`), so it costs the repo nothing but
-    stays on disk for the next pass to re-read. **Never delete the download
+1. **Retain the source blob — in the blob store, not the worktree.** Copy
+    the PDF you processed to the persistent store
+    **`/mnt/f/Projects/TMP/Docs/`** (keep its original filename unless it
+    collides) and record that path in `card.md`. **Never delete the download
     after processing** — a scanned table that fails its closure invariant can
     only be resolved by looking at the page again, and without the blob that
     means re-acquiring the document from scratch, which has already cost this
     project a full audit cycle.
+    - **Why not `doc-reference/.../source.pdf`:** PDFs there are gitignored
+        (`doc-reference/**/*.pdf`), and you normally run inside a worktree, so
+        the blob is deleted with the worktree. Every one of 34 cards lost its
+        PDF this way before the store existed. A worktree-local
+        `source.pdf` copy is fine as a working convenience, never as the
+        retained copy.
     - Because the blob is gitignored it does **not** survive a fresh clone, so
         the *re-acquirable* record must live in `card.md`: record the origin
-        (DOI, DTIC accession, or URL), the page count, and the `sha256` of the
-        file under a `## Source` heading. That line is the durable artifact;
+        (DOI, DTIC accession, or URL), the page count, the store path, and
+        the `sha256` of the file under a `## Source` heading. That line is the durable artifact;
         the PDF is the local convenience.
     - Cite scanned tables by **PDF page and printed page** (`source.pdf p.41   (report page -19-)`) alongside the greppable anchor. A processed `.md`
         can be re-extracted and shift; the PDF pagination cannot.
@@ -146,7 +152,7 @@ doc-reference/
   <topic-slug>/
     index.md                     ← topic overview + article list
     <docname-slug>/
-      source.pdf                 ← the blob you processed, kept (gitignored; origin + sha256 go in card.md)
+      (source blob)              ← lives in /mnt/f/Projects/TMP/Docs/; store path + origin + sha256 go in card.md
       card.md                    ← ~300w extract: equations, constants, ranges (modeller reads this first)
       <stem>.md                  ← processed article markdown (full text, for drill-down)
       tables/                    ← cited numeric series, transcribed once
@@ -162,8 +168,8 @@ doc-reference/
 
 - Always confirm `openaccess: 1` before attempting full-text XML download.
 - Do not store raw XML in the repo — only processed `.md` and images. The
-    source **PDF** is the exception: keep it as `source.pdf` (gitignored), never
-    delete it after processing.
+    source **PDF** is the exception: keep it in the blob store
+    `/mnt/f/Projects/TMP/Docs/`, never delete it after processing.
 - **A processed `.md` is a lossy derivative, not the source.** When a number
     read out of one fails a closure invariant, go back to `source.pdf` — do not
     try to repair the `.md` by inference. Tolch-1938's vision re-extraction had

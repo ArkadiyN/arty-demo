@@ -129,3 +129,7 @@ instead of the shared `.invariant` DSL. Run:
 **DOI:** Not assigned; JSTOR Stable ID https://www.jstor.org/stable/45481566\
 **Pages:** 117–124 in Army Ordnance, Vol. 10, No. 56\
 **PDF file:** source.pdf (1.7 MB, 9 pages, native text layer, OpenPDF 1.3.43 producer)
+
+## Provenance of this card
+
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/Paine-CentrifugalCastingAdaptability-1929.pdf` (blob store); `sha256: 8376756a843b1b9707a58ff6cea9390dae91f2c386cc3d0dbb6745a13977e882`.

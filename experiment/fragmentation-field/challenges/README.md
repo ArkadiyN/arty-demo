@@ -87,9 +87,10 @@ the verdict.** The premise behind "trending INDETERMINATE pending C5" — that
 Tolch's 700 column is detection-limited — does not survive: Tolch's census
 grades every hit as perforation, penetration or dent, so the 700 column is
 perforation-limited by construction and C5 collapses into C1, which already
-models that mechanism. Even as an upper bound, the maximum reading leaves the
-arm outside the 2× band — the realised leverage cannot approach the level the
-INDETERMINATE clause needed to fire. **The standing verdict is therefore a
+models that mechanism; that census-grading argument alone discharges C5. A
+secondary upper-bound reading — resting on a smallest-perforating-hole datum
+that is inadmissible (`count-chain.md` §3 C5 reading (iv)) — agrees but is
+supporting only. **The standing verdict is therefore a
 plain, genuine FAIL — not INDETERMINATE.** The live recommendation ranking
 drops C5 (discharged, no credit) and becomes **C3 next, then C4**. Live text:
 `count-gap-1938/count-chain.md` §3 "C5" and §4 "The INDETERMINATE clause is

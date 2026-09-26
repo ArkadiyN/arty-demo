@@ -186,6 +186,8 @@ thread; it is a question about the premise, not a wrong digit.
 
 ## Provenance of this card
 
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/mott_ADB968781.pdf` (blob store); `sha256: 3312e95639f1b3b3b34e8ab93de576bf2cd155535e5b18b8af9c48d4e3bbfc1e`.
+
 Written 2026-08-02 during the Phase-2.5 source admissibility gate, from a scan
 supplied by the user. Detail:
 `experiment/fragmentation-field/challenges/source-data-audit/ledger.md` sect. 18.

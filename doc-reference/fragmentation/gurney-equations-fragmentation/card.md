@@ -127,6 +127,8 @@ and 0.25 C → 53. The note is corrected in place.
 
 ## Provenance of this card
 
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/rspa.1947.0042.pdf` (blob store); `sha256: 8648da97677ec7fd9654b242f78f67cacab7cff825d5687025a4adf7274adef6`.
+
 Written 2026-08-02 during the Phase-2.5 source admissibility gate; this
 document previously had **no card at all** despite feeding two shipped
 constants. Detail:

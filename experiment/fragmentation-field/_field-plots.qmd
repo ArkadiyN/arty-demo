@@ -6,6 +6,7 @@ field via `arty.fragmentation` and passes results to the figure functions.
 ```{python}
 import matplotlib.pyplot as plt
 from arty import plots
+from arty.fragmentation import r50_outer
 
 plots.apply_style()
 
@@ -28,7 +29,7 @@ plt.show()
 r_vals  = np.linspace(2, 300, 250)
 N_eff   = expected_kills(r_vals, N0, mu, V0, drag, rho_steel, w_target)
 P       = p_kill(N_eff)
-R50     = r_vals[np.argmin(np.abs(P - 0.5))]
+R50     = r50_outer(r_vals, P)
 
 fig = plots.fig_frag_field(r_vals, N_eff, P, R50, N0, V0, mu)
 fig.savefig("frag_field.png", dpi=120, bbox_inches="tight")
