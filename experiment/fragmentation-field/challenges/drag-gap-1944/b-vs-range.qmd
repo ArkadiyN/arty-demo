@@ -245,6 +245,46 @@ for shell_name, df in results.items():
           f"card monotone non-increasing = {card_monotone}")
 ```
 
+```{python}
+# Summary variables for inline wiring — computed from 'results' above.
+import json as _json
+
+_drag_combined = drag.C_D * drag.C_shape          # shipped combined drag constant
+_drag_old_combined = 0.65 * 0.90                  # pre-anchor combined drag (historical)
+
+_sum_vars = {}
+for _sn, _df in results.items():
+    _ratios = _df["ratio (model/card)"]
+    _sum_vars[_sn] = dict(
+        n_pass=int((_ratios.between(0.5, 2.0)).sum()),
+        n_total=len(_df),
+        ratio_lo=float(_ratios.min()),
+        ratio_hi=float(_ratios.max()),
+    )
+
+# Per-shell shorthand
+_75  = _sum_vars["75mm M48 HE"]
+_105 = _sum_vars["105mm M1 HE"]
+_155 = _sum_vars["155mm M107 HE"]
+
+# Failing-range strings for inline prose (ranges where ratio < 0.5).
+def _fail_str(df):
+    fails = sorted(df.loc[df["ratio (model/card)"] < 0.5, "r [ft]"].astype(int).tolist())
+    if not fails:
+        return "none"
+    if len(fails) == 1:
+        return f"r={fails[0]} ft"
+    return f"r={fails[0]}–{fails[-1]} ft"
+
+_75_fail  = _fail_str(results["75mm M48 HE"])
+_105_fail = _fail_str(results["105mm M1 HE"])
+_155_fail = _fail_str(results["155mm M107 HE"])
+
+# Pre-anchor ratios from the drag attribution check script's results file.
+_attr = _json.loads(open("checks/b-vs-range-drag-attribution.results.json").read())
+_attr_s = _attr["shells"]
+```
+
 ## Key findings
 
 **Quantitative — mostly PASS against the factor-of-2 band, for all three
@@ -257,14 +297,28 @@ casualties data (read from the closure-checked CSVs, see above) against the
 shipped DoD-1975-anchored drag default, Family B is close to the card almost
 everywhere:*
 
-| Shell | Ranges in band | Ratio range (model/card) | Trend with range |
-| --- | --- | --- | --- |
-| 75 mm M48 HE (Table 43) | 8/10 | 0.17x – 1.51x | falls with $r$ |
-| 105 mm M1 HE (Table 51) | 9/11 | 0.34x – 1.74x | falls with $r$ |
-| 155 mm M107 HE (Table 59) | 11/11 | 0.67x – 1.42x | falls with $r$ |
+```{python}
+_kf_rows = [
+    ("75 mm M48 HE (Table 43)",  _75),
+    ("105 mm M1 HE (Table 51)",  _105),
+    ("155 mm M107 HE (Table 59)", _155),
+]
+_kf_df = pd.DataFrame(
+    [
+        {
+            "Shell": label,
+            "Ranges in band": f"{s['n_pass']}/{s['n_total']}",
+            "Ratio range (model/card)": f"{s['ratio_lo']:.2f}x – {s['ratio_hi']:.2f}x",
+            "Trend with range": "falls with $r$",
+        }
+        for label, s in _kf_rows
+    ]
+)
+display(_kf_df.style)
+```
 
-The failing ranges in each case are the two-to-three *longest* tabulated
-ranges (75mm: r=300-400 ft; 105mm: r=400-500 ft), where the model
+The failing ranges are the *longest* tabulated ranges
+(75mm: `{python} _75_fail`; 105mm: `{python} _105_fail`), where the model
 under-predicts rather than over-predicts — the opposite direction and
 opposite trend from the void FAIL verdict. The AoF sensitivity band (0–60°,
 see the printed tables above) shifts the absolute ratio somewhat but does not
@@ -363,8 +417,8 @@ Ordnance velocity data. Instead, `DragParams` now derives $C_\text{shape}$
 from TP-12's own ballistic density $k$ rather than treating it as a free
 shape estimate ($C_\text{shape} = (\rho_\text{steel}/k)^{2/3}$,
 [`derivation.md`](../../updates/mach-dependent-fragment-drag/derivation.md)
-eq. 4), giving combined $C_D \cdot C_\text{shape} = 2.674$ (from 0.585, a
-4.6× increase — the old value was not merely low but geometrically
+eq. 4), giving combined $C_D \cdot C_\text{shape} =$ `{python} f"{_drag_combined:.3f}"` (from 0.585, a
+`{python} f"{_drag_combined / _drag_old_combined:.1f}"`× increase — the old value was not merely low but geometrically
 impossible, implying a fragment denser than solid steel). Re-running this
 notebook's own $B(r)$ ratio at the new default against the pre-anchor
 baseline, both now against the corrected casualties `CARD_DATA`
@@ -372,11 +426,32 @@ baseline, both now against the corrected casualties `CARD_DATA`
 which imports the same corrected `CARD_R_FT`/`CARD_B` from the per-caliber
 check modules used above):
 
-| Shell | Ratio range, pre-anchor (0.585) | Ratio range, v0.9.0 (2.674, shipped) | In $[0.5,2]$ band |
-| --- | --- | --- | --- |
-| 75 mm M48 HE | ~1.7x – 3.7x | ~0.2x – 1.5x | 8/10 |
-| 105 mm M1 HE | ~1.9x – 3.6x | ~0.3x – 1.7x | 9/11 |
-| 155 mm M107 HE | ~1.5x – 3.1x | ~0.7x – 1.4x | 11/11 |
+```{python}
+_attr_rows = [
+    ("75 mm M48 HE",  "75mm M48 HE"),
+    ("105 mm M1 HE",  "105mm M1 HE"),
+    ("155 mm M107 HE", "155mm M107 HE"),
+]
+_new_comb_str = f"{_drag_combined:.3f}"
+_attr_df = pd.DataFrame(
+    [
+        {
+            "Shell": label,
+            f"Ratio range, pre-anchor ({_drag_old_combined:.3f})": (
+                f"{_attr_s[k]['old_ratio_lo']:.1f}x – {_attr_s[k]['old_ratio_hi']:.1f}x"
+            ),
+            f"Ratio range, current ({_new_comb_str}, shipped)": (
+                f"{_sum_vars[k]['ratio_lo']:.2f}x – {_sum_vars[k]['ratio_hi']:.2f}x"
+            ),
+            "In $[0.5,2]$ band": (
+                f"{_sum_vars[k]['n_pass']}/{_sum_vars[k]['n_total']}"
+            ),
+        }
+        for label, k in _attr_rows
+    ]
+)
+display(_attr_df.style)
+```
 
 *(An earlier version of this table compared against the void column-swapped
 `CARD_DATA` and reported a ~2-5x residual that "cannot be closed by a
@@ -407,7 +482,7 @@ here.
 
 **PASS for most of each shell's tabulated range; a smaller far-range
 residual remains.** Against the scoping doc's §4 quantitative criterion, for
-all three shells (75 mm, 105 mm, 155 mm): 8/10, 9/11, and 11/11 tabulated
+all three shells (75 mm, 105 mm, 155 mm): `{python} f"{_75['n_pass']}/{_75['n_total']}"`, `{python} f"{_105['n_pass']}/{_105['n_total']}"`, and `{python} f"{_155['n_pass']}/{_155['n_total']}"` tabulated
 ranges respectively fall inside the $[0.5\times, 2\times]$ factor-of-2 band.
 *This restates the original "FAIL... 7-34x, growing with range" verdict,
 which was VOID — it was computed against a hand-typed `CARD_DATA` that
@@ -418,7 +493,7 @@ trail).* The falloff *shape* still matches (monotonic decrease, no spurious
 features). The residual that remains is at the two-to-three *longest*
 tabulated ranges per shell, where the model now *under*-predicts — the
 opposite direction from the original (void) finding — and is small enough
-(worst case ~1/0.17 ≈ 5.9x under-prediction at 75mm's r=400 ft, vs. up to
+(worst case ~1/`{python} f"{_75['ratio_lo']:.2f}"` ≈ `{python} f"{1/_75['ratio_lo']:.1f}"`x under-prediction at 75mm's r=400 ft, vs. up to
 34x over-prediction in the void original) that it is not this notebook's
 primary deliverable; it is noted as a smaller follow-up question for whoever next
 revisits Family B's long-range drag behavior, not a defect finding requiring

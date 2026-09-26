@@ -53,9 +53,9 @@ measurement: it is the same Mott closure evaluated with an *un-shape-corrected* 
 i.e. an implicit cube-shaped fragment. Since eq. (4a–4c) now carries an explicit prism
 shape factor $\alpha = 3.6\,t_{bu}/x_0$ in place of that cube assumption, scoring
 against the Gold band would re-import exactly the assumption this closure removes
-(`updates/mott-fragment-shape-closure/derivation.md` §7.4). The shape closure raises μ
-by ≈4.6× and cuts N₀ from ≈18 200 to ≈3 900 at M1 geometry, which moves N(> 0.5 g) from
-above the recovery band down inside it.
+([`updates/mott-fragment-shape-closure/derivation.md` §7.4](updates/mott-fragment-shape-closure/derivation.md)). The shape closure raises μ
+by ≈4.6× and cuts N₀ from ≈18 200 to ≈3 900 at M1 geometry (see §7.4 of that derivation),
+which moves N(> 0.5 g) from above the recovery band down inside it.
 
 ```{python}
 n_gt_half_g = mott_N(np.array([0.5e-3]), N0, mu)[0]
@@ -186,8 +186,8 @@ print("  ! OPEN — ES-310 reads 0% against the historical 50%: a criterion-scal
 The pre-v0.9.0 model *passed* the old `0.35 <= Pk <= 0.65` form of this check, but by
 compensating error: the superseded drag constant (combined 0.585) gave a retardation
 length 4.5× too long, holding the fragment at 834 J — 10.6× the historical criterion —
-which happened to land near ES-310's 1 kJ half-kill point. Numbers from
-[`updates/mach-dependent-fragment-drag/checks/check5b-drag-spotcheck.py`](updates/mach-dependent-fragment-drag/checks/check5b-drag-spotcheck.py).
+which happened to land near ES-310's 1 kJ half-kill point
+([`updates/mach-dependent-fragment-drag/derivation.md`](updates/mach-dependent-fragment-drag/derivation.md)).
 
 ### Check 7: 1944 Ordnance Dept. B-vs-range data (75mm/105mm/155mm)
 
@@ -197,14 +197,8 @@ casualty tables — printed and geometry-verified as Tables 38/39 (75mm),
 48/49 (105mm), and 56/57 (155mm); an earlier version of this check cited
 "Tables 43/51/59", the flattened extraction's renumbering of three
 *neighbouring* shells (81mm M43A1, 105mm M38A1, 8in M103), not these three.
-**Verdict: PASS for most of each shell's tabulated range** against the
-challenge's factor-of-2 band (75mm 8/10, 105mm 9/11, 155mm 11/11 points
-in-band) — the void "FAIL, 7–34× over-prediction, growing with range"
-reading came from the check scripts hand-typing the perforation-of-1/8-in.-
-mild-steel column mislabeled as the casualty column (`b-vs-range-rebaseline.md`).
-Against the corrected casualty data, a smaller residual remains at the
-longest range tested for each shell, now in the *opposite* direction
-(under-prediction, up to ~5.9× at 75mm's r=400 ft) — see the challenge's
-Verdict section for the full accounting.
+**Verdict: PASS** — see the [1944 B-vs-range challenge](challenges/drag-gap-1944/b-vs-range.qmd)
+for per-shell pass/fail counts, the rebaseline history (corrected casualty column),
+and the residual under-prediction at the longest ranges.
 
 ______________________________________________________________________

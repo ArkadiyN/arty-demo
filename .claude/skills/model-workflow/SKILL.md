@@ -21,6 +21,35 @@ Specs reference derivations and call `arty`; they never restate the physics. A
 behavior/contract change updates the spec; a physics change updates the model
 artifacts, and the spec points to the new `derivation.md`.
 
+### A computed result has one home
+
+A number that a check script or `arty` **computes** gets written in exactly
+one place: the document that cites the script that produced it. Such numbers
+include a margin, a ratio, a count, or a verdict and the figure it rests on.
+The home is usually `derivation.md` or the challenge write-up. Every other
+surface **links** to that section instead of restating the digits.
+
+- **Indexes and banners** (`challenges/README.md`, a thread `README.md`, status
+    lines, summaries in other documents) carry the verdict **label** (PASS /
+    PASS-with-limitations / FAIL), its date, and a link. They never carry the
+    figure. The label is the one permitted copy.
+- **In a `.qmd`**, a model output in prose or in a table is an inline
+    `{python}` expression, or a table built from an `arty` call or a check
+    script's results file, the same way the charts are. It is never typed in.
+- **Not covered**: source inputs (those come from `tables/*.csv`, per
+    `source-data-fidelity.md`), intermediate steps of a derivation, and
+    decision thresholds. None of these change when the model does.
+- **Dated records are exempt**: `_change-log.qmd` entries, `review.md`
+    sections, audit ledgers and superseding notes. "On date X the value was Y"
+    stays true after the model changes, so it is a snapshot, not a stale copy.
+
+When a result changes, only its home is edited, with a dated superseding note.
+Nothing else needs touching, which is the point. A restated copy, or a typed
+output in a `.qmd`, is a `doc-sync` finding. The remedy is to **replace it with
+a link or an inline expression**, not to re-type the new digits. Re-typing is
+what made the same copy go stale pass after pass
+(`.claude/incidents.md#materiality`).
+
 ## Artifact layout
 
 Everything related to a model lives under that model's folder:
@@ -28,11 +57,12 @@ Everything related to a model lives under that model's folder:
 ```
 experiment/
   _scratch/                   ← staging ONLY, for in-flight check scripts;
-                                emptied before every pass ends
+                                resolved before a pass ends (cited → checks/,
+                                uncited → may delete; never delete a cited one)
   <model>/
     <model>.qmd               ← integrated, reader-facing model notebook
     challenges/
-      README.md               ← index of threads + their verdicts
+      README.md               ← index of threads + verdict labels + links (no figures)
       <thread>/               ← one investigation thread, NOT one loose file
         README.md             ← thread index + current verdict (multi-doc only)
         <question>.md/.qmd    ← the write-ups, in the order they were run
@@ -130,6 +160,11 @@ is a published verdict; **the main model is not modified**.
 
 Done when: notebook renders, verdict is unambiguous, reviewer approves.
 
+**Steps 3-5 run as a Workflow-tool script**, `.claude/workflows/model-workflow-a.js`
+— see "Executing B (and A) as a Workflow script", below. Steps 1-2 (librarian,
+question doc + approval) and step 6 (linking the challenge, a documentation-
+index edit) stay manual, outside the script.
+
 ## Workflow B — Update ("add/change Y in the model")
 
 A change to the integrated model. Produces a derivation, then ports the
@@ -183,9 +218,70 @@ result into the main `.qmd`. **Each change covers exactly one model aspect**
     small — the modeler is calling its own `src/arty/` code, so no handoff.
 
 Done when: physics is in `src/arty/`, the notebook reflects it, change-log
-entry exists, notebook renders, and `experiment/_scratch/` is empty — every
-script that produced a cited number now sits in a `checks/` folder next to the
+entry exists, notebook renders, and `experiment/_scratch/` holds none of this change's
+scripts — every script that produced a cited number now sits in a `checks/` folder next to the
 artifact citing it (`.claude/rules/verification-scripts.md`).
+
+**Steps 3-7 run as a Workflow-tool script**, `.claude/workflows/model-workflow-b.js`
+— see "Executing B (and A) as a Workflow script", below. Steps 1-2 (librarian,
+scoping + approval) stay manual, outside the script.
+
+## Executing B (and A) as a Workflow script
+
+The deterministic control flow above — dispatch, verify the write landed,
+loop fix/re-review against the shared two-cycle cap, escalate instead of
+looping a third time — is encoded once as a runnable script per workflow, so
+the main agent doesn't hand-drive it turn by turn:
+
+- `.claude/workflows/model-workflow-b.js` — Workflow B from an **approved**
+    `scoping.md` through derivation, both review passes, implement, and
+    present.
+- `.claude/workflows/model-workflow-a.js` — Workflow A from an **approved**
+    question doc through the optional src/ pass, the notebook, and both
+    review passes.
+
+**What stays manual, and why.** Both scripts start *after* the step that is a
+judgment call with a human/main-agent approval checkpoint — scoping in B, the
+question doc in A — not a deterministic control-flow step the Workflow tool
+models well. Librarian dispatch (optional, "is literature needed?") and, for
+A, linking the finished challenge into the parent notebook (a documentation-
+index edit, not physics) likewise stay outside the script. Gate 1 (worktree
+precondition) still binds the *caller*: `EnterWorktree` before invoking either
+script, and pass the resulting absolute path as `args.worktreePath` — the
+script throws immediately if it's missing, and every dispatch inside it
+anchors to that path per the subagent-harness cwd-inheritance gotcha.
+
+**Invoke with the `Workflow` tool**, e.g. for B:
+
+```
+Workflow({
+  scriptPath: ".claude/workflows/model-workflow-b.js",
+  args: {
+    worktreePath: "/absolute/path/to/.claude/worktrees/<name>",
+    model: "fragmentation-field",
+    changeSlug: "some-change-slug",
+    derivationGoal: "...",
+    derivationConstraints: "...",
+    derivationAcceptance: "...",
+    inputFiles: ["experiment/fragmentation-field/updates/some-change-slug/scoping.md", "..."],
+    findingsScopePaths: ["experiment/fragmentation-field/updates/some-change-slug"],
+  }
+})
+```
+
+Both scripts inject the `collect-findings.py --for <scope>` output (one call
+per scope path — `--for` takes a single prefix) into the briefs, append each
+rule's operative clause (staging resolution, table closure, FINDING markers,
+`uv run`) to every modeler and reviewer brief, and verify on disk both each
+review pass's section and each modeler pass's artifact before trusting a
+return (`.claude/rules/subagent-harness.md`, "a quiet return ≠ success"). On
+`status: 'done'` the result carries `findingsAfter` — the register
+re-collected for the scope — which the main agent re-tiers per
+`.claude/rules/deferred-findings.md`. On `status: 'escalate'`, triage from
+`result.escalate` (stage, reason, and for a missing artifact the exhaustion
+classification to apply) and the per-stage results (`adversarial`,
+`verification`, `implementation`, `notebook`). Don't re-invoke the script a
+third time on the same slug.
 
 ## When to delegate to @librarian
 
@@ -268,34 +364,70 @@ settled version, not one about to be reworked.
 the numbers exist (e.g., a pure sensitivity/convergence check) — a judgment
 call for the main agent to make and note in the dispatch, not a default.
 
-**Model tier:** Pass 1 (adversarial) overrides to **Opus** — it is the harder
-reasoning task of the two and the highest-value review step, the one where a
-wrong theory is caught or shipped. Pass 2 (verification) stays at
-@model-reviewer's standard default, **Sonnet** — mechanical reproduction and
-code-tracing, not judgment. (`agents-routing.md` "Model tier per pass".)
+**Model tier:** Pass 1 (adversarial) runs at **Opus 5.5** (`claude-opus-5-5`)
+— it is the harder reasoning task of the two and the highest-value review
+step, the one where a wrong theory is caught or shipped. Pass 2 (verification)
+stays at @model-reviewer's pinned **Sonnet 4.6** (`claude-sonnet-4-6`) —
+mechanical reproduction and code-tracing, not judgment. Never the `sonnet`
+alias: it resolves to Sonnet 5.0, which refuses this project's subject matter.
+(`agents-routing.md` "Model tier per pass".)
+
+## Materiality gate — what a finding costs is decided by its route
+
+Severity says *whether* a finding matters; the route says *what it costs*.
+Every blocking and deferrable finding carries three tags in the reviewer's
+structured return:
+
+- **kind**: `basis` (a different quantity, population, regime, criterion or
+    caliber) · `closure` (a source table fails its own invariant) · `numeric`
+    (a value is off on a correct basis) · `doc-sync` (a stale or disagreeing
+    copy of a settled value or verdict) · `process` (a missing artifact,
+    review or retained script).
+- **bound**, judged against the declared **Verdict outputs**: `within` (holds
+    under *every* plausible reading, crosses no threshold, flips no shipped
+    direction) · `crosses` · `conditional` ("zero if reading X is right") ·
+    `unbounded`.
+- **applies_elsewhere**: the cause reaches another setting, caliber, range
+    or consumer.
+
+| Finding                                                 | Route                                                                                                                                       |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `basis` / `closure` / `process`, or `applies_elsewhere` | fix cycle, whatever its size                                                                                                                |
+| `numeric`, `crosses`                                    | fix cycle                                                                                                                                   |
+| `numeric`, `within`                                     | note only, no fix cycle                                                                                                                     |
+| `numeric`, `conditional` / `unbounded`                  | one cheap reviewer **bounding pass** (perturb `arty` inputs, append "Bounds — …" to `review.md`), then `within` → note, anything else → fix |
+| `doc-sync`                                              | stays blocking; one **batched Sonnet doc-sync pass** at the end of the run, with no fix cycle and no re-review                              |
+
+**Verdict outputs are the premise.** Every `scoping.md` (Workflow A: the
+question doc's verdict criterion) ends with `## Verdict outputs`, listing each
+output that carries a verdict or shipped claim, its decision threshold, and
+the direction of the shipped claim. With none declared, every numeric finding
+is `unbounded`, and the gate degrades to "bound everything", which is safe
+but not cheap.
+
+Reviewers do not re-raise a defect that already carries a `FINDING` marker;
+they cite the marker. Fix briefs name the fix-routed finding ids, and the
+modeler leaves everything else alone. Both `model-workflow-*.js` scripts
+implement this table, and the batched items come back as `result.docSync`
+(or `result.docSyncPending` on escalation, which the main agent must still
+land). Evidence and audit: `.claude/incidents.md#materiality`.
+
+The doc-sync pass converges: it replaces each stale copy with a link or an
+inline expression (see "A computed result has one home"), so the same copy
+cannot be flagged twice.
 
 ## Task sequencing
 
-Never send a compound task. "Compound" means **both** more than one artifact
-*and* more than one model aspect — one prompt covers one pass on one aspect.
-All passes go to @modeler (it owns the aspect end-to-end). Edit, never rewrite,
-in every pass:
-
-1. Scoping → @modeler reads cards, writes `scoping.md` → return.
-1. Derivation → @modeler reads scoping, writes `derivation.md` → return.
-1. src/ implementation → @modeler edits `src/arty/` from the approved
-    derivation → return.
-1. Notebook presentation → @modeler edits the `.qmd`/partial to import from
-    `arty`, render, add the change-log entry, and re-render → return.
-
-Parent agent reviews each return before sending the next task. Each numbered
-step above is a **fresh `Agent` dispatch** — "→ return" means that instance is
-finished. **Never continue a modelling agent with `SendMessage` to move it to
-the next step or hand it review findings** (agents-routing.md Gate 4): that
-defeats the per-invocation context reset and grows one unbounded window. The
-next pass reads the artifacts (`scoping.md` / `derivation.md` / `review.md`),
-not the prior instance's live thread.
-Include file paths in each prompt, not conversation summaries.
+Never send a compound task: one prompt is one pass on one aspect (see
+"Decompose first", above; all passes go to @modeler, which owns the aspect
+end-to-end). The per-step mechanics — what each pass writes, when to
+re-review, when to stop and escalate — are the Workflow A/B sections above,
+and are carried out by the `.claude/workflows/model-workflow-*.js` scripts for
+the steps they cover. Every pass is still a **fresh dispatch**
+(agents-routing.md Gate 4) — never continue a modelling agent with
+`SendMessage` to advance it to the next step or hand it review findings; the
+next pass reads the artifacts, not the prior instance's live thread. Include
+file paths in each brief, not conversation summaries.
 
 ## Inject open findings into every brief
 

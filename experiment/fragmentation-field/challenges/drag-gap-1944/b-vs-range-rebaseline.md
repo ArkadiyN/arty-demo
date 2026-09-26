@@ -1,5 +1,7 @@
 # Re-baseline: b-vs-range Family-B check against the corrected CASUALTIES columns
 
+**Superseded 2026-09-26:** counts below (8/10, 105mm 9/11, etc.) reflect model state at a01eb33; current model gives 8/10, 10/11, 11/11 — see [updates/one-home-rewire/triage-105mm-count.md](../../updates/one-home-rewire/triage-105mm-count.md).
+
 **Context.** `b-vs-range-75mm.py`, `-105mm.py`, `-155mm.py` and their write-up
 (`b-vs-range.md`, `b-vs-range.qmd`) hand-typed a `CARD_B` series per shell that
 each script's own docstring labels "Table 43/51/59 CASUALTIES" (the printed

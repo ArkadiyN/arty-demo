@@ -406,3 +406,580 @@ limitations:
 - Add the missing note-tier deferred-finding marker for the
     C1-threshold-permissiveness observation in note (v) so it is tracked by
     `collect-findings.py` rather than living only in prose.
+
+## Review (2026-09-22) — maintenance banner pass (aspect_ratio 1.950 re-closure)
+
+**Reviewer:** model-reviewer (Sonnet 4.6)
+**Scope:** the @modeler maintenance pass that added correction banners to
+`count-chain.md` and `rebaseline-verdict.md` reflecting live `aspect_ratio = 1.950` (kappa_x/k/c re-solved at the shell's own ruled-line regime,
+`630dac8`/`18cd069`), and a cosmetic label fix in
+`checks/count-chain-aspect-moment-reclosure.py`.
+
+**Verdict: FAIL**
+
+### Open findings at pass entry
+
+`collect-findings.py --for experiment/fragmentation-field/challenges/count-gap-1938`
+returned exit 1 with malformed-marker errors before listing findings (see
+Finding 1 below). Informational register from the brief:
+
+- [blocking] count-gap-1938 publishes 2.28x/2.54x as shipped-code verdict — affects rebaseline-verdict.md, count-chain.md (raised 2026-08-18)
+- [deferrable] 1.221x/2.05x C5 figures on inadmissible datum — pre-existing, out of scope
+- [note] C1 plug-shear threshold 0.065 g — pre-existing, out of scope
+
+### Finding 1 — BLOCKING: prose blocking-marker references trigger malformed-marker parse failure
+
+**Files:** `count-chain.md` line 33, `rebaseline-verdict.md` line 240
+**Impact:** `collect-findings.py --check` exits 1 before any checking logic
+runs. The pre-commit hook uses this exact entry point; the staged files
+cannot be committed as written. Blocks the entire pass.
+
+Both banners added by the modeler reference the existing marker in prose
+using backtick inline code naming the blocking marker literally. The
+parser's LOOSE regex `r"FINDING\\?\["` matches these lines and flags them as
+malformed markers that "do not parse" because they lack the required `:`,
+`affects:`, and `since:` fields. The LOOSE match exits early with return
+code 1 before the `--check`/`--scope` branches run.
+
+Observed output from `uv run python src/utils/collect-findings.py --for experiment/fragmentation-field/challenges/count-gap-1938`:
+
+```
+Malformed FINDING markers (fix or the finding is lost):
+  experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md:33: ...
+  experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md:240: ...
+```
+
+**Suggested correction (not applied):** replace both literal blocking-marker
+strings in the banner prose with neutral phrasing that does not contain the
+marker-prefix substring, such as "the open blocking finding" or "the
+blocking marker". The meaning is preserved; the parser is not triggered.
+
+### Finding 2 — PASS: numeric reproduction exact
+
+`uv run python experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-aspect-moment-reclosure.py`
+independently produces:
+
+```
+shipped A=1.950  mu = 1.321 g   N0 = 1886   V0 = 864.4 m/s   M_case = 4980 g
+SPF-S eta=1/2 (VERDICT) shipped: N = 1322  /700 = 1.89  /779 = 1.70
+```
+
+All five parameters match the modeler's report exactly. The banners in both
+files quote these numbers correctly. No discrepancy.
+
+### Finding 3 — Note: label fix is cosmetic, not a data change
+
+The change in `checks/count-chain-aspect-moment-reclosure.py` replaces the
+hardcoded string `"shipped A=1.577"` with the computed expression
+`f"shipped A={shipped.aspect_ratio:.3f}"`. The data row always called
+`mott_params(shipped, V0)` on the live `SHELLS` object; only the column
+header label was stale. This is a cosmetic fix. No impact on any printed
+number.
+
+### Finding 4 — Deferrable: blocking marker at `updates/kappa-x-shell-regime/derivation.md:341` left with stale interim numbers
+
+The modeler correctly left the blocking marker in place (did not delete it)
+since the full re-closure of `count-chain.md`'s ~20 verdict statements had
+not happened yet at this pass. The marker's own text cites "correct" live
+values of 2.22x(/700)/2.00x(/779), but the actual live values are now
+1.89x(/700)/1.70x(/779) — the marker's interim figures are themselves stale.
+
+**Impact:** the marker is directionally correct (flags that count-gap-1938
+carries stale verdict numbers) but its quoted "live" pair is wrong by ~15%.
+This is within the 2x band and doesn't flip any safety judgment, so it's
+deferrable. The correct resolution is a full §1/§2/§4/§5 re-closure pass
+that rewrites the body text, at which point the marker can be deleted
+cleanly.
+
+### Finding 5 — Note: scope call on not rewriting ~20 body statements is correct
+
+The modeler's decision to add banners rather than rewrite the body text of
+`count-chain.md` is defensible for a maintenance pass. The banner is placed
+at the top of both files and explicitly warns readers. The compound §4 PASS
+test caveat (A→D falloff arm not retouched) is correctly stated. No
+misleading conclusions result from leaving the body stale when the banner is
+present and prominent.
+
+### Summary
+
+**FAIL** — one blocking finding: prose references to the literal blocking
+marker in both banners match the parser's LOOSE regex and cause
+`collect-findings.py` to exit 1, which the pre-commit hook will reject. Fix:
+replace both instances with neutral phrasing to remove the marker-prefix
+substring from prose. The numeric work is otherwise correct: the parameter
+chain (aspect_ratio=1.950, mu=1.321g, N0=1886, V0=864.4 m/s) is confirmed by
+running the check script against live arty, the 1.70x/1.89x verdict pair is
+reproduced exactly, the label fix is cosmetic, and the scope calls (banners
+not body rewrite, marker not deleted) are appropriate for a maintenance
+pass.
+
+______________________________________________________________________
+
+## 2026-09-23 — Pass 1 (adversarial critique): compound-verdict re-closure (count arm 1.70×/1.89×, "INDETERMINATE")
+
+Scope: the uncommitted re-closure diff to `count-chain.md` (current-verdict
+banner + inline supersessions), `rebaseline-verdict.md` (sixth re-closure and
+verdict-direction banners), and the deletion of the blocking marker at
+`updates/kappa-x-shell-regime/derivation.md:341`. Register pre-check
+(`collect-findings.py --for …/count-gap-1938`): 2 open, both 2026-08-10 (C5
+datum deferrable, C1 0.065 g note) — neither is touched by this re-closure and
+neither is blocking; their non-action is fine.
+
+New probe for this pass:
+`experiment/_scratch/count-gap-1938-falloff-arm-reachability.py` (to be
+`git mv`'d to `challenges/count-gap-1938/checks/` by the caller — it produced
+the F1 numbers below; runs in ~2 s).
+
+### Verdict: **FAIL** (one Blocking finding, F1)
+
+The count-arm arithmetic is sound and independently corroborated (below), and
+the refusal to call the compound test PASS is correct. What fails is the
+*reason* given for "INDETERMINATE": the claim that the falloff arm is
+unreachable from this chain and untouched by the commits is false, and when
+the arm is run with the chain's own functions it lands outside its tolerance.
+
+### F1 — Blocking — the falloff arm is reachable, was moved by the commits, and fails its 0.10 tolerance
+
+`count-chain.md` current-verdict banner (lines ~44–58), the §4 supersession
+note (~line 706–711), the "What stands" bullet (~757–767), the §4 closing
+bullet (~789–794), and `rebaseline-verdict.md` lines ~250–258 all assert: (a)
+"no `arty` function reachable from this count chain predicts" the A→D ratio,
+(b) the model-side falloff is "the `../drag-gap-1944/` $B(r)$ aspect, walled
+off from this thread by construction", (c) the two commits "leave the falloff
+arm untouched — they rescale count magnitude, not the spatial falloff".
+
+All three are wrong:
+
+- **(a)** The observable is the per-unit-solid-angle ratio
+    $N(\ge m_{thr}(r_D))/N(\ge m_{thr}(r_A))$ — $N_0$ and $1/r^2$ cancel; only
+    drag, $E_{thr}(m)$ and $\mu$ enter. It is computed with exactly the calls the
+    verdict row already uses (`min_lethal_mass(..., E_thr=partial(perforation_threshold_energy, ...))`
+    - `mott_N`), at 15 and 120 ft. §4 itself (line ~672) says so: "Re-running
+        the falloff ratio through `arty.perforation` is the cheapest way to make
+        this a two-observable test and is **not blocked on anything**." The banner
+        contradicts the section it summarises.
+- **(b)** The cited "why a separate thread" note (line ~137) argues that the
+    *count* is total-against-total and cancels azimuthal weighting; it says
+    nothing about the falloff ratio and does not wall it off. The falloff
+    computation that exists in `../drag-gap-1944/tolch-1938-panel-distance.md`
+    Result 1 is this same perforation-count ratio (A/B/C/D = 1.000 … .557), not
+    $B(r)$ — the $B(r)$ attribution is a mischaracterisation.
+- **(c)** $\mu$ does not cancel in the ratio (Mott tail
+    $\exp(-\sqrt{m/\mu})$ at two different $m_{thr}$), so the aspect-ratio move
+    changes it.
+
+Live numbers (plug-shear, SPF-S η=½ `WoodPanelTarget()` default, shipped drag,
+$V_0$ = 864.4 m/s; probe script above):
+
+| case                            | μ [g]     | $m_{thr}$ A / D [g] | $N_A$    | predicted D/A | vs 0.557 ± 0.10     |
+| ------------------------------- | --------- | ------------------- | -------- | ------------- | ------------------- |
+| A = 1.577 (08-16 state, live k) | 1.068     | 0.166 / 2.084       | 1571     | 0.367         | −0.190, outside     |
+| **live A = 1.950**              | **1.321** | 0.166 / 2.084       | **1322** | **0.406**     | **−0.151, outside** |
+
+($N_A$ = 1322 reproduces the banner's verdict row, confirming the probe runs
+the same chain.) So the commits moved the falloff prediction by +0.04 (~10 %),
+and on live code the second observable is **run and outside tolerance by
+1.5× the band half-width**.
+
+**Impact.** The compound verdict changes qualitatively: "INDETERMINATE — one
+arm never evaluated, open gap belongs to drag-gap-1944" becomes "not PASS —
+count arm within 2×, falloff arm evaluated and outside 0.10 (0.41 vs 0.557)",
+with the remaining gap routed back *into this thread* rather than to a thread
+that does not compute it. No demo-rendered number changes; the challenge
+verdict and its routing (the in-scope outcome of this thread) do. Also note
+§4's trichotomy defines INDETERMINATE *only* as "C5 cutoff not bounded below
+~1.5×" — a clause the same file says was discharged and did not fire —
+so reusing the label for a different state is itself confusing (see F3).
+
+Caveats the fix pass must weigh, not a reason to keep INDETERMINATE: with a
+*sourced* (not fitted) threshold the ratio is drag-sensitive (drag-gap Result 1's
+degeneracy holds only when $E_{thr}$ is refitted); Tolch's own perforation
+ratio is biased toward 1 by a fixed threshold (rebaseline check block (B)
+comment) — but the model ratio uses a threshold too, so the comparison is
+like-for-like; and the η/f/τ bands of the count arm should be swept on this
+arm as well before stating a range.
+
+**Correction (do not apply here):** @modeler runs the falloff arm as a
+retained check (η, f and drag bands), replaces claims (a)–(c) in both files
+with the computed ratio, and restates the compound result using an explicit
+label distinct from §4's C5-INDETERMINATE (e.g. "NOT PASS: count arm in band,
+falloff arm 0.41 vs 0.557 ± 0.10").
+
+### F2 — Note — the count-arm crossing is genuine, not a slip
+
+Competing-explanation check: the direction change is corroborated by an
+independent computation that predates the re-closure —
+`updates/kappa-x-shell-regime/derivation.md` §5.3 table, "new (percell)" row:
+c_eff 1.4217, μ 1.321 g, $N_0$ 1886, $N$ = 1323, 1.89×/1.70× (m_thr 0.166 g
+held fixed). Same μ/$N_0$ as the banner; $N$ differs by 1 fragment. The move is
+entirely through μ (0.915 → 1.321 g) with $m_{thr}$ fixed at 0.166 g — no unit
+or sign change in the threshold path. No impact.
+
+### F3 — Deferrable — "INDETERMINATE" overloads a label §4 already defines
+
+§4 (line ~686) defines INDETERMINATE as the C5-unbounded case; the same file
+states that clause "did not fire". The new banners then call the compound
+result INDETERMINATE for a different reason. A reader of §4 gets two
+contradictory statements about the same label. Impact: presentation only once
+F1 is fixed (F1's fix should pick a distinct label, which closes this too).
+
+### F4 — Deferrable — `derivation.md` "stays a genuine FAIL" at 1.89×/1.70×
+
+`updates/kappa-x-shell-regime/derivation.md` ~line 341–342: "Against live
+shipped code the challenge improves from 2.22×/2.00× to 1.89×/1.70× and stays a
+genuine FAIL". Both numbers are < 2×, so under §4's FAIL branch ("count still
+≥ 2× high") this was self-contradictory *when written* (as was its "scoping
+predicted ~1.8×/1.6×" alongside FAIL) — the count-arm crossing was visible at
+`18cd069` and nobody caught it. Severity: not Blocking — no shipped constant or
+rendered surface rests on the word "FAIL" (the numbers in the sentence are
+correct, and per F1 the compound test is indeed not a PASS, just for a
+different reason). But deleting the adjacent marker left this sentence
+contradicting the challenge thread with no pointer. Required: a one-line dated
+supersession after the sentence ("count arm is inside 2×; see
+count-gap-1938 current-verdict banner"), or a deferrable marker on it.
+
+### F5 — Note — marker deletion was right on its own terms
+
+The deleted marker's concern was specifically that the challenge published a
+stale pre-`k` pair (2.28×/2.54×) as the shipped-code verdict. The banners now
+supersede that pair everywhere I checked in `count-chain.md`, so that concern
+is closed; the physics question (F1) was never that marker's content and did
+not need to gate its deletion. The only miss is F4's orphaned sentence.
+
+### F6 — Note — provenance of cited commits
+
+`630dac8` (2026-08-17, "resolve Mott breadth-variance factor k per-shell …,
+ship v0.14.0") and `18cd069` (2026-08-19, "re-solve kappa_x/k/c … l/x0~95, not
+the l/x0=20 demonstration value, ship v0.15.0") match their commit subjects;
+derivation §6.2 X1 confirms Λ = 95 vs Mott's Λ = 20 demonstration. "v0.14.0 /
+v0.15.0" are commit-subject labels only — `pyproject.toml` reads 0.1.0 at both
+commits — so they are not package versions; harmless, but don't cite them as
+such.
+
+### Limitation entries (if the fix pass keeps any caveat)
+
+- "The A→D falloff arm is computed at the sourced plug-shear threshold and is
+    drag-sensitive at fixed $E_{thr}$; its value depends on the shipped drag
+    constant contested in `../drag-gap-1944/`."
+
+______________________________________________________________________
+
+## Re-review — fix cycle 1 of F1/F3/F4/F6 (2026-09-23, @model-reviewer)
+
+Scope: only the four items raised in the adversarial-critique section above.
+No new-scope findings.
+
+**Verdict: FAIL** — one residual Blocking defect, a single stale live
+sentence in `count-chain.md`. Everything else in the fix is correct. Cycle 2
+needs one edit (R1), plus one optional wording fix (R2).
+
+### Reproduction
+
+- `uv run python experiment/fragmentation-field/challenges/count-gap-1938/checks/count-gap-1938-falloff-arm-reachability.py`
+    prints: live A=1.950, μ=1.321 g, N_A=1322, **pred D/A = 0.406**, |Δ|=0.151
+    OUTSIDE 0.10. The superseded 2026-08-16 row (A=1.577) prints 0.367, and the
+    pre-c legacy row (A=1.600) prints 0.370. These match what I found before.
+- `uv run python src/utils/collect-findings.py --for experiment/fragmentation-field/challenges/count-gap-1938`
+    parses cleanly (exit 0; 2 pre-existing open entries, a deferrable and a note,
+    both dated 2026-08-10 and outside this re-review's scope).
+- `git show 630dac8:pyproject.toml` / `git show 18cd069:pyproject.toml` →
+    `version = "0.1.0"` at both.
+
+### F1 — mostly fixed; residual R1 (Blocking)
+
+Verified correct, with consistent numbers (0.406 / 0.557 / −0.151 / ±0.10) and
+a compound-FAIL conclusion:
+
+- `count-chain.md` Status paragraph, lines 9–14
+- the current-verdict banner, lines 28–85, including the drag / η-f-τ caveat
+    logged as a limitation (it matches the limitation entry my prior section asked for)
+- the §4 supersession note, lines 728–740
+- the "What stands" first bullet, lines 784–795
+- the closing bullet, lines 817–826
+- `rebaseline-verdict.md` top notice, lines 14–29
+- the sixth re-closure banner, lines 253–282
+
+I checked every grep hit for INDETERMINATE / untested / unreachable /
+untouched / compound in both files:
+
+- rebaseline-verdict.md lines 101, 124, 130–151, 387, 397, 415–454 are all
+    dated historical banners or audit-table cells. The "trending INDETERMINATE"
+    clause is declared void at line 130.
+- count-chain.md lines 596–599, 618, 716–718 and 742–757 are the §4
+    definition or the dated C5 discharge. Lines 250 and 448 use "untouched" in
+    an unrelated sense.
+
+**R1 — Blocking (one live sentence still asserts the old wrong conclusion).**
+`count-chain.md` lines 126–128, the parenthetical at the end of the C5 paragraph
+in the header summary:
+
+> *(That FAIL is the dated 2026-08-16 figure; on live shipped code the count arm
+> is inside the band at 1.70×/1.89× and **the compound verdict is
+> INDETERMINATE** — see the current-verdict banner above.)*
+
+This is written in the present tense ("on live shipped code"), so it is a live
+claim. It states exactly the conclusion F1 overturned, and it reuses
+INDETERMINATE for the non-C5 case, which F3 forbids. It also contradicts the
+banner it points the reader to, 45 lines above.
+
+- Impact: a reader skimming the header summary gets a verdict (INDETERMINATE)
+    that differs qualitatively from the authoritative one (FAIL). This is the same
+    published-verdict defect as F1, just smaller in extent. It is Blocking only
+    because it asserts a wrong published verdict. No number or shipped constant is
+    affected.
+- Required fix: replace "and the compound verdict is INDETERMINATE" with "but
+    the compound verdict is FAIL on the falloff arm (0.406 vs 0.557, outside
+    ±0.10)". Nothing else needs to change.
+
+**Deferrable (not required for PASS):** two older sentences still describe the
+falloff arm as unrun without a local pointer:
+
+- `count-chain.md` §4 "What C1's check did", lines 694–698: "the second has
+    not [been run] … remains compound … is not blocked on anything". The §4
+    supersession note at lines 728–740 covers this, but only 30 lines later.
+- line 807–808: "the falloff-ratio observable is still unrun", inside the C3
+    narrative of the live "What stands" bullet.
+
+Impact: none on any verdict, because both passages are overridden in the same
+section. Suggested fix: add an inline "(run 2026-09-23: 0.406, see banner)"
+after each one.
+
+### F3 — fixed except at R1
+
+The two-arm phrasing is used everywhere the fix pass edited. The only live
+reuse of INDETERMINATE for the falloff case is R1 above. Every other hit is the
+§4 definition or the dated C5 record.
+
+### F4 — fixed; residual R2 (Deferrable)
+
+A dated clarification block has been added at `updates/kappa-x-shell-regime/derivation.md`
+lines 344–350. Its present-tense content is correct:
+
+- 1.89×/1.70× puts the count arm inside 2×, so that arm passes
+- the compound test fails on the falloff arm, 0.406 vs 0.557
+- it points to the authoritative banner
+
+**R2 — Deferrable (a new historical inaccuracy in the clarification).** The
+block says the old sentence "referred, **when written**, to the compound §4
+test". That cannot be right. When line 342 was written (at `18cd069`), the
+falloff arm had never been run, and the threads at the time called it
+unreachable. So "stays a genuine FAIL" could not have been a statement about the
+compound test's falloff arm. My prior section (F4 above) recorded the sentence
+as self-contradictory when it was written, and this clarification now claims a
+different intent for it.
+
+- Impact: no number, verdict or rendered output changes. The block's
+    conclusion is right; only its account of what the sentence originally meant
+    is wrong.
+- Suggested wording: "The 'stays a genuine FAIL' above was inconsistent when
+    written (1.89×/1.70× are inside the 2× band, so the count arm passes). The
+    compound §4 test is nonetheless a FAIL, because its A→D falloff arm (run
+    2026-09-23) predicts 0.406 vs 0.557 …"
+
+Out-of-scope observation, for triage only: the paragraph right after the
+block, lines 352–356, still frames the thread as "~120 % over-count" with C3
+and C4 as "remaining candidates". Both are stale, because C3 and C4 were
+discharged on 2026-08-15. The dated clarification makes this less of a problem.
+It is not Blocking.
+
+### F6 — fixed
+
+Every occurrence reads "commit subject 'v0.14.0'" / "commit subject 'v0.15.0'":
+
+- `count-chain.md` lines 33–36, which also notes that `pyproject.toml` reads
+    0.1.0 at both commits
+- `rebaseline-verdict.md` lines 232–234
+
+No other v0.14.0 / v0.15.0 hits are in either file.
+
+### Minor note (no action needed)
+
+`rebaseline-verdict.md` lines 4–9 still say "Read **all five** re-closure
+banners". There are now six, but the top notice at line 14 supersedes this
+line.
+
+### What cycle 2 must do (tight scope)
+
+1. R1: edit `count-chain.md` lines 127–128 as specified above. This is required.
+1. R2: reword the clarification's "referred, when written, to" in
+    `updates/kappa-x-shell-regime/derivation.md` line 344. This is recommended,
+    not required.
+1. Optionally, add the two inline pointers at `count-chain.md` lines 694–698
+    and 807–808.
+
+With R1 done, the verdict becomes PASS-with-limitations. The limitation is the
+drag / η-f-τ caveat on the falloff arm, which is already logged in both banners.
+
+## Re-review — fix cycle 2 (final, cap 2/2) of R1/R2 (2026-09-23, @model-reviewer)
+
+Scope: R1, R2, the two optional inline pointers and the two out-of-scope
+observations from the cycle-1 section above. No new-scope findings.
+
+**Verdict: PASS-with-limitations.**
+
+### R1 — fixed
+
+`count-chain.md` lines 126–128 now say: "on live shipped code the count arm is
+inside the band at 1.70×/1.89× but the compound verdict is FAIL on the falloff
+arm (0.406 vs 0.557, outside ±0.10) — see the current-verdict banner above."
+This matches the banner at lines 28–85. I grepped the whole file for
+INDETERMINATE. It has 9 hits, at lines 122, 125, 596, 599, 618, 717, 743, 745
+and 757. Each is one of:
+
+- the §4 clause definition (717)
+- the dated C5 discharge record (596–599, 743–757)
+- the ranking history (618)
+- the explicitly past-tense 2026-08-16 sentence (122–125)
+
+None is a live, present-tense claim that the compound verdict is INDETERMINATE.
+
+### R2 — fixed
+
+`updates/kappa-x-shell-regime/derivation.md` lines 344–352 now say the
+sentence "was inconsistent when written". The reasons it gives are correct:
+
+- it asserted FAIL while both cited numbers were inside the 2× band
+- the falloff arm had not yet been run, "so nothing supported a FAIL at that time"
+
+The block then says the count arm is a PASS, and that the compound test is a
+FAIL today because the falloff arm (run 2026-09-23) gives 0.406 vs 0.557. This
+is consistent with the banner, and the new wording adds no new error.
+
+### Optional pointers — both landed
+
+- `count-chain.md` line 698: "(Run 2026-09-23: 0.406 vs 0.557, distance
+    −0.151, outside ±0.10 — see the current-verdict banner.)"
+- `count-chain.md` lines 808–809: "(since run 2026-09-23: 0.406 vs 0.557, see
+    current-verdict banner)"
+
+Both are accurate. The second sits at column 0 inside an indented bullet. That
+is cosmetic, and it is only a Note.
+
+### Out-of-scope spot checks
+
+- `derivation.md` lines 338–340 now say C3 and C4 were "both run and closed
+    2026-08-15 … no sub-candidate remains". Lines 354–357 also add that they
+    closed without shippable credit. The phrase "~15 % of a ~120 % over-count"
+    remains. It describes the historical framing of the thread, affects no
+    verdict, and is a Note.
+- `rebaseline-verdict.md` lines 4–10 now say "Read **all six** re-closure
+    banners" and list all six, the 2026-09-23 one included. This is fixed.
+
+### Register
+
+`uv run python src/utils/collect-findings.py --for experiment/fragmentation-field/challenges/count-gap-1938`
+exits 0 and lists 2 pre-existing entries dated 2026-08-10: a deferrable one at
+line 150 and a note at line 594. Both are outside this cycle's scope. Neither
+is `blocking`.
+
+### Limitation (already logged in both banners, no new entry needed)
+
+The A→D falloff-arm prediction (0.406) is computed at a fixed, sourced
+plug-shear threshold, so it depends on the shipped drag constant contested in
+`../drag-gap-1944/`. It has also not yet been swept across the η/f/τ bands.
+Neither is expected to flip the sign, since the result misses the tolerance
+by 1.5× the band half-width.
+
+Fix-cycle cap: this was cycle 2 of 2, and no residual items remain.
+
+______________________________________________________________________
+
+## Pass 2 — mechanical verification (2026-09-23, @model-reviewer)
+
+**Scope:** reproduce the cited numbers, trace the live code path, confirm
+cross-document consistency. No re-judging of adversarial-critique call judgments
+(compound-test framing, INDETERMINATE-label choice, fix-cycle cap).
+
+**Verdict: PASS-with-limitations.** All seven items below reproduce exactly.
+No new finding. Limitations already logged in both banners; none are raised
+fresh here.
+
+### 1. collect-findings register
+
+`uv run python src/utils/collect-findings.py --for experiment/fragmentation-field/challenges/count-gap-1938`
+exits 0. Two open entries, both dated 2026-08-10:
+
+- [deferrable] 1.221×/2.05× C5 figures on inadmissible datum
+- [note] C1 plug-shear threshold 0.065 g
+
+Both are pre-existing and outside this pass's scope. Neither is blocking.
+
+### 2. Falloff-arm check script (standalone reproduction)
+
+`uv run python experiment/fragmentation-field/challenges/count-gap-1938/checks/count-gap-1938-falloff-arm-reachability.py`
+prints:
+
+```
+pre-c legacy A=1.600   mu=1.083 g  m_thr A/D = 0.166/2.084 g  N_A=1553  pred D/A = 0.370  |pred-0.557| = 0.187  OUTSIDE 0.10
+2026-08-16 A=1.577     mu=1.068 g  m_thr A/D = 0.166/2.084 g  N_A=1571  pred D/A = 0.367  |pred-0.557| = 0.190  OUTSIDE 0.10
+live A=1.950           mu=1.321 g  m_thr A/D = 0.166/2.084 g  N_A=1322  pred D/A = 0.406  |pred-0.557| = 0.151  OUTSIDE 0.10
+```
+
+Live A=1.950 → 0.406, superseded A=1.577 → 0.367. Both match what the Pass 1
+adversarial-critique, cycle-1, and cycle-2 sections cite. N_A=1322 reproduces
+the count-arm verdict row, confirming the same parameter chain.
+
+### 3. Count-arm check script (standalone reproduction)
+
+`uv run python experiment/fragmentation-field/challenges/count-gap-1938/checks/count-chain-aspect-moment-reclosure.py`
+prints (shipped row):
+
+```
+shipped A=1.950   mu = 1.321 g   2mu = 2.641 g   N0 = 1886
+SPF-S eta=1/2 (VERDICT) shipped: N = 1322  /700 = 1.89  /779 = 1.70
+```
+
+Matches N=1322 → 1.70×(/779)/1.89×(/700) as cited throughout.
+
+### 4. Live aspect_ratio in shipped code
+
+`arty.shells.SHELLS["75mm M48 HE"].aspect_ratio` returns 1.950209408. Both
+check scripts call `mott_params(shipped, V0)` on the live `SHELLS` object and
+reach µ=1.321 g, N0=1886. No hand-typed parameter is silently different between
+the two scripts' parameterization.
+
+### 5. Tolch 0.557 provenance
+
+The 0.557 target is not invented for this pass. `count-chain-rebaseline.py`
+block (B) computes it from the CSV: `float(static["D"]["perf"]) / float(static["A"]["perf"])` read from `side-spray-density.csv`, printing
+`ratio = 0.5570`. The falloff-arm script hardcodes `TOLCH_AD = 0.557` — a
+one-decimal transcription of this CSV-derived value. The CSV is the primary;
+the constant matches it.
+
+### 6. Cross-document consistency (current text, fresh read)
+
+- **count-chain.md** top-of-doc status (lines 9–16): "the count arm lands
+    *inside* the within-2× band at 1.70×/1.89× … the compound §4 test is a
+    genuine FAIL — the A→D falloff arm … predicts 0.406 vs Tolch's measured
+    0.557 (distance −0.151, outside the ±0.10 tolerance)". Current-verdict banner
+    lines 28–85 give the full argument. Lines 126–128 (R1): "but the compound
+    verdict is FAIL on the falloff arm (0.406 vs 0.557, outside ±0.10)". No live
+    INDETERMINATE claim found.
+- **rebaseline-verdict.md** current-verdict notice (lines 16–31): "1.70× (/779)
+    / 1.89× (/700) … compound verdict FAIL … 0.406 vs Tolch's measured 0.557,
+    distance −0.151, outside the ±0.10 tolerance". Consistent with count-chain.md.
+- **kappa-x-shell-regime/derivation.md** lines 345–353 (R2): "The 'stays a
+    genuine FAIL' above was inconsistent when written … the compound test is
+    nonetheless a genuine FAIL today because its A→D falloff arm (run 2026-09-23)
+    predicts 0.406 vs Tolch's 0.557 (outside ±0.10)." Consistent with both.
+
+All three documents are mutually consistent and agree on the verdict (count arm
+PASS, compound FAIL on falloff arm).
+
+### 7. Check-script retention requirements
+
+`count-gap-1938-falloff-arm-reachability.py`:
+
+- Has a module docstring naming its consumer: `experiment/fragmentation-field/challenges/count-gap-1938/review.md`.
+- Runs standalone without relative-path assumptions (`from arty.…` imports;
+    no `os.getcwd()` or `../` paths; confirmed via uv run from repo root).
+- Named for what it checks.
+- Cited by path in the current-verdict banner of `count-chain.md` (lines 71–72).
+
+No finding on retention requirements.
+
+### Limitation (inherits from banners, no new entry)
+
+The A→D falloff-arm prediction (0.406) is at a fixed sourced threshold and
+depends on the shipped drag constant contested in `../drag-gap-1944/`. The η/f/τ
+bands have not been swept on this arm. Both are logged in both banners.

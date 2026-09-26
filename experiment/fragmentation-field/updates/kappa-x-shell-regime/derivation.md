@@ -334,19 +334,29 @@ moment correction that `breadth-variance-factor-k` shipped. (An earlier revision
 of this section cited 2.25×/2.51× and called it the bare `A` = 1.6 chain — that
 was a superseded quote from the fourth banner, corrected here per D4.) Fixing that committed
 surface is outside this change's scope, so it is marked rather than deferred
-silently; the re-close in §6.4 must start from 2.22×/2.00×, and the residual the
-remaining candidates (C3, C4) must close is ~12 % smaller than the challenge
-currently states.
-
-FINDING[blocking]: count-gap-1938 publishes 2.28x (/779) / 2.54x (/700) as the shipped-code verdict (its current top-line, fifth banner 2026-08-16), but live src/arty (kappa_x=1.5, k=1.1375, c=1.0247) gives 2.22x (/700) / 2.00x (/779); the published pair is a pre-k chain, c-corrected but not yet k-corrected (affects: experiment/fragmentation-field/challenges/count-gap-1938/rebaseline-verdict.md, experiment/fragmentation-field/challenges/count-gap-1938/count-chain.md, experiment/fragmentation-field/updates/mass-dependent-fragment-shape/checks/aspect-ratio-moment-leverage.py; since: 2026-08-18)
+silently; the re-close in §6.4 must start from 2.22×/2.00×, and the residual is ~12 %
+smaller than the challenge currently states. *(C3 and C4 were both run and
+closed 2026-08-15 without credit that ships — see count-chain.md §3; no
+sub-candidate remains.)*
 
 **Against live shipped code the challenge improves from 2.22×/2.00× to
 1.89×/1.70× and stays a genuine FAIL** — as scoping predicted (~1.8×/1.6×).
+
+> **Clarification (2026-09-23).** The "stays a genuine FAIL" above was
+> inconsistent when written — it asserted FAIL while both cited numbers
+> (1.89×/1.70×) were already *inside* the 2× band, and the compound test's A→D
+> falloff arm had not yet been run, so nothing supported a FAIL at that time.
+> The count *arm* is in fact a PASS. The compound test is nonetheless a genuine
+> FAIL today because its A→D falloff arm (run 2026-09-23) predicts 0.406 vs
+> Tolch's 0.557 (outside ±0.10). See the corrected conclusion in
+> [`../../challenges/count-gap-1938/count-chain.md`](../../challenges/count-gap-1938/count-chain.md)'s
+> current-verdict banner (authoritative).
+
 This change is not a candidate
-closure for `count-gap-1938`; it removes ~15 % of a ~120 % over-count. The
-remaining candidates (C3, C4) are unaffected by it in kind, but their required
-leverage drops accordingly — the `count-gap-1938` thread should re-close against
-the new triple once `src/arty/` ships it (open item §6.4).
+closure for `count-gap-1938`; it removes ~15 % of a ~120 % over-count. C3 and
+C4 (both closed 2026-08-15 without shippable credit) are unaffected by it in
+kind — the `count-gap-1938` thread should re-close against the new triple once
+`src/arty/` ships it (open item §6.4).
 
 ## 6. Adopted values, assumptions, limitations
 

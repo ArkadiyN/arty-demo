@@ -189,14 +189,18 @@ fragment (where $\lambda$ is largest and $V$ collapses fastest) to confirm
 the perturbation eventually matters:
 
 ```{python}
+dke_pct_200m = 0.0
 for s in [50, 100, 150, 200]:
     m = 0.5e-3
     V = V_of_s(m, s)
     t = t_of_s(m, s)
     KE0 = ke_drag(m, s)
     dKE = dke_gravity(m, s)
+    pct = 100 * dKE / KE0
+    if s == 200:
+        dke_pct_200m = pct
     print(f"  m=0.5 g, s={s:3d} m: V={V:6.1f} m/s, t={t:5.2f} s, "
-          f"ΔKE/KE = {100*dKE/KE0:7.2f}%")
+          f"ΔKE/KE = {pct:7.2f}%")
 ```
 
 ### Sanity check 2 — free-fall ballistic limit
@@ -224,11 +228,25 @@ The other knobs in the lethality model have well-known uncertainty bands.
 Approximate one-sigma ranges from the literature collected in
 `doc-reference/fragmentation/`:
 
+```{python}
+#| echo: false
+# Pre-compute C_D velocity swing for inline use in the table below
+_m5g, _s100 = 5e-3, 100.0
+_V_nom5 = V_of_s(_m5g, _s100)
+_cd_v_pct = {}
+for _cd in [0.5, 0.9]:
+    _drag_tmp = DragParams(C_D=_cd, C_shape=drag.C_shape, rho_air=drag.rho_air)
+    _lam_tmp = retardation_coeff(np.array([_m5g]), _drag_tmp, rho_steel)[0]
+    _cd_v_pct[_cd] = 100 * (V0 * np.exp(-_lam_tmp * _s100) / _V_nom5 - 1)
+cd_v_swing_lo_pct = abs(_cd_v_pct[0.5])   # % V increase at C_D=0.5 vs nominal
+cd_v_swing_hi_pct = abs(_cd_v_pct[0.9])   # % V decrease at C_D=0.9 vs nominal
+```
+
 | Source | Nominal | Plausible range | Effect on KE(s) |
 | --- | --- | --- | --- |
 | Gurney constant $\sqrt{2E}$ | 2440 m/s (TNT) | ±5 % | ±10 % (KE ∝ V²) |
 | Mott $\gamma$ | 65 | 50–80 | ±30 % on fragment count; shifts mass distribution → ±20 % on KE-weighted lethality |
-| $C_D$ | 0.65 | 0.5–0.9 | ±20 % on $\lambda$ → ±15 % on V(100 m) for 5 g fragment |
+| $C_D$ | 0.65 | 0.5–0.9 | ±20 % on $\lambda$ → +`{python} f"{cd_v_swing_lo_pct:.0f}"`%/−`{python} f"{cd_v_swing_hi_pct:.0f}"`% on V(100 m) for 5 g fragment |
 | ES-310 $P_{k|hit}$ anchors | 0.10/0.50/0.90 at 100/1000/4000 J | factor ~2 in anchor KE | ±25 % on $R_{50}$ |
 
 ```{python}
@@ -236,34 +254,42 @@ Approximate one-sigma ranges from the literature collected in
 m = 5e-3
 s = 100.0
 V_nom = V_of_s(m, s)
+_cd_ke_pct = {}
 for cd in [0.5, 0.65, 0.9]:
     drag_alt = DragParams(C_D=cd, C_shape=drag.C_shape, rho_air=drag.rho_air)
     lam_alt = retardation_coeff(np.array([m]), drag_alt, rho_steel)[0]
     V_alt = V0 * np.exp(-lam_alt * s)
-    print(f"  C_D={cd}: V(100 m)={V_alt:5.1f} m/s, ΔKE vs nominal = "
-          f"{100*((V_alt/V_nom)**2 - 1):+5.1f}%")
+    pct_ke = 100 * ((V_alt / V_nom) ** 2 - 1)
+    _cd_ke_pct[cd] = pct_ke
+    print(f"  C_D={cd}: V(100 m)={V_alt:5.1f} m/s, ΔKE vs nominal = {pct_ke:+5.1f}%")
+cd_ke_swing_lo_pct = abs(_cd_ke_pct[0.5])   # KE% increase at C_D=0.5
+cd_ke_swing_hi_pct = abs(_cd_ke_pct[0.9])   # KE% decrease at C_D=0.9
 ```
 
 ## Key findings
 
-The computed numbers (see table above):
+The computed numbers:
 
-| mass | s = 50 m | s = 100 m |
-| --- | --- | --- |
-| 0.5 g | V = 561 m/s, t = 0.068 s, ΔKE/KE = **0.0001 %** | V = 317 m/s, t = 0.188 s, ΔKE/KE = **0.0034 %** |
-| 5 g   | V = 763 m/s, t = 0.058 s, ΔKE/KE = **0.0001 %** | V = 585 m/s, t = 0.133 s, ΔKE/KE = **0.0005 %** |
-| 50 g  | V = 879 m/s, t = 0.054 s, ΔKE/KE ≈ **0 %**     | V = 777 m/s, t = 0.114 s, ΔKE/KE = **0.0002 %** |
+```{python}
+#| echo: false
+# Pre-compute scalars for inline prose references below
+max_dke_pct = df["ΔKE / KE_drag [%]"].max()
+worst_drop_cm = df["drop ½gt² [m]"].max() * 100
+# Summary view of the sweep (columns relevant to the gravity question)
+df[["mass [g]", "range s [m]", "V(s) [m/s]", "ToF t(s) [s]",
+    "drop ½gt² [m]", "ΔKE / KE_drag [%]"]]
+```
 
-The largest perturbation anywhere in the table is **0.003 %** of impact KE
+The largest perturbation anywhere in the table is `{python} f"{max_dke_pct:.3f} %"` of impact KE
 (0.5 g fragment at 100 m). The vertical drop $\tfrac{1}{2} g t^2$ peaks at
-about **17 cm** for that worst case — small even compared with the 2 m
+about `{python} f"{worst_drop_cm:.0f} cm"` for that worst case — small even compared with the 2 m
 default burst height $h_b$, let alone the 1.7 m standing target.
 
 Compare this with the model's existing uncertainty budget:
 
 - A 5 % shift in the Gurney constant moves KE by ~10 %.
 - A swing in $C_D$ across its plausible 0.5–0.9 range moves V(100 m) for a
-  5 g fragment by ±15 %, i.e. ±30 % on KE.
+  5 g fragment by +`{python} f"{cd_v_swing_lo_pct:.0f}"`%/−`{python} f"{cd_v_swing_hi_pct:.0f}"`%, i.e. +`{python} f"{cd_ke_swing_lo_pct:.0f}"`%/−`{python} f"{cd_ke_swing_hi_pct:.0f}"`% on KE.
 - The ES-310 $P_{k|hit}$ anchors are themselves ±25 % uncertain on the KE
   axis.
 
@@ -276,14 +302,14 @@ in the 0–200 m operating envelope.
 
 **Not worth implementing.** Inside the 0–100 m operating envelope of the
 lethality model, gravity changes fragment KE at impact by at most
-**0.003 %**, which is four orders of magnitude smaller than the ±20–30 %
+**`{python} f"{max_dke_pct:.3f} %"`**, which is four orders of magnitude smaller than the ±20–30 %
 uncertainty bands on $C_D$, the Gurney constant, Mott $\gamma$, and the
 ES-310 $P_{k|hit}$ anchors. The straight-line drag model in
 `fragmentation.py` is fit for purpose.
 
 The cross-over where gravity starts to matter for *energy* is around 200 m
 slant range for the lightest (0.5 g) fragments, where ΔKE/KE reaches
-≈0.6 %, and beyond ~250 m it dominates (≈6 %). The lethality field is already
+`{python} f"{dke_pct_200m:.1f} %"`, and beyond ~250 m it dominates (≈6 %). The lethality field is already
 near zero at those ranges (small fragments fall below the ES-310 100 J
 threshold around 120 m), so the regime where gravity matters is the regime
 where the fragment is no longer dangerous.

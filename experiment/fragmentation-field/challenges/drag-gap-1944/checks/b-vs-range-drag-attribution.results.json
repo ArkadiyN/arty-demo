@@ -1,0 +1,30 @@
+{
+  "old_combined": 0.5850000000000001,
+  "new_combined": 2.6738734080723088,
+  "shells": {
+    "75mm M48 HE": {
+      "old_ratio_lo": 1.3069069903716368,
+      "old_ratio_hi": 3.304654436224354,
+      "new_ratio_lo": 0.22437295347842307,
+      "new_ratio_hi": 1.2737312184478498,
+      "in_band": 8,
+      "n_total": 10
+    },
+    "105mm M1 HE": {
+      "old_ratio_lo": 1.406798473119026,
+      "old_ratio_hi": 2.9481823741090154,
+      "new_ratio_lo": 0.41492421320828776,
+      "new_ratio_hi": 1.2834251584530998,
+      "in_band": 10,
+      "n_total": 11
+    },
+    "155mm M107 HE": {
+      "old_ratio_lo": 0.9833123511012848,
+      "old_ratio_hi": 2.2583497933510435,
+      "new_ratio_lo": 0.659493081608417,
+      "new_ratio_hi": 1.0124486883357915,
+      "in_band": 11,
+      "n_total": 11
+    }
+  }
+}

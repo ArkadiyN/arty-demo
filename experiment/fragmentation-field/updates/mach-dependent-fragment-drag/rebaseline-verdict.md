@@ -9,7 +9,7 @@ is changed.
     `challenges/drag-gap-1944/b-vs-range-rebaseline.md` shows the Family-B
     FAIL was against the mild-steel-perforation column while the model ran the
     58 ft-lb casualty criterion. Against the genuine casualties columns Family B
-    passes 8/10, 9/11, 11/11 and the residual *inverts* sign with range.
+    passes [8/10, 10/11, 11/11 — see b-vs-range.qmd](../../challenges/drag-gap-1944/b-vs-range.qmd) and the residual *inverts* sign with range.
 - **Shock B — the curve against which the Mach-dependent law was rejected was
     wrong.** `figure-3-digitized.md` under-states $C_D$ by up to 0.082 across
     Mach 1.0–2.2; the closure-checked replacement is
@@ -55,7 +55,7 @@ still discriminates).
 **C1 — void.** `challenges/drag-gap-1944/b-vs-range-rebaseline.md` is taken as
 given: the 7–34× FAIL was the model's 58 ft-lb casualty criterion compared
 against the mild-steel-perforation column. Against the genuine casualties
-columns Family B passes 8/10, 9/11, 11/11 and the residual *inverts* sign with
+columns Family B passes [8/10, 10/11, 11/11 — see b-vs-range.qmd](../../challenges/drag-gap-1944/b-vs-range.qmd) and the residual *inverts* sign with
 range. Both halves of C1 die: the magnitude and the "grows with range" trend
 which was the specific signature pointing at drag.
 

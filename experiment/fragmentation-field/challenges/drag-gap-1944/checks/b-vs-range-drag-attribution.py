@@ -50,12 +50,18 @@ def ratios(mod, drag):
 
 
 if __name__ == "__main__":
-    print(f"old combined C_D*C_shape = {OLD_DRAG.C_D * OLD_DRAG.C_shape:.4f}")
-    print(f"new combined C_D*C_shape = {NEW_DRAG.C_D * NEW_DRAG.C_shape:.4f}\n")
+    import json
+
+    old_combined = OLD_DRAG.C_D * OLD_DRAG.C_shape
+    new_combined = NEW_DRAG.C_D * NEW_DRAG.C_shape
+    print(f"old combined C_D*C_shape = {old_combined:.4f}")
+    print(f"new combined C_D*C_shape = {new_combined:.4f}\n")
     print(
         f"{'shell':>8} {'old drag ratio span':>24} {'new drag ratio span':>24}"
         f" {'far-field cut':>14} {'new in [0.5,2]':>15}"
     )
+
+    _shell_results = {}
     for caliber in CALIBERS:
         mod = load(caliber)
         old = ratios(mod, OLD_DRAG)
@@ -67,3 +73,24 @@ if __name__ == "__main__":
             f" {min(new):>10.1f}x - {max(new):<11.1f} {cut:>13.1f}x"
             f" {in_band:>10d}/{len(new)}"
         )
+        _shell_results[mod.SHELL_NAME] = {
+            "old_ratio_lo": float(min(old)),
+            "old_ratio_hi": float(max(old)),
+            "new_ratio_lo": float(min(new)),
+            "new_ratio_hi": float(max(new)),
+            "in_band": in_band,
+            "n_total": len(new),
+        }
+
+    results_path = CHECKS / "b-vs-range-drag-attribution.results.json"
+    results_path.write_text(
+        json.dumps(
+            {
+                "old_combined": float(old_combined),
+                "new_combined": float(new_combined),
+                "shells": _shell_results,
+            },
+            indent=2,
+        )
+    )
+    print(f"\nResults written to {results_path}")

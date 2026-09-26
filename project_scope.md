@@ -1,5 +1,13 @@
 # WW2 Field Artillery — Subject Matter Scope
 
+## Context
+
+An educational reconstruction of WW2 field artillery doctrine and fire
+direction procedures of the era, built as a learning vehicle for the
+Claude Code ecosystem. The repository is public.
+
+Models derive entirely from published open sources: scientific articles, army field/technical manuals and DTIC reports.
+
 ## Goal
 
 Demonstrate how field artillery guns operated in WW2 and what impact they had
@@ -48,7 +56,7 @@ on a battlefield. Scope: a single battery conducting HE fire missions.
 ## Deferred / Out of Scope
 
 - **Armor — permanently out.** No steel plate, no kinetic AP penetrators, no
-    vehicles as hard targets (anti-armor firewall: `expansion-scope.md`,
+    vehicles as hard targets (see: `expansion-scope.md`,
     Track C)
 - **Direct laying** — deferred; no new machinery once ballistics + LOS +
     point-target damage exist, but needs empirical hit-probability data

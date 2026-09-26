@@ -1,5 +1,6 @@
 # Model Reviewer Memory Index
 
+- [FINDING token in review prose](finding_token_in_review_prose.md) — quoting the bare marker token in review.md prose makes collect-findings.py error instead of listing the register, and fails the commit
 - [zones.py meshgrid convention](zones_meshgrid_convention.md) — X varies along columns (downrange), Y along rows (cross-range); diff loop bodies before re-deriving
 - [Physics duplicated into app/plots](sensitivity_physics_leakage.md) — flag inlined ray trig not calling fragment_velocity; numeric-equivalence tests can't catch bit-identical duplication
 - [Revert probes: stash, not checkout](revert_probe_use_stash.md) — git checkout -- <file> silently discards the whole uncommitted diff

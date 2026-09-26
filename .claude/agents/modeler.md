@@ -4,7 +4,7 @@ description: Research agent that derives physics models for simulation and owns 
 tools: Bash, Read, Write, Edit
 skills: quarto-science, agent-memory-discipline
 maxTurns: 25
-model: opus
+model: claude-opus-5-5
 memory: project
 ---
 
@@ -82,10 +82,19 @@ project's main token cost. So:
     and/or a `_limitations.qmd` entry and move on; do not derive it. The same
     applies to reviewer findings tagged *material but deferrable*: the correct
     response is the limitation entry the reviewer asked for, not a re-derivation.
-- **State the fidelity target in scoping.** End every `scoping.md` with one
-    line: what demo outcome this aspect drives and what error is tolerable
-    (e.g. "drives the P(kill) heatmap; ±30% on lethal radius is acceptable").
-    This is the bar @model-reviewer will judge materiality against.
+- **State the fidelity target in scoping.** End every `scoping.md` with a
+    `## Verdict outputs` section: each output that carries a verdict or a
+    shipped claim, its decision threshold, and the direction of any shipped
+    claim (e.g. "drives the trajectory plot; ±30% on landing distance is
+    acceptable; shipped claim: range increases with charge"). Name the
+    *output* the verdict rests on, not an intermediate constant — a budget on
+    an intermediate is not a materiality bar. This is what @model-reviewer
+    bounds findings against (model-workflow skill, "Materiality gate").
+- **Write each computed result once.** It goes in the document that cites
+    the script that produced it. Anywhere else gets a link, or a verdict label
+    plus a link. In a `.qmd`, a model output is an inline `{python}`
+    expression, never typed (model-workflow skill, "A computed result has one
+    home").
 
 ## Turn budget is tight (25 turns) — write early, don't explore-then-write
 

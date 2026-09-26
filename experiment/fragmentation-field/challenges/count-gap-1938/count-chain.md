@@ -6,9 +6,15 @@ aspect-ratio moment $c$ that `mass-dependent-fragment-shape` shipped into
 `arty.shells.SHELLS` — $c_{75}$ = 0.9854, $A_\text{eff}$ 1.600 → 1.577, which
 moves $\mu$ 0.929 → 0.915 g and $N_0$ 2681 → 2720; every count on this page has
 been re-run against it and the direction of the verdict is unchanged).
-Verdict: count arm FAILS at
-2.28× (band 2.11–2.44×) — outside the within-2× PASS band, but by far less than
-the 4–6× L1 originally reported. C5, C3, and C4 have since been investigated
+**Current verdict (2026-09-23, live shipped code — see the current-verdict
+banner below): the count arm lands *inside* the within-2× band at 1.70× (/779)
+/ 1.89× (/700) and no longer implicates the count chain; but the compound §4
+test is a genuine FAIL — the A→D falloff arm *is* reachable from this chain,
+has now been run, and lands at 0.406 vs Tolch's measured 0.557 (distance
+−0.151, outside the ±0.10 tolerance).** The
+"count arm FAILS at 2.28× (band 2.11–2.44×)" reading that the body below states
+throughout is the superseded 2026-08-16 figure, retained as the dated record.
+C5, C3, and C4 have since been investigated
 (2026-08-10, 2026-08-15, 2026-08-15) and are all now discharged — C5 without
 credit, C3 real but diagnostic-only at 1.328× (see banner below §3's C3 entry
 and [`mott-tail-shape.md`](mott-tail-shape.md)), C4 a criterion-match choice
@@ -18,6 +24,65 @@ this thread named as actionable (C1, C2) have since been implemented,
 reviewed and merged, so this document is no longer a scoping document for
 them; it is the standing record of what the count arm now measures, and its
 investigation is complete.
+
+> **Current verdict — live shipped code, 2026-09-23 (this supersedes every
+> plug-shear FAIL figure in the body below; those are the dated 2026-08-16
+> record).** Every plug-shear verdict figure in the body (2.28× /779, 2.54×
+> /700, the $N$ = 1776 verdict row, the "$\mu$ 0.929 → 0.915 g / $N_0$ 2681 →
+> 2720" line in the Status above) is the 2026-08-16 state. Two commits shipped
+> since — `630dac8` (commit subject "v0.14.0", per-shell Mott breadth factor
+> $k$) and `18cd069` (commit subject "v0.15.0", $\kappa_x/k/c$ triple re-solved
+> at the shell's own ruled-line regime $l/x_0\approx95$; both are commit-subject
+> labels — `pyproject.toml` reads 0.1.0 at both — not released package versions)
+> — move `arty.shells.SHELLS["75mm M48 HE"]` to
+> `aspect_ratio` = **1.950**, $\mu$ = **1.321 g**, $N_0$ = **1886** ($V_0$ =
+> 864.4 m/s and $M_\text{case}$ = 4980 g unchanged). The plug-shear verdict row
+> (SPF-S $\eta$=½ central) is now **$N$ = 1322 → 1.70× (/779) / 1.89× (/700)** —
+> *inside* the within-2× band on **both** denominators. **The count arm no
+> longer implicates the count chain**: a direction change from the FAIL at
+> 2.28×/2.54× stated throughout the body below. (This also supersedes the
+> interim 2.22× /700, 2.00× /779 pair once cited in the 2026-08-18 open blocking
+> marker — that pair was computed at $c$=1.0247, before `18cd069`; the live pair
+> is lower still.)
+>
+> **The compound §4 verdict is not thereby a PASS — it is a genuine FAIL on the
+> falloff arm.** §4's PASS test is compound: within-2× on the count *and* a
+> **predicted** A→D falloff ratio within 0.10 of 0.557. The 0.557 target is
+> Tolch's own *measured* panel-D/panel-A perforation ratio
+> ([`checks/count-chain-rebaseline.py`](checks/count-chain-rebaseline.py) block
+> (B)). Contrary to the earlier reading in this banner, that second observable
+> **is** reachable from this same count chain: it is the per-unit-solid-angle
+> ratio $N(\ge m_{thr}(r_D))/N(\ge m_{thr}(r_A))$, in which $N_0$ and the $1/r^2$
+> field falloff cancel and only drag, $E_{thr}(m)$ and $\mu$ enter. It is
+> computed with exactly the calls the verdict row above already uses
+> (`min_lethal_mass` with `E_thr=partial(perforation_threshold_energy, …)` +
+> `mott_N`), evaluated at $r_A$ = 15 ft and $r_D$ = 120 ft. This is **not** the
+> `../drag-gap-1944/` $B(r)$ aspect — it is the perforation-count ratio (that
+> thread's Result 1, A/B/C/D = 1.000 … 0.557), and $\mu$ does **not** cancel in
+> it (the Mott tail $\exp(-\sqrt{m/\mu})$ is evaluated at two different
+> $m_{thr}$), so the aspect-ratio commits *did* move it. **Live prediction: D/A
+> = 0.406 vs measured 0.557 — distance −0.151, outside the ±0.10 tolerance**
+> ($N_A$ = 1322 reproduces the verdict row above, confirming the same chain; the
+> superseded 2026-08-16 A=1.577 state gave 0.367, so the commits moved the
+> prediction by +0.04). **Overall: the count arm is within band, but the
+> falloff arm is evaluated and outside tolerance, so the compound §4 test is a
+> FAIL — a FAIL located in *this* thread's own perforation-count falloff, not a
+> gap routed to `../drag-gap-1944/`.** Reproduce:
+> [`checks/count-gap-1938-falloff-arm-reachability.py`](checks/count-gap-1938-falloff-arm-reachability.py)
+> (the falloff arm),
+> [`checks/count-chain-aspect-moment-reclosure.py`](checks/count-chain-aspect-moment-reclosure.py)
+> ("shipped" column, the count arm), and
+> [`rebaseline-verdict.md`](rebaseline-verdict.md) sixth re-closure banner.
+>
+> *Caveat, logged as a limitation not resolved here:* the A→D falloff arm is
+> computed at the sourced plug-shear threshold and is drag-sensitive at fixed
+> $E_{thr}$ (`../drag-gap-1944/` Result 1's ratio-degeneracy holds only when
+> $E_{thr}$ is refitted; the model ratio here uses a fixed sourced threshold, so
+> its value depends on the shipped drag constant contested in that thread). The
+> $\eta$/$f$/$\tau$ sensitivity bands that the count arm carries should also be
+> swept on the falloff arm before any range is stated. Neither changes the sign
+> of the current result (0.406 is outside ±0.10 by half again the band
+> half-width); both are future refinements.
 
 - **C1** — a sourced, mass-*dependent* wood-perforation threshold (plug shear-out,
     $E_{thr}(m) = \eta\,\tau\,\pi D(m)\,t^2$) now exists as
@@ -55,9 +120,12 @@ artefact rather than a model defect, and it does not — bounded at ≤1.222× o
 its most generous reading, and at ~0 on the correct reading of Tolch's census
 (perforation/penetration/dent grading, not a detection floor).** That also
 discharges §4's INDETERMINATE clause, which fired only if C5's cutoff could
-not be bounded below ~1.5×: it is bounded well inside that, so the verdict is
-a plain, genuine **FAIL at 2.28× (/779) and 2.54× (/700)** — not "FAIL
-trending INDETERMINATE" as earlier drafts of this banner had it.
+not be bounded below ~1.5×: it is bounded well inside that, so at the
+2026-08-16 state the verdict was a plain, genuine **FAIL at 2.28× (/779) and
+2.54× (/700)** — not "FAIL trending INDETERMINATE" as earlier drafts of this
+banner had it. *(That FAIL is the dated 2026-08-16 figure; on live shipped code
+the count arm is inside the band at 1.70×/1.89× but the compound verdict is
+FAIL on the falloff arm (0.406 vs 0.557, outside ±0.10) — see the current-verdict banner above.)*
 **C3 has since been investigated and discharged (2026-08-15, §3):
 diagnostic-only credit of 1.328× — real, applied to the residual it restates
 2.28× → 1.72× (/779), but every *sourced* alternative spectrum shape moves the
@@ -248,10 +316,14 @@ $\mu\propto f^{-2}$ rises and the larger $\mu$ raises the survival factor, so
 realised leverage is 1.096× against the naive 1.125× — about 22 % of the
 intended correction is eaten back.
 
-**The count arm FAILS on the criterion-correct threshold even with C2 applied:
-2.28× on /779, 2.54× on /700, outside §4's within-2× PASS band on both
-denominators.** The whole $\eta$ = ½ band is outside on /779 (2.14–2.44) and on
-/700 (2.39–2.72); so is the whole admissible $f$ band (2.11–2.32 on /779).
+**At the 2026-08-16 state the count arm FAILED on the criterion-correct
+threshold even with C2 applied: 2.28× on /779, 2.54× on /700, outside §4's
+within-2× PASS band on both denominators.** *(On live shipped code, post
+`630dac8`/`18cd069`, the same verdict row is 1.70× /779, 1.89× /700 — inside
+the band; see the current-verdict banner at the top. The figures in this
+paragraph and its table are the dated 2026-08-16 record.)* The whole $\eta$ = ½
+band was outside on /779 (2.14–2.44) and on
+/700 (2.39–2.72); so was the whole admissible $f$ band (2.11–2.32 on /779).
 Only the $\eta$ = 1 rigid bound falls inside, and per assumption A8 $\eta$ is
 geometry and may **not** be moved to buy the pass, so the central row is what is
 reported. **C2 is a correct, direction-right fix worth ~9 % of the residual; it
@@ -623,7 +695,8 @@ observables, zero fitted parameters. **The first observable has been run and is
 reported in §2; the second has not** — the A→D ratio is still evaluated against
 the fitted $E_{thr}$, so that arm of the test remains compound. Re-running the
 falloff ratio through `arty.perforation` is the cheapest way to make this a
-two-observable test and is not blocked on anything.
+two-observable test and is not blocked on anything. *(Run 2026-09-23: 0.406 vs
+0.557, distance −0.151, outside ±0.10 — see the current-verdict banner.)*
 
 **Verdict criterion.** Tolch's own quoted probable errors give σ ≈ 0.12–0.15 on
 density values ≈1.5 (i.e. ~10 %), and his two independent totals (700 panel
@@ -650,8 +723,23 @@ been executed to
 exhaustion.** The sourced threshold gave 2.50× (≥ 2×, FAIL); C2 was run as the
 prescribed Workflow-B follow-up against that fixed threshold and returned
 **2.28×** — still ≥ 2×. Both denominators agree on the sign
-($N/700 = 2.54\times$). So the count arm fails on the criterion the thread set
-itself.
+($N/700 = 2.54\times$). So the count arm failed on the criterion the thread set
+itself — *at the 2026-08-16 state.*
+
+> **Superseded 2026-09-23.** The FAIL outcome and the standing-verdict
+> statements throughout this §4 are the 2026-08-16 figures. On live shipped
+> code (post `630dac8`/`18cd069`) the verdict row is **1.70× /779, 1.89× /700**,
+> *inside* the within-2× band on both denominators, so the count arm no longer
+> ≥ 2× and no longer implicates the count chain. The compound test does **not**
+> become a PASS: its second observable, the predicted A→D falloff ratio, **is**
+> reachable from this same count chain (the per-unit-solid-angle
+> perforation-count ratio, computed with the verdict row's own `min_lethal_mass`
+>
+> - `mott_N` calls — see the current-verdict banner) and has now been run: it
+>     lands at **0.406 vs Tolch's measured 0.557, distance −0.151, outside the ±0.10
+>     tolerance**. **Current compound verdict: FAIL — count arm within band, falloff
+>     arm evaluated and outside tolerance.** See the current-verdict banner at the
+>     top of this file (authoritative).
 
 **The INDETERMINATE clause is now discharged, and it did not fire (2026-08-10,
 later pass).** That clause was the last thing standing between "FAIL" and "FAIL
@@ -666,9 +754,10 @@ denominator gives **$N/700 = 2.08\times$ — still outside the band.** *The
 divided a panel-side detection floor by the pit sand-recovery census, the same
 basis mix the open finding raises against block (D).*
 
-**So the standing verdict is a plain FAIL at 2.28× (/779) and 2.54× (/700), not
-INDETERMINATE.** The dataset *can* resolve a 2× claim at this residual — that
-is what bounding C5 established — and the residual is real. The bar on
+**So the 2026-08-16 standing verdict was a plain FAIL at 2.28× (/779) and 2.54×
+(/700), not INDETERMINATE** (superseded on live code to 1.70×/1.89×, within
+band — see the §4 supersession note above). The dataset *can* resolve a 2×
+claim at this residual — that is what bounding C5 established. The bar on
 crediting further fixes is correspondingly lifted: C3 may now be worked without
 crediting a model fix against an unbounded comparison bias, which is what the
 criterion forbade.
@@ -694,10 +783,18 @@ framings recorded in this section are now void and must not be quoted:
 
 What stands after both:
 
-- **The verdict is FAIL at 2.28× (band 2.11–2.44×), on a two-observable test of
-    which only one observable has been run.** The A→D falloff-ratio arm is still
-    tied to the fitted $E_{thr}$ and therefore still compound — that is now the
-    single largest gap in the *test*, as distinct from the model.
+- **The compound verdict is a FAIL, on a two-observable test whose second
+    observable is now run and outside tolerance.** On live shipped code the count
+    arm is 1.70× (/779) / 1.89× (/700), *inside* the within-2× band (the
+    2.28×/2.54× FAIL was the 2026-08-16 figure). The A→D falloff-ratio arm **is**
+    reachable from this same count chain — it is the per-unit-solid-angle
+    perforation-count ratio, computed at a sourced threshold with the verdict
+    row's own `min_lethal_mass` + `mott_N` calls (**not** the `../drag-gap-1944/`
+    $B(r)$ density aspect) — and it predicts **0.406 vs Tolch's measured 0.557,
+    distance −0.151, outside the ±0.10 tolerance**. So the count arm passing the
+    2× band does **not** make the compound test a PASS: the falloff arm fails it,
+    and that gap sits in *this* thread's own perforation-count falloff, not in a
+    thread that does not compute it.
 - **L1's headline "4–6× over-prediction" is stale**, as is the 3.2–3.7×
     fitted-threshold figure that replaced it (re-run: 2.9–3.0×). The current
     honest headline is 2.28× at a sourced, mass-dependent threshold and a
@@ -710,7 +807,8 @@ What stands after both:
     at a real but non-actionable 1.328× (2026-08-15,
     [`mott-tail-shape.md`](mott-tail-shape.md)) — restating the residual
     2.28×→1.72× (/779) but not clearing it to a PASS, since the credit is
-    unsourced and the falloff-ratio observable is still unrun. **C4 ran last
+    unsourced and the falloff-ratio observable is still unrun *(since run
+    2026-09-23: 0.406 vs 0.557, see current-verdict banner)*. **C4 ran last
     and closed 2026-08-15 as a criterion-match choice worth ≈0.2×, not a
     driver** ([`spectrum-mass-basis.md`](spectrum-mass-basis.md)) — **no
     sub-candidate remains.**
@@ -719,10 +817,16 @@ What stands after both:
     wrong; it cannot. C3 quantified the model's sub-gram spectrum term at
     1.328× and found no sourced fix. C4 settled which metal weight denominates
     the spectrum comparison (10.94 lb, fuze-excluded) and found the choice
-    worth ≈0.2×, not the factor the verdict turns on. **The count arm's
-    standing verdict is now final: genuine FAIL at 2.28×/2.54× (plug-shear)
-    and 1.8–2.1× (threshold-free) — every admissible pairing this thread has
-    produced sits above the band, and no further work is scoped here.**
+    worth ≈0.2×, not the factor the verdict turns on. **At the 2026-08-16 state
+    the count arm's standing verdict was genuine FAIL at 2.28×/2.54×
+    (plug-shear) and 1.8–2.1× (threshold-free). On live shipped code
+    (`630dac8`/`18cd069`) the plug-shear count arm is 1.70×/1.89×, *inside* the
+    band, so the count arm is no longer FAIL; but the compound verdict is a
+    FAIL, because the falloff-ratio arm — reachable from this same count chain
+    and now run — predicts 0.406 vs Tolch's 0.557 (outside ±0.10). No further
+    count-arm work is scoped here; the open gap is this thread's own falloff-ratio
+    prediction, which is drag-sensitive at the fixed sourced threshold (a caveat
+    logged in the current-verdict banner, not a hand-off to `../drag-gap-1944/`).**
 
 This re-framing is a consequence of shipped, independently reviewed physics
 (C1's plug-shear threshold, C2's break-up velocity), not of any new argument in

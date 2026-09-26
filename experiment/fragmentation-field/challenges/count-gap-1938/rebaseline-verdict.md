@@ -2,15 +2,33 @@
 
 **Status: complete, but the *model* side of every claim below was evaluated
 against shipped code as of 2026-08-08 *before* commit 6c1faff.** Read **all
-five** re-closure banners first, in order — the 2026-08-08 one, the
+six** re-closure banners first, in order — the 2026-08-08 one, the
 2026-08-10 C1+C2 one, the 2026-08-10 C5-discharge one that supersedes parts of
-both, the 2026-08-15 C3+C4 one that closes the ranking, and the 2026-08-16 one
-that re-closes every model figure onto the per-shell aspect-ratio moment $c$;
-the re-baseline itself (the Tolch-series side) is unaffected. Standing verdict
-after all five:
-genuine **FAIL at 2.28× (/779) / 2.54× (/700)** (plug-shear reading) **and at
-1.8–2.1×** (threshold-free reading), not INDETERMINATE, with no open
-sub-candidate remaining.
+both, the 2026-08-15 C3+C4 one that closes the ranking, the 2026-08-16 one
+that re-closes every model figure onto the per-shell aspect-ratio moment $c$,
+and the 2026-09-23 current-verdict one immediately below that supersedes the
+model side onto live shipped code (compound FAIL on the falloff arm);
+the re-baseline itself (the Tolch-series side) is unaffected. The fifth-banner
+standing verdict was genuine **FAIL at 2.28× (/779) / 2.54× (/700)**
+(plug-shear) **and 1.8–2.1×** (threshold-free) — **this is now superseded; see
+the current-verdict notice immediately below.**
+
+> **Current verdict — live shipped code, 2026-09-23 (supersedes the FAIL above
+> and every 2.28×/2.54× figure in this file).** Commits `630dac8`/`18cd069`
+> re-solved the $\kappa_x/k/c$ triple; the live plug-shear verdict row is now
+> **1.70× (/779) / 1.89× (/700)** — *inside* the 2× band on **both**
+> denominators, so **the count arm no longer implicates the count chain.** The
+> compound §4 test is nonetheless **not a PASS — it is a genuine FAIL**: its
+> second observable, the **predicted** A→D falloff ratio, **is** reachable from
+> this same count chain (the per-unit-solid-angle perforation-count ratio, using
+> the verdict row's own `min_lethal_mass` + `mott_N` calls — *not* the
+> `../drag-gap-1944/` $B(r)$ density aspect) and has now been run: it predicts
+> **0.406 vs Tolch's measured 0.557, distance −0.151, outside the ±0.10
+> tolerance**. **Overall: count arm within band (PASS on that arm), falloff arm
+> evaluated and outside tolerance (FAIL on that arm) → compound verdict FAIL.**
+> See the sixth re-closure banner below and
+> [`count-chain.md`](count-chain.md)'s current-verdict banner (authoritative).
+> The §1/§3/§4–5 tables below remain the frozen 2026-08-04 audit record.
 
 > **Re-closure banner — model numbers, 2026-08-08 (post-6c1faff / `50b734e`).**
 > This file's §1 closure line and every model-derived figure in the tables
@@ -209,6 +227,61 @@ sub-candidate remaining.
 > ($M_\text{case}$ = 5755 g, $N_0$ = 3627), which is what makes them a record
 > of that audit; the banners are the mechanism this file uses to carry the
 > model side forward, and this is the fifth of them.
+
+> **Sixth re-closure banner — $\kappa_x/k/c$ triple re-solved, 2026-09-22.**
+> Two commits shipped after the fifth banner move the count arm again — both
+> *after* the 2026-08-18 open finding on this file was raised, in the direction
+> that finding flagged but *further* than it. `630dac8` (commit subject
+> "v0.14.0") resolved the Mott breadth-variance factor $k$ per-shell; `18cd069`
+> (commit subject "v0.15.0") re-solved the
+> whole $\kappa_x/k/c$ triple at the 75 mm shell's own Mott ruled-line regime
+> ($l/x_0\approx95$, not the $l/x_0=20$ demonstration value). Live
+> `arty.shells.SHELLS["75mm M48 HE"]` now carries `aspect_ratio` = **1.950**
+> (was 1.577 at the fifth banner), so $\mu$ = **1.321 g** and $N_0$ = **1886**
+> ([`checks/count-chain-aspect-moment-reclosure.py`](checks/count-chain-aspect-moment-reclosure.py),
+> run 2026-09-22 — its "shipped" column reads `SHELLS` directly and is live; the
+> `A=1.577` string in that column's header label is itself now stale). The
+> plug-shear verdict row (SPF-S $\eta$=½ central) is now **$N$ = 1322 → 1.70×
+> (/779) / 1.89× (/700)**.
+>
+> **This crosses the within-2× band on the count arm** — a *direction* change
+> from the fifth banner's "still FAIL, still outside the 2× band on both
+> denominators." Both denominators are now inside 2×. It also **supersedes the
+> interim figures** (2.22× /700, 2.00× /779, computed at $c$=1.0247 before
+> `18cd069`) once cited by the 2026-08-18 blocking marker at
+> `updates/kappa-x-shell-regime/derivation.md`: the live pair is *lower* than
+> the marker cited, not equal to it.
+>
+> **Verdict-direction question — resolved 2026-09-23 (this re-closure pass;
+> falloff arm re-run 2026-09-23).** §4's PASS test is compound: within-2× on the
+> count *and* a **predicted** A→D falloff ratio within 0.10 of 0.557. The count
+> arm is now inside 2× on both denominators, so it **no longer implicates the
+> count chain** — the fifth banner's FAIL is superseded on *that arm*. But the
+> compound test is **not** a PASS — it is a genuine FAIL on the falloff arm. That
+> second observable **is** reachable from this same count chain: it is the
+> per-unit-solid-angle perforation-count ratio $N(\ge m_{thr}(r_D))/N(\ge
+> m_{thr}(r_A))$ (in which $N_0$ and the $1/r^2$ field falloff cancel and only
+> drag, $E_{thr}(m)$ and $\mu$ enter), computed with the verdict row's own
+> `min_lethal_mass` + `mott_N` calls at $r_A$ = 15 ft / $r_D$ = 120 ft. It is
+> **not** the `../drag-gap-1944/` $B(r)$ density aspect — it is that thread's
+> Result 1 perforation-count ratio — and $\mu$ does not cancel in it, so the two
+> commits **did** move it. Live prediction: **0.406 vs Tolch's measured 0.557,
+> distance −0.151, outside the ±0.10 tolerance**
+> ([`checks/count-gap-1938-falloff-arm-reachability.py`](checks/count-gap-1938-falloff-arm-reachability.py);
+> the superseded 2026-08-16 A=1.577 state gave 0.367, so the commits moved it by
+> +0.04). **Overall verdict: count arm within band (PASS on that arm), falloff
+> arm evaluated and outside tolerance (FAIL on that arm) → compound test FAIL,
+> located in this thread's own perforation-count falloff rather than routed to
+> `../drag-gap-1944/`.** (Limitation logged, not resolved here: at a fixed
+> sourced threshold this ratio is drag-sensitive, so it depends on the drag
+> constant contested in `../drag-gap-1944/`; the $\eta$/$f$/$\tau$ bands should be
+> swept on the falloff arm too before a range is stated — neither flips the
+> current out-of-tolerance sign.) `count-chain.md`'s current-verdict banner is
+> the authoritative statement; the §1/§3/§4–5 verdict tables in *this* file
+> remain the frozen record of the 2026-08-04 audit (they are not re-closed, by
+> design — the banners carry the model side forward). The blocking marker is
+> **deleted** this pass, its concern (docs publish a stale shipped-code verdict)
+> now resolved.
 
 Block (E)'s arithmetic — the threshold-free test that carries the one void
 verdict — was independently re-derived by the main agent before this file was
