@@ -302,3 +302,35 @@ which is unknown — `blocking`, and the human's call.
 The restriction was correct: it is what kept the pass to nine turns. Widening
 the brief would have bought the right tier at the cost of the cheapness that
 made the pass worth running. Re-tiering on return costs one `grep`.
+
+## materiality
+
+*Behind:* model-workflow skill, "Materiality gate"; `deferred-findings.md`,
+"Stale copies route to doc-sync".
+
+An audit of 80 acted-on findings across 21 `review.md` files classified each
+by what acting on it bought
+(`.claude/audits/2026-09-materiality/`). 15 were material, 17 looked small
+but turned out real, 44 were wasted effort, and 4 are unresolved.
+
+Size did not separate them. Every small-looking real defect was a
+**basis or closure mismatch** (a different quantity, regime, criterion or
+caliber; a table failing its own invariant), or had a cause that **applied
+elsewhere**. The wasted findings were dominated by two shapes: numeric drift
+that stayed **within the verdict threshold under every reading**, and above
+all **stale copies**, meaning superseded numbers or verdict banners re-flagged
+pass after pass. Each re-flag earned a full modeler fix and a re-review, only
+to relocate a value nobody disputed.
+
+Two consequences, both now encoded in the workflow scripts:
+
+- Magnitude is judged against the **output that carries the verdict**, which
+    therefore has to be declared (`## Verdict outputs` in `scoping.md`). A
+    budget on an intermediate constant is not a materiality bar. "Zero impact
+    if reading X is right" is *conditional*, and gets bounded, never waved
+    through.
+- Stale copies stay `blocking`, because a published surface is wrong, but they
+    are synced in **one batched Sonnet pass** at the end of a run, with no fix
+    cycle and no re-review (human-approved 2026-09-25). The structural fix,
+    still open, is to render published numbers from code or CSV and keep one
+    location per verdict, so that there are no copies to go stale.

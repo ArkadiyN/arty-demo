@@ -1,5 +1,14 @@
 # arty-demo
 
+## How the modelling agents work
+
+The agent workflow (who derives, who reviews, what gates a change) is written
+in `.claude/rules/` and the `model-workflow` skill
+(`.claude/skills/model-workflow/SKILL.md`). The evidence behind each rule is in
+`.claude/incidents.md`, which is kept out of agent context on purpose: agents
+read it only when arguing with a rule. Audits that fed a rule are kept in
+`.claude/audits/`.
+
 ## Rendering the Quarto notebooks
 
 Model notebooks live under `experiment/<model>/<model>.qmd` (e.g.

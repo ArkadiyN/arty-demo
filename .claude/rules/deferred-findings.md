@@ -17,6 +17,18 @@ published surface resting on one — cannot be closed by an agent's deferral.**
 answer for *existing published wrongness*. Mark it `blocking` and say so in
 your return summary. Only the human decides it can wait.
 
+### Stale copies route to doc-sync
+
+A stale copy (a superseded number or verdict still standing in a published
+document, with no dispute over the correct value) is still `blocking`. Its
+remedy, though, is one **batched doc-sync pass** at the end of the run, not a
+modeler fix cycle with its own re-review. It stays blocking until that pass
+lands it; if the run escalates first, the main agent lands it
+(`result.docSyncPending`). This was human-approved on 2026-09-25, and its
+routing is the model-workflow skill's "Materiality gate". Re-flagging a stale
+copy on every pass was the largest single waste in the audit:
+`.claude/incidents.md#materiality`.
+
 ## The marker
 
 One line, anywhere in `.md` / `.qmd` / `.py`, next to what you found:

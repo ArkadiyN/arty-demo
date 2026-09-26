@@ -98,21 +98,34 @@ is still answered in the *next* fresh dispatch's brief, not by resuming.
 
 ## Model tier per pass
 
-@modeler defaults to Opus; an oversized or wasted Opus pass is the most
-expensive failure mode in this project. When dispatching, override the model
-(Agent tool `model` parameter) by pass type:
+**Pinned versions: Opus = `claude-opus-5-5`, Sonnet = `claude-sonnet-4-6`.**
+Always an exact ID, never an alias. Sonnet 5.0 refuses this project's subject
+matter, and the `sonnet` alias resolves to it — so **never pass
+`model: "sonnet"` to the Agent tool** (its `model` parameter takes aliases
+only). A Sonnet-tier pass is reached through an agent whose frontmatter pins
+`claude-sonnet-4-6` (@model-reviewer), or through a Workflow `agent()` call,
+which accepts an exact ID.
 
-- **Sonnet override** — chart/new-math triage, aspect-inventory, and
-    correctness-classification passes that stop at a short finding.
-- **Agent default (Opus)** — scoping, derivation, src/ implementation,
+@modeler is pinned to Opus 5.5; an oversized or wasted Opus pass is the most
+expensive failure mode in this project. By pass type:
+
+- **Sonnet tier** — chart/new-math triage, aspect-inventory, and
+    correctness-classification passes that stop at a short finding. Dispatch
+    as a one-agent Workflow (`agentType: 'modeler'`,
+    `model: 'claude-sonnet-4-6'`); if that is not worth the ceremony, run it at
+    the pinned Opus default — never via the `sonnet` alias.
+- **Pinned default (Opus 5.5)** — scoping, derivation, src/ implementation,
     notebook presentation, and any pass that writes or judges physics.
 
-@model-reviewer defaults to Sonnet (mechanical verification: reproduce check
-scripts, trace code paths, confirm cited numbers). **Override to Opus** for
-the adversarial-critique review pass (model-workflow skill, "Two review
+@model-reviewer is pinned to Sonnet 4.6 (mechanical verification: reproduce
+check scripts, trace code paths, confirm cited numbers). **Run at Opus 5.5**
+for the adversarial-critique review pass (model-workflow skill, "Two review
 passes") — judging whether a theory holds, not just whether its arithmetic
 does, is the harder reasoning task of the two and the highest-value review
-step; it is where a wrong theory is either caught or shipped.
+step; it is where a wrong theory is either caught or shipped. The
+`model-workflow-*.js` scripts pin it exactly; a hand dispatch via the Agent
+tool can only say `opus`, which is acceptable only while that alias resolves
+to 5.5.
 
 ## Delegation quick reference
 

@@ -239,14 +239,19 @@ Workflow({
 })
 ```
 
-Both scripts already inject the `collect-findings.py --for <scope>` output
-into the derivation/notebook brief (`.claude/rules/deferred-findings.md`), and
-already verify each review pass's write landed on disk before trusting its
-verdict (the "on return of each pass" check in Workflow B step 4, above,
-applies identically inside the script). If a script's own result comes back
-`status: 'escalate'`, that is exactly the "still FAIL after two cycles" stop
-condition — triage from `result.escalate` and `result.pass1`/`result.pass2`,
-don't re-invoke the script a third time on the same slug.
+Both scripts inject the `collect-findings.py --for <scope>` output (one call
+per scope path — `--for` takes a single prefix) into the briefs, append each
+rule's operative clause (staging resolution, table closure, FINDING markers,
+`uv run`) to every modeler and reviewer brief, and verify on disk both each
+review pass's section and each modeler pass's artifact before trusting a
+return (`.claude/rules/subagent-harness.md`, "a quiet return ≠ success"). On
+`status: 'done'` the result carries `findingsAfter` — the register
+re-collected for the scope — which the main agent re-tiers per
+`.claude/rules/deferred-findings.md`. On `status: 'escalate'`, triage from
+`result.escalate` (stage, reason, and for a missing artifact the exhaustion
+classification to apply) and the per-stage results (`adversarial`,
+`verification`, `implementation`, `notebook`). Don't re-invoke the script a
+third time on the same slug.
 
 ## When to delegate to @librarian
 
@@ -329,11 +334,57 @@ settled version, not one about to be reworked.
 the numbers exist (e.g., a pure sensitivity/convergence check) — a judgment
 call for the main agent to make and note in the dispatch, not a default.
 
-**Model tier:** Pass 1 (adversarial) overrides to **Opus** — it is the harder
-reasoning task of the two and the highest-value review step, the one where a
-wrong theory is caught or shipped. Pass 2 (verification) stays at
-@model-reviewer's standard default, **Sonnet** — mechanical reproduction and
-code-tracing, not judgment. (`agents-routing.md` "Model tier per pass".)
+**Model tier:** Pass 1 (adversarial) runs at **Opus 5.5** (`claude-opus-5-5`)
+— it is the harder reasoning task of the two and the highest-value review
+step, the one where a wrong theory is caught or shipped. Pass 2 (verification)
+stays at @model-reviewer's pinned **Sonnet 4.6** (`claude-sonnet-4-6`) —
+mechanical reproduction and code-tracing, not judgment. Never the `sonnet`
+alias: it resolves to Sonnet 5.0, which refuses this project's subject matter.
+(`agents-routing.md` "Model tier per pass".)
+
+## Materiality gate — what a finding costs is decided by its route
+
+Severity says *whether* a finding matters; the route says *what it costs*.
+Every blocking and deferrable finding carries three tags in the reviewer's
+structured return:
+
+- **kind**: `basis` (a different quantity, population, regime, criterion or
+    caliber) · `closure` (a source table fails its own invariant) · `numeric`
+    (a value is off on a correct basis) · `doc-sync` (a stale or disagreeing
+    copy of a settled value or verdict) · `process` (a missing artifact,
+    review or retained script).
+- **bound**, judged against the declared **Verdict outputs**: `within` (holds
+    under *every* plausible reading, crosses no threshold, flips no shipped
+    direction) · `crosses` · `conditional` ("zero if reading X is right") ·
+    `unbounded`.
+- **applies_elsewhere**: the cause reaches another setting, caliber, range
+    or consumer.
+
+| Finding                                                 | Route                                                                                                                                       |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `basis` / `closure` / `process`, or `applies_elsewhere` | fix cycle, whatever its size                                                                                                                |
+| `numeric`, `crosses`                                    | fix cycle                                                                                                                                   |
+| `numeric`, `within`                                     | note only, no fix cycle                                                                                                                     |
+| `numeric`, `conditional` / `unbounded`                  | one cheap reviewer **bounding pass** (perturb `arty` inputs, append "Bounds — …" to `review.md`), then `within` → note, anything else → fix |
+| `doc-sync`                                              | stays blocking; one **batched Sonnet doc-sync pass** at the end of the run, with no fix cycle and no re-review                              |
+
+**Verdict outputs are the premise.** Every `scoping.md` (Workflow A: the
+question doc's verdict criterion) ends with `## Verdict outputs`, listing each
+output that carries a verdict or shipped claim, its decision threshold, and
+the direction of the shipped claim. With none declared, every numeric finding
+is `unbounded`, and the gate degrades to "bound everything", which is safe
+but not cheap.
+
+Reviewers do not re-raise a defect that already carries a `FINDING` marker;
+they cite the marker. Fix briefs name the fix-routed finding ids, and the
+modeler leaves everything else alone. Both `model-workflow-*.js` scripts
+implement this table, and the batched items come back as `result.docSync`
+(or `result.docSyncPending` on escalation, which the main agent must still
+land). Evidence and audit: `.claude/incidents.md#materiality`.
+
+**Structural fix (open):** render published numbers from code or CSV, and
+keep each verdict in one place. A copy that cannot go stale needs no sync
+route.
 
 ## Task sequencing
 
