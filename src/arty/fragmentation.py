@@ -418,6 +418,14 @@ class FragField3dResult:
     V0: float
     burst: BurstParams
     posture: PostureParams
+    n_eff_cross: np.ndarray | None = None  # expected lethal hits N_eff [-] along cross-range slice (pk_cross = 1 - exp(-n_eff_cross))
+
+    @property
+    def lethal_area(self) -> float:
+        """Return field lethal area sum(P_kill) dA [m^2] over the returned 2D grid (uniform spacing)."""
+        dx = float(self.field_x[0, 1] - self.field_x[0, 0])
+        dy = float(self.field_y[1, 0] - self.field_y[0, 0])
+        return float(self.field_pk.sum() * dx * dy)
 
 
 @dataclass
@@ -1839,4 +1847,5 @@ def compute_frag_field_3d(
         V0=V0,
         burst=burst,
         posture=posture,
+        n_eff_cross=N_eff_cross,
     )

@@ -727,3 +727,19 @@ count over-prediction at 1.7–1.9$\times$
 X1/X3/K5 of
 [`updates/kappa-x-shell-regime/derivation.md`](updates/kappa-x-shell-regime/derivation.md)
 §6.2–6.3.
+
+**20 · The posture crossover is shown in a limiting geometry (v 0.16.0).**
+The per-point crossover slice in §6.6.1 is taken at AoF = 0°, the only AoF at
+which the cross-range slice $x = 0$ lies in the belt. Belt arrival elevation
+is bounded by $\gamma_\text{max} \approx 90° - \text{AoF} + \delta$, so the
+belt reaches vertical only for AoF ≤ δ, and at realistic angles of fall an
+airburst narrows the prone advantage rather than reversing it. The field
+lethal-area ratio prone/standing is
+`{python} f"{la_ratio[(aof_default, hb_air)]:.2f}"` at the default
+AoF = `{python} f"{aof_default:.0f}"`°, $h_b$ = `{python} f"{hb_air:g}"` m,
+and at most `{python} f"{la_ratio[(la_air_max_aof, hb_air)]:.2f}"` at any
+tabulated AoF (summed over a ±`{python} f"{la_R:.0f}"` m box, converged to
+within 1%). The per-slice ratios in §6.6.1 describe only the AoF = 0° geometry. Field
+lethal area is the measure for realistic fire. See §6.6.1 and
+[`updates/target-area-profile/derivation.md`](updates/target-area-profile/derivation.md)
+§7 item 7.

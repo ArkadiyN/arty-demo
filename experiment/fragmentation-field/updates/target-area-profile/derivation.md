@@ -440,8 +440,31 @@ independently reproduced the intended crossover via a scratch script
 against `compute_frag_field_3d` ($R_{50}$(standing)=28 m vs
 $R_{50}$(prone)=14 m at $h_b$=0.5 m, crossing to 12 m vs 18 m at
 $h_b$=20 m) and confirmed the physics is correct even though the notebook
-does not show it. Remains open for a future presentation pass.
+does not show it.
 
-FINDING[deferrable]: the aspect's own required validation — the γ-sweep of A_p for standing and prone, and the ground-burst vs airburst hit-count ratio (item 7 above) — is still absent from the notebook; only the γ=0 and γ=π/2 endpoints exist, so the posture crossover the aspect exists to produce is nowhere shown to a reader (affects: experiment/fragmentation-field/updates/target-area-profile/derivation.md, experiment/fragmentation-field/_four-zone-3d.qmd; since: 2026-08-03)
+**Status (2026-09-26, notebook v0.16.0):** item 7 is now presented in
+`_four-zone-3d.qmd` §6.6.1: the full γ-sweep of $A_p$ for both postures
+(sampled crossover $\gamma^* = 43.5°$, $A_p \approx 0.72$ m²); the
+cross-range profiles for $h_b$ = 0.5 m vs 20 m in the limiting AoF = 0°
+geometry (M1, δ = 15°), with the prone/standing ratio taken on expected lethal
+hits $N_\text{eff}$ (`FragField3dResult.n_eff_cross`); and the whole-field
+lethal-area ratio $\sum P_\text{kill}\,dA$ (`FragField3dResult.lethal_area`)
+across AoF 0–75°, summed over a ±200 m box at 1 m spacing (converged to
+within 1% of a ±300 m reference, `checks/posture-lethal-area-convergence.py`;
+the earlier ±60 m box truncated the airburst far field and biased the ratio
+upward, `checks/posture-lethal-area-grid-extent.py`). Numbers are reproduced
+standalone by `checks/posture-crossover-ground-vs-air.py`, and the AoF
+robustness by `checks/posture-crossover-robustness.py`. The item's prediction holds only in
+part. (i) The per-point ordering flip under an airburst exists only near
+AoF = 0°, because belt arrival elevation is bounded by
+$\approx 90° - \text{AoF} + \delta$. At the default AoF = 30° and steeper,
+the airburst narrows the prone advantage (lethal-area ratio ~0.3 → ~0.8) and
+does not reverse it (limitation 20). On the whole field it does not reverse at
+any AoF: the ratio only approaches parity (~0.99) at AoF = 0°. (ii) Ground-burst prone does not drop
+"to near-zero". The per-point $N_\text{eff}$ ratio floors at
+$A_p(0)$ prone/standing $= 0.15/0.85 \approx 0.18$,
+and the lethal-area ratio at ~0.3. $R_{50}$ is not tabulated, because under
+the 20 m airburst $P_\text{kill}$ never reaches 0.5. The review's 12 m / 18 m
+figures predate the v0.8–0.15 recalibration and are superseded.
 
 No changes to drag, Mott, Gurney, or $P_{k|\text{hit}}$ are required.

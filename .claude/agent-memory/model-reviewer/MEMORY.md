@@ -15,6 +15,7 @@
 - [numpy trapz removed](numpy_trapz_removed.md) — use np.trapezoid in verification scripts
 - [Belt-edge K generalization](belt_edge_K_generalization_confirmed.md) — K=cosθ^z±sinδ confirmed sound; AoF=90° symmetry masks axis bugs, retest asymmetric
 - [Four-zone test parity](four_zone_test_parity_gap.md) — a zones.py mirror of a fragmentation.py fix needs the same defect-removal test, not a weaker invariant
+- [Field-integral box truncation](field_integral_box_truncation.md) — ΣP_kill·dA on a ±60 m box truncates airburst far field, biases prone/standing up; sweep box size
 - [Grid threshold-fraction aliasing](ground_grid_threshold_fraction_aliasing.md) — sweep n_grid before trusting a printed % near a hard cutoff
 - [Onset formula typo pattern](pkill_field_qmd_onset_formula_typo.md) — evaluate inline .qmd prose formulas numerically against printed stats
 - [Volume penumbra per path](pkill_volume_penumbra_is_outer_not_near_burst.md) — single-zone near-binary, four-zone genuinely graded; recompute per path
