@@ -1,0 +1,32 @@
+# Project Memory Index
+
+- [Four-zone field geometry](project_four_zone_field_geometry.md) — a missing ground lobe is usually correct geometry (check v_gz sign), not a bug
+- [False ogive vs structural ogive](concept_false_ogive_vs_structural_ogive.md) — a windshield/false nose is inert; only the mass bookkeeping needs checking
+- [Fragmentation-field structure](frag_field_structure.md) — code map for the 3D field paths; the spreading factor is inlined with the target-coupled factors
+- [Shell-axis sign convention](gotcha_shell_axis_sign_convention.md) — legacy single-zone axis is a backward x-mirror sign error; forward axis is correct (mirror hides at x=0 / AoF=90°)
+- [Posture vs intercept axis](concept_posture_vs_intercept_axis.md) — the A_p posture toggle and the target-column intercept are independent mechanisms
+- [Belt-gate quadrature endpoint](gotcha_belt_gate_quadrature_endpoint.md) — integrate belt-gated kernels with midpoint nodes, never endpoint trapezoid; verify on a dense sweep
+- [Hard-step fraction grid aliasing](gotcha_hard_step_fraction_grid_aliasing.md) — threshold-crossing stats over a hard step alias on coarse grids; use a dense grid or the onset radius
+- [P_k volume bimodal only single-zone](gotcha_pkill_volume_bimodal_no_penumbra.md) — single-zone volume P_k is bimodal; four-zone has a real graded fringe
+- [m_min table must stay per-layer](gotcha_mmin_table_perlayer.md) — don't share the m_min table across z-layers (breaks exact z0-matches-field tests); vectorize the bisection instead
+- [Steel sigma_f/gamma ratio only](gotcha_steel_sigma_gamma_ratio_only.md) — the steel "parameter pair" is one identifiable DOF; only sigma_f/gamma is observable
+- [R50 insensitive to steel grade](gotcha_r50_insensitive_to_steel.md) — count and per-fragment reach offset; "grade does nothing to R50" is physics, not a bug
+- [P(kill) columns padded-segment bounds](gotcha_pkill_columns_padded_segment_bounds.md) — \_pkill_columns_vec pads collapsed segments to z=h_b; bounds-check only weighted samples or it false-fires
+- [Tolch "empty shell & fuze" is not case metal](gotcha_tolch_empty_shell_includes_fuze.md) — 13.29 lb includes the fuze; case metal is 10.94 lb, and his count percentages use the fuzed basis
+- [Tolch "remaining velocity" is shell, not fragment](gotcha_tolch_remaining_velocity_is_shell_not_fragment.md) — its card.md wrongly sells the velocity sweep as a drag anchor; the drag content is the panel-radius axis
+- [Density-falloff shape is threshold-degenerate](gotcha_density_falloff_shape_is_threshold_degenerate.md) — a hits-vs-range curve can't discriminate drag (threshold absorbs it); absolute counts can
+- [Mott mu scale not fixable by gamma](gotcha_mott_mu_scale_not_fixable_by_gamma.md) — a fragment-size/count gap can't be closed via gamma/sigma_f; suspect the cube mass-closure in mott_params
+- [Gold 2017 dir is misnamed](gotcha_gold2017_dir_misnamed.md) — the PAFRAG-Mott source hides under "fragment-size-distribution-conwep"; grep phrases, not author/year
+- [N0 insensitive to case mass](gotcha_n0_insensitive_to_case_mass.md) — mu ~ V0^-3 cancels a M_case correction; validate such a fix on V0/mu, never on counts
+- [Mott table non-uniform carbon spacing](gotcha_mott_table_nonuniform_carbon_spacing.md) — real rows are 0/0.1/0.25/0.45 %C, not evenly spaced; re-check brackets, not just endpoint γ
+- [Single-projectile mass exponents](gotcha_single_projectile_mass_exponents.md) — Sanborn 2019 CLT fits print w/D exponents but one projectile was used; they can't supply E_thr(m), use original UFC 4-023-07
+- [UFC wood eq. is not invertible](gotcha_ufc_wood_eq_not_invertible.md) — a thickness design curve with a weak v-exponent gives nonsense v50; 1/0.4113 amplifies every bias
+- [Mott V is the fracture-instant velocity](gotcha_mott_V_is_fracture_instant_velocity.md) — not terminal Gurney; the 1943 worked example uses terminal, Gold 2017 defines fracture-instant, Kennedy's grazing 7x makes it live
+- [Mott count doesn't move as f²](gotcha_mott_count_not_f_squared.md) — a velocity correction in x0 is partly cancelled by the rising mu in the survival exponential; compute N, never scale it
+- [Rebaseline onto validation source](gotcha_rebaseline_onto_validation_source.md) — rebaselining onto the source you validate against makes the cross-check tautological; prefer an independent basis that agrees
+- [Power-law tail is sign-wrong for shells](gotcha_powerlaw_tail_sign_wrong_for_shells.md) — the sub-gram power-law literature ADDS fragments; wrong direction for an over-counting model
+- [Binned-moment caliber trend](gotcha_binned_moment_caliber_trend.md) — a per-shell variance/moment off Table 3's 5 mass groups is a binning artefact; refine the axis, the trend reverses
+- [Mott exponential breadth is circular](gotcha_mott_exponential_breadth_is_circular.md) — k=2 and the shipped mass law are one 1943 assumption twice; reproduce the 1947 ruled-line MC instead
+- [Count-mass locus not identifying](gotcha_count_mass_locus_not_identifying.md) — a spectrum fitted to a cumulative count-vs-mass locus is scale-degenerate; anchor in absolute mass
+- [Ruled-line regime is caliber-free](gotcha_ruled_line_regime_caliber_free.md) — l/x0 has no caliber dependence (x0 ∝ r cancels); the regime is set by break-up velocity alone
+- [Check script imports shipped constant](gotcha_check_script_imports_shipped_constant.md) — a closure that imports src/arty's own value is tautological; keep the source's stated number as a literal
