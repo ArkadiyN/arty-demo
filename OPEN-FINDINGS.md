@@ -5,13 +5,13 @@
 
 A citation-provenance and internal-consistency audit for a historical reconstruction of WW2 field artillery physics. Entries record where a published source is mis-cited, where a retained document is incomplete, or where shipped code and published text disagree. Sources are open literature.
 
-**8 open** — 0 blocking, 7 older than 30 days.
+**6 open** — 0 blocking, 4 older than 30 days.
 
 A *blocking* finding means a committed artifact is known to carry a wrong
 number, or shipped code or a published surface rests on one. It may not be
 closed by deferral — see `.claude/rules/deferred-findings.md`.
 
-## Deferrable (7)
+## Deferrable (5)
 
 - **the ledger's Tolch-comparison tables (§2, §3) cite mott_scale_check.py / mott_shape_closure.py, which were never committed and are permanently lost — those numbers are unauditable and unre-runnable, so any pass relying on them must regenerate the check under checks/** ⚠ **stale**
     - affects: `experiment/fragmentation-field/challenges/mott-scale-gap/_scale_verdict_ledger.md`, `experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md`
@@ -25,18 +25,12 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
 - **Figure data cited in this card (Fig. 3, 5, 9, 10) require visual inspection of the PDF to transcribe numeric axis values if exact values are ever needed downstream** ⚠ **stale**
     - affects: `doc-reference/fragmentation/ada462991-fragment-velocity/`
     - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/ada462991-fragment-velocity/card.md:75`
-- **source.md (OCR extraction) has garbled equation bodies; the formulas have not yet been re-read against the retained PDF** ⚠ **stale**
-    - affects: `doc-reference/fragmentation/kennedy1970-gurney-energy`
-    - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/kennedy1970-gurney-energy/card.md:7`
-- **only a partial extraction (sections 5.7-5.8, pages 103-105) is processed, though the full PDF is now in the blob store; card claims verification from pages 54, 73-75 which are not in retained files** ⚠ **stale**
-    - affects: `doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion`
-    - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion/card.md:11`
 - **p4013coll8_2374 (a supplement to Terminal Ballistic Data Vol. II) not yet checked for superseding the 75/105/155 mm fragment-damage tables this card cites**
     - affects: `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md`
     - raised: 2026-09-26 (0d) in `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md:7`
 
 ## Note (1)
 
-- **kennedy1970-gurney-energy/card.md "Standard Gurney Equations by Geometry" transcribes the cylinder as sqrt(2E)(1+M/2C)^-1/2 and flat sandwich as (1+M/C)^-1/2; standard Kennedy forms are (M/C+1/2)^-1/2 and (M/C+1/3)^-1/2, and the (M/C+1/2) form is what shipped gurney_velocity uses and what Martineau Table 5.3 closes on** ⚠ **stale**
-    - affects: `doc-reference/fragmentation/kennedy1970-gurney-energy/card.md`
-    - raised: 2026-08-10 (47d) in `experiment/fragmentation-field/updates/breakup-velocity-fraction/scoping.md:331`
+- **Mie-Gruneisen EOS and ABAQUS/Explicit are sourced here only from the OSTI abstract; the scan has no text layer and neither was found on PDF pp. 54, 73-90 read visually 2026-09-26**
+    - affects: `doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion/card.md`
+    - raised: 2026-09-26 (0d) in `doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion/card.md:50`

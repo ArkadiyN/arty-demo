@@ -4,7 +4,6 @@
 **Author:** J. E. Kennedy, Sandia Laboratories\
 **Blob:** `/mnt/f/Projects/TMP/Docs/ken_4441869.pdf` (blob store; 1.9 MB, 39 pp.); `sha256: 5f19128d0c6dd1047f6b62a4e6d4c031eda2459df31c3f6b3467d8eb10262366`. Supplied by the user 2026-09-26; its title page reads SC-RR-70-790, Sandia Laboratories.
 
-FINDING\[deferrable\]: source.md (OCR extraction) has garbled equation bodies; the formulas have not yet been re-read against the retained PDF (affects: doc-reference/fragmentation/kennedy1970-gurney-energy; since: 2026-08-16)\
 **Focus:** Final velocity imparted to driven metal by detonating explosives; energy partition between gas and metal phases.
 
 ## Key Contribution
@@ -23,22 +22,24 @@ $$CE = \frac{1}{2}Mv^2 + \int_0^{y_0} \frac{1}{2}P_e(\dot{y})[v_{\text{gas}}(y)]
 Momentum balance (line 134):
 $$0 = -Mv - \int_0^{y_0} P_e(\dot{y})[v_{\text{gas}}(y) - v] dy$$
 
-Integration yields final metal velocity in open-faced sandwich (lines 139–144):
-$$v = \sqrt{2E} \left(1 + 2\frac{M}{C}\right)^{-1/2}$$
+Integration yields final metal velocity in open-faced sandwich (FIG. 3 eq. 4, p. 8):
+$$v = \sqrt{2E} \left[\frac{\left(1 + 2\frac{M}{C}\right)^3 + 1}{6\left(1 + \frac{M}{C}\right)} + \frac{M}{C}\right]^{-1/2}$$
 
 ## Standard Gurney Equations by Geometry
 
-**Flat Sandwich** (symmetric, line 168):
-$$v = \sqrt{2E} \left(1 + \frac{M}{C}\right)^{-1/2}$$
+All five equations below (eqs. 4 and 6–9) were read visually on 2026-09-26 from the page captioned "FIG. 3 Gurney Equations for Common Geometries", which is PDF p. 12 and printed p. 8 of the blob. In this section, "p. 8" means that page.
 
-**Cylindrical Case** (line 173):
-$$v = \sqrt{2E} \left(1 + \frac{M}{2C}\right)^{-1/2}$$
+**Flat Sandwich** (symmetric, FIG. 3 eq. 6, p. 8):
+$$v = \sqrt{2E} \left(\frac{M}{C} + \frac{1}{3}\right)^{-1/2}$$
 
-**Spherical Case** (line 177):
-$$v = \sqrt{2E} \left(1 + \frac{2M}{3C}\right)^{-1/2}$$
+**Cylindrical Case** (FIG. 3 eq. 7, p. 8):
+$$v = \sqrt{2E} \left(\frac{M}{C} + \frac{1}{2}\right)^{-1/2}$$
 
-**Asymmetric (two-plate) Sandwich** (line 189):
-$$v = \sqrt{2E} \left[\frac{1 + 2(N/C)}{3(1 + (N/C)/2)} + \frac{M}{C}\right]^{-1/2}$$
+**Spherical Case** (FIG. 3 eq. 8, p. 8):
+$$v = \sqrt{2E} \left(\frac{M}{C} + \frac{3}{5}\right)^{-1/2}$$
+
+**Asymmetric (two-plate) Sandwich** (FIG. 3 eq. 9, p. 8; define $A = \frac{1 + 2\frac{M}{C}}{1 + 2\frac{N}{C}}$):
+$$v_M = \sqrt{2E} \left[\frac{1 + A^3}{3(1 + A)} + \frac{N}{C}A^2 + \frac{M}{C}\right]^{-1/2}$$
 
 **Symbol definitions** (from Fig. 3):
 
@@ -101,6 +102,6 @@ Kennedy's Gurney method is a closed-form energy-partition framework yielding fin
 ## Provenance of this card
 
 - **Document:** Sandia Laboratories Report SC-RR-70-790, *Gurney Energy of Explosives: Estimation of the Velocity and Impulse Imparted to Driven Metal*, by J. E. Kennedy, December 1970 (verified anchor "Gurney Energy of Explosives" — `source.md:26`, title page = report p.1).
-- **Retained source:** `source.md` (OCR extraction, ~43.9 KB, 29 pages). The PDF is in the blob store (see **Blob** above; recovered 2026-09-26), but this card has not yet been re-verified against it. The extraction method (heuristic OCR) rendered formula sections unreadable; equation numerals and surrounding text are present but formula bodies are garbled.
+- **Retained source:** `source.md` (OCR extraction, ~43.9 KB, 29 pages). The PDF is in the blob store (see **Blob** above; recovered 2026-09-26), and on 2026-09-26 the "Standard Gurney Equations by Geometry" section was re-verified visually against FIG. 3 (PDF p. 12 / printed p. 8). The energy- and momentum-balance lines above that section still cite `source.md` line numbers and were not re-read. The extraction method (heuristic OCR) rendered formula sections unreadable; equation numerals and surrounding text are present but formula bodies are garbled.
 - **Verified anchor:** "Gurney method, which yields simple equations for evaluating the velocity of metals driven by detonating explosives" — `source.md:35` (ABSTRACT, report p.i).
 - **Open finding (note severity):** "Standard Gurney Equations by Geometry" block (lines 25–36 of card) transcribes cylindrical form as $\sqrt{2E}(1+M/2C)^{-1/2}$ and flat sandwich as $\sqrt{2E}(1+M/C)^{-1/2}$. A [logged finding](experiment/fragmentation-field/updates/breakup-velocity-fraction/scoping.md:331) notes that standard Kennedy results are reported as $(M/C+1/2)^{-1/2}$ and $(M/C+1/3)^{-1/2}$ respectively, and the $(M/C+1/2)$ form is what both the shipped `gurney_velocity` function and Martineau Table 5.3 close on. **Cannot verify card forms against source.md because equation sections are OCR-garbled** — resolution deferred pending re-acquisition of source.pdf or vision re-extraction of report pages 2–4 (derivation section).
