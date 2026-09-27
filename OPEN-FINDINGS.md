@@ -5,13 +5,13 @@
 
 A citation-provenance and internal-consistency audit for a historical reconstruction of WW2 field artillery physics. Entries record where a published source is mis-cited, where a retained document is incomplete, or where shipped code and published text disagree. Sources are open literature.
 
-**9 open** — 0 blocking, 9 older than 30 days.
+**10 open** — 0 blocking, 9 older than 30 days.
 
 A *blocking* finding means a committed artifact is known to carry a wrong
 number, or shipped code or a published surface rests on one. It may not be
 closed by deferral — see `.claude/rules/deferred-findings.md`.
 
-## Deferrable (8)
+## Deferrable (9)
 
 - **the ledger's Tolch-comparison tables (§2, §3) cite mott_scale_check.py / mott_shape_closure.py, which were never committed and are permanently lost — those numbers are unauditable and unre-runnable, so any pass relying on them must regenerate the check under checks/** ⚠ **stale**
     - affects: `experiment/fragmentation-field/challenges/mott-scale-gap/_scale_verdict_ledger.md`, `experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md`
@@ -31,12 +31,15 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
 - **source.pdf should be retained per .claude/rules/source-data-fidelity.md § "Retain the source blob"** ⚠ **stale**
     - affects: `doc-reference/fragmentation/ada540284-gurney-2d-extension/`
     - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/ada540284-gurney-2d-extension/card.md:176`
-- **source.pdf not retained in doc-reference/fragmentation/kennedy1970-gurney-energy/ — only source.md (OCR extraction) kept; equation sections garbled** ⚠ **stale**
+- **source.md (OCR extraction) has garbled equation bodies; the formulas have not yet been re-read against the retained PDF** ⚠ **stale**
     - affects: `doc-reference/fragmentation/kennedy1970-gurney-energy`
     - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/kennedy1970-gurney-energy/card.md:7`
 - **only a partial extraction (sections 5.7-5.8, pages 103-105) is processed, though the full PDF is now in the blob store; card claims verification from pages 54, 73-75 which are not in retained files** ⚠ **stale**
     - affects: `doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion`
     - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion/card.md:11`
+- **p4013coll8_2374 (a supplement to Terminal Ballistic Data Vol. II) not yet checked for superseding the 75/105/155 mm fragment-damage tables this card cites**
+    - affects: `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md`
+    - raised: 2026-09-26 (0d) in `doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md:7`
 
 ## Note (1)
 

@@ -7,8 +7,10 @@ Technical Writing Service of McGraw-Hill from data furnished principally by
 Picatinny Arsenal.\
 **Copy:** DTIC **AD830266** (zero-padded form `AD0830266`), cleared for public
 release by USAMC ltr, 14 Jan 1972.\
-**Retained scan:** `source.pdf` beside this card — **not committed**
-(`.gitignore:58`); re-acquire from DTIC by that accession number.\
+**Retained scan:** `/mnt/f/Projects/TMP/Docs/DTIC_AD0830266.pdf` (blob store),
+`sha256: 84a1d8af5d2d336df4deee10d0e587622355c8f09ae9fecbd846dc46c074b089`.
+The document is a general manufacturing handbook, not a WDSS specification;
+WDSS appears only in table 6-1 (user, 2026-09-26).\
 **Cited section:** §6-14 *Prevailing Shell Steel Specifications* (pdf p.10) and
 **table 6-1** (pdf p.11).
 
