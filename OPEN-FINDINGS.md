@@ -5,20 +5,17 @@
 
 A citation-provenance and internal-consistency audit for a historical reconstruction of WW2 field artillery physics. Entries record where a published source is mis-cited, where a retained document is incomplete, or where shipped code and published text disagree. Sources are open literature.
 
-**6 open** — 0 blocking, 4 older than 30 days.
+**5 open** — 0 blocking, 3 older than 30 days.
 
 A *blocking* finding means a committed artifact is known to carry a wrong
 number, or shipped code or a published surface rests on one. It may not be
 closed by deferral — see `.claude/rules/deferred-findings.md`.
 
-## Deferrable (5)
+## Deferrable (4)
 
 - **the ledger's Tolch-comparison tables (§2, §3) cite mott_scale_check.py / mott_shape_closure.py, which were never committed and are permanently lost — those numbers are unauditable and unre-runnable, so any pass relying on them must regenerate the check under checks/** ⚠ **stale**
     - affects: `experiment/fragmentation-field/challenges/mott-scale-gap/_scale_verdict_ledger.md`, `experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md`
     - raised: 2026-08-03 (54d) in `experiment/fragmentation-field/challenges/mott-scale-gap/rebaseline-verdict.md:107`
-- **scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that** ⚠ **stale**
-    - affects: `src/utils/scan-extraction-quality.py`, `.claude/rules/source-data-fidelity.md`, `doc-reference/fragmentation/fragment-size-distribution-conwep/card.md`
-    - raised: 2026-08-03 (54d) in `experiment/fragmentation-field/challenges/source-data-audit/ledger.md:2493`
 - **tolch-1938-panel-distance.md cites a sweep script that no longer exists on disk, so its published tables cannot be reproduced or re-swept at the corrected 1.0/1.71 SAND92-0243 bounds** ⚠ **stale**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`
     - raised: 2026-08-08 (49d) in `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md:151`

@@ -2490,7 +2490,15 @@ fifth closure-invariant form, "A stated equation is the substitution its
 source says it is," with the caveat that it is algebra rather than mechanical
 comparison — covering exactly this case.
 
-FINDING\[deferrable\]: scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that (affects: src/utils/scan-extraction-quality.py, .claude/rules/source-data-fidelity.md, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
+**Scanner blind spot closed 2026-09-26.** `scan-extraction-quality.py` only
+counted Private Use Area glyphs, and it only read the `.md`. Gold 2017's font
+maps its unmapped glyphs into the C0 control range, and the vision pass had
+already laundered those out of the `.md`, so the paper scanned clean. The
+scanner now also counts stray C0 controls and U+FFFD. Its opt-in
+`--text-layer` flag scans the blob PDF's own text layer, which reports Gold
+2017 at 61 control glyphs. The same flag reports a PDF that has no text layer
+at all, which is when a clean `.md` scan certifies less. The rule half
+already sits in `source-data-fidelity.md`.
 
 *(The undischargeable "until the references are collected" caveat is closed:
 `_limitations.qmd` §12 now carries `target-area-profile/scoping.md`'s
