@@ -52,3 +52,10 @@ missing and a claimed verification can no longer be re-audited) and 7
 `mott-distribution-small-fragments` cards and `ordnance-ammunition-drawings-book-4`
 / `paine-1929-centrifugal-casting` closed clean. See each card's own
 `## Provenance` section and `OPEN-FINDINGS.md` for the live findings register.
+
+**Findings closed 2026-09-26.** The user supplied every missing source PDF into the blob store `/mnt/f/Projects/TMP/Docs/`. Each card now records the path and sha256 of its PDF, which closes both `blocking` findings and all 7 retention findings. Two follow-ups were then checked against the pages themselves:
+
+- **Kennedy.** The FIG. 3 Gurney equations were re-read visually. All five were mistranscribed and have been corrected.
+- **Martineau.** The claims the card cites to specific pages were verified or had their page citations corrected. The Mie-Gruneisen EOS and ABAQUS/Explicit claims rest only on the OSTI abstract; they are kept as a `note`.
+
+One item from this sweep remains open, and it is not a defect: reading exact values off the ada462991 figures, needed only if a downstream use arises.
