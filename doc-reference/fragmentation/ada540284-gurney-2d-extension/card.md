@@ -166,11 +166,10 @@ Section 3.2 compares with alternative 2D derivation that assumes detonation wave
 ## Provenance of this card
 
 - **Document:** Breech, Benjamin A., *Extension of the Gurney Equations to Two Dimensions for a Cylindrical Charge*, Technical Report ARL-TR-5467, March 2011 (DTIC Accession ADA540284; 21 pages; U.S. Army Research Laboratory, Weapons & Materials Research Directorate).
-- **`source.pdf`:** NOT RETAINED in directory — was never downloaded after extraction.
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/ADA540284.pdf` (blob store, 22 pp.), `sha256: 7e2a9e5f8c167edffd81237acad6701aa948fcc3834ff07006407e0b2b69c526`. Supplied by the user 2026-09-26; its title page reads ARL-TR-5467, Breech.
 - **Extraction method:** PDF with vision processing applied; `ADA540284.md` includes image references (though images referenced with `.jpx` extension suggest an extraction tool artifact). All quoted anchors verified by `grep` against `ADA540284.md`.
 - **Key verified anchors:**
     - "The blast wave accelerates gases outward. We take the velocity of the gases when they reach the" — `ADA540284.md:107`, Section 2.1, 1D velocity profile derivation
     - "we will assume the fragments move at the same velocity as the gases, i.e., vs" — `ADA540284.md:111`, same section
     - "As before, we assume the blast pushes gases outward with a velocity that varies linearly" — `ADA540284.md:287`, Section 3, 2D cylindrical extension
 - **No numeric data tables in source:** All equations are analytical derivations with symbolic parameters (velocity, mass, radius). No numeric values are tabulated; validity claims are stated qualitatively (e.g., "most reliable when H ≈ 2R"). Fragment from this source cannot fail a closure invariant because no invariant-checkable numeric series is presented.
-- `FINDING[deferrable]: source.pdf should be retained per .claude/rules/source-data-fidelity.md § "Retain the source blob" (affects: doc-reference/fragmentation/ada540284-gurney-2d-extension/; since: 2026-08-16)`

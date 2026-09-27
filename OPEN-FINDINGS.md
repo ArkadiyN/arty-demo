@@ -5,13 +5,13 @@
 
 A citation-provenance and internal-consistency audit for a historical reconstruction of WW2 field artillery physics. Entries record where a published source is mis-cited, where a retained document is incomplete, or where shipped code and published text disagree. Sources are open literature.
 
-**10 open** — 0 blocking, 9 older than 30 days.
+**8 open** — 0 blocking, 7 older than 30 days.
 
 A *blocking* finding means a committed artifact is known to carry a wrong
 number, or shipped code or a published surface rests on one. It may not be
 closed by deferral — see `.claude/rules/deferred-findings.md`.
 
-## Deferrable (9)
+## Deferrable (7)
 
 - **the ledger's Tolch-comparison tables (§2, §3) cite mott_scale_check.py / mott_shape_closure.py, which were never committed and are permanently lost — those numbers are unauditable and unre-runnable, so any pass relying on them must regenerate the check under checks/** ⚠ **stale**
     - affects: `experiment/fragmentation-field/challenges/mott-scale-gap/_scale_verdict_ledger.md`, `experiment/fragmentation-field/challenges/mott-scale-gap/_shape_closure_check.md`
@@ -22,15 +22,9 @@ closed by deferral — see `.claude/rules/deferred-findings.md`.
 - **tolch-1938-panel-distance.md cites a sweep script that no longer exists on disk, so its published tables cannot be reproduced or re-swept at the corrected 1.0/1.71 SAND92-0243 bounds** ⚠ **stale**
     - affects: `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md`
     - raised: 2026-08-08 (49d) in `experiment/fragmentation-field/challenges/drag-gap-1944/tolch-1938-panel-distance.md:151`
-- **source.pdf should be retained per .claude/rules/source-data-fidelity.md § "Retain the source blob"** ⚠ **stale**
-    - affects: `doc-reference/fragmentation/ada300526-picatinny-cylinder-test/`
-    - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/ada300526-picatinny-cylinder-test/card.md:100`
 - **Figure data cited in this card (Fig. 3, 5, 9, 10) require visual inspection of the PDF to transcribe numeric axis values if exact values are ever needed downstream** ⚠ **stale**
     - affects: `doc-reference/fragmentation/ada462991-fragment-velocity/`
     - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/ada462991-fragment-velocity/card.md:75`
-- **source.pdf should be retained per .claude/rules/source-data-fidelity.md § "Retain the source blob"** ⚠ **stale**
-    - affects: `doc-reference/fragmentation/ada540284-gurney-2d-extension/`
-    - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/ada540284-gurney-2d-extension/card.md:176`
 - **source.md (OCR extraction) has garbled equation bodies; the formulas have not yet been re-read against the retained PDF** ⚠ **stale**
     - affects: `doc-reference/fragmentation/kennedy1970-gurney-energy`
     - raised: 2026-08-16 (41d) in `doc-reference/fragmentation/kennedy1970-gurney-energy/card.md:7`
