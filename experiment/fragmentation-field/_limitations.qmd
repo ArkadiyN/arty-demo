@@ -130,129 +130,39 @@ later count-gap-1938 passes re-closed; see
 [`count-chain.md`](challenges/count-gap-1938/count-chain.md) §4 for the
 current framing, which this bullet now follows:
 
-- **L1 — Tolch's absolute perforating count: closed 2026-08-15. Genuine FAIL
-    (see [`count-chain.md`](challenges/count-gap-1938/count-chain.md) §3;
-    plug-shear and threshold-free residuals both outside the ≤1.5× band); five
-    sub-candidates investigated, none clear that band, none remain.**
-    Tolch (1938) is
-    a *compound* test (drag × Mott spectrum × a fitted energy threshold × a
-    perforate/not model). A scoping pass
-    ([`challenges/count-gap-1938/count-chain.md`](challenges/count-gap-1938/count-chain.md)
-    §4) originally published a "FAIL — count chain implicated" verdict at
-    ~4–6× over-prediction, then a threshold-free re-test found a residual
-    1.2–2.7× band once the fitted threshold, drag chain, and spray geometry
-    were removed from the comparison. **Both headline numbers are now stale.**
-    Re-closing the same test against the currently shipped model
-    (`fragmentation.py`, post-6c1faff's $\gamma'$ re-anchor/$V_0$ fix and
-    `50b734e`'s sourced $M_\text{case}$) moved the count arm of the PASS
-    criterion *into* the 2× band: at the one admissible sourced (non-fitted)
-    energy threshold — 126 J, Tolch's own smallest-perforating-hole bound, the
-    only probe measuring the same quantity the model computes — the model
-    predicts $N/779$ and $N/700$ within the 2× band (see
-    [`count-chain.md`](challenges/count-gap-1938/count-chain.md)) — **met or marginal, not
-    failed**. (A second probe, 78.6 J = 58 ft-lb, was previously reported
-    alongside it; it is *not* a wood-perforation threshold but the Ordnance
-    Dept. 1944 personnel-casualty **incapacitation** criterion, so it is
-    criterion-mismatched for this arm and is no longer counted as a sourced
-    threshold — see
-    [`updates/sourced-wood-perforation-threshold/review-criterion-check.md`](updates/sourced-wood-perforation-threshold/review-criterion-check.md).
-    Dropping it removes the *weaker* of the two rows and does not move the
-    verdict.) The 4–6× headline is stale as a
-    description of the shipped model at a sourced threshold; at the *fitted*
-    threshold it is now 3.2–3.7×, of which roughly half (~1.65–2.05×) is the
-    threshold-fit artefact and the rest (~1.7–2.0×) a comparable genuine
-    spectrum residual, matching the sourced-threshold figures above
-    (`count-chain.md` top banner). What
-    is **not** met is the PASS criterion's other arm — the A→D falloff ratio
-    within 0.10 of 0.557 — which is still tied to the fitted $E_{thr}$ and
-    therefore still compound. C1 (a sourced perforation threshold — the only
-    unbounded term; needs a perforation model `src/arty/` does not have,
-    THOR-type or a sourced softwood ballistic limit) remains the gating item,
-    now as *confirmation* of a provisional PASS rather than a rescue of a FAIL.
-    Do not re-litigate this by re-fitting drag — the discriminating test for
-    C1 is an independent (THOR-type) perforation model; this re-framing is a
-    consequence of shipped physics changes, not a new argument in the thread
-    (`count-chain.md` §4, "Verdict framing after the 2026-08-08 re-closure").
-    **Update 2026-08-10 — C1 is discharged, and it turns the count arm back to
-    FAIL.** A sourced, mass-*dependent* wood-perforation threshold now exists:
-    plug shear-out, $E_{thr}(m) = \tfrac12\tau\pi D(m)t^2$ with $\tau$ = 8.96 MPa
-    (Sanborn 2019 ASTM D143 coupon) and $t$ = Tolch's 1″ panel, shipped as
+- **L1 — Tolch's absolute perforating count: closed. Genuine FAIL, on the
+    A→D falloff arm, not on the count.** Tolch (1938) is a *compound* test: the
+    PASS criterion
+    ([`count-chain.md`](challenges/count-gap-1938/count-chain.md) §4) needs the
+    predicted perforating count within 2× of Tolch's census **and** the
+    predicted panel-D/panel-A perforation ratio within ±0.10 of his measured
+    ratio. Run through the shipped count chain — Mott spectrum, shipped drag,
+    and the sourced plug-shear threshold
     `arty.perforation.perforation_threshold_energy`
     ([`updates/sourced-wood-perforation-threshold/derivation.md`](updates/sourced-wood-perforation-threshold/derivation.md)
-    §7.3). Nothing in it is fitted to Tolch. Re-running the same count chain
-    through it (§7.4 Check 4, direction pre-registered before the run) gives
-    $N/779$ and $N/700$ **outside** the 2× PASS band at central parameters,
-    where the 126 J scalar row was inside (see
-    [`count-chain.md`](challenges/count-gap-1938/count-chain.md)). The whole $\tau$-uncertainty band at $\eta$ = ½ is outside
-    (2.32–2.65 on /779); only the $\eta$ = 1 rigid geometric bound (1.82–1.98)
-    falls inside, and $\eta$ is geometry, not a free parameter, so it is not
-    moved to buy the pass. The 126 J row's near-pass was partly a scalar
-    threshold over-charging the light end of the spectrum; with a
-    mechanism-correct criterion the perforating-fraction residual is **larger**,
-    not smaller, and the remaining candidates are the velocity fraction $f$, the
-    Mott $\mu$, or the recovery census itself. This does not indict the new
-    threshold — its independent-regime, monotonicity and order-of-magnitude
-    checks all pass and it is only ±27 % sensitive to $\tau$.
-    **Update 2026-08-10 — C2 (the break-up-velocity fraction) is now
-    implemented; it moves the count arm the right way but does not clear the
-    band.** Mott's $V$ is the case velocity *at the instant of fracture*, not the
-    terminal fragment velocity the shipped model was feeding it (Gold 2017's
-    source-stated definition; PAFRAG supplies it from a hydrocode at break-up
-    time). `mott_params` now evaluates the $x_0$/$\mu$ chain at
-    $v_{bu} = f\,V_0$ with $f = 0.943$ (band 0.899–0.953), from
-    `arty.fragmentation.breakup_velocity_fraction`; terminal $V_0$ is untouched
-    in `gurney_velocity` and `min_lethal_mass` — two instants, one model
-    ([`updates/breakup-velocity-fraction/derivation.md`](updates/breakup-velocity-fraction/derivation.md)
-    §5, §8, checks in
-    [`checks/f-breakup-limits.py`](updates/breakup-velocity-fraction/checks/f-breakup-limits.py)).
-    Re-running the plug-shear count chain through it moves $N/779$ in the right
-    direction (see [`count-chain.md`](challenges/count-gap-1938/count-chain.md)
-    §3) — direction-right and real, but still **outside** the 2× PASS band at
-    every admissible $f$. Note
-    $N$ does **not** scale as $f^{-2}$: $N_0\propto f^2$ falls while
-    $\mu\propto f^{-2}$ rises, and the larger $\mu$ raises the survival factor,
-    so realised leverage is 1.096× against the naive 1.125× (§8). The
-    double-count gate passes — $f<1$ makes fragments heavier *and* fewer, so the
-    mean-fragment-mass gap against Tolch's pit census closes by ~11 % at the same
-    time as the count residual drops ~9 % (§6). **What stays open is that this
-    correction is not independently falsifiable from data in hand.** $f$ enters
-    $\mu$ degenerately with Mott's $\gamma'$: the $\gamma'$ reproducing the same
-    $\mu$ at $f=1$ is $\gamma'_\text{eq}$ = 48.5 ($f$ = 0.943) or 44.0
-    ($f$ = 0.899), and **both sit inside the tabulated 42–67 span**, consistent
-    with only $R=\sigma_f/\gamma'$ being identifiable in this model. So the case
-    for C2 rests on the source definition of $V$, *not* on the count improvement
-    it produces, and C2 may not be cited as an independent validation win — if
-    the carbon-content $\gamma'$ table were itself calibrated against terminal
-    velocities (unestablished: Mott/Linfoot's own 1943 worked example pairs the
-    burst radius with "the velocity of the fragments, 2500 ft/sec" — §7 A5),
-    applying $f$ on top is a re-anchoring of $\gamma'$ in disguise. The deciding
-    term for this arm therefore remains the threshold/spectrum side
-    (`count-chain.md` C1/C3), not the velocity basis; and the over-correcting
-    $f$ = 0.7–0.8 rows should be dropped from the thread's framing, as no source
-    read supports $f<0.90$.
+    §7.3), with nothing fitted to Tolch — the two arms split:
+    - *Count arm — within band.* The predicted count now lands inside the 2×
+        band on both of Tolch's denominators, so the count chain is no longer
+        implicated.
+    - *A→D falloff arm — outside tolerance.* The same chain, evaluated at
+        panels A and D, predicts too steep a falloff; the ratio misses Tolch's
+        measured value by more than the ±0.10 tolerance.
 
-    **Closed 2026-08-10.** Both findings above were wording-only: the "essentially
-    all" overstatement now restates the ~1.65–2.05× / ~1.7–2.0× split from
-    `count-chain.md`'s own top banner, and the "carried from... not re-opened
-    here" intro now says L1 was reworked and points at `count-chain.md` §4 as
-    the current framing.
-
-    **Update 2026-08-15 — C5, C3, C4 investigated and discharged; the
-    thread's ranking is exhausted, and the arm closes FAIL.** C5 (Tolch's
-    census being detection-limited) discharged without credit: the census
-    grades every hit as perforation/penetration/dent, so it isn't a
-    detection floor. C3 (sub-gram Mott tail shape) is real but unsourced —
-    1.324× credit restates 2.25×→1.70× (/779) — but every *sourced*
-    alternative shape moves the residual the wrong way, so nothing ships. C4
-    (which metal weight denominates the spectrum comparison) resolves to
-    Tolch's fuze-excluded 10.94 lb case metal, restating the threshold-free
-    residual as 1.8–2.1×. **No candidate remains; the standing verdict is a
-    genuine FAIL — every admissible reading outside the ≤1.5× band; current
-    figures in [`count-chain.md`](challenges/count-gap-1938/count-chain.md)
-    §3.** Full write-ups:
-    [`count-chain.md`](challenges/count-gap-1938/count-chain.md) §3,
-    [`mott-tail-shape.md`](challenges/count-gap-1938/mott-tail-shape.md),
-    [`spectrum-mass-basis.md`](challenges/count-gap-1938/spectrum-mass-basis.md).
+    The compound test therefore FAILs, and the failure sits in this thread's
+    own perforation-count falloff; it is not routed to
+    `challenges/drag-gap-1944/`. The figures, and the scripts that reproduce
+    them, are in the current-verdict banner at the top of
+    [`count-chain.md`](challenges/count-gap-1938/count-chain.md). All five
+    sub-candidates (C1–C5) have been investigated and discharged, and none
+    remains ([`count-chain.md`](challenges/count-gap-1938/count-chain.md) §3).
+    The falloff arm is computed at a fixed sourced threshold, so it is
+    sensitive to the drag constant that `drag-gap-1944/` contests, and its
+    $\eta$/$f$/$\tau$ bands have not yet been swept. Neither caveat is large
+    enough to change the sign of the result (same banner). Earlier framings are
+    superseded: the ~4–6× over-prediction headline, the 126 J "near-pass"
+    (126 J is an unsourced constant-energy probe, not a Tolch datum), and the
+    interim plug-shear count-arm FAIL. Their dated record is in
+    [`count-chain.md`](challenges/count-gap-1938/count-chain.md) §3–§4.
 - **L2 — arrival-Mach < 0.7 velocities remain unclosed by any admissible drag
     law.** At the longest 75 mm/155 mm stations the *required* combined constant
     falls to 1.76–2.07 (implied C_D below the subsonic plateau of 1.08), and even
@@ -743,3 +653,137 @@ within 1%). The per-slice ratios in §6.6.1 describe only the AoF = 0° geometry
 lethal area is the measure for realistic fire. See §6.6.1 and
 [`updates/target-area-profile/derivation.md`](updates/target-area-profile/derivation.md)
 §7 item 7.
+
+**21 · The initial fragment velocity is not independently measured
+(v 0.17.0).**
+The model's initial velocity $V_0$ comes from Gurney. It sits a few percent
+(up to ~10%, largest for 75 mm) below the per-shell $V_0$ captions in the 1944
+Ordnance fragment tables. Those captions are the only independent figure, and
+the source states no measurement method or error. If the captions are the true
+$V_0$, shipped $R_{50}$ is **low by up to ~7%** and lethal area **low by up to
+~9%**. That under-states effect on target *and* under-states hazard at a given
+distance. Read it as a bias in one direction, not as "conservative": which way
+it errs depends on the question asked. No posture or caliber ordering changes
+over the plausible $V_0$ range. The bound itself rests on that single 1944
+source. Its tables supply both the caption-vs-Gurney gap and the data-implied
+scatter, and no second source bounds Gurney's error for thick-walled shells.
+The 1944 drag corroboration (V2) tests the product $V_0\times$drag, not the
+drag constant alone. With the caption $V_0$ its pass is marginal. Numbers,
+scripts and the ±20% materiality bar are in
+[`challenges/drag-gap-1944/v0-sensitivity.md`](challenges/drag-gap-1944/v0-sensitivity.md)
+§3–5 and the two "V0 sensitivity" sections of
+[`challenges/drag-gap-1944/review.md`](challenges/drag-gap-1944/review.md)
+(findings A1, A2).
+
+**22 · The non-fragmenting mass removed from each case is partly assumed
+(v 0.17.0).**
+Each shell's fragmenting case mass is its loaded weight minus the fuze,
+booster and other parts that do not become fragments (`mass_deductions`). Three
+parts of that bookkeeping are not fully sourced:
+
+- **105 mm M1:** TM 9-1901 does not give the M20/M20A1 booster weight. The
+    value used lies between "fuze only" and a booster weight borrowed from the
+    M21A2, but neither bound confirms it.
+- **155 mm M107:** the deduction uses the M51A3/M21A2 fuze-and-booster weight.
+    It stands in for the M51/M21 and M51A1/M21A1 pairs actually authorized,
+    whose weights are not sourced.
+- **Rotating band:** the 155 mm entry deducts the copper-alloy band and the
+    plug. The 105 mm and 75 mm entries do not. Those two shells therefore
+    count ~1.8% of non-fragmenting band metal as fragmenting steel, which
+    slightly over-states their fragment mass.
+
+Across the full bracketed range of the fuze and booster choices, the fragment
+count $N_0$ moves by less than 0.2%. The case-mass and Gurney-velocity paths
+push in opposite directions and nearly cancel
+([`challenges/fuze-mass-deductions-range/materiality.md`](challenges/fuze-mass-deductions-range/materiality.md),
+verdict MOOT). The band is carried inside the 75 mm cross-check on purpose,
+because both reference weights include it
+([`updates/75mm-fuze-case-mass-fix/derivation.md`](updates/75mm-fuze-case-mass-fix/derivation.md)).
+Deducting it on one side only would break that check. No output changes
+visibly. This extends limitation 5.
+
+**23 · How $P(\text{kill}\mid\text{hit})$ varies between its three anchor
+energies is the model's own choice (v 0.17.0).**
+ES-310 gives three kill-probability anchors against impact energy. It does not
+say how to interpolate between them. The model interpolates linearly in
+$\log_{10}E$. At the one intermediate point the source works out, this gives
+0.817 against the stated 0.8, while linear-in-$E$ gives 0.767. That is
+agreement at one point, not a derivation. Between the anchors, the lethality
+grading, and so the graded fringe of $P_\text{kill}$, depends on this choice.
+The anchors themselves, and hence $E_\text{leth}$, do not. See
+[`challenges/source-data-audit/ledger.md`](challenges/source-data-audit/ledger.md)
+§23.
+
+**24 · The SAND92-0243 drag citations do not source a speed law
+(v 0.17.0).**
+The shipped constant $C_D$ and its known speed dependence come from DoD-1975
+(limitation 15). Some working documents also cite SAND92-0243 for a
+velocity-*dependent* $C_D$. That report states no functional form: it defers
+to SAND91-0277, which is not held. So the dependence is cited through it but
+not sourced by it. Its $C_D$ also belongs to tumbling plate and disk fragments,
+and it enters that report's range formula only multiplied by shape and
+thickness factors, never alone. Whether it measures the same quantity as the
+model's bare $C_D$ is an unresolved criterion-match question. SAND92-0243 is
+therefore not a drag cross-check for this model. No shipped value depends on
+it. See
+[`challenges/source-data-audit/ledger.md`](challenges/source-data-audit/ledger.md)
+§22.
+
+**25 · One fragment length:breadth ratio for every shell rests on a
+secondhand attribution (v 0.17.0).**
+The fragment-shape closure uses one constant length:breadth ratio,
+$A = l/x = 1.6$, for all three shells. The value is sourced (Felix 2022
+Table 4). The premise that it is *one constant across shells* is not. Gold
+2017 attributes it to Mott (1943). The primary, Mott & Linfoot, says twice
+that its theory does not account for splinter length, and where it does treat
+length it makes it independent of breadth. The premise is therefore a model
+assumption, not a result from Mott. If the ratio varied with caliber or wall
+thickness, the per-shell fragment mass scale would shift with it. No source
+held bounds that variation. See
+[`updates/mott-fragment-shape-closure/derivation.md`](updates/mott-fragment-shape-closure/derivation.md)
+and
+[`mott-linfoot-1943-theory-of-fragmentation`](../../doc-reference/fragmentation/mott-linfoot-1943-theory-of-fragmentation/card.md).
+
+**26 · The perforation threshold's small-mass end is not validated against a
+measured smallest perforating fragment (v 0.17.0; rewritten 2026-09-26).**
+The panel-perforation threshold uses a plug-shear energy law,
+$E_\text{thr}\propto m^{1/3}$, sourced independently of Tolch. No measured
+smallest-perforating-fragment mass for wood panels is held, so whether the law
+admits too-small fragments is untested. An earlier version of this entry
+claimed a 5.6× mass permissiveness from a "0.36 g at 838 m/s" figure attributed
+to Tolch (1938); that figure is not in Tolch (his only fragment-weight table
+for perforations is for armor plate) and the claim is withdrawn. See
+[Tolch card](../../doc-reference/wound-ballistics/tolch-1938-m48-panel-pit-fragmentation/card.md),
+"Smallest recorded fragment mass making a perforation".
+
+**27 · The sensitivity app's γ slider does not move γ alone (v 0.17.0).**
+In `app/sensitivity.py`, the Mott γ slider is degenerate with the break-up
+factor $f$ (`f_breakup`), which has no control of its own. The two enter
+together as $\gamma'_\text{eq}=\gamma f^2$ (see limitation 7 on the
+$\gamma'$–$f$ degeneracy). So the app cannot separate a change in steel
+toughness from a change in break-up velocity. This affects only the
+interactive app, not any shipped figure.
+
+**28 · The baseline steel's name misdates it (v 0.17.0).**
+The model labels its baseline grade `US WW2 WDSS1`. AMCP 706-249 dates the
+WDSS table to 17 Feb 1953, and it separates "Steel Used Early in World War II"
+(X-1340) from "Steels Used After World War II". WDSS is post-war, so the label
+misdates the grade. This is a label problem only: no number changes. The
+separate question of whether the inferred *composition* is right is
+limitation 13. See
+[`ammunition-series-6-wdss-specs`](../../doc-reference/ww2-shells/ammunition-series-6-wdss-specs/card.md).
+
+**29 · A fragment mass is compared with Tolch's hole sizes through a stale
+conversion (v 0.17.0).**
+The drag scoping argues that, at the combined drag factor of 2.67, the implied
+perforation threshold would let very light fragments through 1″ spruce, lighter
+than Tolch's smallest recorded perforations allow. That argument turns a
+fragment mass into a presented cross-section so it can be set against Tolch's
+smallest hole area. When the mass figure was restated on 2026-08-16, that
+mass-to-cross-section conversion was not redone. The cross-section quoted
+beside it still belongs to the earlier mass figure. The direction of the
+argument is unaffected, because the restated mass is of the same order, but the
+cross-section it quotes is not current. This affects a supporting argument in
+the drag-law scoping only, not any shipped figure. See
+[`updates/mach-dependent-fragment-drag/scoping.md`](updates/mach-dependent-fragment-drag/scoping.md)
+("But Tolch does not endorse 2.67 either").

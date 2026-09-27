@@ -362,8 +362,12 @@ incapacitation** threshold. The quantity A′ needs is the **perforation limit o
 1 in softwood**. Under `.claude/rules/source-data-fidelity.md` ("criterion
 match"), calibrating a wood-perforation constant on a soft-tissue casualty
 criterion is a Blocking-class defect however faithful the transcription. This
-holds even if a mass *were* attached, so it disposes of the 126 J Tolch
-hole-size probe as an anchor too. **Neither probe may set $e_a$.** They are
+holds even if a mass *were* attached, so it disposes of the 126 J
+probe as an anchor too (*2026-09-26: 126 J was attributed to a Tolch
+"smallest perforating hole" of 0.36 g at 838 m/s; that datum is not in Tolch
+(1938) — Tolch `card.md`, "Smallest recorded fragment mass making a
+perforation" — so 126 J is an unsourced constant-energy probe with no source
+at all*). **Neither probe may set $e_a$.** They are
 retained below only as an order-of-magnitude plausibility band, explicitly
 labelled mass-non-specific and criterion-mismatched.
 
@@ -473,7 +477,7 @@ $v_{50}$ values are physically sane — 393 m/s for a 5.35 mm fragment through a
 **Check 3 — order-of-magnitude bracket — PASS, with the probes demoted.**
 At 0.63 g the defensible band (SPF-S $\tau \pm 1\sigma$, SYP, $\eta$ = ½→1) is
 **35.5 – 97.2 J**, central **48.6 J**. The 78.6 J casualty probe lies **inside**
-that band (central ratio 0.62); the 126 J Tolch hole-size probe lies 1.3× above
+that band (central ratio 0.62); the 126 J unsourced constant-energy probe (formerly mis-attributed to Tolch, §7.1(b)) lies 1.3× above
 it (ratio 0.39). Both are within a factor ~2.6 of central — decade-level
 agreement, against a criterion that failed this same check by 10⁴ under Option A.
 

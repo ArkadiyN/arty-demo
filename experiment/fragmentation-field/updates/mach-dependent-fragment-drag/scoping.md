@@ -224,7 +224,7 @@ Tolch's smallest recorded perforations have cross-sections ≥ 0.02 in² ≈
 mass-to-cross-section conversion itself was not redone here, since it is a
 derived geometric quantity and belongs in a modeler pass, not a doc
 restatement — the pre-restatement ~26–52 mg figure mapped to ~2–3 mm².)
-FINDING[note]: mass-to-cross-section conversion at 2.67 not re-derived for the 2026-08-16 restatement (affects: experiment/fragmentation-field/updates/mach-dependent-fragment-drag/scoping.md; since: 2026-08-16)
+(Logged as limitation 29 in `_limitations.qmd`.)
 So Tolch pulls toward ~1.2–1.7 while the Ordnance velocity
 data and the geometric envelope both pull toward 2.2–2.9. That is a genuine
 factor-~2 disagreement.

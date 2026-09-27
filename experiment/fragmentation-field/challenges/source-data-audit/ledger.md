@@ -2042,10 +2042,6 @@ separately tracked as its own deferrable marker at
 disk), so it is not being silently dropped, just downgraded from a silent
 wrong number to a disclosed, tracked one. Marker deleted.)*
 
-FINDING\[deferrable\]: SAND92-0243 is cited for a velocity-DEPENDENT C_D but states no functional form; its own analyses take "Drag coefficient = variable (Ref. 1)" and Ref. 1 is SAND91-0277, which is not held, so the dependence is cited but unsourced (affects: experiment/fragmentation-field/challenges/drag-gap-1944/drag-coefficient-calibration.md, experiment/fragmentation-field/updates/frag-field-3d-geometry/scoping.md, doc-reference/ww2-shells/sandia-sand92-0243/card.md; since: 2026-08-02)
-
-FINDING\[note\]: SAND92-0243's C_D is defined for tumbling plate/disk fragments and enters its range formula only as a product with the shape factor Re and thickness factor Sf, never alone; whether a bare C_D in src/arty measures the same quantity is an open criterion-match question for @model-reviewer (affects: src/arty/fragmentation.py, doc-reference/ww2-shells/sandia-sand92-0243/card.md; since: 2026-08-02)
-
 ______________________________________________________________________
 
 ## 23 · Phase 2.5c — the `doc-reference/` admissibility sweep
@@ -2280,8 +2276,6 @@ silhouette (`cunniff-2014.md`, "No explicit posture-dependent silhouette areas
 given"), and Vol. 3's zero-hit page search is recorded on its own card. Marker
 deleted.)*
 
-FINDING\[note\]: pk_given_hit interpolates ES-310's three anchors in log10(E), a scheme the source never states; at the one point the page works it gives 0.817 against a stated 0.8, where linear-in-E gives 0.767 — agreement on a single point, not a derivation (affects: src/arty/fragmentation.py, doc-reference/wound-ballistics/fas-es310-damage-criteria/card.md; since: 2026-08-03)
-
 ______________________________________________________________________
 
 ## 24 · The two blockers close — Gold 2017 and AEP-55 Vol. 3
@@ -2484,14 +2478,27 @@ with one carried caveat: their citations into Gold 2017 are still bare line
 numbers (registered on `mott-fragment-shape-closure/derivation.md:21`), and the
 anchors that replace them are now tabulated on the card.
 
-FINDING\[note\]: Gold 2017 eq. (17) (N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a factor of 2; src/arty follows eq. (1), which is the self-consistent reading since mu is defined as HALF the average fragment mass, and a future pass that "corrects" the code toward eq. (17) would double every fragment count with a citation to back it (affects: src/arty/fragmentation.py, src/arty/zones.py, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
+**Standing warning — Gold 2017 factor-2 trap.** Gold 2017 eq. (17)
+(N_0j = m_j/mu_j) contradicts its own eq. (1) (N_0 = M/2mu) by exactly a
+factor of 2. `src/arty` (`fragmentation.py`, `zones.py`) follows eq. (1),
+which is the self-consistent reading because mu is defined as *half* the
+average fragment mass. A future pass that "corrects" the code toward eq. (17)
+would double every fragment count while citing a source to back it — do not.
 
 **Closed 2026-08-10.** `.claude/rules/source-data-fidelity.md` now lists a
 fifth closure-invariant form, "A stated equation is the substitution its
 source says it is," with the caveat that it is algebra rather than mechanical
 comparison — covering exactly this case.
 
-FINDING\[deferrable\]: scan-extraction-quality.py flags only Private Use Area glyphs (U+E000-F8FF), but Gold 2017's font maps its unmapped glyphs into the C0 control range (61 in the text layer, 0 PUA) and the scanner runs on the .md, which the vision pass has already laundered to zero control chars — so it reports 0/2 flagged on a document whose sign information is unreadable; a green scan on a vision-reconstructed document certifies strictly less than on a transcribed one and nothing records that (affects: src/utils/scan-extraction-quality.py, .claude/rules/source-data-fidelity.md, doc-reference/fragmentation/fragment-size-distribution-conwep/card.md; since: 2026-08-03)
+**Scanner blind spot closed 2026-09-26.** `scan-extraction-quality.py` only
+counted Private Use Area glyphs, and it only read the `.md`. Gold 2017's font
+maps its unmapped glyphs into the C0 control range, and the vision pass had
+already laundered those out of the `.md`, so the paper scanned clean. The
+scanner now also counts stray C0 controls and U+FFFD. Its opt-in
+`--text-layer` flag scans the blob PDF's own text layer, which reports Gold
+2017 at 61 control glyphs. The same flag reports a PDF that has no text layer
+at all, which is when a clean `.md` scan certifies less. The rule half
+already sits in `source-data-fidelity.md`.
 
 *(The undischargeable "until the references are collected" caveat is closed:
 `_limitations.qmd` §12 now carries `target-area-profile/scoping.md`'s

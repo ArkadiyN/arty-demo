@@ -110,8 +110,7 @@ adjudication.**
     Paper No. 12 — Fragment and Debris Hazards*, July 1975 (verified anchor
     "TECHNICAL PAPER NO. 12" — `10-F-0806_Fragment_and_Debris_Hazards.md:1`,
     report title page = `source.pdf` p.1).
-- **`source.pdf`:** 42 pages; `sha256:
-    9ff9e66f43b6ecf08598bfcc23ec3b729b0e3b5466d146a99b775df331393903`.
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/10-F-0806_Fragment_and_Debris_Hazards.pdf` (blob store); `sha256: 9ff9e66f43b6ecf08598bfcc23ec3b729b0e3b5466d146a99b775df331393903`.
     Gitignored (`doc-reference/**/*.pdf`) — it does **not** survive a fresh
     clone.
 - The "Source & Test Conditions" section above is **secondhand**: it reports

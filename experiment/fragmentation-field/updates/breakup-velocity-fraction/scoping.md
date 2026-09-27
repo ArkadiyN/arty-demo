@@ -30,7 +30,7 @@ the change sharply:
     $v_{bu}$ at $r_{bu}$), **not** a fragment launch velocity.
 - `gurney_velocity`'s terminal $V_0$ must stay as the **fragment launch
     velocity** in eq. (4) / `min_lethal_mass` — it is independently validated
-    there (model 864.4 m/s vs Tolch's measured 838.2 m/s, 1.03×, count-chain §1
+    there (model 864.4 m/s vs Tolch's side-spray-angle-inferred 835.2 m/s, 1.03×, count-chain §1
     row (1)). Fragments continue to be driven by the gas after break-up, so
     terminal $V_0$ at launch and $v_{bu} < V_0$ at break-up are **two different
     instants legitimately appearing in one model**, not a contradiction to be
@@ -328,4 +328,3 @@ Tolerable error on $f$ is ±0.05 absolute (±10% on $N_0$) — anything tighter 
 unrecoverable given the $M/C=7$ extrapolation, and anything looser makes the
 correction indistinguishable from the assumption it replaces.
 
-FINDING[note]: kennedy1970-gurney-energy/card.md "Standard Gurney Equations by Geometry" transcribes the cylinder as sqrt(2E)(1+M/2C)^-1/2 and flat sandwich as (1+M/C)^-1/2; standard Kennedy forms are (M/C+1/2)^-1/2 and (M/C+1/3)^-1/2, and the (M/C+1/2) form is what shipped gurney_velocity uses and what Martineau Table 5.3 closes on (affects: doc-reference/fragmentation/kennedy1970-gurney-energy/card.md; since: 2026-08-10)

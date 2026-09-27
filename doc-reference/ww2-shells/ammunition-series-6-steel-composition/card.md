@@ -116,6 +116,8 @@ ______________________________________________________________________
 
 ## Provenance of this card
 
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/DTIC_AD0830266.pdf` (blob store); `sha256: 84a1d8af5d2d336df4deee10d0e587622355c8f09ae9fecbd846dc46c074b089`.
+
 - **The source blob is retained — under the sibling directory, not this one.**
     `../ammunition-series-6-wdss-specs/source.pdf` is the same book: 59 pages,
     `sha256: 84a1d8af5d2d336df4deee10d0e587622355c8f09ae9fecbd846dc46c074b089`,
@@ -125,6 +127,7 @@ ______________________________________________________________________
     replacement composition) and §6-14 (which points at table 6-1 and names
     MIL-S-10520C). The page has a working text layer; `X-1340` returns 2 hits
     and `heat-robbing` 1.
+
 - `ammunition-series-6-steel-composition.md` labels itself
     (anchor: "**Source Type:** Primary military technical reference (transcribed excerpt)")
     and closes with (anchor: "**Source Provenance:**"): "User-supplied
@@ -134,11 +137,13 @@ ______________________________________________________________________
     — but it is **not** the only path back to the page, and treating it as such
     is what left this document recorded as un-re-baselineable. Go to the PDF
     above.
+
 - The file is not a clean OCR/API extraction: it interleaves quoted sentences
     (many marked with quotation marks and matched by anchors above) with
     synthesized commentary the transcriber added (its "Material Science
     Summary", "Recommendations for Further Investigation", and "Confidence
     Assessment" sections are analysis, not source text).
+
 - **Citable for numbers:** only the quoted sentences and the composition
     table, and only with the caveat above for the P value. **Not citable as
     a primary:** any section of `ammunition-series-6-steel-composition.md`
@@ -146,6 +151,7 @@ ______________________________________________________________________
     Recommendations, and the interpretive columns of the Open Question /
     Cooling-Rate tables) — these read as analysis of the primary, not the
     primary itself.
+
 - No `tables/*.csv` extraction exists for this document (out of scope for the
     migration pass; not cited downstream today). §6-11 states its composition
     as prose rather than a table, so the natural CSV here is the four-element

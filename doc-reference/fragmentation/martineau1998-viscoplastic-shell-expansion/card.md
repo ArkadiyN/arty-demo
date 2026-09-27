@@ -8,8 +8,6 @@
 **Issued:** April 1998 (page 1)\
 **Report Number:** LA-13424-T, UIC-741
 
-FINDING\[deferrable\]: source.pdf not retained in doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion/ — only partial extraction (sections 5.7-5.8, pages 103-105) kept; card claims verification from pages 54, 73-75 which are not in retained files (affects: doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion; since: 2026-08-16)
-
 ## Verified from Source Pages
 
 **Title page (page 1):** Confirms "A Viscoplastic Model of Expanding Cylindrical Shells Subjected to Internal Explosive Detonations" by Rick L. Martineau; issued April 1998; Los Alamos National Laboratory; unlimited distribution.
@@ -28,37 +26,30 @@ where:
 - $\sigma_f$ is flow stress, $q_1, q_2, q_3$ are material parameters
 - $f^*$ is damage parameter (void fraction, modified for coalescence)
 
-**Experimental Setup & Material (verified from pages 73–75, 87–89):**
+**Experimental Setup & Material (section 4.1, verified from page 81, printed page 66):**
 
-- **Shell material:** Alloy 101 OFE copper, 99.99% pure (page 73, text: "Alloy 101 OFE copper is 99.99% pure copper")
-- **Initial grain size:** 35–40 μm (page 73, text: "initial grain size in the copper tubing was 35-40 μm")
-- **Initial hardness:** Rockwell F scale 80 (page 73); heat-treated to 350°C for 60 min, reducing hardness to Rockwell F 23 (page 73)
-- **Measurement methods** (verified from section 4.4, pages 74–75):
-    - Fast framing camera: frame interval time 2.257 microseconds, 23 images recorded for each experiment (page 74)
-    - Fabry-Perot interferometry: measurement point located "exactly halfway up the cylinder at 20.32 cm" (page 73)
-    - **Experimental issue:** For thicker cylinder, Fabry-Perot equipment had hardware failure; only framing camera data available (page 74, text: "The Fabry-Perot equipment experienced a hardware failure and as a result, was not able to record data")
+- **Shell material:** Alloy 101 OFE copper, 99.99% pure (page 81, section 4.1; anchor: "Alloy 101 OFE copper is 99.99% pure copper")
+- **Initial grain size:** 35–40 μm (page 81, section 4.1; anchor: "initial grain size in the copper tubing was 35-40 μm")
+- **Initial hardness:** Rockwell F scale 80; heat-treated to 350°C for 60 min, reducing hardness to Rockwell F 23 (page 81, section 4.1; anchor: "After 60 minutes, the hardness of the material was now 23 on the Rockwell F scale")
 
-**Results — Expansion Sequence (verified from page 75, Figure 4.7):**
+**Diagnostic Equipment & Measurement Methods (verified from pages 88–89, printed pages 73–74):**
 
-- **Experimental observation:** Frame-by-frame images of thin cylinder expansion (Figure 4.7, page 75, caption: "Framing Camera Images for the Thin Cylinder (Times in Microseconds)")
-- **Time range observed:** 0.0 to 49.654 microseconds
-- **Frame times (microseconds, extracted from Figure 4.7):**
-    - 0.0, 2.257, 4.514, 6.771, 9.028
-    - 11.285, 13.542, 15.799, 18.056, 20.313
-    - 22.57, 24.827, 27.084, 29.341, 31.598
-    - 33.855, 36.112, 38.369, 40.626, 42.883
-    - 45.14, 47.397, 49.654
+- **Fast framing camera:** frame interval time 2.257 microseconds, 23 images recorded for each experiment (page 89, section 4.4; anchor: "frame interval time of 2.257 microseconds were recorded")
+- **Fabry-Perot interferometry:** measurement point located "exactly halfway up the cylinder at 20.32 cm" (page 88, section 4.4; anchor: "measurement point for the Fabry-Perot was located exactly halfway up the cylinder at 20.32 cm")
+- **Experimental issue:** For thicker cylinder, Fabry-Perot equipment had hardware failure; only framing camera data available (page 89, section 4.4; anchor: "Fabry-Perot equipment experienced a hardware failure and as a result, was not able to record data")
 
-## Unverified (from OSTI abstract only, not yet confirmed in source text)
+## Unverified (from OSTI abstract only, not yet confirmed in source pages read)
 
-The following claims appear in OSTI metadata but have not yet been verified against the actual source pages:
+The following claims appear in OSTI metadata but have not been verified against the actual source pages:
 
 - Model expands shells to >200% strain at 10⁴ s⁻¹ strain rates
 - Quasi-periodic instability patterns develop on shell surfaces, oriented ~45° from radial direction
-- Mie-Gruneisen equation of state is used (referenced in OSTI, confirmed model type on page 54)
-- Johnson-Cook yield surface is used (OSTI abstract names it; page 54 confirms GTN model, which may include JC, not explicitly verified yet)
-- ABAQUS/Explicit implementation with lagrangian updating
-- "Strong correlation between numerical results and experimental data"
+- Mie-Gruneisen equation of state is used (OSTI abstract; not found in pages 54, 73–90 read)
+- ABAQUS/Explicit implementation with lagrangian updating (OSTI abstract; not found in pages 54, 73–90 read)
+
+FINDING\[note\]: Mie-Gruneisen EOS and ABAQUS/Explicit are sourced here only from the OSTI abstract; the scan has no text layer and neither was found on PDF pp. 54, 73-90 read visually 2026-09-26 (affects: doc-reference/fragmentation/martineau1998-viscoplastic-shell-expansion/card.md; since: 2026-09-26)
+
+**Johnson-Cook yield surface:** Verified present in Table 3.2 (page 74, printed page 59; anchor: "Johnson-Cook Strength Model") as a constitutive model component alongside GTN.
 
 ## Sections 5.7–5.8: Radial Velocity Results (Extracted 2026-08-09)
 
@@ -108,8 +99,16 @@ Gurney equation: $V_{\max} = \sqrt{2E\left(\frac{M}{C} + \frac{1}{2}\right)^{-1/
 
 ## Provenance of this card
 
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/663184.pdf` (blob store); `sha256: bfbdcaf4c1956bb08dccc597b094ad49b0c43423ab136c0045d933c1c2365a72`.
+
 - **Document:** Rick L. Martineau, *A Viscoplastic Model of Expanding Cylindrical Shells Subjected to Internal Explosive Detonations*, Los Alamos National Laboratory Technical Report LA-13424-T, April 1998, DOI https://doi.org/10.2172/663184 (verified anchor "A Viscoplastic Model of Expanding Cylindrical Shells" — `card.md:5`, title page = report p.1).
-- **Retained source:** Partial extraction only — `martineau1998-viscoplastic-shell-expansion-section57-58.md` (vision-extracted sections 5.7–5.8, pages 103–105 printed pages 88–90). **`source.pdf` not retained** — only sections 5.7–5.8 can be re-verified. **Card claims in "Verified from Source Pages" (lines 11–48) cite pages 54, 73–75, 87–89; these pages are not in retained extraction files and cannot be re-verified.**
-- **Extraction method:** Scanned document (178 pp., OCR-untrusted); sections 5.7–5.8 extracted via vision API. Material property claims (Alloy 101 copper, grain size, hardness) span pages 73–75, constitutive model claims span page 54 — **these sections not retained and not re-verifiable against current artifact**.
+
+- **Retained source:** Partial extraction only — `martineau1998-viscoplastic-shell-expansion-section57-58.md` (vision-extracted sections 5.7–5.8, pages 103–105 printed pages 88–90). The full PDF is in the blob store (line above), but only sections 5.7–5.8 have a processed extraction.
+
+- **Extraction method:** Scanned document (178 pp., OCR-untrusted); sections 5.7–5.8 extracted via vision API.
+
+- **Visual verification (2026-09-26):** Pages cited in "Verified from Source Pages" section verified directly against PDF pages rendered as PNGs. GTN model and equation 2.50 confirmed on page 54 (printed p. 39). Material properties (Alloy 101 copper, grain size, hardness) found and verified on page 81 (printed p. 66), not page 73 as originally claimed — page citations corrected. Diagnostic equipment and measurement methods verified on pages 88–89 (printed pp. 73–74), matching the pages 87–89 range cited. Johnson-Cook model component verified in Table 3.2 on page 74 (printed p. 59). Mie-Gruneisen equation of state not found in pages 54, 73–90.
+
 - **Verified anchor (retained sections only):** "Table 5.3 indicate the calculated values of the Gurney velocity" — `martineau1998-viscoplastic-shell-expansion-section57-58.md:13` (section 5.7, page 103 printed page 88).
+
 - **Secondhand note:** The "Gurney Maximum Velocity Predictions" and equation 6.1 in the retained extraction directly quote/reproduce Kennedy 1970 Gurney forms — not secondhand (Martineau applies them), but the originality claim rests with Kennedy, not this source.

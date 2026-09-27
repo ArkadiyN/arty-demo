@@ -34,7 +34,10 @@
      "Edit(src/arty/**)",
      "Edit(experiment/**)",
      "Edit(doc-reference/**)",
-     "Edit(tests/**)"
+     "Edit(tests/**)",
+     "Read(//mnt/f/Projects/TMP/Docs/**)",
+     "Bash(sha256sum /mnt/f/Projects/TMP/Docs/*)",
+     "Bash(cp * /mnt/f/Projects/TMP/Docs/*)"
     ]
   },
   "worktree": {

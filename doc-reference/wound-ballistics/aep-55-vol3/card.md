@@ -114,3 +114,7 @@ subject of a contradiction between two committed surfaces. The scan was
 supplied by the user on 2026-08-03 and settled both: the document is
 admissible in the only sense that applies to it — **it is cited for nothing,
 correctly, and the one surface that implies otherwise is wrong.**
+
+## Provenance of this card
+
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/pdfcoffee.com_ae-55-c-vol3-pdf-free.pdf` (blob store); `sha256: b93fbd90e10407a27d878162bc0c8ae1c602e8d5b8338ff13e85da45f044a30c`.

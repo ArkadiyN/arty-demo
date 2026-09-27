@@ -29,7 +29,7 @@ print(f"case mass         = {M_case*1e3:8.1f} g   (Tolch shell body 6030 g)")
 print(f"r_bu              = {r_bu*1e3:8.2f} mm")
 print(f"V0 (Gurney)       = {V0_model:8.1f} m/s")
 
-V0_tolch = 838.2  # Tolch Summary item 10, measured perforating-fragment velocity
+V0_tolch = 838.2  # as run; Tolch Summary item 10 is 2740 f/s = 835.2 m/s (side-spray-angle inference, not a measurement)
 drag = DragParams()
 print(f"C_D*C_shape       = {drag.C_D*drag.C_shape:8.3f}")
 
@@ -43,7 +43,7 @@ for V0 in (V0_model, V0_tolch):
         (1.9, "fitted E_thr lo (falloff-ratio fit @2.67)"),
         (3.6, "fitted E_thr hi (falloff-ratio fit @2.67)"),
         (78.6, "1944 Ordnance Dept. card's own casualty threshold, 58 ft-lb"),
-        (126.0, "Tolch hole-size bound, m>=0.36 g @838 m/s"),
+        (126.0, "unsourced constant-energy probe (0.36 g/838 m/s NOT in Tolch)"),
         (294.5, "pre-anchor fitted E_thr (0.585 drag)"),
     ):
         m_thr = min_lethal_mass(4.572, V0, E_thr, drag, rho)  # 15 ft = 4.572 m
@@ -73,7 +73,7 @@ for f in (1.0, 0.9, 0.8, 0.7, 0.6):
     mu_f, N0_f = mott_params(shell, f * V0_model)
     for E_thr, label in (
         (78.6, "1944 Ordnance Dept. card"),
-        (126.0, "Tolch hole-size bound"),
+        (126.0, "unsourced probe"),
     ):
         m_thr = min_lethal_mass(4.572, f * V0_model, E_thr, drag, rho)
         N = mott_N(np.array([m_thr]), N0_f, mu_f)[0]

@@ -119,6 +119,8 @@ numbers.
 
 ## Provenance of this card
 
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/MIL-S-10520D.pdf` (blob store); `sha256: 4cf692a486a0140e24ca286794c3ee5d754cf47817a25f1b59d429219e91d50f`.
+
 Every number here has **two independent readings that agree**, which is what
 stands in for the text-layer diff the sibling document could use and this one
 cannot.

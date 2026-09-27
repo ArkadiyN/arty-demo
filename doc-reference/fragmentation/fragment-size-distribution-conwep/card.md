@@ -223,3 +223,7 @@ reaching shipped `src/arty/` with no card, no closure, no retained scan, and
 every citation into it a bare line number. It was the registered blocker on
 Phase 3 for `mott-fragment-shape-closure` and `mott-scale-gap`. The scan was
 supplied by the user on 2026-08-03; the equation chain closed the same day.
+
+## Provenance of this card
+
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/1-s2.0-S221491471730079X-main.pdf` (blob store); `sha256: 76ef876c6fcfff83fa09644574ef2aeb13d524bdda2a04392b10d57ad77d145f`.

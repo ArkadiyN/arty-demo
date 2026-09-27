@@ -245,7 +245,7 @@ ______________________________________________________________________
 
 - **Document:** K. Sanborn et al., "Ballistic performance of Cross-laminated Timber (CLT)," *International Journal of Impact Engineering*, Vol. 128, pp. 11–23, 2019 (verified anchor "Ballistic performance of Cross-laminated Timber (CLT)" — `source.md:1`, title line; verified anchor "K. Sanborn et al." — `source.md:3`, author line).
 - **DOI:** 10.1016/j.ijimpeng.2018.11.007 (stated in card Source section, confirmed from card.md line 5).
-- **`source.pdf`:** **RETAINED** — PDF blob preserved at `doc-reference/fragmentation/sanborn2019-clt-ballistic-performance/source.pdf` (gitignored per project convention).
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/pubs_clt1.pdf` (blob store); `sha256: 42164160c28b02352712d42917574b0e87fdb3b8787b1924bd628c63d1af51b3`.
     - **Origin:** `/mnt/f/Projects/TMP/Docs/pubs_clt1.pdf` (user-supplied WSL mount)
     - **Pages:** 13
     - **SHA256:** 42164160c28b02352712d42917574b0e87fdb3b8787b1924bd628c63d1af51b3 (verified 2026-08-16)

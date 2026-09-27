@@ -119,10 +119,6 @@ uv run python experiment/fragmentation-field/challenges/fuze-mass-deductions-ran
 
 ## Open findings (real, immaterial per this triage)
 
-FINDING\[deferrable\]: 105mm M1 HE mass_deductions booster (M20/M20A1) weight not sourced anywhere in TM-9-1901; current value bracketed by fuze-only and M21A2-booster-analog but not itself confirmed (affects: src/arty/shells.py, experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md; since: 2026-08-08)
-
-FINDING\[deferrable\]: 155mm M107 HE mass_deductions rests on M51A3/M21A2 fuze+booster weight as a stand-in for the actually-authorized-but-unsourced M51/M21 and M51A1/M21A1 pairs (affects: src/arty/shells.py, experiment/fragmentation-field/challenges/fuze-mass-deductions-range/materiality.md; since: 2026-08-08)
-
 **Acquisition attempt, 2026-08-10.** A @librarian pass bundling both searches
 ran ~19 min / 30 tool calls without producing a report, a source, or a marker
 edit — it was still mid-search ("Let me search for these specific technical

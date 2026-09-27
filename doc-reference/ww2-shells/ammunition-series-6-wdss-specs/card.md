@@ -7,8 +7,10 @@ Technical Writing Service of McGraw-Hill from data furnished principally by
 Picatinny Arsenal.\
 **Copy:** DTIC **AD830266** (zero-padded form `AD0830266`), cleared for public
 release by USAMC ltr, 14 Jan 1972.\
-**Retained scan:** `source.pdf` beside this card — **not committed**
-(`.gitignore:58`); re-acquire from DTIC by that accession number.\
+**Retained scan:** `/mnt/f/Projects/TMP/Docs/DTIC_AD0830266.pdf` (blob store),
+`sha256: 84a1d8af5d2d336df4deee10d0e587622355c8f09ae9fecbd846dc46c074b089`.
+The document is a general manufacturing handbook, not a WDSS specification;
+WDSS appears only in table 6-1 (user, 2026-09-26).\
 **Cited section:** §6-14 *Prevailing Shell Steel Specifications* (pdf p.10) and
 **table 6-1** (pdf p.11).
 
@@ -148,8 +150,6 @@ Two things the page says that a consumer of that entry should read:
     comparison itself is no longer outstanding, which is what the finding
     below tracked. Closed; see J1 for the full reasoning and the follow-up
     documentation edits it flags for `_limitations.qmd`/`derivation.md`.
-
-FINDING\[note\]: `src/arty/fragmentation.py` names the grade `US WW2 WDSS1`, but AMCP 706-249 dates table 6-1 to 17 Feb 1953 and titles §6-11/§6-13 "Steel Used Early in World War II" (X-1340) / "Steels Used After World War II" - WDSS is post-war, so the identifier misdates the grade (affects: src/arty/fragmentation.py, experiment/fragmentation-field/\_parameters.qmd, experiment/fragmentation-field/updates/wdss1-steel-grade/derivation.md; since: 2026-08-02)
 
 ## What this card deliberately does not do
 

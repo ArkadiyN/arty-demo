@@ -66,6 +66,8 @@ transcription source.
 
 ## Provenance of this card
 
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/Shell-HE-105mm-M1.pdf` (blob store); `sha256: b1ed57d11570dc55a0044ec96943650b1808c0d4181a2c42b2e5acf97fc096c9`.
+
 Re-baselined 2026-08-02 against `source.pdf` p.16 under
 `.claude/rules/source-data-fidelity.md`. The prior version of this card was
 written without the page and carried four transcription errors (`5,290,000`

@@ -158,6 +158,14 @@ the current-verdict notice immediately below.**
 > then C4**. `challenges/README.md` was restated to match on 2026-08-10, item
 > (5) of its `count-gap-1938` status detail.
 
+> **Superseding note, 2026-09-26 — which C5 argument carries the verdict.**
+> The banner above (and the C5 row of the fifth banner's table) is a dated
+> record and is left as written. Read its result **(i)**, the census-grading
+> argument, as the one that discharges C5 on its own. Result **(ii)** and every
+> C5 credit/leverage figure in this file are *secondary*: they rest on the
+> 0.36 g / 838 m/s smallest-perforating-hole datum, which is inadmissible
+> (`count-chain.md` §3 C5 reading (iv)). Live text: `count-chain.md` §3 "C5".
+
 > **Fourth re-closure banner — C3 and C4 discharged, 2026-08-15 (both
 > subsequent passes). This closes the ranking; no sub-candidates remain.**
 > C3 ([`mott-tail-shape.md`](mott-tail-shape.md)): the sub-gram Mott tail

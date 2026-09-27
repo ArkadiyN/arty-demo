@@ -391,3 +391,161 @@ note in the `b-vs-range` review section above.
     variant.
 - Nothing to log for Finding 2 (unused import) — cosmetic only, fix at
     convenience, not a limitation.
+
+______________________________________________________________________
+
+## V0 sensitivity — verification (2026-09-26)
+
+**Reviewed:** `v0-sensitivity.md` and `checks/v0-sensitivity.py`
+**Pass type:** Workflow A, Pass 2 (numeric verification)
+**Script re-run:** `uv run python experiment/fragmentation-field/challenges/drag-gap-1944/checks/v0-sensitivity.py`
+
+### Verdict: PASS-with-limitations
+
+No blocking findings. One note (perforation fragility overstated). The document's limitation log entry is required per its own verdict.
+
+### Findings
+
+**Note** (not blocking): §3 states "If V0 were under 1% higher, V2 would fail." The PASS-band upper edge from the script is s=1.006 for the casualties column (0.6% margin) and s=1.002 for the perforation column (0.2% margin). The "about 1%" characterisation is defensible for casualties but overstates headroom for perforation by 5×. The direction (V2 is fragile upward) is correct and no shipped constant depends on V2. Impact: no change to verdict; the margin is tighter than stated, which reinforces rather than undermines the limitation. (kind: approximation; bound: ±0.5 ppt; applies_elsewhere: no)
+
+### Numeric verification
+
+All numbers in `v0-sensitivity.md` match script output exactly:
+
+- **§A (src/arty scan):** 3120 / 3500 not found in `src/arty/` — confirmed.
+- **§B (V2 RMS):** casualties RMS(s=1)=0.096, perforation=0.098, both \<0.10; PASS bands [0.863,1.006] and [0.850,1.002]; minimum at s=0.931 and 0.919 ("≈0.92–0.93") — confirmed.
+- **§C (free fits):** perforation pooled s=0.975, c=2.8–3.1; casualties full s≈0.68, c≈1.6; casualties M>0.7: 0.86/0.98/0.98 — all confirmed.
+- **§D (elasticities):** R50 0.76–0.85, lethal area 0.95–1.19; nominal R50 11.8/15.5/17.9 m; caption-vs-Gurney 10.0/7.3/3.1%; resultant R50 shifts 7.3/5.5/2.6%, LA shifts 9.3/7.4/3.7% — all confirmed.
+
+### Anchor verification
+
+§2 caption anchors grep in `ordnance-1944.md` at the positions the document states:
+
+- 75mm M48: heading at line 381, `INITIAL FRAGMENT VELOCITY 3,120 F/S` at line 383 — confirmed.
+- 105mm M1: heading at line 725, `INITIAL FRAGMENT VELOCITY 3,500 F/S` at line 727 — confirmed.
+- 155mm M107: heading at line 874, `INITIAL FRAGMENT VELOCITY 3,500 F/S` at line 876 — confirmed.
+
+Confirmed on the derived `.md` only (document correctly discloses source.pdf not on disk per source-data-fidelity surface rule).
+
+### Open finding
+
+The known deferrable finding (V0_FTS provenance, raised in `rebaseline-verdict.md:211`) is addressed by this document and partially closed: provenance is confirmed on the derived surface; the open part (measurement accuracy) is correctly logged as a remaining caveat. The finding is not re-raised here.
+
+### What to log
+
+Per the document's own verdict, add a limitation entry stating: V0 sensitivity — the shipped initial velocity (Gurney) is 3–10% below the 1944 Ordnance stated captions; if the captions are the true V0, R50 is conservative by up to 7% and lethal area by up to 9%; the V2 corroboration PASS is fragile if V0 is more than 0.2–0.6% above the caption value; V2 constrains the V0·drag product, not either factor alone.
+
+______________________________________________________________________
+
+## V0 sensitivity — adversarial critique (2026-09-26)
+
+**Reviewed:** `v0-sensitivity.md` (verdict "within threshold — log as limitation") and
+`checks/v0-sensitivity.py`. Arithmetic not re-verified (see the verification
+section above). Probe script for the two claims the artifact *argued* rather
+than computed:
+[`checks/v0-sensitivity-adversarial-probe.py`](checks/v0-sensitivity-adversarial-probe.py)
+(moved from `experiment/_scratch/` by the main agent, per the
+verification-scripts rule).
+
+### Verdict: PASS-with-limitations
+
+The conclusion (V0 uncertainty does not move a shipped claim, and no sourcing
+or model change is needed before Phase 2a) holds. Both of the argued-not-computed
+claims survive when I compute them. What needs fixing is the *wording* of the
+limitation the artifact proposes: its direction label and its independence are
+overstated. Nothing is Blocking.
+
+### Argued claims, now computed (probe script)
+
+- **Posture comparisons under a common V0 scale (§5 "Not tested").** 105 mm,
+    δ = 15°, prone/standing lethal-area ratio at s = 0.86 / 0.90 / 1.00 / 1.10.
+    Converged box (±200 m, n = 401): AoF 30°/h_b 20 m: 0.816 / 0.819 / 0.825 / 0.830;
+    AoF 15°/h_b 20 m: 0.945 / 0.948 / 0.954 / 0.959; AoF 30°/h_b 10 m: 0.668 →
+    0.665. On the ±60 m box the probe reproduces the target-area-profile table
+    (0.920 / 1.080 / 0.722) and moves by ≤ 0.011. The ratio shifts ≤ 1.5 % over
+    the whole plausible V0 band, so no posture ordering flips. γ\* ≈ 43.5° is a
+    presented-area crossover and does not depend on V0 at all. **The artifact's
+    argument holds.**
+- **V2 at the model's own per-caliber Gurney V0 (§3 "not computed").** Pooled
+    RMS(M > 0.7) of ln(v_model/v_src) = **0.065** (casualties, n = 21, bias +0.005)
+    and **0.056** (perforation, n = 33, bias +0.021), against 0.096 / 0.098 at
+    the caption V0. The shipped V0 × shipped drag product corroborates with
+    about 35–45 % headroom under the 0.10 bar. **The artifact's argument holds,
+    and it is stronger than the artifact states.**
+
+### Findings
+
+**A1 — Deferrable. "Conservative" is a use-dependent label, and the limitation
+must not carry it.** (§5 bullet 2, Verdict bullet 1; also the verification
+section's "What to log", line 436.) If the captions are right, shipped R50 and
+lethal area are *low* by up to 7.3 % and 9.3 % (75 mm). That under-states
+effect on target, which is conservative for a mission-effects question. It also
+under-states hazard, which is **anti**-conservative for any
+friendly-proximity or safe-distance reading of the same R50. Phase 2a/2b will
+consume these outputs in both senses. *Observable change:* none to any number.
+The limitation's direction word flips meaning with the consumer, by up to about
+9 % in LA. *Remedy:* state the direction plainly, not as a value judgement:
+"shipped R50/LA may be low by ≤ 7 % / ≤ 9 %". (kind: wording/disposition;
+bound: ≤ 9 % LA, ≤ 7 % R50; applies_elsewhere: yes — every Phase 2 consumer of
+R50/lethal area.)
+
+**A2 — Deferrable. The "plausible V0 error" envelope comes from one source,
+not two.** (Verdict, "two measures".) The caption-vs-Gurney gap (3–10 %) and
+the data-implied scatter (2–14 %, §4) are both anchored to the same 1944
+Ordnance tables. That source gives no method or error for its V0 (§2). A
+two-parameter fit to the tables whose caption is under test is also not
+independent of that caption. Nothing bounds Gurney's own model error for these
+shells (thick walls, breakup fraction) from a second source. `ada462991` is
+held, but it is a CALE-Mott study, not a WW2-shell V0 measurement. *Observable
+change:* the ±20 % conclusion depends on the true V0 lying within about 15 % of
+Gurney. At the largest elasticity (1.19, 155 mm LA), a 17 % V0 error would
+reach the bar. No evidence suggests an error that large, but the envelope is
+asserted from one source, not bracketed by two. *Remedy:* the limitation text
+should say the bound is conditional on the 1944 captions (single source,
+unstated method). (kind: evidence independence; bound: LA ≈ ±17 % at a 14 %
+V0 error, still inside ±20 %; applies_elsewhere: no.)
+
+**A3 — Note. The ±20 % threshold rationale leans on error-stacking.**
+("Threshold" paragraph.) "Mott/drag limitations already carry tens of percent"
+does not justify accepting another error, because independent biases compound.
+The threshold itself is reasonable against the demo bar: no ordering or
+posture claim moves (computed above), and the largest shift is ≤ 12 %. The
+verdict does not depend on the stacking argument. *Observable change:* none.
+(kind: reasoning; bound: 0; applies_elsewhere: no.)
+
+**A4 — Note. §1 "exactly zero, by construction" answers a narrower question
+than the finding asks.** It is true of the literal `V0_FTS`, but the open
+finding is about whether the velocity physics feeding shipped code is right,
+which §5 addresses. §1 does not mislead, because §5 follows, but a limitation
+that quotes only §1 would. (kind: framing; bound: 0; applies_elsewhere: no.)
+
+**A5 — Note. §4 dismisses the casualties full-range fit (s ≈ 0.68) as a
+constant-C_D artefact without testing it.** The explanation is plausible
+(x reaches 1.0–1.26, subsonic tail), and the M > 0.7 restriction supports it.
+Shipped R50 is set well inside the supersonic region, so the dismissal cannot
+move a headline output. (kind: argued-not-computed; bound: 0 on R50/LA;
+applies_elsewhere: no.)
+
+### Disposition for Phase 2a
+
+"Log as limitation" is correct. The systematic V0 bias (≤ 9 % LA, one
+direction, caliber-ordered 75 > 105 > 155) is small against dispersion-scale
+effects, and it does not interact with any posture or caliber ordering. The
+open `[deferrable]` finding at `rebaseline-verdict.md:211` (not re-raised) is
+now **stale on both counts**. Its "no provenance" premise is contradicted by
+§2. Its "V2 margin inside plausible error" holds for the caption V0 but not
+for the shipped Gurney V0 (RMS 0.056–0.065, computed above). Recommend the
+main agent close that marker and replace it with the limitation below. That
+call belongs to the main agent/human, not this pass.
+
+### What the limitation entry should say (supersedes line 436 wording)
+
+"V0 sensitivity (1944 Ordnance). The shipped initial velocity (Gurney) is 3 /
+7 / 10 % below the 1944 Ordnance per-shell caption V0 (155 / 105 / 75 mm).
+The captions are single-source with no stated method or error. If they are
+the true V0, shipped R50 is low by ≤ 7 % and lethal area by ≤ 9 %. That
+under-states effect and under-states hazard alike. Posture and caliber
+orderings do not change (prone/standing ratio moves ≤ 1.5 % over V0 × 0.86–1.10).
+The 1944 V2 corroboration checks the V0·drag product, not the drag constant
+alone. At the caption V0 its PASS is marginal (fails above +0.2–0.6 %). At the
+shipped Gurney V0 it passes with RMS 0.056–0.065."

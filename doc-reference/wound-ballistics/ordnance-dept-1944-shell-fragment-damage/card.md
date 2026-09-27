@@ -2,6 +2,10 @@
 
 **Source:** US Ordnance Dept., declassified 1944. Volume II, Part 3: Shell Fragment Damage (pages 126–186 of original, pages 10–70 of this extraction).
 
+**Blob:** `/mnt/f/Projects/TMP/Docs/p4013coll8_2373.pdf` (blob store, 105 pp.), `sha256: bd97d4ee9466f9e76817efaadf4225469f70757a5c0f35156cebc1cd278edb2a`. It belongs to a set of three *Terminal Ballistic Data* files. According to the user (2026-09-26), `p4013coll8_2327.pdf` is Vol. II, *Artillery Fire* (`sha256: 8bb0cc3adf9ec807346ac691fc240e47b8a824a30db975c96fbb9cf2cf36bceb`), and `_2373` and `_2374` (`sha256: adbc11813e91f15ae2db05ce9fbb71890945af17af2f24630c4e848b440a1080`) publish additions that supersede parts of it. This card was verified against `_2373` only. Whether `_2374` supersedes any table cited here has not been checked.
+
+FINDING\[deferrable\]: p4013coll8_2374 (a supplement to Terminal Ballistic Data Vol. II) not yet checked for superseding the 75/105/155 mm fragment-damage tables this card cites (affects: doc-reference/wound-ballistics/ordnance-dept-1944-shell-fragment-damage/card.md; since: 2026-09-26)
+
 **Key Concept:** Fragment damage tables and patterns for field artillery shells used in WWII, parameterized by distance from burst, shell type, and burst conditions.
 
 ## Definition: B (Effective Hits per Square Foot)

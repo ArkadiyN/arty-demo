@@ -56,10 +56,18 @@ ______________________________________________________________________
 
 **Not directly measured** — both figures are a geometric inference, not a drag or independent-Gurney measurement. The source states three times that they were computed from the change in the side-spray angle with remaining velocity (grep `"duo to the explosive charge averaged"` line 146; grep `"computed from the change in the sldespray angle Is"` line 1658; grep `"computed velocity of the perforating fragments due to the ex"` line 1698):
 
-- **Perforating fragments:** printed "27^0 f/s" at all three locations above — **the third digit is unreadable on this scan surface**; commonly read as 2,750 f/s but that reading is not certain. Do not treat 2,750 as an exact source value.
+- **Perforating fragments:** 2,740 f/s. The OCR surface `tolch-1938.md` printed "27^0 f/s" at all three locations; the digit was restored from the page images (source.pdf p.5 / printed p.3; p.86 / printed p.35; p.89 / printed p.38). **Closure:** the per-round table on printed p.35 (grep `"Ave. 3030"`, line 1654, whose perforation block sits just above it) prints "Ave. 2740" under the five perforation rows 2930 / 2880 / 2530 / 2720 / 2660 f/s, whose mean is 2744 f/s. The earlier reading "~2,750" is superseded.
 - **Penetrating fragments:** 3,030 f/s (clean at all three anchors, and independently at the "Ave. 3030" line in the underlying per-round table, grep `"Ave. 3030"`, line 1654).
 
 Higher penetrating-fragment velocity is attributed by the source to smaller size and lower ballistic coefficient (same anchors).
+
+______________________________________________________________________
+
+## Smallest recorded fragment mass making a perforation
+
+**No softwood-panel figure found on the pages read.** The search (2026-09-26) ran the PDF text layer for `smallest`, `minimum`, `least`, `lightest`, `.36`, `grain`, `gr.`, `ft-lb`, `93`, `126`, then read PDF pages 3, 5, 7–10, 39, 43, 50 and 81–89 visually. None of them states a smallest fragment mass for a perforation of the 1-inch softwood panels. The project's "0.36 g at 838 m/s → 126 J" datum (cited as Tolch's) is therefore **unanchored**: it is not on those pages, and the other ~70 pages were not read for it.
+
+The one fragment-weight-per-perforation table found is for a **different target**. It is on PDF p.85 / printed p.34 (grep `"Dimensions of perforations on plate"`): perforations of the **armor plate** on Panel A, side spray, as the caption of Plot 47 on the facing page makes clear (PDF p.84 / printed p.33A, "Frequency of hits on armor plate as a function of the cross sectional area"). Its nine fragment weights run 84–602 grains, printed "Ave. 255". **Closure:** the nine rows (350, 84, 112, 203, 301, 602, 231, 140, 273) sum to 2296, and 2296 / 9 = 255.1. These are armor-plate perforations. Whether they bound a wood-panel perforation floor is a criterion-match question for the citing derivation, not something this card settles.
 
 ______________________________________________________________________
 
@@ -72,5 +80,5 @@ ______________________________________________________________________
 ## Provenance of this card
 
 - **Document:** N.A. Tolch, *Fragmentation Effects of the 75mm H.E. Shell T3 (M48), as Determined by Panel and Pit Fragmentation Tests*, Ballistic Research Laboratory Report No. 126, Aberdeen Proving Ground, **December 1938** (declassified; DTIC AD0702233).
-- **`source.pdf`:** 89 pages; `sha256: 13e110d70b1cb686771d6f2e36523d9c9201551d41c7b3b9eb27685d71f90c92`. Gitignored (`doc-reference/**/*.pdf`) — it does **not** survive a fresh clone; re-fetch from DTIC AD0702233 if missing.
+- **`source.pdf`:** `/mnt/f/Projects/TMP/Docs/DTC-AD0702233.pdf` (blob store); `sha256: 13e110d70b1cb686771d6f2e36523d9c9201551d41c7b3b9eb27685d71f90c92`.
 - Tables were re-extracted from the PDF page images directly into `tables/*.csv`, each with a stated closure invariant in the matching `.invariant` file (`uv run src/utils/check-table-invariants.py <path>`). `tolch-1938.md` is a general-purpose OCR/vision transcription of the whole document and is known to be wrong in a large fraction of cells in the base-, nose-, and side-spray component tables (see per-table notes above) — treat the CSVs, not the markdown, as the source of numbers for these four tables.
